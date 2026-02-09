@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -16,6 +16,7 @@
 		886725697AFAC77C31A2EB27 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
 		920BE213B8A19FDDA9926202 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DB3AC3CCEBE71B5ED091FA5A /* RevenueCat */; };
 		96A41D0233E76E2E72B739CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BADE5E1C90AC5304992FC1ED /* Assets.xcassets */; };
+		A93772B76AB866E19E383E7B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C49A0C51724A12AFC4766DA /* Constants.swift */; };
 		CF09C7F31AD41774B786645D /* VaultBoxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */; };
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
 /* End PBXBuildFile section */
@@ -40,11 +41,12 @@
 /* Begin PBXFileReference section */
 		2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxTests.swift; sourceTree = "<group>"; };
 		34702C72F8A36861926F0D3C /* VaultBoxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxApp.swift; sourceTree = "<group>"; };
-		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		64922A8504D6C69762B8C911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		7C49A0C51724A12AFC4766DA /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		816F0C902D0934CACAF3E697 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
-		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7023E56BE3EEDDB5A4C1276 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		BADE5E1C90AC5304992FC1ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D2939C27F07D011312BB7C89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 		EC332CB3A9FCF466563E700B /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				7C49A0C51724A12AFC4766DA /* Constants.swift */,
 				6A39F9D5E4AA9D48053F4934 /* Extensions */,
 			);
 			path = Utilities;
@@ -282,7 +285,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2620;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					98E5DA03024BF023A84C7EC4 = {
 						TestTargetID = 529AC2156C00832676CF94B9;
@@ -303,6 +306,7 @@
 				EF1AFD5E7D6E3767771D03D9 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 				39099E1133850BE89DEE0FBE /* XCRemoteSwiftPackageReference "purchases-ios" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -348,6 +352,7 @@
 				050BB4392E19DB0EB7B22155 /* Album.swift in Sources */,
 				DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */,
 				5C8FA68F0A92A77B692DD53B /* BreakInAttempt.swift in Sources */,
+				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				71500CDFA5559C9E42DC0BE7 /* VaultBoxApp.swift in Sources */,
 				675764EA044DEECF46B8D108 /* VaultItem.swift in Sources */,
@@ -392,20 +397,15 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGNING_ALLOWED = NO;
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = VaultBox;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PRODUCT_BUNDLE_IDENTIFIER = com.vaultbox.app;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
 				SWIFT_STRICT_CONCURRENCY = complete;
@@ -450,7 +450,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -464,7 +463,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -508,7 +506,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -529,7 +526,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -544,16 +540,13 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = VaultBox;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
+				PRODUCT_BUNDLE_IDENTIFIER = com.vaultbox.app;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
 				SWIFT_STRICT_CONCURRENCY = complete;
