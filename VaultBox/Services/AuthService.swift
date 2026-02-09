@@ -48,6 +48,7 @@ class AuthService {
 
         settings.pinHash = hash
         settings.pinSalt = salt.base64EncodedString()
+        settings.pinLength = pin.count
         settings.isSetupComplete = true
 
         // Generate and store master key derived from PIN
@@ -151,6 +152,16 @@ class AuthService {
         try modelContext.save()
     }
 
+    func getPINLength() -> Int {
+        guard let settings = try? loadSettings() else { return Constants.pinMinLength }
+        return settings.pinLength
+    }
+
+    func isBiometricsEnabled() -> Bool {
+        guard let settings = try? loadSettings() else { return false }
+        return settings.biometricsEnabled
+    }
+
     // MARK: - Biometrics
 
     func isBiometricsAvailable() -> Bool {
@@ -172,6 +183,7 @@ class AuthService {
                 isUnlocked = true
                 isDecoyMode = false
                 let settings = try? loadSettings()
+                settings?.biometricsEnabled = true
                 settings?.lastUnlockedAt = Date()
                 try? modelContext.save()
             }

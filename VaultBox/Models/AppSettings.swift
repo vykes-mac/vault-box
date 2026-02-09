@@ -17,6 +17,7 @@ final class AppSettings {
     var panicGestureEnabled: Bool
     var breakInAlertsEnabled: Bool
     var lastUnlockedAt: Date?
+    var pinLength: Int
     var failedAttemptCount: Int
     var lockoutUntil: Date?
 
@@ -31,6 +32,7 @@ final class AppSettings {
         self.autoLockSeconds = 0
         self.panicGestureEnabled = false
         self.breakInAlertsEnabled = true
+        self.pinLength = Constants.pinMinLength
         self.failedAttemptCount = 0
     }
 }
