@@ -1,7 +1,7 @@
 === VaultBox Progress ===
-Last updated: 2026-02-08
-Last completed feature: F3 — EncryptionService
-Current status: compiles, 10 tests passing
-Next feature: F4 — AuthService
+Last updated: 2026-02-09
+Last completed feature: F4 — AuthService
+Current status: compiles, 21 tests passing
+Next feature: F5 — PINKeypadView + PINSetupView
 Blockers: none
-Notes: Keychain doesn't work in test host — use encryptData(_:using:) overloads for testing. Info.plist now has CFBundleExecutable and other required keys. Use 'iPhone 17 Pro' simulator.
+Notes: AuthService is @MainActor class (not actor) because ModelContext isn't Sendable. KeyStorage protocol enables InMemoryKeyStorage for tests. Use @preconcurrency import for KeychainAccess. Use 'iPhone 17 Pro' simulator.
