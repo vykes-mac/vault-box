@@ -4,6 +4,7 @@ import Foundation
 @Model
 final class AppSettings {
     var id: UUID
+    var isSetupComplete: Bool
     var pinHash: String
     var pinSalt: String
     var biometricsEnabled: Bool
@@ -19,12 +20,13 @@ final class AppSettings {
     var failedAttemptCount: Int
     var lockoutUntil: Date?
 
-    init(pinHash: String, pinSalt: String) {
+    init(pinHash: String = "", pinSalt: String = "") {
         self.id = UUID()
+        self.isSetupComplete = false
         self.pinHash = pinHash
         self.pinSalt = pinSalt
         self.biometricsEnabled = false
-        self.freeItemLimit = 50
+        self.freeItemLimit = Constants.freeItemLimit
         self.iCloudBackupEnabled = false
         self.autoLockSeconds = 0
         self.panicGestureEnabled = false
