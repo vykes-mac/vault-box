@@ -205,28 +205,28 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 1 — Core",
     "description": "Implement delete flow — delete vault items (remove encrypted file + SwiftData model), optional Camera Roll deletion via PHAssetChangeRequest",
     "verification": ["Delete removes .enc file from disk", "Delete removes VaultItem from SwiftData", "Camera Roll deletion prompt appears after import"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F14",
     "category": "Phase 1 — UI",
     "description": "Implement selection mode — long-press or 'Select' button, checkmark overlay, bottom toolbar with Move to Album / Favorite / Delete actions",
     "verification": ["Long-press enters selection mode", "Selected items show checkmark", "Batch delete works", "Batch move to album works"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F15",
     "category": "Phase 1 — Navigation",
     "description": "Create ContentView (auth gate: LockScreen → TabView with 4 tabs per PRD Section 6), ImportView with PHPicker + progress modal, VaultBoxApp.swift entry point with SwiftData container setup",
     "verification": ["App launches to LockScreen on fresh install (PINSetupView)", "After PIN setup, shows TabView", "All 4 tabs navigate correctly", "Import flow shows progress bar"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F16",
     "category": "Phase 1 — ViewModels",
     "description": "Create all ViewModels per PRD Section 3 — AuthViewModel, VaultViewModel, AlbumViewModel, ImportViewModel. Wire up to views",
     "verification": ["All ViewModels compile", "Views bind to ViewModels correctly", "State updates propagate to UI"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F17",

@@ -44,13 +44,25 @@ class VaultService {
         self.modelContext = modelContext
     }
 
+    // MARK: - Import Result
+
+    struct ImportResult {
+        let items: [VaultItem]
+        let assetIdentifiers: [String]
+    }
+
     // MARK: - Import from PHPicker
 
-    func importPhotos(from results: [PHPickerResult], album: Album?) async throws -> [VaultItem] {
+    func importPhotos(from results: [PHPickerResult], album: Album?, progress: ((Int, Int) -> Void)? = nil) async throws -> ImportResult {
         var importedItems: [VaultItem] = []
+        var assetIdentifiers: [String] = []
 
-        for result in results {
+        for (index, result) in results.enumerated() {
             let provider = result.itemProvider
+
+            if let assetID = result.assetIdentifier {
+                assetIdentifiers.append(assetID)
+            }
 
             if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
                 let item = try await importVideo(from: provider, album: album)
@@ -59,9 +71,11 @@ class VaultService {
                 let item = try await importImage(from: provider, album: album)
                 importedItems.append(item)
             }
+
+            progress?(index + 1, results.count)
         }
 
-        return importedItems
+        return ImportResult(items: importedItems, assetIdentifiers: assetIdentifiers)
     }
 
     private func importImage(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {

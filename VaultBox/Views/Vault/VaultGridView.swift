@@ -30,6 +30,11 @@ struct VaultGridView: View {
     @State private var selectedItems: Set<UUID> = []
     @State private var showImporter = false
     @State private var detailItem: VaultItem?
+    @State private var showDeleteConfirm = false
+    @State private var showAlbumPicker = false
+
+    @Query(sort: \Album.sortOrder) private var albums: [Album]
+    @Environment(\.modelContext) private var modelContext
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -88,7 +93,93 @@ struct VaultGridView: View {
                     vaultService: vaultService
                 )
             }
+            .safeAreaInset(edge: .bottom) {
+                if isSelectionMode && !selectedItems.isEmpty {
+                    selectionToolbar
+                }
+            }
+            .confirmationDialog(
+                "Delete \(selectedItems.count) item\(selectedItems.count == 1 ? "" : "s")?",
+                isPresented: $showDeleteConfirm,
+                titleVisibility: .visible
+            ) {
+                Button("Delete", role: .destructive) {
+                    batchDelete()
+                }
+            } message: {
+                Text("These items will be permanently deleted from your vault.")
+            }
+            .sheet(isPresented: $showAlbumPicker) {
+                albumPickerSheet
+            }
         }
+    }
+
+    // MARK: - Selection Toolbar
+
+    private var selectionToolbar: some View {
+        HStack {
+            Button {
+                showAlbumPicker = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "folder")
+                    Text("Move").font(.caption2)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                batchFavorite()
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "heart")
+                    Text("Favorite").font(.caption2)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                showDeleteConfirm = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "trash")
+                    Text("Delete").font(.caption2)
+                }
+                .foregroundStyle(Color.vaultDestructive)
+            }
+        }
+        .foregroundStyle(Color.vaultAccent)
+        .padding(.horizontal, 40)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+    }
+
+    // MARK: - Album Picker
+
+    private var albumPickerSheet: some View {
+        NavigationStack {
+            List {
+                ForEach(albums.filter { !$0.isDecoy }) { album in
+                    Button {
+                        batchMoveToAlbum(album)
+                        showAlbumPicker = false
+                    } label: {
+                        Label(album.name, systemImage: "folder")
+                    }
+                }
+            }
+            .navigationTitle("Move to Album")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { showAlbumPicker = false }
+                }
+            }
+        }
+        .presentationDetents([.medium])
     }
 
     // MARK: - Empty State
@@ -279,6 +370,39 @@ struct VaultGridView: View {
         if !isSelectionMode {
             isSelectionMode = true
             selectedItems.insert(item.id)
+        }
+    }
+
+    private func selectedVaultItems() -> [VaultItem] {
+        allItems.filter { selectedItems.contains($0.id) }
+    }
+
+    private func batchDelete() {
+        let items = selectedVaultItems()
+        Task {
+            try? await vaultService.deleteItems(items)
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
+    }
+
+    private func batchFavorite() {
+        let items = selectedVaultItems()
+        Task {
+            for item in items {
+                await vaultService.toggleFavorite(item)
+            }
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
+    }
+
+    private func batchMoveToAlbum(_ album: Album) {
+        let items = selectedVaultItems()
+        Task {
+            try? await vaultService.moveItems(items, to: album)
+            selectedItems.removeAll()
+            isSelectionMode = false
         }
     }
 
