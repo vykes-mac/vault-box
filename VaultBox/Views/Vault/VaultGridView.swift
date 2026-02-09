@@ -20,6 +20,7 @@ enum VaultFilter: String, CaseIterable {
 
 struct VaultGridView: View {
     let vaultService: VaultService
+    var isDecoyMode: Bool = false
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
@@ -46,6 +47,13 @@ struct VaultGridView: View {
     private var displayedItems: [VaultItem] {
         var items = allItems
 
+        // Decoy mode filtering: show only items in decoy albums
+        if isDecoyMode {
+            items = items.filter { $0.album?.isDecoy == true }
+        } else {
+            items = items.filter { $0.album?.isDecoy != true }
+        }
+
         switch filter {
         case .all: break
         case .photos: items = items.filter { $0.type == .photo }
@@ -65,8 +73,16 @@ struct VaultGridView: View {
         return items
     }
 
+    private var filteredItems: [VaultItem] {
+        if isDecoyMode {
+            return allItems.filter { $0.album?.isDecoy == true }
+        } else {
+            return allItems.filter { $0.album?.isDecoy != true }
+        }
+    }
+
     private var itemCountText: String {
-        let count = allItems.count
+        let count = filteredItems.count
         if purchaseService.isPremium {
             return "\(count) item\(count == 1 ? "" : "s")"
         }
@@ -78,7 +94,7 @@ struct VaultGridView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                if allItems.isEmpty {
+                if filteredItems.isEmpty {
                     Spacer()
                     emptyState
                     Spacer()

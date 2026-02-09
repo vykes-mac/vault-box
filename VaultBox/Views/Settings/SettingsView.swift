@@ -1,0 +1,322 @@
+import SwiftUI
+import SwiftData
+
+struct SettingsView: View {
+    let authService: AuthService
+    let vaultService: VaultService
+
+    @Environment(\.modelContext) private var modelContext
+    @Environment(PurchaseService.self) private var purchaseService
+
+    @State private var viewModel: SettingsViewModel?
+    @State private var showPaywall = false
+    @State private var showChangePIN = false
+    @State private var showDecoySetup = false
+    @State private var showBreakInLog = false
+    @State private var showAppIconPicker = false
+    @State private var showBackupSettings = false
+    @State private var showClearBreakInConfirm = false
+    @State private var showRestoreAlert = false
+    @State private var restoreMessage = ""
+
+    @Query private var settingsQuery: [AppSettings]
+
+    private var settings: AppSettings? { settingsQuery.first }
+
+    var body: some View {
+        NavigationStack {
+            List {
+                if !authService.isDecoyMode {
+                    securitySection
+                    appearanceSection
+                    backupSection
+                    privacySection
+                }
+                storageSection
+                aboutSection
+            }
+            .navigationTitle("Settings")
+            .onAppear {
+                if viewModel == nil {
+                    viewModel = SettingsViewModel(authService: authService, vaultService: vaultService)
+                }
+            }
+            .sheet(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
+            }
+            .sheet(isPresented: $showChangePIN) {
+                NavigationStack {
+                    SecuritySettingsView(authService: authService, mode: .changePIN)
+                }
+            }
+            .sheet(isPresented: $showDecoySetup) {
+                NavigationStack {
+                    SecuritySettingsView(authService: authService, mode: .decoySetup)
+                }
+            }
+            .navigationDestination(isPresented: $showBreakInLog) {
+                BreakInLogView()
+            }
+            .navigationDestination(isPresented: $showAppIconPicker) {
+                AppIconPickerView()
+            }
+            .navigationDestination(isPresented: $showBackupSettings) {
+                BackupSettingsView(vaultService: vaultService)
+            }
+            .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
+                Button("Clear All", role: .destructive) {
+                    viewModel?.clearBreakInLog(modelContext: modelContext)
+                }
+                Button("Cancel", role: .cancel) {}
+            } message: {
+                Text("This will permanently delete all break-in attempt records.")
+            }
+            .alert("Restore Purchases", isPresented: $showRestoreAlert) {
+                Button("OK") {}
+            } message: {
+                Text(restoreMessage)
+            }
+        }
+    }
+
+    // MARK: - Security Section
+
+    private var securitySection: some View {
+        Section("Security") {
+            Button {
+                showChangePIN = true
+            } label: {
+                Label("Change PIN", systemImage: "lock.rotation")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            if let settings {
+                Toggle(isOn: Binding(
+                    get: { settings.biometricsEnabled },
+                    set: { viewModel?.toggleBiometrics(enabled: $0, modelContext: modelContext) }
+                )) {
+                    Label(
+                        authService.isBiometricsAvailable() ? "Face ID" : "Touch ID",
+                        systemImage: "faceid"
+                    )
+                }
+                .disabled(!authService.isBiometricsAvailable())
+
+                Picker(selection: Binding(
+                    get: { settings.autoLockSeconds },
+                    set: { viewModel?.setAutoLock(seconds: $0, modelContext: modelContext) }
+                )) {
+                    ForEach(Constants.autoLockOptions, id: \.seconds) { option in
+                        Text(option.label).tag(option.seconds)
+                    }
+                } label: {
+                    Label("Auto-Lock", systemImage: "clock.arrow.circlepath")
+                }
+            }
+
+            // Decoy Vault (premium)
+            Button {
+                if purchaseService.isPremiumRequired(for: .decoyVault) {
+                    showPaywall = true
+                } else {
+                    showDecoySetup = true
+                }
+            } label: {
+                HStack {
+                    Label("Decoy Vault", systemImage: "eye.slash")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    if purchaseService.isPremiumRequired(for: .decoyVault) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultPremium)
+                    } else if settings?.decoyPINHash != nil {
+                        Text("Configured")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    }
+                }
+            }
+
+            // Panic Gesture (premium)
+            if let settings {
+                HStack {
+                    Label("Panic Gesture", systemImage: "hand.raised")
+                    Spacer()
+                    if purchaseService.isPremiumRequired(for: .panicGesture) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultPremium)
+                    } else {
+                        Toggle("", isOn: Binding(
+                            get: { settings.panicGestureEnabled },
+                            set: { viewModel?.togglePanicGesture(enabled: $0, modelContext: modelContext) }
+                        ))
+                        .labelsHidden()
+                    }
+                }
+                .onTapGesture {
+                    if purchaseService.isPremiumRequired(for: .panicGesture) {
+                        showPaywall = true
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Appearance Section
+
+    private var appearanceSection: some View {
+        Section("Appearance") {
+            Button {
+                if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+                    showPaywall = true
+                } else {
+                    showAppIconPicker = true
+                }
+            } label: {
+                HStack {
+                    Label("App Icon", systemImage: "app.badge")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultPremium)
+                    } else {
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Backup Section
+
+    private var backupSection: some View {
+        Section("Backup") {
+            Button {
+                if purchaseService.isPremiumRequired(for: .iCloudBackup) {
+                    showPaywall = true
+                } else {
+                    showBackupSettings = true
+                }
+            } label: {
+                HStack {
+                    Label("iCloud Backup", systemImage: "icloud")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    if purchaseService.isPremiumRequired(for: .iCloudBackup) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultPremium)
+                    } else if settings?.iCloudBackupEnabled == true {
+                        Text("On")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    } else {
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Privacy Section
+
+    private var privacySection: some View {
+        Section("Privacy") {
+            if let settings {
+                Toggle(isOn: Binding(
+                    get: { settings.breakInAlertsEnabled },
+                    set: { viewModel?.toggleBreakInAlerts(enabled: $0, modelContext: modelContext) }
+                )) {
+                    Label("Break-in Alerts", systemImage: "exclamationmark.shield")
+                }
+            }
+
+            Button {
+                showBreakInLog = true
+            } label: {
+                Label("View Break-in Log", systemImage: "list.bullet.rectangle")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Button {
+                showClearBreakInConfirm = true
+            } label: {
+                Label("Clear Break-in Log", systemImage: "trash")
+                    .foregroundStyle(Color.vaultDestructive)
+            }
+        }
+    }
+
+    // MARK: - Storage Section
+
+    private var storageSection: some View {
+        Section("Storage") {
+            LabeledContent("Items", value: viewModel?.itemCountText(purchaseService: purchaseService) ?? "—")
+            LabeledContent("Storage Used", value: viewModel?.storageUsedText() ?? "—")
+
+            if !purchaseService.isPremium {
+                Button {
+                    showPaywall = true
+                } label: {
+                    Label("Upgrade to Premium", systemImage: "star.fill")
+                        .foregroundStyle(Color.vaultPremium)
+                }
+            }
+        }
+    }
+
+    // MARK: - About Section
+
+    private var aboutSection: some View {
+        Section("About") {
+            Link(destination: URL(string: "https://apps.apple.com/app/id0000000000")!) {
+                Label("Rate VaultBox", systemImage: "star")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Link(destination: URL(string: "https://vaultbox.app/privacy")!) {
+                Label("Privacy Policy", systemImage: "hand.raised")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Link(destination: URL(string: "https://vaultbox.app/terms")!) {
+                Label("Terms of Service", systemImage: "doc.text")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Button {
+                Task {
+                    do {
+                        let restored = try await purchaseService.restorePurchases()
+                        restoreMessage = restored
+                            ? "Your premium subscription has been restored."
+                            : "No active subscription found."
+                        showRestoreAlert = true
+                    } catch {
+                        restoreMessage = "Couldn't restore purchases. Please try again."
+                        showRestoreAlert = true
+                    }
+                }
+            } label: {
+                Label("Restore Purchases", systemImage: "arrow.clockwise")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            LabeledContent("Version", value: appVersion)
+        }
+    }
+
+    private var appVersion: String {
+        let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
+        let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
+        return "\(version) (\(build))"
+    }
+}

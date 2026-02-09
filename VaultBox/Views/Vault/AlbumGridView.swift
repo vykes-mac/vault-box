@@ -5,6 +5,7 @@ import SwiftData
 
 struct AlbumGridView: View {
     let vaultService: VaultService
+    var isDecoyMode: Bool = false
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Query private var allItems: [VaultItem]
@@ -17,6 +18,22 @@ struct AlbumGridView: View {
     @State private var albumToDelete: Album?
     @State private var coverCache: [UUID: UIImage] = [:]
 
+    private var visibleAlbums: [Album] {
+        if isDecoyMode {
+            return albums.filter { $0.isDecoy }
+        } else {
+            return albums.filter { !$0.isDecoy }
+        }
+    }
+
+    private var visibleItems: [VaultItem] {
+        if isDecoyMode {
+            return allItems.filter { $0.album?.isDecoy == true }
+        } else {
+            return allItems.filter { $0.album?.isDecoy != true }
+        }
+    }
+
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.standardPadding),
         count: Constants.albumGridColumns
@@ -25,7 +42,7 @@ struct AlbumGridView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if albums.isEmpty && allItems.isEmpty {
+                if visibleAlbums.isEmpty && visibleItems.isEmpty {
                     emptyState
                         .padding(.top, 120)
                 } else {
@@ -34,12 +51,12 @@ struct AlbumGridView: View {
                         NavigationLink {
                             AlbumDetailView(album: nil, vaultService: vaultService)
                         } label: {
-                            albumCard(name: "All Items", itemCount: allItems.count, albumID: nil)
+                            albumCard(name: "All Items", itemCount: visibleItems.count, albumID: nil)
                         }
                         .buttonStyle(.plain)
 
                         // User albums
-                        ForEach(albums.filter { !$0.isDecoy }) { album in
+                        ForEach(visibleAlbums) { album in
                             NavigationLink {
                                 AlbumDetailView(album: album, vaultService: vaultService)
                             } label: {
