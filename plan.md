@@ -247,7 +247,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 2 — Gating",
     "description": "Implement PremiumFeature enum and gating per PRD Section 8 — gate all premium features, show paywall at all trigger points listed in PRD",
     "verification": ["Free tier blocked at 50 items", "Tapping premium features shows paywall", "Premium users bypass all gates"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F20",
