@@ -1,5 +1,6 @@
 import SwiftUI
 import Photos
+import AVKit
 
 // MARK: - PhotoDetailView
 
@@ -17,6 +18,7 @@ struct PhotoDetailView: View {
     @State private var showDeleteConfirm = false
     @State private var decryptedImages: [UUID: UIImage] = [:]
     @State private var shareImage: UIImage?
+    @State private var showVideoPlayer = false
 
     init(items: [VaultItem], initialIndex: Int, vaultService: VaultService) {
         self.items = items
@@ -35,20 +37,34 @@ struct PhotoDetailView: View {
         ZStack {
             Color.black.ignoresSafeArea()
 
-            // Paged photo viewer
+            // Paged viewer
             TabView(selection: $currentIndex) {
                 ForEach(Array(items.enumerated()), id: \.element.id) { index, item in
-                    PhotoPageView(
-                        image: decryptedImages[item.id],
-                        onSingleTap: {
-                            withAnimation(.easeInOut(duration: 0.2)) {
-                                showBars.toggle()
-                            }
+                    Group {
+                        if item.type == .video {
+                            VideoThumbnailPageView(
+                                image: decryptedImages[item.id],
+                                onSingleTap: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        showBars.toggle()
+                                    }
+                                },
+                                onPlayTap: { showVideoPlayer = true }
+                            )
+                        } else {
+                            PhotoPageView(
+                                image: decryptedImages[item.id],
+                                onSingleTap: {
+                                    withAnimation(.easeInOut(duration: 0.2)) {
+                                        showBars.toggle()
+                                    }
+                                }
+                            )
                         }
-                    )
+                    }
                     .tag(index)
                     .task {
-                        await loadFullImage(for: item)
+                        await loadThumbnailOrImage(for: item)
                     }
                 }
             }
@@ -74,6 +90,9 @@ struct PhotoDetailView: View {
             if let image = shareImage {
                 ActivityView(activityItems: [image])
             }
+        }
+        .fullScreenCover(isPresented: $showVideoPlayer) {
+            VideoPlayerView(item: currentItem, vaultService: vaultService)
         }
         .confirmationDialog(
             "Delete Item?",
@@ -219,10 +238,16 @@ struct PhotoDetailView: View {
 
     // MARK: - Actions
 
-    private func loadFullImage(for item: VaultItem) async {
-        guard decryptedImages[item.id] == nil, item.type == .photo else { return }
-        guard let image = try? await vaultService.decryptFullImage(for: item) else { return }
-        decryptedImages[item.id] = image
+    private func loadThumbnailOrImage(for item: VaultItem) async {
+        guard decryptedImages[item.id] == nil else { return }
+        if item.type == .video {
+            // For videos, show the decrypted thumbnail
+            guard let image = try? await vaultService.decryptThumbnail(for: item) else { return }
+            decryptedImages[item.id] = image
+        } else {
+            guard let image = try? await vaultService.decryptFullImage(for: item) else { return }
+            decryptedImages[item.id] = image
+        }
     }
 
     private func shareCurrentItem() {
@@ -280,6 +305,47 @@ private struct PhotoPageView: View {
             ProgressView()
                 .tint(.white)
                 .onTapGesture(perform: onSingleTap)
+        }
+    }
+}
+
+// MARK: - Video Thumbnail Page View
+
+private struct VideoThumbnailPageView: View {
+    let image: UIImage?
+    let onSingleTap: () -> Void
+    let onPlayTap: () -> Void
+
+    var body: some View {
+        ZStack {
+            // Background tap area for bar toggle
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture(perform: onSingleTap)
+
+            if let image {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .allowsHitTesting(false)
+            } else {
+                ProgressView()
+                    .tint(.white)
+                    .allowsHitTesting(false)
+            }
+
+            // Play button overlay
+            Button(action: onPlayTap) {
+                Circle()
+                    .fill(.black.opacity(0.5))
+                    .frame(width: 70, height: 70)
+                    .overlay(
+                        Image(systemName: "play.fill")
+                            .font(.title)
+                            .foregroundStyle(.white)
+                            .offset(x: 3)
+                    )
+            }
         }
     }
 }

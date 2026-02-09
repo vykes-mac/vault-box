@@ -191,7 +191,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 1 — UI",
     "description": "Create VideoPlayerView per PRD Section 6.6 — decrypt to temp file, AVPlayerViewController, delete temp file on dismiss",
     "verification": ["View compiles", "Video plays from decrypted temp URL", "Temp file deleted on dismiss"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F12",
