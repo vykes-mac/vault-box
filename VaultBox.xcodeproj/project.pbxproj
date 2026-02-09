@@ -25,6 +25,7 @@
 		83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2939C27F07D011312BB7C89 /* ContentView.swift */; };
 		886725697AFAC77C31A2EB27 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
 		920BE213B8A19FDDA9926202 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DB3AC3CCEBE71B5ED091FA5A /* RevenueCat */; };
+		4C5D6E7F80A1B2C3D4E5F617 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 5D6E7F80A1B2C3D4E5F61728 /* RevenueCatUI */; };
 		96A41D0233E76E2E72B739CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BADE5E1C90AC5304992FC1ED /* Assets.xcassets */; };
 		A93772B76AB866E19E383E7B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C49A0C51724A12AFC4766DA /* Constants.swift */; };
 		A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */; };
@@ -38,6 +39,7 @@
 		E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */; };
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
 		2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */; };
+		6E7F80A1B2C3D4E5F6172839 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F80A1B2C3D4E5F617283940 /* PaywallView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -92,6 +94,7 @@
 		F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
 		1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
+		7F80A1B2C3D4E5F617283940 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -100,6 +103,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				920BE213B8A19FDDA9926202 /* RevenueCat in Frameworks */,
+				4C5D6E7F80A1B2C3D4E5F617 /* RevenueCatUI in Frameworks */,
 				886725697AFAC77C31A2EB27 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -110,6 +114,7 @@
 		04E556EF62C75DC58BE05D8E /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
+				7F80A1B2C3D4E5F617283940 /* PaywallView.swift */,
 			);
 			path = Paywall;
 			sourceTree = "<group>";
@@ -311,6 +316,7 @@
 			name = VaultBox;
 			packageProductDependencies = (
 				DB3AC3CCEBE71B5ED091FA5A /* RevenueCat */,
+				5D6E7F80A1B2C3D4E5F61728 /* RevenueCatUI */,
 				9BCF83440C91B074EC834D97 /* KeychainAccess */,
 			);
 			productName = VaultBox;
@@ -432,6 +438,7 @@
 				E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */,
 				071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */,
 				2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */,
+				6E7F80A1B2C3D4E5F6172839 /* PaywallView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -748,6 +755,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 39099E1133850BE89DEE0FBE /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
+		};
+		5D6E7F80A1B2C3D4E5F61728 /* RevenueCatUI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 39099E1133850BE89DEE0FBE /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			productName = RevenueCatUI;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
