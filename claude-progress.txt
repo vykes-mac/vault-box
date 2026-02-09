@@ -1,0 +1,7 @@
+=== VaultBox Progress ===
+Last updated: 2026-02-08
+Last completed feature: F0 — Project scaffolding
+Current status: compiles
+Next feature: F1 — Constants.swift
+Blockers: none
+Notes: Build succeeds on iPhone 17 Pro simulator. #Unique macro removed (requires iOS 18+), using @Attribute(.unique) instead. Use 'iPhone 17 Pro' as simulator target.
