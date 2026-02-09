@@ -324,77 +324,77 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 3 — Feature",
     "description": "Implement built-in camera (Tab 3) — direct-to-vault capture via AVFoundation, encrypt on capture, no Camera Roll save",
     "verification": ["Camera tab opens camera", "Captured photo encrypted and added to vault", "Photo does NOT appear in Camera Roll"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F31",
     "category": "Phase 4 — Polish",
     "description": "Add EmptyStateView component. Add empty states to all screens — vault, albums, break-in log per PRD Section 3",
     "verification": ["Empty vault shows illustration + 'Tap + to add your first photo'", "Empty albums shows placeholder", "Empty break-in log shows message"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F32",
     "category": "Phase 4 — Polish",
     "description": "Add Haptics.swift utility. Wire haptic feedback to all events per PRD Appendix A haptics table",
     "verification": ["PIN digit tap: light impact", "PIN correct: success notification", "PIN wrong: error notification", "Delete: medium impact", "All haptic events from PRD table implemented"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F33",
     "category": "Phase 4 — Polish",
     "description": "Animation polish — PIN dot shake on wrong entry (0.5s), PIN dots green on success (0.3s delay), thumbnail loading shimmer, smooth transitions between views",
     "verification": ["Wrong PIN shake animation visible", "Correct PIN green animation visible", "View transitions are smooth"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F34",
     "category": "Phase 4 — Polish",
     "description": "Add rate prompt — trigger after 10th import using SKStoreReviewController",
     "verification": ["Counter tracks imports", "Review prompt requested after 10th import"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F35",
     "category": "Phase 4 — Polish",
     "description": "Create PremiumBadge component, VaultItemThumbnail component, AlbumCoverView component per PRD Section 3",
     "verification": ["All components compile and render in preview", "Premium badge shows 'PRO' text", "Thumbnail shows video duration for videos"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F36",
     "category": "Phase 4 — Polish",
     "description": "Add View+ConditionalModifier extension, Data+Encryption helpers per PRD Section 3",
     "verification": ["Extensions compile", "Used in at least one view/service"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F37",
     "category": "Phase 4 — Polish",
     "description": "Error handling — implement all user-facing error messages per PRD Appendix B, never show raw errors",
     "verification": ["All error cases from PRD Appendix B have user-facing messages", "No raw error strings shown to user"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F38",
     "category": "Phase 4 — Polish",
     "description": "Theme support — System/Light/Dark toggle in settings, named colors in Assets.xcassets per PRD Appendix A color tokens",
     "verification": ["All color tokens from PRD exist in asset catalog", "Theme toggle in settings works", "App respects system/light/dark preference"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F39",
     "category": "Phase 4 — Store",
     "description": "Add privacy policy and terms of service views (SafariView links), restore purchases in settings, version display",
     "verification": ["Privacy policy link opens", "Terms link opens", "Restore purchases triggers RevenueCat restore", "Version shows in settings"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F40",
     "category": "Phase 4 — Store",
     "description": "Final build validation — clean build, all tests pass, no warnings, portrait lock confirmed, all Info.plist keys present",
     "verification": ["xcodebuild clean build succeeds with 0 warnings", "All unit tests pass", "All UI tests pass", "App locked to portrait", "All 4 Info.plist usage descriptions present"],
-    "passes": false
+    "passes": true
   }
 ]
 ```
