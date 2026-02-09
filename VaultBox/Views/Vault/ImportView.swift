@@ -95,7 +95,7 @@ struct ImportView: View {
             // Since PhotosPicker doesn't give PHPickerResult directly,
             // we import item by item
             var importedItems: [VaultItem] = []
-            var identifiers: [String] = []
+            let identifiers: [String] = []
 
             for (index, pickerItem) in selectedItems.enumerated() {
                 do {
@@ -136,8 +136,6 @@ struct ImportView: View {
     }
 
     private func importImageData(_ data: Data, album: Album?) async throws -> VaultItem {
-        let encryptionService = vaultService
-        // Use VaultService's importFromCamera as a proxy for raw data import
         guard let image = UIImage(data: data) else {
             throw VaultError.importFailed
         }

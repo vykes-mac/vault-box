@@ -1,5 +1,5 @@
 import SwiftUI
-import AVFoundation
+@preconcurrency import AVFoundation
 
 // MARK: - CameraView
 
@@ -191,15 +191,17 @@ private final class CameraViewController: UIViewController {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession.startRunning()
+        let session = captureSession
+        DispatchQueue.global(qos: .userInitiated).async {
+            session.startRunning()
         }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
-            self?.captureSession.stopRunning()
+        let session = captureSession
+        DispatchQueue.global(qos: .userInitiated).async {
+            session.stopRunning()
         }
     }
 

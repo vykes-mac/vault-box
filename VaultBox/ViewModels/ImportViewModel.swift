@@ -23,7 +23,7 @@ class ImportViewModel {
         importProgress = 0
 
         Task {
-            var identifiers: [String] = []
+            let identifiers: [String] = []
 
             for (index, pickerItem) in selectedItems.enumerated() {
                 do {

@@ -1,5 +1,6 @@
 import UIKit
 
+@MainActor
 enum Haptics {
     static func pinDigitTap() {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
