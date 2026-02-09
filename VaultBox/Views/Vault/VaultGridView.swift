@@ -29,6 +29,7 @@ struct VaultGridView: View {
     @State private var isSelectionMode = false
     @State private var selectedItems: Set<UUID> = []
     @State private var showImporter = false
+    @State private var detailItem: VaultItem?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -79,6 +80,14 @@ struct VaultGridView: View {
             }
             .navigationTitle("Vault")
             .toolbar { toolbarContent }
+            .fullScreenCover(item: $detailItem) { item in
+                let index = displayedItems.firstIndex(where: { $0.id == item.id }) ?? 0
+                PhotoDetailView(
+                    items: displayedItems,
+                    initialIndex: index,
+                    vaultService: vaultService
+                )
+            }
         }
     }
 
@@ -261,8 +270,9 @@ struct VaultGridView: View {
             } else {
                 selectedItems.insert(item.id)
             }
+        } else {
+            detailItem = item
         }
-        // Navigation to detail view will be wired in F10
     }
 
     private func enterSelectionMode(selecting item: VaultItem) {

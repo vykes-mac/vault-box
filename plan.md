@@ -184,7 +184,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 1 — UI",
     "description": "Create PhotoDetailView per PRD Section 6.5 — full-screen viewer, pinch zoom up to 5x, double-tap 1x/2x toggle, swipe left/right navigation, tap to toggle bars, share sheet, info panel",
     "verification": ["View compiles", "Photo displays full-screen with aspect-fit", "Zoom gesture works"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F11",
