@@ -32,9 +32,11 @@ struct VaultGridView: View {
     @State private var detailItem: VaultItem?
     @State private var showDeleteConfirm = false
     @State private var showAlbumPicker = false
+    @State private var showPaywall = false
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
+    @Environment(PurchaseService.self) private var purchaseService
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -65,8 +67,10 @@ struct VaultGridView: View {
 
     private var itemCountText: String {
         let count = allItems.count
-        let limit = Constants.freeItemLimit
-        return "\(count) of \(limit) items"
+        if purchaseService.isPremium {
+            return "\(count) item\(count == 1 ? "" : "s")"
+        }
+        return "\(count) of \(Constants.freeItemLimit) items"
     }
 
     // MARK: - Body
@@ -111,6 +115,9 @@ struct VaultGridView: View {
             }
             .sheet(isPresented: $showAlbumPicker) {
                 albumPickerSheet
+            }
+            .sheet(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
             }
         }
     }
@@ -339,7 +346,11 @@ struct VaultGridView: View {
 
         ToolbarItem(placement: .topBarTrailing) {
             Button {
-                showImporter = true
+                if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
+                    showPaywall = true
+                } else {
+                    showImporter = true
+                }
             } label: {
                 Image(systemName: "plus")
             }

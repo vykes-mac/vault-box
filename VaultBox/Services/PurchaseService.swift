@@ -1,6 +1,22 @@
 import Foundation
 import RevenueCat
 
+// MARK: - PremiumFeature
+
+enum PremiumFeature {
+    case unlimitedItems
+    case iCloudBackup
+    case decoyVault
+    case fakeAppIcon
+    case panicGesture
+    case wifiTransfer
+    case albumLock
+    case videoSpeedControl
+    case breakInGPS
+}
+
+// MARK: - PurchaseService
+
 @MainActor
 @Observable
 class PurchaseService: NSObject {
@@ -70,6 +86,17 @@ class PurchaseService: NSObject {
     }
 
     // MARK: - Helpers
+
+    func isPremiumRequired(for feature: PremiumFeature, itemCount: Int = 0) -> Bool {
+        if isPremium { return false }
+        switch feature {
+        case .unlimitedItems:
+            return itemCount >= Constants.freeItemLimit
+        case .iCloudBackup, .decoyVault, .fakeAppIcon, .panicGesture,
+             .wifiTransfer, .albumLock, .videoSpeedControl, .breakInGPS:
+            return true
+        }
+    }
 
     var weeklyPackage: Package? {
         currentOffering?.availablePackages.first { $0.storeProduct.productIdentifier == Constants.weeklyProductID }
