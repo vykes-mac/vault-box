@@ -254,70 +254,70 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 2 — UI",
     "description": "Create SettingsView per PRD Section 6.8 — all sections (Security, Appearance, Backup, Privacy, Storage, About)",
     "verification": ["View compiles", "All sections from PRD visible", "Navigation to sub-settings works"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F21",
     "category": "Phase 2 — UI",
     "description": "Create SecuritySettingsView — change PIN (requires current PIN), biometrics toggle, auto-lock picker, decoy vault entry (premium gated), panic gesture toggle (premium gated)",
     "verification": ["View compiles", "Change PIN flow works", "Biometrics toggle persists", "Premium features show lock icon for free users"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F22",
     "category": "Phase 2 — ViewModels",
     "description": "Create SettingsViewModel and PaywallViewModel, wire to views",
     "verification": ["ViewModels compile", "Settings state persists", "Paywall state reflects purchase status"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F23",
     "category": "Phase 3 — Premium",
     "description": "Create BreakInAttempt SwiftData model per PRD Section 4. Implement BreakInService per PRD Section 5.5 — front camera capture, GPS location, local notification, auto-purge at 20 entries",
     "verification": ["Model compiles", "Service captures photo on 3rd failed attempt", "GPS coordinates recorded", "Max 20 entries retained"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F24",
     "category": "Phase 3 — UI",
     "description": "Create BreakInLogView per PRD Section 6.10 — list of attempts with intruder photo, timestamp, masked PIN, location. Detail view with full photo + map",
     "verification": ["View compiles", "List shows attempts newest first", "Tap row shows detail with map pin"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F25",
     "category": "Phase 3 — Premium",
     "description": "Implement decoy vault per PRD Section 7.1 — decoy PIN setup, isDecoyMode filtering, limited settings in decoy mode, data isolation via album.isDecoy",
     "verification": ["Decoy PIN can be set (different from real PIN)", "Entering decoy PIN shows only decoy items", "No visible indicator of decoy mode", "Settings limited in decoy mode"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F26",
     "category": "Phase 3 — Premium",
     "description": "Implement AppIconService per PRD Section 5.7. Create AppIconPickerView per PRD Section 6.8. Add 8 alternate icon assets to Assets.xcassets",
     "verification": ["8 alternate icons in asset catalog", "Icon picker shows all options", "setAlternateIconName changes app icon", "Premium gated"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F27",
     "category": "Phase 3 — Premium",
     "description": "Implement panic gesture per PRD Section 7.3 — face-down detection via CMMotionManager, three-finger swipe down, immediate lock + clear temp files",
     "verification": ["Face-down triggers lock", "Three-finger swipe triggers lock", "Heavy haptic on trigger", "Works from any screen"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F28",
     "category": "Phase 3 — Premium",
     "description": "Implement CloudService actor per PRD Section 5.4 — CloudKit private database, upload/download encrypted items, background sync via BGAppRefreshTask, Wi-Fi only default",
     "verification": ["CloudService.swift compiles", "Upload sends encrypted data to CloudKit", "Download retrieves and stores locally", "Background task registered"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F29",
     "category": "Phase 3 — UI",
     "description": "Create BackupSettingsView per PRD Section 6.8 — iCloud toggle, sync status, manual backup button, iCloud account status check",
     "verification": ["View compiles", "Toggle enables/disables backup", "Status shows upload progress", "Handles iCloud unavailable gracefully"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F30",
