@@ -1,7 +1,7 @@
 === VaultBox Progress ===
 Last updated: 2026-02-09
-Last completed feature: F17 — PurchaseService (RevenueCat integration)
+Last completed feature: F18 — PaywallView (RevenueCatUI paywall builder)
 Current status: compiles, all tests passing
-Next feature: F18 — PaywallView
+Next feature: F19 — PremiumFeature enum and gating
 Blockers: none
-Notes: PurchaseService is @MainActor @Observable (same pattern as other services). Uses NSObject subclass for PurchasesDelegate conformance. Injected into environment via .environment(purchaseService) in VaultBoxApp. configure() called in .onAppear. Delegate uses nonisolated + Task @MainActor for thread safety. weeklyPackage/annualPackage computed properties filter from currentOffering. RevenueCat API key is placeholder in Constants.swift — replace with real key when dashboard is configured. Products to configure: vaultbox_premium_weekly ($2.99/week) and vaultbox_premium_annual ($24.99/year). Entitlement ID: "premium".
+Notes: PurchaseService is @MainActor @Observable (same pattern as other services). Uses NSObject subclass for PurchasesDelegate conformance. Injected into environment via .environment(purchaseService) in VaultBoxApp. configure() called in .onAppear. Delegate uses nonisolated + Task @MainActor for thread safety. weeklyPackage/annualPackage computed properties filter from currentOffering. RevenueCat API key is placeholder in Constants.swift — replace with real key when dashboard is configured. Products to configure: vaultbox_premium_weekly ($2.99/week) and vaultbox_premium_annual ($24.99/year). Entitlement ID: "premium". F18 uses RevenueCatUI's PaywallView instead of custom UI — design paywall in RevenueCat dashboard. VaultBoxPaywallView wraps RevenueCatUI.PaywallView with dismiss-on-purchase/restore behavior. RevenueCatUI added as SPM product from same purchases-ios package.

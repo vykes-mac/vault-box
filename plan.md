@@ -240,7 +240,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 2 — UI",
     "description": "Create PaywallView per PRD Section 6.9 — hero illustration, feature list, weekly/annual toggle (weekly default), CTA button, restore purchases link",
     "verification": ["View compiles and renders in preview", "Weekly selected by default", "Both pricing options shown", "Restore button visible"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F19",
