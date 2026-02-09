@@ -233,7 +233,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 2 — Monetization",
     "description": "Implement PurchaseService per PRD Section 5.6 — RevenueCat configure, fetch offerings, purchase, restore, premium status check",
     "verification": ["PurchaseService.swift compiles", "RevenueCat SDK initializes on app launch", "isPremium property available"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F18",
