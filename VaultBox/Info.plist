@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>NSFaceIDUsageDescription</key>
+    <string>VaultBox uses Face ID to securely unlock your vault.</string>
+    <key>NSCameraUsageDescription</key>
+    <string>VaultBox uses the camera to capture photos directly into your vault.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>VaultBox needs access to import photos into your encrypted vault.</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+    <string>VaultBox records location data when an unauthorized access attempt is detected.</string>
+    <key>UILaunchScreen</key>
+    <dict/>
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>
