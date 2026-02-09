@@ -9,10 +9,12 @@
 /* Begin PBXBuildFile section */
 		050BB4392E19DB0EB7B22155 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7023E56BE3EEDDB5A4C1276 /* Album.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
+		39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EC25525A796155921B2DB4 /* PINKeypadView.swift */; };
 		5C8FA68F0A92A77B692DD53B /* BreakInAttempt.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */; };
 		675764EA044DEECF46B8D108 /* VaultItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */; };
 		71500CDFA5559C9E42DC0BE7 /* VaultBoxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34702C72F8A36861926F0D3C /* VaultBoxApp.swift */; };
 		7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */; };
+		822A4D69398B4376160E0A4E /* PINDotsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 694FE4365623C81A79223EFC /* PINDotsView.swift */; };
 		83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2939C27F07D011312BB7C89 /* ContentView.swift */; };
 		886725697AFAC77C31A2EB27 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
 		920BE213B8A19FDDA9926202 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DB3AC3CCEBE71B5ED091FA5A /* RevenueCat */; };
@@ -20,6 +22,7 @@
 		A93772B76AB866E19E383E7B /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C49A0C51724A12AFC4766DA /* Constants.swift */; };
 		A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */; };
 		C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */; };
+		CCAC5953DE5FB171D2A840FE /* PINSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */; };
 		CF09C7F31AD41774B786645D /* VaultBoxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */; };
 		D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED3E42B8DBCF2065727C874 /* EncryptionService.swift */; };
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
@@ -50,16 +53,19 @@
 		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		64922A8504D6C69762B8C911 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		694FE4365623C81A79223EFC /* PINDotsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINDotsView.swift; sourceTree = "<group>"; };
 		7C49A0C51724A12AFC4766DA /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		816F0C902D0934CACAF3E697 /* AppSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSettings.swift; sourceTree = "<group>"; };
 		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B7023E56BE3EEDDB5A4C1276 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
 		BADE5E1C90AC5304992FC1ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
+		C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINSetupView.swift; sourceTree = "<group>"; };
 		D2939C27F07D011312BB7C89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInAttempt.swift; sourceTree = "<group>"; };
 		D604B675E73CAE586A9EB0E1 /* VaultBox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultBox.entitlements; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
+		F0EC25525A796155921B2DB4 /* PINKeypadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINKeypadView.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -87,6 +93,9 @@
 		0F9830AC2BFA45A7D6D1CAA2 /* Auth */ = {
 			isa = PBXGroup;
 			children = (
+				694FE4365623C81A79223EFC /* PINDotsView.swift */,
+				F0EC25525A796155921B2DB4 /* PINKeypadView.swift */,
+				C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -370,6 +379,9 @@
 				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */,
+				822A4D69398B4376160E0A4E /* PINDotsView.swift in Sources */,
+				39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */,
+				CCAC5953DE5FB171D2A840FE /* PINSetupView.swift in Sources */,
 				71500CDFA5559C9E42DC0BE7 /* VaultBoxApp.swift in Sources */,
 				675764EA044DEECF46B8D108 /* VaultItem.swift in Sources */,
 			);
