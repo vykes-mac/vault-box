@@ -37,6 +37,7 @@
 		C3D4E5F616A1B2C3D4E5F607 /* VaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F61601B2C3D4E5F60728 /* VaultViewModel.swift */; };
 		E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */; };
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
+		2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -90,6 +91,7 @@
 		D4E5F61601B2C3D4E5F60728 /* VaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultViewModel.swift; sourceTree = "<group>"; };
 		F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
 		1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
+		3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,6 +164,7 @@
 			children = (
 				1A86E457B9D24261AA37C220 /* AuthService.swift */,
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
+				3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */,
 				A1B2C3D4E5F6071829304A5B /* VaultService.swift */,
 			);
 			path = Services;
@@ -428,6 +431,7 @@
 				C3D4E5F616A1B2C3D4E5F607 /* VaultViewModel.swift in Sources */,
 				E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */,
 				071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */,
+				2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -4,6 +4,7 @@ import SwiftData
 @main
 struct VaultBoxApp: App {
     let modelContainer: ModelContainer
+    @State private var purchaseService = PurchaseService()
 
     init() {
         do {
@@ -30,6 +31,10 @@ struct VaultBoxApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .environment(purchaseService)
+                .onAppear {
+                    purchaseService.configure()
+                }
         }
         .modelContainer(modelContainer)
     }
