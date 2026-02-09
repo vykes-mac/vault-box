@@ -1,7 +1,7 @@
 === VaultBox Progress ===
 Last updated: 2026-02-08
-Last completed feature: F0 — Project scaffolding
+Last completed feature: F1 — Constants and color assets
 Current status: compiles
-Next feature: F1 — Constants.swift
+Next feature: F2 — AppSettings model seed on first launch
 Blockers: none
-Notes: Build succeeds on iPhone 17 Pro simulator. #Unique macro removed (requires iOS 18+), using @Attribute(.unique) instead. Use 'iPhone 17 Pro' as simulator target.
+Notes: Build succeeds on iPhone 17 Pro simulator. Use @Attribute(.unique) instead of #Unique (iOS 18+). 9 color assets created with light/dark variants.
