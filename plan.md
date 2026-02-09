@@ -198,7 +198,7 @@ Verification = how the agent proves the feature works before committing.
     "category": "Phase 1 — Models & UI",
     "description": "Create Album SwiftData model per PRD Section 4. Create AlbumGridView per PRD Section 6.4 — 2-column album cards, create/rename/delete albums, 'All Items' album always first",
     "verification": ["Album.swift compiles with all fields", "AlbumGridView displays 2-column grid", "Can create album via + button"],
-    "passes": false
+    "passes": true
   },
   {
     "id": "F13",
