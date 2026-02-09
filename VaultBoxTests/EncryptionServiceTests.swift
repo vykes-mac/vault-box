@@ -7,7 +7,7 @@ import CryptoKit
 struct EncryptionServiceTests {
 
     private func makeService() -> EncryptionService {
-        EncryptionService()
+        EncryptionService(keyStorage: InMemoryKeyStorage())
     }
 
     @Test("Encrypt then decrypt roundtrip returns identical data")

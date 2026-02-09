@@ -1,14 +1,61 @@
 import Foundation
 import CryptoKit
-import KeychainAccess
+@preconcurrency import KeychainAccess
 import UIKit
 
-actor EncryptionService {
+// MARK: - Key Storage Protocol
+
+protocol KeyStorage: Sendable {
+    func set(_ data: Data, forKey key: String) throws
+    func getData(_ key: String) throws -> Data?
+    func remove(_ key: String) throws
+}
+
+final class KeychainKeyStorage: KeyStorage {
     private let keychain: Keychain
 
     init() {
         self.keychain = Keychain(service: Constants.keychainServiceID)
             .accessibility(.whenUnlockedThisDeviceOnly)
+    }
+
+    func set(_ data: Data, forKey key: String) throws {
+        try keychain.set(data, key: key)
+    }
+
+    func getData(_ key: String) throws -> Data? {
+        try keychain.getData(key)
+    }
+
+    func remove(_ key: String) throws {
+        try keychain.remove(key)
+    }
+}
+
+final class InMemoryKeyStorage: KeyStorage, @unchecked Sendable {
+    private let lock = NSLock()
+    private var store: [String: Data] = [:]
+
+    func set(_ data: Data, forKey key: String) throws {
+        lock.withLock { store[key] = data }
+    }
+
+    func getData(_ key: String) throws -> Data? {
+        lock.withLock { store[key] }
+    }
+
+    func remove(_ key: String) throws {
+        lock.withLock { store[key] = nil }
+    }
+}
+
+// MARK: - EncryptionService
+
+actor EncryptionService {
+    private let keyStorage: KeyStorage
+
+    init(keyStorage: KeyStorage = KeychainKeyStorage()) {
+        self.keyStorage = keyStorage
     }
 
     // MARK: - Key Generation
@@ -38,22 +85,22 @@ actor EncryptionService {
 
     func storeMasterKey(_ key: SymmetricKey) throws {
         let keyData = key.withUnsafeBytes { Data($0) }
-        try keychain.set(keyData, key: Constants.keychainMasterKeyID)
+        try keyStorage.set(keyData, forKey: Constants.keychainMasterKeyID)
     }
 
     func loadMasterKey() throws -> SymmetricKey {
-        guard let keyData = try keychain.getData(Constants.keychainMasterKeyID) else {
+        guard let keyData = try keyStorage.getData(Constants.keychainMasterKeyID) else {
             throw EncryptionError.masterKeyNotFound
         }
         return SymmetricKey(data: keyData)
     }
 
     func deleteMasterKey() throws {
-        try keychain.remove(Constants.keychainMasterKeyID)
+        try keyStorage.remove(Constants.keychainMasterKeyID)
     }
 
     func hasMasterKey() -> Bool {
-        (try? keychain.getData(Constants.keychainMasterKeyID)) != nil
+        (try? keyStorage.getData(Constants.keychainMasterKeyID)) != nil
     }
 
     // MARK: - Data Encryption / Decryption
@@ -142,7 +189,7 @@ actor EncryptionService {
         // for direct encryption, we just swap the stored key.
         _ = oldKey // validated derivation
         let keyData = newKey.withUnsafeBytes { Data($0) }
-        try keychain.set(keyData, key: Constants.keychainMasterKeyID)
+        try keyStorage.set(keyData, forKey: Constants.keychainMasterKeyID)
     }
 
     // MARK: - File Paths
