@@ -1,7 +1,7 @@
 === VaultBox Progress ===
 Last updated: 2026-02-09
-Last completed feature: F7 — VaultItem SwiftData model (already existed)
+Last completed feature: F8 — VaultService
 Current status: compiles, 21 tests passing
-Next feature: F8 — VaultService
+Next feature: F9 (next PRD feature)
 Blockers: none
-Notes: AuthService is @MainActor class (not actor) because ModelContext isn't Sendable. KeyStorage protocol enables InMemoryKeyStorage for tests. Use @preconcurrency import for KeychainAccess. PINDotsView extracted as reusable component with normal/success/error states. Use 'iPhone 17 Pro' simulator. Added pinLength to AppSettings and getPINLength()/isBiometricsEnabled() helpers to AuthService. LockScreenView auto-verifies on last digit, supports lockout countdown and biometric auto-prompt.
+Notes: AuthService is @MainActor class (not actor) because ModelContext isn't Sendable. KeyStorage protocol enables InMemoryKeyStorage for tests. Use @preconcurrency import for KeychainAccess. PINDotsView extracted as reusable component with normal/success/error states. Use 'iPhone 17 Pro' simulator. Added pinLength to AppSettings and getPINLength()/isBiometricsEnabled() helpers to AuthService. LockScreenView auto-verifies on last digit, supports lockout countdown and biometric auto-prompt. VaultService is @MainActor @Observable (same pattern as AuthService). Uses continuation-based wrappers for NSItemProvider async loading. Video imports use AVAssetImageGenerator for thumbnail from first frame. Documents have no thumbnail. VaultError enum with 5 cases. Stats methods use fetchCount/fetch+reduce for storage.
