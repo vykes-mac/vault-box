@@ -50,3 +50,8 @@ Previews/
 
 # CI/CD
 *.xcresult
+
+# skills
+.agent
+.agents
+.claude
