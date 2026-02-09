@@ -5,6 +5,7 @@ import SwiftData
 struct VaultBoxApp: App {
     let modelContainer: ModelContainer
     @State private var purchaseService = PurchaseService()
+    @State private var themeColorScheme: ColorScheme?
 
     init() {
         do {
@@ -32,11 +33,30 @@ struct VaultBoxApp: App {
         WindowGroup {
             ContentView()
                 .environment(purchaseService)
+                .preferredColorScheme(themeColorScheme)
                 .onAppear {
                     purchaseService.configure()
+                    loadTheme()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
+                    loadTheme()
                 }
         }
         .modelContainer(modelContainer)
+    }
+
+    private func loadTheme() {
+        let context = ModelContext(modelContainer)
+        let descriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? context.fetch(descriptor).first else { return }
+        switch settings.themeMode {
+        case "light":
+            themeColorScheme = .light
+        case "dark":
+            themeColorScheme = .dark
+        default:
+            themeColorScheme = nil
+        }
     }
 
     private func seedSettingsIfNeeded(container: ModelContainer) {

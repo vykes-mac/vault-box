@@ -118,6 +118,7 @@ struct LockScreenView: View {
     private func handleDigit(_ digit: String) {
         guard !isVerifying, pin.count < pinLength else { return }
 
+        Haptics.pinDigitTap()
         pin += digit
         dotState = .normal
 
@@ -150,10 +151,11 @@ struct LockScreenView: View {
 
             switch result {
             case .success, .decoy:
+                Haptics.pinCorrect()
                 dotState = .success
-                // AuthService already sets isUnlocked
 
             case .failure:
+                Haptics.pinWrong()
                 dotState = .error
                 shakeAnimation()
                 try? await Task.sleep(for: .seconds(Constants.pinShakeDuration))
@@ -162,6 +164,7 @@ struct LockScreenView: View {
                 checkLockout()
 
             case .locked:
+                Haptics.pinWrong()
                 dotState = .error
                 shakeAnimation()
                 try? await Task.sleep(for: .seconds(Constants.pinShakeDuration))

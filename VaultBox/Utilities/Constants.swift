@@ -100,6 +100,12 @@ enum Constants {
     static let keychainServiceID = "com.vaultbox.app"
 }
 
+// MARK: - Notifications
+
+extension Notification.Name {
+    static let themeDidChange = Notification.Name("com.vaultbox.themeDidChange")
+}
+
 // MARK: - Colors
 
 extension Color {

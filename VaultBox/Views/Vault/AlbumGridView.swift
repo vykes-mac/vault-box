@@ -136,20 +136,11 @@ struct AlbumGridView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "rectangle.stack")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.vaultTextSecondary)
-
-            Text("No Albums")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.vaultTextPrimary)
-
-            Text("Tap + to create your first album")
-                .font(.body)
-                .foregroundStyle(Color.vaultTextSecondary)
-        }
+        EmptyStateView(
+            systemImage: "rectangle.stack",
+            title: "No Albums",
+            subtitle: "Tap + to create your first album"
+        )
     }
 
     // MARK: - Album Card
@@ -356,20 +347,11 @@ struct AlbumDetailView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.vaultTextSecondary)
-
-            Text("No Items")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.vaultTextPrimary)
-
-            Text("Items added to this album will appear here")
-                .font(.body)
-                .foregroundStyle(Color.vaultTextSecondary)
-        }
+        EmptyStateView(
+            systemImage: "photo.on.rectangle.angled",
+            title: "No Items",
+            subtitle: "Items added to this album will appear here"
+        )
     }
 
     // MARK: - Thumbnail Cell

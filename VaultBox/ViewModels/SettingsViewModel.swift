@@ -53,6 +53,15 @@ class SettingsViewModel {
         try? modelContext.save()
     }
 
+    // MARK: - Theme
+
+    func setThemeMode(_ mode: String, modelContext: ModelContext) {
+        guard let settings = loadSettings(modelContext: modelContext) else { return }
+        settings.themeMode = mode
+        try? modelContext.save()
+        NotificationCenter.default.post(name: .themeDidChange, object: nil)
+    }
+
     // MARK: - Break-In Alerts
 
     func toggleBreakInAlerts(enabled: Bool, modelContext: ModelContext) {

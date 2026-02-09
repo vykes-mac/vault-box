@@ -190,6 +190,19 @@ struct SettingsView: View {
                     }
                 }
             }
+
+            if let settings {
+                Picker(selection: Binding(
+                    get: { settings.themeMode },
+                    set: { viewModel?.setThemeMode($0, modelContext: modelContext) }
+                )) {
+                    Text("System").tag("system")
+                    Text("Light").tag("light")
+                    Text("Dark").tag("dark")
+                } label: {
+                    Label("Theme", systemImage: "circle.lefthalf.filled")
+                }
+            }
         }
     }
 

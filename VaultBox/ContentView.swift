@@ -49,8 +49,7 @@ struct ContentView: View {
                     Label("Albums", systemImage: "rectangle.stack")
                 }
 
-            // Camera tab — placeholder until F30
-            cameraPlaceholder
+            CameraView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Camera", systemImage: "camera")
                 }
@@ -69,21 +68,6 @@ struct ContentView: View {
                 album: nil,
                 onDismiss: { showImporter = false }
             )
-        }
-    }
-
-    private var cameraPlaceholder: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "camera")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.vaultTextSecondary)
-            Text("Camera")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.vaultTextPrimary)
-            Text("Direct-to-vault capture coming soon")
-                .font(.body)
-                .foregroundStyle(Color.vaultTextSecondary)
         }
     }
 

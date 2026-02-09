@@ -208,20 +208,11 @@ struct VaultGridView: View {
     // MARK: - Empty State
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "photo.on.rectangle.angled")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.vaultTextSecondary)
-
-            Text("No Items Yet")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.vaultTextPrimary)
-
-            Text("Tap + to add your first photo")
-                .font(.body)
-                .foregroundStyle(Color.vaultTextSecondary)
-        }
+        EmptyStateView(
+            systemImage: "photo.on.rectangle.angled",
+            title: "No Items Yet",
+            subtitle: "Tap + to add your first photo"
+        )
     }
 
     // MARK: - Grid
@@ -395,6 +386,7 @@ struct VaultGridView: View {
 
     private func enterSelectionMode(selecting item: VaultItem) {
         if !isSelectionMode {
+            Haptics.itemSelected()
             isSelectionMode = true
             selectedItems.insert(item.id)
         }
@@ -405,6 +397,7 @@ struct VaultGridView: View {
     }
 
     private func batchDelete() {
+        Haptics.deleteConfirmed()
         let items = selectedVaultItems()
         Task {
             try? await vaultService.deleteItems(items)

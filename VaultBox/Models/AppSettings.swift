@@ -20,6 +20,8 @@ final class AppSettings {
     var pinLength: Int
     var failedAttemptCount: Int
     var lockoutUntil: Date?
+    var importCount: Int
+    var themeMode: String // "system", "light", "dark"
 
     init(pinHash: String = "", pinSalt: String = "") {
         self.id = UUID()
@@ -34,5 +36,7 @@ final class AppSettings {
         self.breakInAlertsEnabled = true
         self.pinLength = Constants.pinMinLength
         self.failedAttemptCount = 0
+        self.importCount = 0
+        self.themeMode = "system"
     }
 }

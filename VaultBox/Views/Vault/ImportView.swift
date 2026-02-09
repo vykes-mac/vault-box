@@ -1,5 +1,7 @@
 import SwiftUI
 import PhotosUI
+import StoreKit
+import SwiftData
 
 // MARK: - ImportView
 
@@ -7,6 +9,8 @@ struct ImportView: View {
     let vaultService: VaultService
     let album: Album?
     let onDismiss: () -> Void
+
+    @Environment(\.modelContext) private var modelContext
 
     @State private var selectedItems: [PhotosPickerItem] = []
     @State private var isImporting = false
@@ -119,6 +123,9 @@ struct ImportView: View {
 
             isImporting = false
 
+            // Track imports for rate prompt (F34)
+            incrementImportCount(by: importedItems.count)
+
             if !identifiers.isEmpty {
                 pendingAssetIdentifiers = identifiers
                 showDeletePrompt = true
@@ -141,6 +148,22 @@ struct ImportView: View {
         Task {
             try? await vaultService.deleteFromCameraRoll(localIdentifiers: pendingAssetIdentifiers)
             onDismiss()
+        }
+    }
+
+    private func incrementImportCount(by count: Int) {
+        let descriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(descriptor).first else { return }
+        settings.importCount += count
+        try? modelContext.save()
+
+        if settings.importCount >= Constants.ratePromptImportThreshold {
+            // Only prompt once
+            if settings.importCount - count < Constants.ratePromptImportThreshold {
+                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+                    SKStoreReviewController.requestReview(in: scene)
+                }
+            }
         }
     }
 }

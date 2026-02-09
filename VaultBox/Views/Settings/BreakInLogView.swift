@@ -61,20 +61,14 @@ struct BreakInLogView: View {
     }
 
     private var emptyState: some View {
-        VStack(spacing: 16) {
+        VStack {
             Spacer()
-            Image(systemName: "shield.checkmark")
-                .font(.system(size: 60))
-                .foregroundStyle(Color.vaultTextSecondary)
-            Text("No Break-in Attempts")
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(Color.vaultTextPrimary)
-            Text("If someone tries to access your vault with the wrong PIN, it will be logged here.")
-                .font(.body)
-                .foregroundStyle(Color.vaultTextSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, 32)
+            EmptyStateView(
+                systemImage: "shield.checkmark",
+                title: "No Break-in Attempts",
+                subtitle: "If someone tries to access your vault with the wrong PIN, it will be logged here."
+            )
+            .padding(.horizontal, 32)
             Spacer()
         }
     }
