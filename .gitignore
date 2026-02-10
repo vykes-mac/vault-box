@@ -31,6 +31,8 @@ fastlane/test_output
 
 # Secrets
 Secrets.xcconfig
+Secrets.Debug.xcconfig
+Secrets.Release.xcconfig
 
 # OS files
 .DS_Store

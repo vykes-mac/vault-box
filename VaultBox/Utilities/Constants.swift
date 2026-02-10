@@ -79,6 +79,7 @@ enum Constants {
     // MARK: - RevenueCat
 
     static let revenueCatAPIKey: String = Bundle.main.infoDictionary?["RevenueCatAPIKey"] as? String ?? ""
+    static let primaryOfferingID = "default"
     static let premiumEntitlementID = "VaultBox Premium"
     static let weeklyProductID = "vaultbox_premium_weekly"
     static let annualProductID = "vaultbox_premium_annual"

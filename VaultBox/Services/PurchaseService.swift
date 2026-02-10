@@ -23,13 +23,25 @@ class PurchaseService: NSObject {
     var isPremium = false
     var currentOffering: Offering?
     var isLoading = false
+    var offeringsLoadError: String?
+    var isOfferingsReady = false
+    var isUsingExplicitOffering = false
 
     // MARK: - Configure
 
     func configure() {
+        #if DEBUG
+        Purchases.logLevel = .debug
+        #else
         Purchases.logLevel = .warn
+        if Constants.revenueCatAPIKey.hasPrefix("test_") {
+            print("[RevenueCat] ERROR: Test Store API key detected in non-Debug build.")
+        }
+        #endif
+
         Purchases.configure(withAPIKey: Constants.revenueCatAPIKey)
         Purchases.shared.delegate = self
+        debugLog("Configured Purchases. API key prefix: \(String(Constants.revenueCatAPIKey.prefix(5)))")
 
         Task {
             await checkPremiumStatus()
@@ -41,10 +53,34 @@ class PurchaseService: NSObject {
 
     func fetchOfferings() async throws {
         isLoading = true
+        offeringsLoadError = nil
         defer { isLoading = false }
 
-        let offerings = try await Purchases.shared.offerings()
-        currentOffering = offerings.current
+        do {
+            let offerings = try await Purchases.shared.offerings()
+            let explicitOffering = offerings.all[Constants.primaryOfferingID]
+            let resolvedOffering = explicitOffering ?? offerings.current
+
+            currentOffering = resolvedOffering
+            isUsingExplicitOffering = explicitOffering != nil
+            isOfferingsReady = resolvedOffering != nil
+
+            if let resolvedOffering {
+                debugLog(
+                    "Resolved offering '\(resolvedOffering.identifier)' (explicit=\(isUsingExplicitOffering))"
+                )
+            } else {
+                offeringsLoadError =
+                    "No RevenueCat offering available. Verify offering '\(Constants.primaryOfferingID)' " +
+                    "exists or set a current offering in the RevenueCat dashboard."
+                debugLog("Failed to resolve offering. currentOffering=nil")
+            }
+        } catch {
+            offeringsLoadError = error.localizedDescription
+            isOfferingsReady = currentOffering != nil
+            debugLog("Offerings fetch failed: \(error.localizedDescription)")
+            throw error
+        }
     }
 
     // MARK: - Purchase
@@ -104,6 +140,12 @@ class PurchaseService: NSObject {
 
     var annualPackage: Package? {
         currentOffering?.availablePackages.first { $0.storeProduct.productIdentifier == Constants.annualProductID }
+    }
+
+    private func debugLog(_ message: String) {
+        #if DEBUG
+        print("[RevenueCat] \(message)")
+        #endif
     }
 }
 
