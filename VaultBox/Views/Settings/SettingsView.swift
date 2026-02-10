@@ -15,6 +15,7 @@ struct SettingsView: View {
     @State private var showBreakInLog = false
     @State private var showAppIconPicker = false
     @State private var showBackupSettings = false
+    @State private var showWiFiTransfer = false
     @State private var showClearBreakInConfirm = false
     @State private var showRestoreAlert = false
     @State private var restoreMessage = ""
@@ -30,6 +31,7 @@ struct SettingsView: View {
                     securitySection
                     appearanceSection
                     backupSection
+                    transferSection
                     privacySection
                 }
                 storageSection
@@ -62,6 +64,9 @@ struct SettingsView: View {
             }
             .navigationDestination(isPresented: $showBackupSettings) {
                 BackupSettingsView(vaultService: vaultService)
+            }
+            .navigationDestination(isPresented: $showWiFiTransfer) {
+                WiFiTransferView(vaultService: vaultService, authService: authService)
             }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
@@ -229,6 +234,35 @@ struct SettingsView: View {
                         Text("On")
                             .font(.caption)
                             .foregroundStyle(Color.vaultTextSecondary)
+                    } else {
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Transfer Section
+
+    private var transferSection: some View {
+        Section("Transfer") {
+            Button {
+                if purchaseService.isPremiumRequired(for: .wifiTransfer) {
+                    showPaywall = true
+                } else {
+                    showWiFiTransfer = true
+                }
+            } label: {
+                HStack {
+                    Label("Wi-Fi Transfer", systemImage: "wifi")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    if purchaseService.isPremiumRequired(for: .wifiTransfer) {
+                        Image(systemName: "lock.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultPremium)
                     } else {
                         Image(systemName: "chevron.right")
                             .font(.caption)

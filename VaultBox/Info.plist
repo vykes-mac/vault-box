@@ -14,6 +14,8 @@
 	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>RevenueCatAPIKey</key>
+	<string>$(REVENUECAT_API_KEY)</string>
 	<key>NSCameraUsageDescription</key>
 	<string>VaultBox uses the camera to capture photos directly into your vault.</string>
 	<key>NSFaceIDUsageDescription</key>
@@ -22,6 +24,12 @@
 	<string>VaultBox records location data when an unauthorized access attempt is detected.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>VaultBox needs access to import photos into your encrypted vault.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>VaultBox uses your local network to transfer files between your device and computer over Wi-Fi.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_vaultbox._tcp</string>
+	</array>
 	<key>UILaunchScreen</key>
 	<dict/>
 	<key>UISupportedInterfaceOrientations</key>

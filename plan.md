@@ -395,6 +395,13 @@ Verification = how the agent proves the feature works before committing.
     "description": "Final build validation — clean build, all tests pass, no warnings, portrait lock confirmed, all Info.plist keys present",
     "verification": ["xcodebuild clean build succeeds with 0 warnings", "All unit tests pass", "All UI tests pass", "App locked to portrait", "All 4 Info.plist usage descriptions present"],
     "passes": true
+  },
+  {
+    "id": "F41",
+    "category": "Phase 5 — Wi-Fi Transfer",
+    "description": "Implement Wi-Fi Transfer (Premium) per PRD Section 7.4 — NWListener-based local HTTP server, PIN re-entry before start, browser UI for upload/download, encrypt on upload / decrypt on download, auto-stop after 10min inactivity, connected device count display. Use Network framework only (no third-party deps)",
+    "verification": ["WiFiTransferService.swift compiles using NWListener", "Settings entry navigates to WiFiTransferView", "Server starts after PIN re-entry", "Browser shows upload/download interface", "Uploaded files encrypted and added to vault", "Downloaded files decrypted and served", "Server auto-stops after 10min inactivity", "Premium gated"],
+    "passes": false
   }
 ]
 ```

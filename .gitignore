@@ -29,6 +29,9 @@ fastlane/test_output
 *.mobileprovision
 *.p12
 
+# Secrets
+Secrets.xcconfig
+
 # OS files
 .DS_Store
 *.swp
