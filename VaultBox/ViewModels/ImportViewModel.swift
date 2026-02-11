@@ -31,21 +31,14 @@ class ImportViewModel {
                 var didImport = false
 
                 do {
-                    if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
+                    // Prefer image bytes first so Live Photos import as photos (eligible for vision tags).
+                    if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                        _ = try await vaultService.importPhotoData(imageData, filename: nil, album: album)
+                        didImport = true
+                    } else if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
                         let item = try await vaultService.importDocument(at: movie.url, album: album)
                         item.type = .video
                         didImport = true
-                    } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
-                        let image = UIImage(data: imageData)
-                        let pixelWidth = image.map { Int($0.size.width * $0.scale) }
-                        let pixelHeight = image.map { Int($0.size.height * $0.scale) }
-
-                        if let uiImage = image {
-                            let item = try await vaultService.importFromCamera(uiImage, album: album)
-                            item.pixelWidth = pixelWidth
-                            item.pixelHeight = pixelHeight
-                            didImport = true
-                        }
                     }
                 } catch {
                     // Skip failed items

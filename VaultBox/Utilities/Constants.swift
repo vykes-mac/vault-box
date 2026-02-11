@@ -91,6 +91,7 @@ enum Constants {
     // MARK: - Vision Analysis
 
     static let visionAnalysisTimeout: TimeInterval = 3.0
+    static let visionAnalysisMaxDimension: CGFloat = 2048
 
     // MARK: - File Storage
 

@@ -40,6 +40,7 @@ struct ImportView: View {
                     PhotosPicker(
                         selection: $selectedItems,
                         matching: .any(of: [.images, .videos]),
+                        preferredItemEncoding: .current,
                         photoLibrary: .shared()
                     ) {
                         Text("Select Photos")
@@ -138,19 +139,18 @@ struct ImportView: View {
                 var didImport = false
 
                 do {
-                    if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
-                        let item = try await vaultService.importDocument(at: movie.url, album: album)
-                        item.type = .video
+                    // Prefer image bytes first so Live Photos import as photos (eligible for vision tags).
+                    if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                        let item = try await vaultService.importPhotoData(
+                            imageData,
+                            filename: nil,
+                            album: album
+                        )
                         importedItems.append(item)
                         didImport = true
-                    } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
-                        guard let uiImage = UIImage(data: imageData) else {
-                            throw VaultError.importFailed
-                        }
-
-                        let item = try await vaultService.importFromCamera(uiImage, album: album)
-                        item.pixelWidth = Int(uiImage.size.width * uiImage.scale)
-                        item.pixelHeight = Int(uiImage.size.height * uiImage.scale)
+                    } else if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
+                        let item = try await vaultService.importDocument(at: movie.url, album: album)
+                        item.type = .video
                         importedItems.append(item)
                         didImport = true
                     }

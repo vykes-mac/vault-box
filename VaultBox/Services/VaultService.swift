@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 import SwiftData
 import UIKit
 import Photos
+import ImageIO
 
 // MARK: - Errors
 
@@ -76,12 +77,13 @@ class VaultService {
 
             var didImport = false
             do {
-                if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                    let item = try await importVideo(from: provider, album: album)
+                // Prefer image first so Live Photos are treated as photos.
+                if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                    let item = try await importImage(from: provider, album: album)
                     importedItems.append(item)
                     didImport = true
-                } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                    let item = try await importImage(from: provider, album: album)
+                } else if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
+                    let item = try await importVideo(from: provider, album: album)
                     importedItems.append(item)
                     didImport = true
                 }
@@ -100,42 +102,8 @@ class VaultService {
     }
 
     private func importImage(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
-        try enforceImportLimit()
         let imageData = try await loadImageData(from: provider)
-        let filename = provider.suggestedName ?? "Untitled"
-
-        let image = UIImage(data: imageData)
-        let pixelWidth = image.map { Int($0.size.width * $0.scale) }
-        let pixelHeight = image.map { Int($0.size.height * $0.scale) }
-
-        let vaultDir = try await encryptionService.vaultFilesDirectory()
-        let fileID = UUID()
-        let relativePath = "\(fileID).\(Constants.encryptedFileExtension)"
-        let fileURL = vaultDir.appendingPathComponent(relativePath)
-
-        let encryptedData = try await encryptionService.encryptData(imageData)
-        try encryptedData.write(to: fileURL)
-
-        let encryptedThumbnail = try await encryptionService.generateEncryptedThumbnail(
-            from: imageData,
-            maxSize: Constants.thumbnailMaxSize
-        )
-
-        let item = VaultItem(
-            type: .photo,
-            originalFilename: filename,
-            encryptedFileRelativePath: relativePath,
-            fileSize: Int64(imageData.count)
-        )
-        item.encryptedThumbnailData = encryptedThumbnail
-        item.pixelWidth = pixelWidth
-        item.pixelHeight = pixelHeight
-        item.album = album
-
-        modelContext.insert(item)
-        try modelContext.save()
-
-        return item
+        return try await importPhotoData(imageData, filename: provider.suggestedName, album: album)
     }
 
     private func importVideo(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
@@ -199,6 +167,47 @@ class VaultService {
     }
 
     // MARK: - Import from Camera
+
+    func importPhotoData(_ data: Data, filename: String?, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
+        let resolvedName: String
+        if let trimmed = filename?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty {
+            resolvedName = trimmed
+        } else {
+            resolvedName = "Photo"
+        }
+
+        let (pixelWidth, pixelHeight) = photoDimensions(from: data)
+
+        let vaultDir = try await encryptionService.vaultFilesDirectory()
+        let fileID = UUID()
+        let relativePath = "\(fileID).\(Constants.encryptedFileExtension)"
+        let fileURL = vaultDir.appendingPathComponent(relativePath)
+
+        let encryptedData = try await encryptionService.encryptData(data)
+        try encryptedData.write(to: fileURL)
+
+        let encryptedThumbnail = try await encryptionService.generateEncryptedThumbnail(
+            from: data,
+            maxSize: Constants.thumbnailMaxSize
+        )
+
+        let item = VaultItem(
+            type: .photo,
+            originalFilename: resolvedName,
+            encryptedFileRelativePath: relativePath,
+            fileSize: Int64(data.count)
+        )
+        item.encryptedThumbnailData = encryptedThumbnail
+        item.pixelWidth = pixelWidth
+        item.pixelHeight = pixelHeight
+        item.album = album
+
+        modelContext.insert(item)
+        try modelContext.save()
+
+        return item
+    }
 
     func importFromCamera(_ image: UIImage, album: Album?) async throws -> VaultItem {
         try enforceImportLimit()
@@ -402,9 +411,9 @@ class VaultService {
         guard !inputs.isEmpty else { return }
 
         Task {
-            await visionService.queueItems(inputs) { [weak self] result in
+            await visionService.queueItems(inputs) { result in
                 Task { @MainActor in
-                    self?.applyVisionResult(result)
+                    self.applyVisionResult(result)
                 }
             }
         }
@@ -418,7 +427,13 @@ class VaultService {
         guard let item = try? modelContext.fetch(descriptor).first else { return }
         item.smartTags = result.smartTags
         item.extractedText = result.extractedText
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[VaultService] Failed to save vision result for \(targetID): \(error)")
+            #endif
+        }
     }
 
     // MARK: - Private Helpers
@@ -497,6 +512,20 @@ class VaultService {
                 continuation.resume(returning: status)
             }
         }
+    }
+
+    private func photoDimensions(from data: Data) -> (Int?, Int?) {
+        guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+              let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any] else {
+            let image = UIImage(data: data)
+            let width = image.map { Int($0.size.width * $0.scale) }
+            let height = image.map { Int($0.size.height * $0.scale) }
+            return (width, height)
+        }
+
+        let width = properties[kCGImagePropertyPixelWidth] as? Int
+        let height = properties[kCGImagePropertyPixelHeight] as? Int
+        return (width, height)
     }
 }
 

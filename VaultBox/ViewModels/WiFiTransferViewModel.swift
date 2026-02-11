@@ -117,9 +117,8 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
         guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         let lowerCT = contentType.lowercased()
         if lowerCT.hasPrefix("image/") {
-            if let image = UIImage(data: data) {
-                _ = try await vaultService.importFromCamera(image, album: nil)
-            }
+            let item = try await vaultService.importPhotoData(data, filename: filename, album: nil)
+            vaultService.queueVisionAnalysis(for: [item])
         } else {
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(filename)
