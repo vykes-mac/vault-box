@@ -88,7 +88,8 @@ struct CameraView: View {
         isSaving = true
         Task {
             do {
-                _ = try await vaultService.importFromCamera(image, album: nil)
+                let item = try await vaultService.importFromCamera(image, album: nil)
+                vaultService.queueVisionAnalysis(for: [item])
                 isSaving = false
                 showPreview = false
                 savedCount += 1

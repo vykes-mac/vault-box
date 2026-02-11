@@ -34,6 +34,7 @@ struct VaultGridView: View {
     @State private var showDeleteConfirm = false
     @State private var showAlbumPicker = false
     @State private var showPaywall = false
+    @State private var searchText = ""
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
@@ -52,6 +53,20 @@ struct VaultGridView: View {
             items = items.filter { $0.album?.isDecoy == true }
         } else {
             items = items.filter { $0.album?.isDecoy != true }
+        }
+
+        // Search filtering
+        let query = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        if !query.isEmpty {
+            items = items.filter { item in
+                // Match filename
+                if item.originalFilename.lowercased().contains(query) { return true }
+                // Match smart tags
+                if item.smartTags.contains(where: { $0.lowercased().contains(query) }) { return true }
+                // Match OCR extracted text
+                if let text = item.extractedText, text.lowercased().contains(query) { return true }
+                return false
+            }
         }
 
         switch filter {
@@ -104,6 +119,7 @@ struct VaultGridView: View {
                 }
             }
             .navigationTitle("Vault")
+            .searchable(text: $searchText, prompt: "Search photos, tags, text...")
             .toolbar { toolbarContent }
             .fullScreenCover(item: $detailItem) { item in
                 let index = displayedItems.firstIndex(where: { $0.id == item.id }) ?? 0

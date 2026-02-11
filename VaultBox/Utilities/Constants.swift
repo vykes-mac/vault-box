@@ -88,6 +88,10 @@ enum Constants {
 
     static let ratePromptImportThreshold = 10
 
+    // MARK: - Vision Analysis
+
+    static let visionAnalysisTimeout: TimeInterval = 3.0
+
     // MARK: - File Storage
 
     static let vaultDataDirectory = "VaultData"

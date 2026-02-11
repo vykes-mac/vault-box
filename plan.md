@@ -402,6 +402,27 @@ Verification = how the agent proves the feature works before committing.
     "description": "Implement Wi-Fi Transfer (Premium) per PRD Section 7.4 — NWListener-based local HTTP server, PIN re-entry before start, browser UI for upload/download, encrypt on upload / decrypt on download, auto-stop after 10min inactivity, connected device count display. Use Network framework only (no third-party deps)",
     "verification": ["WiFiTransferService.swift compiles using NWListener", "Settings entry navigates to WiFiTransferView", "Server starts after PIN re-entry", "Browser shows upload/download interface", "Uploaded files encrypted and added to vault", "Downloaded files decrypted and served", "Server auto-stops after 10min inactivity", "Premium gated"],
     "passes": false
+  },
+  {
+    "id": "F42",
+    "category": "Phase 5 — Smart Albums",
+    "description": "Add smartTags: [String] and extractedText: String? to VaultItem model. Create VisionAnalysisService actor — on-device Vision analysis with VNRecognizeTextRequest (document tag + OCR), VNDetectFaceRectanglesRequest (people tag), VNDetectBarcodesRequest (qrcode tag), screenshot detection via screen dimensions. 3s timeout per image, sequential processing, background thread. Integrate into VaultService import pipeline (queue analysis after import completes, don't block UI).",
+    "verification": ["VaultItem has smartTags and extractedText fields", "VisionAnalysisService.swift compiles", "Vision analysis runs after import without blocking UI", "Tags stored on VaultItem after analysis"],
+    "passes": false
+  },
+  {
+    "id": "F43",
+    "category": "Phase 5 — Smart Albums",
+    "description": "Add smart albums horizontal scroll row to top of Albums tab (AlbumGridView). Show People, Documents, Screenshots, QR Codes smart albums. Each is a filtered view querying VaultItems where smartTags contains the tag. Only show smart albums with 1+ items. Not deletable or renameable by user.",
+    "verification": ["Smart albums appear at top of Albums tab in horizontal scroll", "Only smart albums with items are shown", "Tapping smart album shows filtered grid of matching items", "Smart albums are not editable by user"],
+    "passes": false
+  },
+  {
+    "id": "F44",
+    "category": "Phase 5 — Smart Albums",
+    "description": "Add search bar at top of Vault tab (VaultGridView). Search matches: filename, smart tags, and OCR-extracted text. Display filtered results in the existing grid layout.",
+    "verification": ["Search bar visible at top of Vault tab", "Searching by filename finds matching items", "Searching by smart tag finds tagged items", "Searching by OCR text (e.g. 'passport') finds items with matching extractedText"],
+    "passes": false
   }
 ]
 ```

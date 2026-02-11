@@ -19,6 +19,8 @@ final class VaultItem {
     var isFavorite: Bool = false
     var isUploaded: Bool = false
     var cloudRecordID: String?
+    var smartTags: [String] = []
+    var extractedText: String?
 
     enum ItemType: String, Codable {
         case photo

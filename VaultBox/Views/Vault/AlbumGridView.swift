@@ -1,6 +1,35 @@
 import SwiftUI
 import SwiftData
 
+// MARK: - Smart Album Type
+
+enum SmartAlbumType: String, CaseIterable, Identifiable {
+    case people = "People"
+    case documents = "Documents"
+    case screenshots = "Screenshots"
+    case qrCodes = "QR Codes"
+
+    var id: String { rawValue }
+
+    var tag: String {
+        switch self {
+        case .people: "people"
+        case .documents: "document"
+        case .screenshots: "screenshot"
+        case .qrCodes: "qrcode"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .people: "person.2.fill"
+        case .documents: "doc.text.fill"
+        case .screenshots: "rectangle.dashed"
+        case .qrCodes: "qrcode"
+        }
+    }
+}
+
 // MARK: - AlbumGridView
 
 struct AlbumGridView: View {
@@ -39,53 +68,30 @@ struct AlbumGridView: View {
         count: Constants.albumGridColumns
     )
 
+    private var smartAlbumsWithCounts: [(type: SmartAlbumType, count: Int)] {
+        SmartAlbumType.allCases.compactMap { smartAlbum in
+            let tag = smartAlbum.tag
+            let count = visibleItems.filter { $0.smartTags.contains(tag) }.count
+            return count > 0 ? (type: smartAlbum, count: count) : nil
+        }
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
-                if visibleAlbums.isEmpty && visibleItems.isEmpty {
+                if visibleAlbums.isEmpty && visibleItems.isEmpty && smartAlbumsWithCounts.isEmpty {
                     emptyState
                         .padding(.top, 120)
                 } else {
-                    LazyVGrid(columns: columns, spacing: Constants.standardPadding) {
-                        // "All Items" always first
-                        NavigationLink {
-                            AlbumDetailView(album: nil, vaultService: vaultService)
-                        } label: {
-                            albumCard(name: "All Items", itemCount: visibleItems.count, albumID: nil)
+                    VStack(alignment: .leading, spacing: Constants.standardPadding) {
+                        // Smart Albums horizontal row
+                        if !smartAlbumsWithCounts.isEmpty {
+                            smartAlbumsRow
                         }
-                        .buttonStyle(.plain)
 
-                        // User albums
-                        ForEach(visibleAlbums) { album in
-                            NavigationLink {
-                                AlbumDetailView(album: album, vaultService: vaultService)
-                            } label: {
-                                albumCard(
-                                    name: album.name,
-                                    itemCount: album.items?.count ?? 0,
-                                    albumID: album.id
-                                )
-                            }
-                            .buttonStyle(.plain)
-                            .contextMenu {
-                                Button {
-                                    renameText = album.name
-                                    albumToRename = album
-                                } label: {
-                                    Label("Rename", systemImage: "pencil")
-                                }
-
-                                Divider()
-
-                                Button(role: .destructive) {
-                                    albumToDelete = album
-                                } label: {
-                                    Label("Delete Album", systemImage: "trash")
-                                }
-                            }
-                        }
+                        // Regular albums grid
+                        albumsGrid
                     }
-                    .padding(Constants.standardPadding)
                 }
             }
             .navigationTitle("Albums")
@@ -131,6 +137,104 @@ struct AlbumGridView: View {
                 Text("Items in this album will be moved to All Items, or deleted permanently.")
             }
         }
+    }
+
+    // MARK: - Smart Albums Row
+
+    private var smartAlbumsRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Smart Albums")
+                .font(.headline)
+                .padding(.horizontal, Constants.standardPadding)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(smartAlbumsWithCounts, id: \.type) { entry in
+                        NavigationLink {
+                            SmartAlbumDetailView(
+                                smartAlbumType: entry.type,
+                                vaultService: vaultService,
+                                isDecoyMode: isDecoyMode
+                            )
+                        } label: {
+                            smartAlbumCard(type: entry.type, count: entry.count)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.horizontal, Constants.standardPadding)
+            }
+        }
+        .padding(.top, 8)
+    }
+
+    private func smartAlbumCard(type: SmartAlbumType, count: Int) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            ZStack {
+                RoundedRectangle(cornerRadius: Constants.cardCornerRadius)
+                    .fill(Color.vaultAccent.opacity(0.15))
+                    .frame(width: 120, height: 90)
+                Image(systemName: type.systemImage)
+                    .font(.title2)
+                    .foregroundStyle(Color.vaultAccent)
+            }
+
+            Text(type.rawValue)
+                .font(.caption)
+                .fontWeight(.medium)
+                .foregroundStyle(Color.vaultTextPrimary)
+                .lineLimit(1)
+
+            Text("\(count)")
+                .font(.caption2)
+                .foregroundStyle(Color.vaultTextSecondary)
+        }
+        .frame(width: 120)
+    }
+
+    // MARK: - Albums Grid
+
+    private var albumsGrid: some View {
+        LazyVGrid(columns: columns, spacing: Constants.standardPadding) {
+            // "All Items" always first
+            NavigationLink {
+                AlbumDetailView(album: nil, vaultService: vaultService)
+            } label: {
+                albumCard(name: "All Items", itemCount: visibleItems.count, albumID: nil)
+            }
+            .buttonStyle(.plain)
+
+            // User albums
+            ForEach(visibleAlbums) { album in
+                NavigationLink {
+                    AlbumDetailView(album: album, vaultService: vaultService)
+                } label: {
+                    albumCard(
+                        name: album.name,
+                        itemCount: album.items?.count ?? 0,
+                        albumID: album.id
+                    )
+                }
+                .buttonStyle(.plain)
+                .contextMenu {
+                    Button {
+                        renameText = album.name
+                        albumToRename = album
+                    } label: {
+                        Label("Rename", systemImage: "pencil")
+                    }
+
+                    Divider()
+
+                    Button(role: .destructive) {
+                        albumToDelete = album
+                    } label: {
+                        Label("Delete Album", systemImage: "trash")
+                    }
+                }
+            }
+        }
+        .padding(Constants.standardPadding)
     }
 
     // MARK: - Empty State
@@ -380,6 +484,126 @@ struct AlbumDetailView: View {
                     }
                     Spacer()
                 }
+            }
+
+            if item.type == .video, let duration = item.durationSeconds {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Spacer()
+                        Text(formatDuration(duration))
+                            .font(.caption2)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(.black.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 2))
+                            .padding(4)
+                    }
+                }
+            }
+        }
+        .aspectRatio(1, contentMode: .fill)
+        .clipShape(RoundedRectangle(cornerRadius: Constants.thumbnailCornerRadius))
+        .task {
+            await loadThumbnail(for: item)
+        }
+    }
+
+    private func loadThumbnail(for item: VaultItem) async {
+        guard thumbnailCache[item.id] == nil else { return }
+        guard let image = try? await vaultService.decryptThumbnail(for: item) else { return }
+        thumbnailCache[item.id] = image
+    }
+
+    private func formatDuration(_ seconds: Double) -> String {
+        let total = Int(seconds)
+        let minutes = total / 60
+        let secs = total % 60
+        return String(format: "%d:%02d", minutes, secs)
+    }
+}
+
+// MARK: - SmartAlbumDetailView
+
+struct SmartAlbumDetailView: View {
+    let smartAlbumType: SmartAlbumType
+    let vaultService: VaultService
+    var isDecoyMode: Bool = false
+
+    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+
+    @State private var thumbnailCache: [UUID: UIImage] = [:]
+    @State private var detailItem: VaultItem?
+
+    private let columns = Array(
+        repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
+        count: Constants.vaultGridColumns
+    )
+
+    private var matchingItems: [VaultItem] {
+        let tag = smartAlbumType.tag
+        var items = allItems.filter { $0.smartTags.contains(tag) }
+        if isDecoyMode {
+            items = items.filter { $0.album?.isDecoy == true }
+        } else {
+            items = items.filter { $0.album?.isDecoy != true }
+        }
+        return items
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            if matchingItems.isEmpty {
+                Spacer()
+                EmptyStateView(
+                    systemImage: smartAlbumType.systemImage,
+                    title: "No Items",
+                    subtitle: "Items matching this category will appear here"
+                )
+                Spacer()
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
+                        ForEach(matchingItems) { item in
+                            thumbnailCell(for: item)
+                                .onTapGesture {
+                                    detailItem = item
+                                }
+                        }
+                    }
+                }
+
+                Text("\(matchingItems.count) \(matchingItems.count == 1 ? "item" : "items")")
+                    .font(.caption)
+                    .foregroundStyle(Color.vaultTextSecondary)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+            }
+        }
+        .navigationTitle(smartAlbumType.rawValue)
+        .navigationBarTitleDisplayMode(.inline)
+        .fullScreenCover(item: $detailItem) { item in
+            let index = matchingItems.firstIndex(where: { $0.id == item.id }) ?? 0
+            PhotoDetailView(
+                items: matchingItems,
+                initialIndex: index,
+                vaultService: vaultService
+            )
+        }
+    }
+
+    private func thumbnailCell(for item: VaultItem) -> some View {
+        ZStack {
+            if let image = thumbnailCache[item.id] {
+                Image(uiImage: image)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                    .clipped()
+            } else {
+                Color.vaultSurface
             }
 
             if item.type == .video, let duration = item.durationSeconds {

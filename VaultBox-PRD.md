@@ -76,6 +76,7 @@ Anyone who wants to hide private photos/videos behind a separate lock from their
 |WidgetKit          |Home screen widget (quick-open, no sensitive content)|
 |BackgroundTasks    |Background iCloud sync                               |
 |UserNotifications  |Break-in alert push notifications                    |
+|Vision             |On-device image analysis (OCR, face detection, barcodes)|
 
 ### Xcode Project Setup
 
@@ -1004,6 +1005,52 @@ ABOUT
 - Show connected device count while active
 
 > **Note for Claude Code:** Use `NWListener` from the Network framework for the local HTTP server. Do NOT add a third-party dependency for this. If implementing a full HTTP server from scratch is too complex for MVP, defer this feature to Phase 3 and just scaffold the settings entry.
+
+### 7.5 Smart Albums (v1)
+
+On-device Vision analysis runs automatically during import. No user action required.
+
+**Tagging pipeline (runs per item, background thread):**
+
+1. After encryption + thumbnail generation, decrypt the full image temporarily in memory
+2. Run Vision requests concurrently:
+   - `VNRecognizeTextRequest` → if significant text detected → tag: "document"
+   - `VNDetectFaceRectanglesRequest` → if 1+ faces → tag: "people"
+   - `VNDetectBarcodesRequest` → if QR/barcode found → tag: "qrcode"
+   - Check image dimensions == device screen size → tag: "screenshot"
+3. Store tags on VaultItem as: `var smartTags: [String]` (array of tag strings)
+4. Wipe decrypted image from memory immediately after analysis
+
+**Smart Albums display:**
+- Shown at the top of the Albums tab in a horizontal scroll row
+- Each smart album is a filtered view (query VaultItems where smartTags contains X)
+- Smart albums only appear if they contain 1+ items
+- Not deletable or renameable by user
+
+**Search:**
+- Search bar at top of Vault tab
+- Searches: filename, smart tags, and OCR-extracted text
+- OCR text stored as `var extractedText: String?` on VaultItem (encrypted in DB)
+- Example: user searches "passport" → finds photo of passport via OCR text match
+
+**Performance rules:**
+- Vision analysis must not block import progress UI
+- Process in background after import completes
+- If user imports 50 photos, queue all 50 and process sequentially
+- Timeout: 3 seconds per image max, skip on failure
+
+**Data model addition to VaultItem:**
+
+```swift
+var smartTags: [String]      // ["document", "people", "screenshot", "qrcode"]
+var extractedText: String?   // OCR text for search (encrypted)
+```
+
+**Privacy:**
+- ALL processing is on-device via Apple Vision framework
+- No data leaves the device
+- No third-party AI APIs
+- Extracted text is encrypted at rest like all other vault data
 
 -----
 

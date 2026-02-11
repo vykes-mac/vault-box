@@ -172,6 +172,11 @@ struct ImportView: View {
             isImporting = false
             incrementImportCount(by: importedItems.count)
 
+            // Queue vision analysis in background (does not block UI)
+            if !importedItems.isEmpty {
+                vaultService.queueVisionAnalysis(for: importedItems)
+            }
+
             if hitFreeLimit && identifiers.isEmpty {
                 showPaywall = true
                 return

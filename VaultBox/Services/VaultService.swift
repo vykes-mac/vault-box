@@ -45,6 +45,7 @@ class VaultService {
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
     private let hasPremiumAccess: () -> Bool
+    private var visionService: VisionAnalysisService?
 
     init(
         encryptionService: EncryptionService,
@@ -54,6 +55,7 @@ class VaultService {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
         self.hasPremiumAccess = hasPremiumAccess
+        self.visionService = VisionAnalysisService(encryptionService: encryptionService)
     }
 
     // MARK: - Import Result
@@ -379,6 +381,44 @@ class VaultService {
         if isAtFreeLimit() {
             throw VaultError.freeLimitReached
         }
+    }
+
+    // MARK: - Vision Analysis
+
+    func queueVisionAnalysis(for items: [VaultItem]) {
+        guard let visionService else { return }
+
+        let inputs = items.compactMap { item -> VisionAnalysisInput? in
+            guard item.type == .photo else { return nil }
+            return VisionAnalysisInput(
+                itemID: item.id,
+                encryptedFileRelativePath: item.encryptedFileRelativePath,
+                pixelWidth: item.pixelWidth,
+                pixelHeight: item.pixelHeight,
+                itemType: item.type.rawValue
+            )
+        }
+
+        guard !inputs.isEmpty else { return }
+
+        Task {
+            await visionService.queueItems(inputs) { [weak self] result in
+                Task { @MainActor in
+                    self?.applyVisionResult(result)
+                }
+            }
+        }
+    }
+
+    private func applyVisionResult(_ result: VisionAnalysisResult) {
+        let targetID = result.itemID
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.id == targetID }
+        )
+        guard let item = try? modelContext.fetch(descriptor).first else { return }
+        item.smartTags = result.smartTags
+        item.extractedText = result.extractedText
+        try? modelContext.save()
     }
 
     // MARK: - Private Helpers
