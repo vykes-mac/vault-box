@@ -19,6 +19,7 @@ func determineAppRootRoute(isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRo
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var authService: AuthService?
     @State private var vaultService: VaultService?
@@ -43,6 +44,24 @@ struct ContentView: View {
             } else {
                 ProgressView()
                     .onAppear { initializeServices() }
+            }
+        }
+        .onChange(of: scenePhase) { _, newPhase in
+            guard let authService else { return }
+            guard authService.isSetupComplete else { return }
+
+            switch newPhase {
+            case .background:
+                authService.recordBackgroundEntry()
+            case .active:
+                guard authService.isUnlocked else { return }
+                if authService.shouldAutoLock() {
+                    authService.lock()
+                }
+            case .inactive:
+                break
+            @unknown default:
+                break
             }
         }
     }

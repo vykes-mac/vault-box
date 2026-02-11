@@ -18,6 +18,7 @@ class AuthService {
     private(set) var isSetupComplete: Bool = false
     private(set) var isUnlocked: Bool = false
     private(set) var isDecoyMode: Bool = false
+    private var lastBackgroundAt: Date?
 
     init(encryptionService: EncryptionService, modelContext: ModelContext) {
         self.encryptionService = encryptionService
@@ -86,6 +87,7 @@ class AuthService {
                 await resetFailedAttempts()
                 isUnlocked = true
                 isDecoyMode = true
+                lastBackgroundAt = nil
                 settings.lastUnlockedAt = Date()
                 try? modelContext.save()
                 return .decoy
@@ -97,6 +99,7 @@ class AuthService {
             await resetFailedAttempts()
             isUnlocked = true
             isDecoyMode = false
+            lastBackgroundAt = nil
             settings.lastUnlockedAt = Date()
             try? modelContext.save()
             return .success
@@ -190,6 +193,7 @@ class AuthService {
             if success {
                 isUnlocked = true
                 isDecoyMode = false
+                lastBackgroundAt = nil
                 let settings = try? loadSettings()
                 settings?.biometricsEnabled = true
                 settings?.lastUnlockedAt = Date()
@@ -245,11 +249,15 @@ class AuthService {
 
     func shouldAutoLock() -> Bool {
         guard let settings = try? loadSettings() else { return true }
-        guard let lastUnlocked = settings.lastUnlockedAt else { return true }
-
-        let elapsed = Date().timeIntervalSince(lastUnlocked)
         if settings.autoLockSeconds == 0 { return true }
+        guard let lastBackgroundAt else { return false }
+        let elapsed = Date().timeIntervalSince(lastBackgroundAt)
         return elapsed >= TimeInterval(settings.autoLockSeconds)
+    }
+
+    func recordBackgroundEntry() {
+        guard isUnlocked else { return }
+        lastBackgroundAt = Date()
     }
 
     // MARK: - Lock
@@ -257,6 +265,7 @@ class AuthService {
     func lock() {
         isUnlocked = false
         isDecoyMode = false
+        lastBackgroundAt = nil
     }
 }
 
