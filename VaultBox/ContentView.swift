@@ -113,7 +113,7 @@ struct ContentView: View {
         .onAppear {
             setupPanicGesture(authService: authService)
         }
-        .sheet(isPresented: $showImporter) {
+        .fullScreenCover(isPresented: $showImporter) {
             ImportView(
                 vaultService: vaultService,
                 album: nil,

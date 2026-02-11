@@ -43,7 +43,7 @@ struct SettingsView: View {
                     viewModel = SettingsViewModel(authService: authService, vaultService: vaultService)
                 }
             }
-            .sheet(isPresented: $showPaywall) {
+            .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
             }
             .sheet(isPresented: $showChangePIN) {

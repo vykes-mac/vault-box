@@ -30,6 +30,12 @@ struct ImportView: View {
         ZStack {
             if showPicker {
                 VStack(spacing: 12) {
+                    Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+
                     PhotosPicker(
                         selection: $selectedItems,
                         matching: .any(of: [.images, .videos]),
@@ -44,19 +50,15 @@ struct ImportView: View {
                         showPicker = false
                         startImport()
                     }
-
-                    Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
-                        .font(.footnote)
-                        .foregroundStyle(Color.vaultTextSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
 
             if isImporting {
                 importProgressOverlay
             }
         }
+        .background(Color.vaultBackground.ignoresSafeArea())
         .alert(
             "Delete \(pendingAssetIdentifiers.count) original\(pendingAssetIdentifiers.count == 1 ? "" : "s") from Camera Roll?",
             isPresented: $showDeletePrompt
