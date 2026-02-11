@@ -14,6 +14,7 @@ enum VaultError: LocalizedError {
     case thumbnailNotFound
     case freeLimitReached
     case fileNotFound
+    case photosPermissionDenied
 
     var errorDescription: String? {
         switch self {
@@ -27,6 +28,8 @@ enum VaultError: LocalizedError {
             "You've reached the free item limit. Upgrade to Premium for unlimited storage."
         case .fileNotFound:
             "The encrypted file could not be found on disk."
+        case .photosPermissionDenied:
+            "VaultBox needs Photos access to delete originals. Allow Photos access in Settings."
         }
     }
 }
@@ -60,16 +63,23 @@ class VaultService {
         for (index, result) in results.enumerated() {
             let provider = result.itemProvider
 
-            if let assetID = result.assetIdentifier {
-                assetIdentifiers.append(assetID)
+            var didImport = false
+            do {
+                if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
+                    let item = try await importVideo(from: provider, album: album)
+                    importedItems.append(item)
+                    didImport = true
+                } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
+                    let item = try await importImage(from: provider, album: album)
+                    importedItems.append(item)
+                    didImport = true
+                }
+            } catch {
+                // Skip failed items and continue importing the remainder.
             }
 
-            if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                let item = try await importVideo(from: provider, album: album)
-                importedItems.append(item)
-            } else if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                let item = try await importImage(from: provider, album: album)
-                importedItems.append(item)
+            if didImport, let assetID = result.assetIdentifier {
+                assetIdentifiers.append(assetID)
             }
 
             progress?(index + 1, results.count)
@@ -327,10 +337,9 @@ class VaultService {
     }
 
     func deleteFromCameraRoll(localIdentifiers: [String]) async throws {
-        try await PHPhotoLibrary.shared().performChanges {
-            let assets = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
-            PHAssetChangeRequest.deleteAssets(assets)
-        }
+        guard !localIdentifiers.isEmpty else { return }
+        try await ensurePhotoLibraryReadWriteAccess()
+        try await PhotoLibraryDeleteHelper.deleteAssets(withLocalIdentifiers: localIdentifiers)
     }
 
     // MARK: - Stats Methods
@@ -398,6 +407,52 @@ class VaultService {
                     continuation.resume(throwing: error)
                 }
             }
+        }
+    }
+
+    private func ensurePhotoLibraryReadWriteAccess() async throws {
+        let currentStatus = PHPhotoLibrary.authorizationStatus(for: .readWrite)
+
+        switch currentStatus {
+        case .authorized, .limited:
+            return
+
+        case .notDetermined:
+            let status = await requestPhotoLibraryReadWriteAuthorization()
+            guard status == .authorized || status == .limited else {
+                throw VaultError.photosPermissionDenied
+            }
+
+        case .denied, .restricted:
+            throw VaultError.photosPermissionDenied
+
+        @unknown default:
+            throw VaultError.photosPermissionDenied
+        }
+    }
+
+    private func requestPhotoLibraryReadWriteAuthorization() async -> PHAuthorizationStatus {
+        await withCheckedContinuation { continuation in
+            PHPhotoLibrary.requestAuthorization(for: .readWrite) { status in
+                continuation.resume(returning: status)
+            }
+        }
+    }
+}
+
+private enum PhotoLibraryDeleteHelper {
+    static func deleteAssets(withLocalIdentifiers identifiers: [String]) async throws {
+        let fetchResult = PHAsset.fetchAssets(withLocalIdentifiers: identifiers, options: nil)
+        var assetsToDelete: [PHAsset] = []
+        assetsToDelete.reserveCapacity(fetchResult.count)
+        fetchResult.enumerateObjects { asset, _, _ in
+            assetsToDelete.append(asset)
+        }
+
+        guard !assetsToDelete.isEmpty else { throw VaultError.itemNotFound }
+
+        try await PHPhotoLibrary.shared().performChanges {
+            PHAssetChangeRequest.deleteAssets(assetsToDelete as NSArray)
         }
     }
 }

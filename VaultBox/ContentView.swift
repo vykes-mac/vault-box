@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 enum AppRootRoute: Equatable {
     case setupPIN
@@ -47,22 +48,22 @@ struct ContentView: View {
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
-            guard let authService else { return }
-            guard authService.isSetupComplete else { return }
-
             switch newPhase {
             case .background:
-                authService.recordBackgroundEntry()
+                handleDidEnterBackground()
             case .active:
-                guard authService.isUnlocked else { return }
-                if authService.shouldAutoLock() {
-                    authService.lock()
-                }
+                handleDidBecomeActive()
             case .inactive:
                 break
             @unknown default:
                 break
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+            handleDidEnterBackground()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+            handleDidBecomeActive()
         }
     }
 
@@ -116,6 +117,22 @@ struct ContentView: View {
         if let settings = try? modelContext.fetch(descriptor).first,
            settings.panicGestureEnabled {
             service.startMonitoring()
+        }
+    }
+
+    private func handleDidEnterBackground() {
+        guard let authService else { return }
+        guard authService.isSetupComplete else { return }
+        authService.recordBackgroundEntry()
+    }
+
+    private func handleDidBecomeActive() {
+        guard let authService else { return }
+        guard authService.isSetupComplete else { return }
+        guard authService.isUnlocked else { return }
+
+        if authService.shouldAutoLock() {
+            authService.lock()
         }
     }
 

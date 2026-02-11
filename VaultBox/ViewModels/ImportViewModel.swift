@@ -24,7 +24,7 @@ class ImportViewModel {
         importTotal = selectedItems.count
         importProgress = 0
 
-        Task {
+        Task { @MainActor in
             var identifiers: [String] = []
 
             for (index, pickerItem) in selectedItems.enumerated() {
@@ -75,12 +75,13 @@ class ImportViewModel {
             return
         }
 
-        Task {
+        Task { @MainActor in
             do {
                 try await vaultService.deleteFromCameraRoll(localIdentifiers: pendingAssetIdentifiers)
                 onComplete()
             } catch {
-                deleteErrorMessage = "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
+                deleteErrorMessage = (error as? LocalizedError)?.errorDescription ??
+                    "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
                 showDeleteError = true
             }
         }

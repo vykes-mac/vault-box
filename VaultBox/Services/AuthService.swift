@@ -249,8 +249,8 @@ class AuthService {
 
     func shouldAutoLock() -> Bool {
         guard let settings = try? loadSettings() else { return true }
-        if settings.autoLockSeconds == 0 { return true }
         guard let lastBackgroundAt else { return false }
+        if settings.autoLockSeconds == 0 { return true }
         let elapsed = Date().timeIntervalSince(lastBackgroundAt)
         return elapsed >= TimeInterval(settings.autoLockSeconds)
     }

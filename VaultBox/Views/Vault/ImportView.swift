@@ -2,6 +2,7 @@ import SwiftUI
 import PhotosUI
 import StoreKit
 import SwiftData
+import UIKit
 
 // MARK: - ImportView
 
@@ -11,21 +12,24 @@ struct ImportView: View {
     let onDismiss: () -> Void
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.openURL) private var openURL
 
     @State private var selectedItems: [PhotosPickerItem] = []
+    @State private var showPicker = true
     @State private var isImporting = false
     @State private var importProgress: Int = 0
     @State private var importTotal: Int = 0
     @State private var showDeletePrompt = false
     @State private var pendingAssetIdentifiers: [String] = []
-    @State private var showPicker = true
-    @State private var showDeleteErrorAlert = false
-    @State private var deleteErrorMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    @State private var showDeletePermissionAlert = false
+    @State private var showErrorAlert = false
+    @State private var errorAlertTitle = "Couldn't Delete Originals"
+    @State private var errorAlertMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
 
     var body: some View {
         ZStack {
             if showPicker {
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     PhotosPicker(
                         selection: $selectedItems,
                         matching: .any(of: [.images, .videos]),
@@ -36,20 +40,16 @@ struct ImportView: View {
                     .photosPickerStyle(.inline)
                     .photosPickerDisabledCapabilities(.selectionActions)
                     .onChange(of: selectedItems) { _, newValue in
-                        if !newValue.isEmpty {
-                            showPicker = false
-                            startImport()
-                        }
+                        guard !newValue.isEmpty else { return }
+                        showPicker = false
+                        startImport()
                     }
 
-                    VStack(spacing: 6) {
-                        Text("VaultBox imports only the items you select.")
-                        Text("Originals stay in Photos unless you choose Delete after import.")
-                    }
-                    .font(.footnote)
-                    .foregroundStyle(Color.vaultTextSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
+                    Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
+                        .font(.footnote)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
                 }
             }
 
@@ -70,12 +70,25 @@ struct ImportView: View {
         } message: {
             Text("The imported items are safely encrypted in your vault.")
         }
-        .alert("Couldn't Delete Originals", isPresented: $showDeleteErrorAlert) {
+        .alert(errorAlertTitle, isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) {
                 onDismiss()
             }
         } message: {
-            Text(deleteErrorMessage)
+            Text(errorAlertMessage)
+        }
+        .alert("Photos Access Needed", isPresented: $showDeletePermissionAlert) {
+            Button("Open Settings") {
+                if let settingsURL = URL(string: UIApplication.openSettingsURLString) {
+                    openURL(settingsURL)
+                }
+                onDismiss()
+            }
+            Button("Keep", role: .cancel) {
+                onDismiss()
+            }
+        } message: {
+            Text("VaultBox needs Photos access to delete originals. You can keep originals or allow access in Settings.")
         }
     }
 
@@ -110,10 +123,7 @@ struct ImportView: View {
         importTotal = selectedItems.count
         importProgress = 0
 
-        Task {
-            // Convert PhotosPickerItems to PHPickerResults via loadTransferable
-            // Since PhotosPicker doesn't give PHPickerResult directly,
-            // we import item by item
+        Task { @MainActor in
             var importedItems: [VaultItem] = []
             var identifiers: [String] = []
 
@@ -123,23 +133,22 @@ struct ImportView: View {
                 do {
                     if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
                         let item = try await vaultService.importDocument(at: movie.url, album: album)
-                        // Re-type as video
                         item.type = .video
                         importedItems.append(item)
                         didImport = true
                     } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
-                        let image = UIImage(data: imageData)
-                        let pixelWidth = image.map { Int($0.size.width * $0.scale) }
-                        let pixelHeight = image.map { Int($0.size.height * $0.scale) }
+                        guard let uiImage = UIImage(data: imageData) else {
+                            throw VaultError.importFailed
+                        }
 
-                        let item = try await importImageData(imageData, album: album)
-                        item.pixelWidth = pixelWidth
-                        item.pixelHeight = pixelHeight
+                        let item = try await vaultService.importFromCamera(uiImage, album: album)
+                        item.pixelWidth = Int(uiImage.size.width * uiImage.scale)
+                        item.pixelHeight = Int(uiImage.size.height * uiImage.scale)
                         importedItems.append(item)
                         didImport = true
                     }
                 } catch {
-                    // Skip failed items, continue with rest
+                    // Skip failed items and continue with the remainder.
                 }
 
                 if didImport, let itemIdentifier = pickerItem.itemIdentifier {
@@ -150,8 +159,6 @@ struct ImportView: View {
             }
 
             isImporting = false
-
-            // Track imports for rate prompt (F34)
             incrementImportCount(by: importedItems.count)
 
             if !identifiers.isEmpty {
@@ -163,26 +170,25 @@ struct ImportView: View {
         }
     }
 
-    private func importImageData(_ data: Data, album: Album?) async throws -> VaultItem {
-        guard let image = UIImage(data: data) else {
-            throw VaultError.importFailed
-        }
-        return try await vaultService.importFromCamera(image, album: album)
-    }
-
     private func deleteCameraRollOriginals() {
         guard !pendingAssetIdentifiers.isEmpty else {
             onDismiss()
             return
         }
 
-        Task {
+        Task { @MainActor in
             do {
                 try await vaultService.deleteFromCameraRoll(localIdentifiers: pendingAssetIdentifiers)
                 onDismiss()
             } catch {
-                deleteErrorMessage = "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
-                showDeleteErrorAlert = true
+                if let vaultError = error as? VaultError, case .photosPermissionDenied = vaultError {
+                    showDeletePermissionAlert = true
+                } else {
+                    errorAlertTitle = "Couldn't Delete Originals"
+                    errorAlertMessage = (error as? LocalizedError)?.errorDescription ??
+                        "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
+                    showErrorAlert = true
+                }
             }
         }
     }
