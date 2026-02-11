@@ -15,12 +15,14 @@ class AuthService {
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
 
+    private(set) var isSetupComplete: Bool = false
     private(set) var isUnlocked: Bool = false
     private(set) var isDecoyMode: Bool = false
 
     init(encryptionService: EncryptionService, modelContext: ModelContext) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
+        isSetupComplete = (try? loadSettings().isSetupComplete) == true
     }
 
     // MARK: - Settings Access
@@ -50,12 +52,18 @@ class AuthService {
         settings.pinSalt = salt.base64EncodedString()
         settings.pinLength = pin.count
         settings.isSetupComplete = true
+        settings.lastUnlockedAt = Date()
 
         // Generate and store master key derived from PIN
         let masterKey = await encryptionService.deriveMasterKey(from: pin, salt: salt)
         try await encryptionService.storeMasterKey(masterKey)
 
         try modelContext.save()
+
+        // Keep the user in an unlocked session after first-time setup.
+        isSetupComplete = true
+        isUnlocked = true
+        isDecoyMode = false
     }
 
     func verifyPIN(_ pin: String) async -> AuthResult {

@@ -3,20 +3,21 @@ import Foundation
 
 @Model
 final class VaultItem {
-    @Attribute(.unique) var id: UUID
-    var type: ItemType
-    var originalFilename: String
-    var encryptedFileRelativePath: String
+    var id: UUID = UUID()
+    var type: ItemType = VaultItem.ItemType.photo
+    var originalFilename: String = ""
+    var encryptedFileRelativePath: String = ""
     var encryptedThumbnailData: Data?
     var album: Album?
-    var fileSize: Int64
+    var coverForAlbum: Album?
+    var fileSize: Int64 = 0
     var durationSeconds: Double?
     var pixelWidth: Int?
     var pixelHeight: Int?
-    var createdAt: Date
-    var importedAt: Date
-    var isFavorite: Bool
-    var isUploaded: Bool
+    var createdAt: Date = Date()
+    var importedAt: Date = Date()
+    var isFavorite: Bool = false
+    var isUploaded: Bool = false
     var cloudRecordID: String?
 
     enum ItemType: String, Codable {

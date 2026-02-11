@@ -3,12 +3,12 @@ import Foundation
 
 @Model
 final class BreakInAttempt {
-    var id: UUID
+    var id: UUID = UUID()
     var intruderPhotoData: Data?
     var latitude: Double?
     var longitude: Double?
-    var timestamp: Date
-    var attemptedPIN: String
+    var timestamp: Date = Date()
+    var attemptedPIN: String = ""
 
     init(attemptedPIN: String) {
         self.id = UUID()

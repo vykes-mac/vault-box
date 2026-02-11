@@ -3,16 +3,17 @@ import Foundation
 
 @Model
 final class Album {
-    @Attribute(.unique) var id: UUID
-    var name: String
+    var id: UUID = UUID()
+    var name: String = ""
+    @Relationship(deleteRule: .nullify, inverse: \VaultItem.coverForAlbum)
     var coverItem: VaultItem?
     @Relationship(deleteRule: .nullify, inverse: \VaultItem.album)
     var items: [VaultItem]?
-    var sortOrder: Int
-    var isLocked: Bool
+    var sortOrder: Int = 0
+    var isLocked: Bool = false
     var albumPINHash: String?
-    var isDecoy: Bool
-    var createdAt: Date
+    var isDecoy: Bool = false
+    var createdAt: Date = Date()
 
     init(name: String, sortOrder: Int = 0, isDecoy: Bool = false) {
         self.id = UUID()

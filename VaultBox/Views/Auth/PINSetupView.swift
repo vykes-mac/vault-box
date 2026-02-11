@@ -10,7 +10,7 @@ struct PINSetupView: View {
     @State private var shakeOffset: CGFloat = 0
     @State private var errorMessage: String?
     @State private var showBiometricPrompt = false
-    @State private var isComplete = false
+    @State private var isSubmitting = false
 
     private var currentPin: String {
         isConfirming ? confirmPin : pin
@@ -96,11 +96,10 @@ struct PINSetupView: View {
                     if context {
                         // Biometrics enabled via successful auth
                     }
-                    isComplete = true
                 }
             }
             Button("Not Now", role: .cancel) {
-                isComplete = true
+                // Keep current unlock session state; root routing will continue to main.
             }
         } message: {
             Text("Use Face ID to quickly unlock your vault.")
@@ -108,7 +107,7 @@ struct PINSetupView: View {
     }
 
     private func handleDigit(_ digit: String) {
-        guard currentPin.count < maxLength else { return }
+        guard !isSubmitting, currentPin.count < maxLength else { return }
 
         if isConfirming {
             confirmPin += digit
@@ -121,6 +120,7 @@ struct PINSetupView: View {
     }
 
     private func handleDelete() {
+        guard !isSubmitting else { return }
         if isConfirming {
             guard !confirmPin.isEmpty else { return }
             confirmPin.removeLast()
@@ -133,7 +133,9 @@ struct PINSetupView: View {
     }
 
     private func verifyConfirmation() {
+        guard !isSubmitting else { return }
         if confirmPin == pin {
+            isSubmitting = true
             dotState = .success
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
@@ -141,12 +143,11 @@ struct PINSetupView: View {
                     try await authService.createPIN(pin)
                     if authService.isBiometricsAvailable() {
                         showBiometricPrompt = true
-                    } else {
-                        isComplete = true
                     }
                 } catch {
                     dotState = .error
                     errorMessage = error.localizedDescription
+                    isSubmitting = false
                 }
             }
         } else {

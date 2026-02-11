@@ -33,6 +33,8 @@ struct AuthServiceTests {
         #expect(settings.isSetupComplete == true)
         #expect(!settings.pinHash.isEmpty)
         #expect(!settings.pinSalt.isEmpty)
+        #expect(auth.isSetupComplete == true)
+        #expect(auth.isUnlocked == true)
     }
 
     @Test("Correct PIN returns success")
@@ -51,6 +53,7 @@ struct AuthServiceTests {
     func wrongPINReturnsFailure() async throws {
         let (auth, _, _) = try makeServices()
         try await auth.createPIN("1234")
+        auth.lock()
 
         let result = await auth.verifyPIN("9999")
         #expect(result == .failure)
@@ -151,9 +154,11 @@ struct AuthServiceTests {
         try await auth.createPIN("1234")
         _ = await auth.verifyPIN("1234")
         #expect(auth.isUnlocked == true)
+        #expect(auth.isSetupComplete == true)
 
         auth.lock()
         #expect(auth.isUnlocked == false)
+        #expect(auth.isSetupComplete == true)
     }
 
     @Test("Auto-lock with immediate setting always returns true")
@@ -165,5 +170,38 @@ struct AuthServiceTests {
 
         let shouldLock = auth.shouldAutoLock()
         #expect(shouldLock == true)
+    }
+
+    @Test("Route uses setup when setup is incomplete and session is locked")
+    func routeUsesSetup() {
+        #expect(determineAppRootRoute(isSetupComplete: false, isUnlocked: false) == .setupPIN)
+    }
+
+    @Test("Route uses lock when setup is complete and session is locked")
+    func routeUsesLock() {
+        #expect(determineAppRootRoute(isSetupComplete: true, isUnlocked: false) == .lock)
+    }
+
+    @Test("Route prioritizes main when session is unlocked")
+    func routeUsesMainWhenUnlocked() {
+        #expect(determineAppRootRoute(isSetupComplete: true, isUnlocked: true) == .main)
+        #expect(determineAppRootRoute(isSetupComplete: false, isUnlocked: true) == .main)
+    }
+
+    @Test("Route transitions from setup to main after create PIN")
+    @MainActor
+    func routeTransitionsToMainAfterCreatePIN() async throws {
+        let (auth, _, _) = try makeServices()
+        #expect(determineAppRootRoute(
+            isSetupComplete: auth.isSetupComplete,
+            isUnlocked: auth.isUnlocked
+        ) == .setupPIN)
+
+        try await auth.createPIN("1234")
+
+        #expect(determineAppRootRoute(
+            isSetupComplete: auth.isSetupComplete,
+            isUnlocked: auth.isUnlocked
+        ) == .main)
     }
 }

@@ -3,25 +3,25 @@ import Foundation
 
 @Model
 final class AppSettings {
-    var id: UUID
-    var isSetupComplete: Bool
-    var pinHash: String
-    var pinSalt: String
-    var biometricsEnabled: Bool
+    var id: UUID = UUID()
+    var isSetupComplete: Bool = false
+    var pinHash: String = ""
+    var pinSalt: String = ""
+    var biometricsEnabled: Bool = false
     var decoyPINHash: String?
     var decoyPINSalt: String?
-    var freeItemLimit: Int
+    var freeItemLimit: Int = Constants.freeItemLimit
     var selectedAltIconName: String?
-    var iCloudBackupEnabled: Bool
-    var autoLockSeconds: Int
-    var panicGestureEnabled: Bool
-    var breakInAlertsEnabled: Bool
+    var iCloudBackupEnabled: Bool = false
+    var autoLockSeconds: Int = 0
+    var panicGestureEnabled: Bool = false
+    var breakInAlertsEnabled: Bool = true
     var lastUnlockedAt: Date?
-    var pinLength: Int
-    var failedAttemptCount: Int
+    var pinLength: Int = Constants.pinMinLength
+    var failedAttemptCount: Int = 0
     var lockoutUntil: Date?
-    var importCount: Int
-    var themeMode: String // "system", "light", "dark"
+    var importCount: Int = 0
+    var themeMode: String = "system" // "system", "light", "dark"
 
     init(pinHash: String = "", pinSalt: String = "") {
         self.id = UUID()

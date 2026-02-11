@@ -1,6 +1,22 @@
 import SwiftUI
 import SwiftData
 
+enum AppRootRoute: Equatable {
+    case setupPIN
+    case lock
+    case main
+}
+
+func determineAppRootRoute(isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRoute {
+    if isUnlocked {
+        return .main
+    }
+    if !isSetupComplete {
+        return .setupPIN
+    }
+    return .lock
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
 
@@ -10,21 +26,18 @@ struct ContentView: View {
     @State private var panicGestureService: PanicGestureService?
     @State private var showImporter = false
 
-    private var isSetupComplete: Bool {
-        guard authService != nil else { return false }
-        let descriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(descriptor).first else { return false }
-        return settings.isSetupComplete
-    }
-
     var body: some View {
         Group {
             if let authService, let vaultService {
-                if !isSetupComplete {
+                switch determineAppRootRoute(
+                    isSetupComplete: authService.isSetupComplete,
+                    isUnlocked: authService.isUnlocked
+                ) {
+                case .setupPIN:
                     PINSetupView(authService: authService)
-                } else if !authService.isUnlocked {
+                case .lock:
                     LockScreenView(authService: authService)
-                } else {
+                case .main:
                     mainTabView(authService: authService, vaultService: vaultService)
                 }
             } else {
