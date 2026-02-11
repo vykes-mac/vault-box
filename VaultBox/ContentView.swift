@@ -27,37 +27,55 @@ struct ContentView: View {
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
     @State private var showImporter = false
+    @State private var showPrivacyShield = false
 
     var body: some View {
-        Group {
-            if let authService, let vaultService {
-                switch determineAppRootRoute(
-                    isSetupComplete: authService.isSetupComplete,
-                    isUnlocked: authService.isUnlocked
-                ) {
-                case .setupPIN:
-                    PINSetupView(authService: authService)
-                case .lock:
-                    LockScreenView(authService: authService)
-                case .main:
-                    mainTabView(authService: authService, vaultService: vaultService)
+        ZStack {
+            Group {
+                if let authService, let vaultService {
+                    switch determineAppRootRoute(
+                        isSetupComplete: authService.isSetupComplete,
+                        isUnlocked: authService.isUnlocked
+                    ) {
+                    case .setupPIN:
+                        PINSetupView(authService: authService)
+                    case .lock:
+                        LockScreenView(authService: authService)
+                    case .main:
+                        mainTabView(authService: authService, vaultService: vaultService)
+                    }
+                } else {
+                    ProgressView()
+                        .onAppear { initializeServices() }
                 }
-            } else {
-                ProgressView()
-                    .onAppear { initializeServices() }
+            }
+
+            if showPrivacyShield {
+                Color.black
+                    .ignoresSafeArea()
+                    .overlay {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 36, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .transition(.opacity)
+                    .zIndex(1)
             }
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
                 handleDidEnterBackground()
+            case .inactive:
+                handleWillResignActive()
             case .active:
                 handleDidBecomeActive()
-            case .inactive:
-                break
             @unknown default:
                 break
             }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            handleWillResignActive()
         }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
             handleDidEnterBackground()
@@ -121,18 +139,27 @@ struct ContentView: View {
     }
 
     private func handleDidEnterBackground() {
+        showPrivacyShield = true
         guard let authService else { return }
         guard authService.isSetupComplete else { return }
         authService.recordBackgroundEntry()
     }
 
-    private func handleDidBecomeActive() {
-        guard let authService else { return }
-        guard authService.isSetupComplete else { return }
-        guard authService.isUnlocked else { return }
+    private func handleWillResignActive() {
+        showPrivacyShield = true
+    }
 
-        if authService.shouldAutoLock() {
+    private func handleDidBecomeActive() {
+        if let authService, authService.isSetupComplete, authService.isUnlocked, authService.shouldAutoLock() {
             authService.lock()
+        }
+
+        Task { @MainActor in
+            // Keep content obscured until route changes (lock/main) are committed.
+            await Task.yield()
+            if scenePhase == .active {
+                showPrivacyShield = false
+            }
         }
     }
 
