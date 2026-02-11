@@ -128,6 +128,7 @@ actor WiFiTransferService {
         switch state {
         case .failed, .cancelled:
             connections.removeValue(forKey: id)
+            buffers.removeValue(forKey: id)
             connectedDeviceCount = connections.count
             notifyStateChange()
         default:
@@ -140,8 +141,13 @@ actor WiFiTransferService {
             guard let self else { return }
 
             Task {
+                var handledRequest = false
                 if let data, !data.isEmpty {
-                    await self.accumulateAndProcess(data: data, connection: connection, id: id)
+                    handledRequest = await self.accumulateAndProcess(data: data, connection: connection, id: id)
+                }
+
+                if handledRequest {
+                    return
                 }
 
                 if isComplete || error != nil {
@@ -155,15 +161,21 @@ actor WiFiTransferService {
 
     private var buffers: [Int: Data] = [:]
 
-    private func accumulateAndProcess(data: Data, connection: NWConnection, id: Int) async {
+    private func accumulateAndProcess(data: Data, connection: NWConnection, id: Int) async -> Bool {
         if buffers[id] == nil {
             buffers[id] = Data()
         }
         buffers[id]!.append(data)
 
+        if buffers[id]!.count > Constants.wifiTransferMaxRequestBytes {
+            buffers.removeValue(forKey: id)
+            let response = HTTPResponse.error("Upload too large", code: 413)
+            sendResponse(response, on: connection, id: id)
+            return true
+        }
+
         guard HTTPParser.isRequestComplete(buffers[id]!) else {
-            receiveData(on: connection, id: id)
-            return
+            return false
         }
 
         let requestData = buffers[id]!
@@ -174,11 +186,12 @@ actor WiFiTransferService {
         guard let request = HTTPParser.parseRequest(from: requestData) else {
             let response = HTTPResponse.error("Bad Request", code: 400)
             sendResponse(response, on: connection, id: id)
-            return
+            return true
         }
 
         let response = await handleRequest(request)
         sendResponse(response, on: connection, id: id)
+        return true
     }
 
     private func sendResponse(_ response: HTTPResponse, on connection: NWConnection, id: Int) {
@@ -192,6 +205,7 @@ actor WiFiTransferService {
     }
 
     private func closeConnection(id: Int) {
+        buffers.removeValue(forKey: id)
         if let connection = connections.removeValue(forKey: id) {
             connection.cancel()
         }

@@ -97,6 +97,7 @@ struct PhotoDetailView: View {
         .sheet(isPresented: $showInfoPanel) {
             infoPanelSheet
                 .presentationDetents([.medium])
+                .presentationBackground(Color.vaultBackground)
         }
         .sheet(isPresented: $showShareSheet) {
             if let image = shareImage {

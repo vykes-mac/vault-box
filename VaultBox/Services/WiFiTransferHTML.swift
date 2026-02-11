@@ -177,6 +177,7 @@ enum WiFiTransferHTML {
         for (let f of files) fd.append('files', f, f.name);
 
         const xhr = new XMLHttpRequest();
+        const maxUploadMB = \(Constants.wifiTransferMaxRequestBytes / (1024 * 1024));
         progressBar.style.display = 'block';
         progressFill.style.width = '0%';
         progressText.textContent = 'Uploading...';
@@ -190,10 +191,20 @@ enum WiFiTransferHTML {
         });
 
         xhr.addEventListener('load', () => {
-            progressText.textContent = 'Done!';
-            setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
-            fileInput.value = '';
-            loadItems();
+            if (xhr.status >= 200 && xhr.status < 300) {
+                progressText.textContent = 'Done!';
+                setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
+                fileInput.value = '';
+                loadItems();
+                return;
+            }
+
+            if (xhr.status === 413) {
+                progressText.textContent = 'Video too large. Max upload is ' + maxUploadMB + ' MB.';
+            } else {
+                const message = (xhr.responseText || '').trim();
+                progressText.textContent = message || 'Upload failed.';
+            }
         });
 
         xhr.addEventListener('error', () => {

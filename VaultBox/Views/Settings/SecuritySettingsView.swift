@@ -120,12 +120,16 @@ struct SecuritySettingsView: View {
 
             Spacer().frame(height: 20)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.vaultBackground.ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button("Cancel") { dismiss() }
             }
         }
+        .toolbarBackground(Color.vaultBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
         .alert("Error", isPresented: $showError) {
             Button("OK") {}
         } message: {

@@ -50,11 +50,13 @@ struct SettingsView: View {
                 NavigationStack {
                     SecuritySettingsView(authService: authService, mode: .changePIN)
                 }
+                .presentationBackground(Color.vaultBackground)
             }
             .sheet(isPresented: $showDecoySetup) {
                 NavigationStack {
                     SecuritySettingsView(authService: authService, mode: .decoySetup)
                 }
+                .presentationBackground(Color.vaultBackground)
             }
             .navigationDestination(isPresented: $showBreakInLog) {
                 BreakInLogView()

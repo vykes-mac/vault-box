@@ -230,6 +230,7 @@ struct VaultGridView: View {
             }
         }
         .presentationDetents([.medium])
+        .presentationBackground(Color.vaultBackground)
     }
 
     // MARK: - Empty State

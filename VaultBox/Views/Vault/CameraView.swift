@@ -11,8 +11,7 @@ struct CameraView: View {
     @Environment(PurchaseService.self) private var purchaseService
     @Query private var allItems: [VaultItem]
 
-    @State private var capturedImage: UIImage?
-    @State private var showPreview = false
+    @State private var capturedPhoto: CapturedPhoto?
     @State private var isSaving = false
     @State private var savedCount = 0
     @State private var showSavedBanner = false
@@ -27,8 +26,7 @@ struct CameraView: View {
                 CameraPreviewContainer(
                     cameraPosition: $cameraPosition,
                     onCapture: { image in
-                        capturedImage = image
-                        showPreview = true
+                        capturedPhoto = CapturedPhoto(image: image)
                     }
                 )
                 .ignoresSafeArea()
@@ -57,15 +55,13 @@ struct CameraView: View {
             .navigationTitle("Camera")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
-            .sheet(isPresented: $showPreview) {
-                if let image = capturedImage {
-                    CameraPreviewSheet(
-                        image: image,
-                        isSaving: isSaving,
-                        onSave: { saveToVault(image) },
-                        onRetake: { showPreview = false }
-                    )
-                }
+            .sheet(item: $capturedPhoto) { photo in
+                CameraPreviewSheet(
+                    image: photo.image,
+                    isSaving: isSaving,
+                    onSave: { saveToVault(photo.image) },
+                    onRetake: { capturedPhoto = nil }
+                )
             }
             .alert("Error", isPresented: $showError) {
                 Button("OK") {}
@@ -80,7 +76,7 @@ struct CameraView: View {
 
     private func saveToVault(_ image: UIImage) {
         if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
-            showPreview = false
+            capturedPhoto = nil
             showPaywall = true
             return
         }
@@ -91,7 +87,7 @@ struct CameraView: View {
                 let item = try await vaultService.importFromCamera(image, album: nil)
                 vaultService.queueVisionAnalysis(for: [item])
                 isSaving = false
-                showPreview = false
+                capturedPhoto = nil
                 savedCount += 1
 
                 withAnimation {
@@ -104,7 +100,7 @@ struct CameraView: View {
             } catch {
                 isSaving = false
                 if let vaultError = error as? VaultError, case .freeLimitReached = vaultError {
-                    showPreview = false
+                    capturedPhoto = nil
                     showPaywall = true
                 } else {
                     errorMessage = "Couldn't import this photo. Please try again."
@@ -115,6 +111,11 @@ struct CameraView: View {
     }
 }
 
+private struct CapturedPhoto: Identifiable {
+    let id = UUID()
+    let image: UIImage
+}
+
 // MARK: - Camera Preview Sheet
 
 private struct CameraPreviewSheet: View {
@@ -122,8 +123,6 @@ private struct CameraPreviewSheet: View {
     let isSaving: Bool
     let onSave: () -> Void
     let onRetake: () -> Void
-
-    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
@@ -160,12 +159,18 @@ private struct CameraPreviewSheet: View {
                     }
                     .disabled(isSaving)
                 }
+                .frame(maxWidth: .infinity)
                 .padding(.vertical, 20)
                 .background(Color.vaultBackground)
             }
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .background(Color.black.ignoresSafeArea())
             .navigationTitle("Preview")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(Color.black, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
         }
+        .presentationBackground(Color.black)
     }
 }
 

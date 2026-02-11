@@ -58,6 +58,7 @@ struct PINReEntryView: View {
                     .frame(maxHeight: .infinity)
             }
             .padding(.horizontal, Constants.standardPadding)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.vaultBackground.ignoresSafeArea())
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -66,10 +67,13 @@ struct PINReEntryView: View {
                     }
                 }
             }
+            .toolbarBackground(Color.vaultBackground, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
             .onAppear {
                 pinLength = authService.getPINLength()
             }
         }
+        .presentationBackground(Color.vaultBackground)
     }
 
     // MARK: - Input

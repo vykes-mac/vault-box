@@ -75,6 +75,8 @@ enum Constants {
 
     static let wifiTransferPort: UInt16 = 8080
     static let wifiTransferTimeoutMinutes = 10
+    static let wifiTransferMaxRequestBytes = 250 * 1024 * 1024
+    static let maxVideoImportBytes = 250 * 1024 * 1024
 
     // MARK: - RevenueCat
 

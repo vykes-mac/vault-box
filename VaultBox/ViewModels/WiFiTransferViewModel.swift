@@ -124,7 +124,20 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
                 .appendingPathComponent(filename)
             try data.write(to: tempURL)
             defer { try? FileManager.default.removeItem(at: tempURL) }
-            _ = try await vaultService.importDocument(at: tempURL, album: nil)
+
+            let ext = (filename as NSString).pathExtension.lowercased()
+            let inferredFromName = UTType(filenameExtension: ext)
+            let inferredFromMime = UTType(mimeType: contentType)
+            let isVideoUpload =
+                lowerCT.hasPrefix("video/") ||
+                inferredFromName?.conforms(to: .movie) == true ||
+                inferredFromMime?.conforms(to: .movie) == true
+
+            if isVideoUpload {
+                _ = try await vaultService.importVideo(at: tempURL, filename: filename, album: nil)
+            } else {
+                _ = try await vaultService.importDocument(at: tempURL, album: nil)
+            }
         }
     }
 

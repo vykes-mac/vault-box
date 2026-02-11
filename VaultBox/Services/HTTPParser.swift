@@ -23,6 +23,7 @@ struct HTTPResponse: Sendable {
         case 200: statusText = "OK"
         case 404: statusText = "Not Found"
         case 400: statusText = "Bad Request"
+        case 413: statusText = "Payload Too Large"
         case 500: statusText = "Internal Server Error"
         default: statusText = "Unknown"
         }
@@ -101,11 +102,10 @@ struct MultipartFile: Sendable {
 enum HTTPParser {
 
     static func isRequestComplete(_ data: Data) -> Bool {
-        guard let str = String(data: data, encoding: .utf8) else { return false }
-
-        guard let headerEnd = str.range(of: "\r\n\r\n") else { return false }
-
-        let headerPart = String(str[str.startIndex..<headerEnd.lowerBound])
+        let separator = Data("\r\n\r\n".utf8)
+        guard let headerRange = data.firstRange(of: separator) else { return false }
+        let headerData = data[data.startIndex..<headerRange.lowerBound]
+        guard let headerPart = String(data: headerData, encoding: .utf8) else { return false }
         let lines = headerPart.components(separatedBy: "\r\n")
 
         var contentLength = 0
@@ -118,61 +118,14 @@ enum HTTPParser {
             }
         }
 
-        let bodyStart = str.distance(from: str.startIndex, to: headerEnd.upperBound)
-        let bodyLength = data.count - bodyStart
+        let bodyStart = headerRange.upperBound
+        let bodyLength = data.distance(from: bodyStart, to: data.endIndex)
 
         return bodyLength >= contentLength
     }
 
     static func parseRequest(from data: Data) -> HTTPRequest? {
-        guard let str = String(data: data, encoding: .utf8),
-              let headerEnd = str.range(of: "\r\n\r\n") else {
-            // Try to parse with latin1 for binary bodies
-            return parseRequestLatin1(from: data)
-        }
-
-        let headerPart = String(str[str.startIndex..<headerEnd.lowerBound])
-        let lines = headerPart.components(separatedBy: "\r\n")
-
-        guard let requestLine = lines.first else { return nil }
-        let parts = requestLine.split(separator: " ", maxSplits: 2)
-        guard parts.count >= 2 else { return nil }
-
-        let method = String(parts[0])
-        let fullPath = String(parts[1])
-
-        var path = fullPath
-        var queryParameters: [String: String] = [:]
-        if let queryStart = fullPath.firstIndex(of: "?") {
-            path = String(fullPath[fullPath.startIndex..<queryStart])
-            let queryString = String(fullPath[fullPath.index(after: queryStart)...])
-            for pair in queryString.split(separator: "&") {
-                let kv = pair.split(separator: "=", maxSplits: 1)
-                if kv.count == 2 {
-                    queryParameters[String(kv[0])] = String(kv[1])
-                }
-            }
-        }
-
-        var headers: [String: String] = [:]
-        for line in lines.dropFirst() {
-            if let colonIndex = line.firstIndex(of: ":") {
-                let key = String(line[line.startIndex..<colonIndex]).trimmingCharacters(in: .whitespaces)
-                let value = String(line[line.index(after: colonIndex)...]).trimmingCharacters(in: .whitespaces)
-                headers[key] = value
-            }
-        }
-
-        let bodyStartIndex = str.distance(from: str.startIndex, to: headerEnd.upperBound)
-        let body = data.dropFirst(bodyStartIndex)
-
-        return HTTPRequest(
-            method: method,
-            path: path,
-            headers: headers,
-            body: Data(body),
-            queryParameters: queryParameters
-        )
+        parseRequestLatin1(from: data)
     }
 
     private static func parseRequestLatin1(from data: Data) -> HTTPRequest? {

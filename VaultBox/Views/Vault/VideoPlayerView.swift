@@ -14,6 +14,7 @@ struct VideoPlayerView: View {
     @State private var tempFileURL: URL?
     @State private var isLoading = true
     @State private var errorMessage: String?
+    @State private var isMuted = true
 
     var body: some View {
         ZStack {
@@ -22,6 +23,11 @@ struct VideoPlayerView: View {
             if let player {
                 VideoPlayerRepresentable(player: player)
                     .ignoresSafeArea()
+                    .overlay(alignment: .topTrailing) {
+                        muteToggleButton(player: player)
+                            .padding(.top, 16)
+                            .padding(.trailing, 16)
+                    }
             } else if isLoading {
                 ProgressView("Decrypting video…")
                     .tint(.white)
@@ -66,9 +72,11 @@ struct VideoPlayerView: View {
 
     private func loadVideo() async {
         do {
+            try configureAudioSession()
             let url = try await vaultService.decryptVideoURL(for: item)
             tempFileURL = url
             let avPlayer = AVPlayer(url: url)
+            avPlayer.isMuted = isMuted
             player = avPlayer
             isLoading = false
         } catch {
@@ -80,10 +88,35 @@ struct VideoPlayerView: View {
     private func cleanupTempFile() {
         player?.pause()
         player = nil
+        deactivateAudioSession()
         if let url = tempFileURL {
             try? FileManager.default.removeItem(at: url)
             tempFileURL = nil
         }
+    }
+
+    private func muteToggleButton(player: AVPlayer) -> some View {
+        Button {
+            isMuted.toggle()
+            player.isMuted = isMuted
+        } label: {
+            Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                .font(.headline)
+                .foregroundStyle(.white)
+                .padding(10)
+                .background(.black.opacity(0.55), in: Circle())
+        }
+    }
+
+    private func configureAudioSession() throws {
+        let session = AVAudioSession.sharedInstance()
+        try session.setCategory(.playback, mode: .moviePlayback, options: [])
+        try session.setActive(true)
+    }
+
+    private func deactivateAudioSession() {
+        let session = AVAudioSession.sharedInstance()
+        try? session.setActive(false, options: .notifyOthersOnDeactivation)
     }
 }
 

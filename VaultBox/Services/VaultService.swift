@@ -17,6 +17,7 @@ enum VaultError: LocalizedError {
     case premiumRequired
     case fileNotFound
     case photosPermissionDenied
+    case videoTooLarge(maxMB: Int)
 
     var errorDescription: String? {
         switch self {
@@ -34,6 +35,8 @@ enum VaultError: LocalizedError {
             "The encrypted file could not be found on disk."
         case .photosPermissionDenied:
             "VaultBox needs Photos access to delete originals. Allow Photos access in Settings."
+        case .videoTooLarge(let maxMB):
+            "This video is too large to import. The current limit is \(maxMB) MB."
         }
     }
 }
@@ -107,63 +110,11 @@ class VaultService {
     }
 
     private func importVideo(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
-        try enforceImportLimit()
-        let (videoData, tempURL) = try await loadVideoData(from: provider)
-        let filename = provider.suggestedName ?? "Untitled"
+        let tempURL = try await loadVideoURL(from: provider)
+        defer { try? FileManager.default.removeItem(at: tempURL) }
 
-        // Get duration
-        let asset = AVURLAsset(url: tempURL)
-        let duration = try await asset.load(.duration)
-        let durationSeconds = CMTimeGetSeconds(duration)
-
-        // Generate thumbnail from first frame
-        let imageGenerator = AVAssetImageGenerator(asset: asset)
-        imageGenerator.appliesPreferredTrackTransform = true
-        let (cgImage, _) = try await imageGenerator.image(at: .zero)
-        let thumbnailImage = UIImage(cgImage: cgImage)
-        let thumbnailJPEG = thumbnailImage.jpegData(compressionQuality: Constants.thumbnailJPEGQuality)
-
-        // Get dimensions from thumbnail
-        let pixelWidth = Int(thumbnailImage.size.width * thumbnailImage.scale)
-        let pixelHeight = Int(thumbnailImage.size.height * thumbnailImage.scale)
-
-        // Encrypt and write file
-        let vaultDir = try await encryptionService.vaultFilesDirectory()
-        let fileID = UUID()
-        let relativePath = "\(fileID).\(Constants.encryptedFileExtension)"
-        let fileURL = vaultDir.appendingPathComponent(relativePath)
-
-        let encryptedData = try await encryptionService.encryptData(videoData)
-        try encryptedData.write(to: fileURL)
-
-        // Encrypt thumbnail
-        var encryptedThumbnail: Data?
-        if let jpegData = thumbnailJPEG {
-            encryptedThumbnail = try await encryptionService.generateEncryptedThumbnail(
-                from: jpegData,
-                maxSize: Constants.thumbnailMaxSize
-            )
-        }
-
-        // Clean up temp file
-        try? FileManager.default.removeItem(at: tempURL)
-
-        let item = VaultItem(
-            type: .video,
-            originalFilename: filename,
-            encryptedFileRelativePath: relativePath,
-            fileSize: Int64(videoData.count)
-        )
-        item.encryptedThumbnailData = encryptedThumbnail
-        item.pixelWidth = pixelWidth
-        item.pixelHeight = pixelHeight
-        item.durationSeconds = durationSeconds
-        item.album = album
-
-        modelContext.insert(item)
-        try modelContext.save()
-
-        return item
+        let suggested = provider.suggestedName ?? tempURL.deletingPathExtension().lastPathComponent
+        return try await importVideo(at: tempURL, filename: suggested, album: album)
     }
 
     // MARK: - Import from Camera
@@ -240,6 +191,75 @@ class VaultService {
         item.encryptedThumbnailData = encryptedThumbnail
         item.pixelWidth = pixelWidth
         item.pixelHeight = pixelHeight
+        item.album = album
+
+        modelContext.insert(item)
+        try modelContext.save()
+
+        return item
+    }
+
+    func importVideo(at url: URL, filename: String?, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
+        try enforceVideoSizeLimit(for: url)
+
+        let resolvedName: String
+        if let trimmed = filename?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty {
+            resolvedName = trimmed
+        } else {
+            resolvedName = "Video"
+        }
+
+        let accessing = url.startAccessingSecurityScopedResource()
+        defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+
+        let asset = AVURLAsset(url: url)
+        let durationSeconds: Double?
+        if let duration = try? await asset.load(.duration) {
+            let value = CMTimeGetSeconds(duration)
+            durationSeconds = value.isFinite ? value : nil
+        } else {
+            durationSeconds = nil
+        }
+
+        var encryptedThumbnail: Data?
+        var pixelWidth: Int?
+        var pixelHeight: Int?
+
+        let imageGenerator = AVAssetImageGenerator(asset: asset)
+        imageGenerator.appliesPreferredTrackTransform = true
+        if let (cgImage, _) = try? await imageGenerator.image(at: .zero) {
+            let thumbnailImage = UIImage(cgImage: cgImage)
+            if let jpegData = thumbnailImage.jpegData(compressionQuality: Constants.thumbnailJPEGQuality) {
+                encryptedThumbnail = try await encryptionService.generateEncryptedThumbnail(
+                    from: jpegData,
+                    maxSize: Constants.thumbnailMaxSize
+                )
+            }
+            pixelWidth = Int(thumbnailImage.size.width * thumbnailImage.scale)
+            pixelHeight = Int(thumbnailImage.size.height * thumbnailImage.scale)
+        }
+
+        let videoData = try Data(contentsOf: url, options: .mappedIfSafe)
+
+        let vaultDir = try await encryptionService.vaultFilesDirectory()
+        let fileID = UUID()
+        let relativePath = "\(fileID).\(Constants.encryptedFileExtension)"
+        let fileURL = vaultDir.appendingPathComponent(relativePath)
+
+        let encryptedData = try await encryptionService.encryptData(videoData)
+        try encryptedData.write(to: fileURL)
+
+        let item = VaultItem(
+            type: .video,
+            originalFilename: resolvedName,
+            encryptedFileRelativePath: relativePath,
+            fileSize: Int64(videoData.count)
+        )
+        item.encryptedThumbnailData = encryptedThumbnail
+        item.pixelWidth = pixelWidth
+        item.pixelHeight = pixelHeight
+        item.durationSeconds = durationSeconds
         item.album = album
 
         modelContext.insert(item)
@@ -457,7 +477,7 @@ class VaultService {
         }
     }
 
-    private func loadVideoData(from provider: NSItemProvider) async throws -> (Data, URL) {
+    private func loadVideoURL(from provider: NSItemProvider) async throws -> URL {
         try await withCheckedThrowingContinuation { continuation in
             provider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
                 if let error {
@@ -471,13 +491,13 @@ class VaultService {
                 }
 
                 // Copy to temp location since the provided URL is temporary
+                let ext = url.pathExtension.isEmpty ? "mov" : url.pathExtension
                 let tempURL = FileManager.default.temporaryDirectory
                     .appendingPathComponent(UUID().uuidString)
-                    .appendingPathExtension(url.pathExtension)
+                    .appendingPathExtension(ext)
                 do {
                     try FileManager.default.copyItem(at: url, to: tempURL)
-                    let data = try Data(contentsOf: tempURL)
-                    continuation.resume(returning: (data, tempURL))
+                    continuation.resume(returning: tempURL)
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -526,6 +546,18 @@ class VaultService {
         let width = properties[kCGImagePropertyPixelWidth] as? Int
         let height = properties[kCGImagePropertyPixelHeight] as? Int
         return (width, height)
+    }
+
+    private func enforceVideoSizeLimit(for url: URL) throws {
+        let values = try url.resourceValues(forKeys: [.fileSizeKey, .totalFileAllocatedSizeKey, .fileAllocatedSizeKey])
+        let byteCount = values.fileSize ?? values.totalFileAllocatedSize ?? values.fileAllocatedSize
+        guard let byteCount else { return }
+
+        let maxBytes = Constants.maxVideoImportBytes
+        guard byteCount <= maxBytes else {
+            let maxMB = maxBytes / (1024 * 1024)
+            throw VaultError.videoTooLarge(maxMB: maxMB)
+        }
     }
 }
 

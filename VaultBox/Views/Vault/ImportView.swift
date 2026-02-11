@@ -3,6 +3,7 @@ import PhotosUI
 import StoreKit
 import SwiftData
 import UIKit
+import UniformTypeIdentifiers
 
 // MARK: - ImportView
 
@@ -25,6 +26,7 @@ struct ImportView: View {
     @State private var showErrorAlert = false
     @State private var errorAlertTitle = "Couldn't Delete Originals"
     @State private var errorAlertMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    @State private var pendingDeletePromptAfterError = false
     @State private var showPaywall = false
 
     var body: some View {
@@ -76,7 +78,12 @@ struct ImportView: View {
         }
         .alert(errorAlertTitle, isPresented: $showErrorAlert) {
             Button("OK", role: .cancel) {
-                onDismiss()
+                if pendingDeletePromptAfterError {
+                    pendingDeletePromptAfterError = false
+                    showDeletePrompt = true
+                } else {
+                    onDismiss()
+                }
             }
         } message: {
             Text(errorAlertMessage)
@@ -134,13 +141,32 @@ struct ImportView: View {
             var importedItems: [VaultItem] = []
             var identifiers: [String] = []
             var hitFreeLimit = false
+            var tooLargeMessage: String?
 
             for (index, pickerItem) in selectedItems.enumerated() {
                 var didImport = false
 
                 do {
+                    let supportsImage = pickerItem.supportedContentTypes.contains { $0.conforms(to: .image) }
+                    let supportsVideo = pickerItem.supportedContentTypes.contains { $0.conforms(to: .movie) }
+
                     // Prefer image bytes first so Live Photos import as photos (eligible for vision tags).
-                    if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                    if supportsImage,
+                       let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                        let item = try await vaultService.importPhotoData(
+                            imageData,
+                            filename: nil,
+                            album: album
+                        )
+                        importedItems.append(item)
+                        didImport = true
+                    } else if supportsVideo,
+                              let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
+                        defer { try? FileManager.default.removeItem(at: movie.url) }
+                        let item = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
+                        importedItems.append(item)
+                        didImport = true
+                    } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
                         let item = try await vaultService.importPhotoData(
                             imageData,
                             filename: nil,
@@ -149,8 +175,8 @@ struct ImportView: View {
                         importedItems.append(item)
                         didImport = true
                     } else if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
-                        let item = try await vaultService.importDocument(at: movie.url, album: album)
-                        item.type = .video
+                        defer { try? FileManager.default.removeItem(at: movie.url) }
+                        let item = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
                         importedItems.append(item)
                         didImport = true
                     }
@@ -158,6 +184,10 @@ struct ImportView: View {
                     if let vaultError = error as? VaultError, case .freeLimitReached = vaultError {
                         hitFreeLimit = true
                         break
+                    }
+                    if let vaultError = error as? VaultError,
+                       case .videoTooLarge = vaultError {
+                        tooLargeMessage = vaultError.errorDescription
                     }
                     // Skip failed items and continue with the remainder.
                 }
@@ -179,6 +209,15 @@ struct ImportView: View {
 
             if hitFreeLimit && identifiers.isEmpty {
                 showPaywall = true
+                return
+            }
+
+            if let tooLargeMessage {
+                errorAlertTitle = "Video Too Large"
+                errorAlertMessage = tooLargeMessage
+                pendingDeletePromptAfterError = !identifiers.isEmpty
+                pendingAssetIdentifiers = identifiers
+                showErrorAlert = true
                 return
             }
 
@@ -235,16 +274,18 @@ struct ImportView: View {
 
 struct VideoTransferable: Transferable {
     let url: URL
+    let filename: String?
 
     static var transferRepresentation: some TransferRepresentation {
         FileRepresentation(contentType: .movie) { video in
             SentTransferredFile(video.url)
         } importing: { received in
+            let ext = received.file.pathExtension.isEmpty ? "mov" : received.file.pathExtension
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(UUID().uuidString)
-                .appendingPathExtension(received.file.pathExtension)
+                .appendingPathExtension(ext)
             try FileManager.default.copyItem(at: received.file, to: tempURL)
-            return Self(url: tempURL)
+            return Self(url: tempURL, filename: received.file.lastPathComponent)
         }
     }
 }

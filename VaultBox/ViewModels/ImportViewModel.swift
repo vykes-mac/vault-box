@@ -1,5 +1,6 @@
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 
 @MainActor
 @Observable
@@ -31,13 +32,25 @@ class ImportViewModel {
                 var didImport = false
 
                 do {
+                    let supportsImage = pickerItem.supportedContentTypes.contains { $0.conforms(to: .image) }
+                    let supportsVideo = pickerItem.supportedContentTypes.contains { $0.conforms(to: .movie) }
+
                     // Prefer image bytes first so Live Photos import as photos (eligible for vision tags).
-                    if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                    if supportsImage,
+                       let imageData = try await pickerItem.loadTransferable(type: Data.self) {
+                        _ = try await vaultService.importPhotoData(imageData, filename: nil, album: album)
+                        didImport = true
+                    } else if supportsVideo,
+                              let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
+                        defer { try? FileManager.default.removeItem(at: movie.url) }
+                        _ = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
+                        didImport = true
+                    } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
                         _ = try await vaultService.importPhotoData(imageData, filename: nil, album: album)
                         didImport = true
                     } else if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
-                        let item = try await vaultService.importDocument(at: movie.url, album: album)
-                        item.type = .video
+                        defer { try? FileManager.default.removeItem(at: movie.url) }
+                        _ = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
                         didImport = true
                     }
                 } catch {
