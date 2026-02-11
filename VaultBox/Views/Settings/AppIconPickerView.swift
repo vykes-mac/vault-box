@@ -1,10 +1,13 @@
 import SwiftUI
 
 struct AppIconPickerView: View {
+    @Environment(PurchaseService.self) private var purchaseService
+
     @State private var iconService = AppIconService()
     @State private var currentIcon: String?
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var showPaywall = false
 
     var body: some View {
         List {
@@ -36,15 +39,25 @@ struct AppIconPickerView: View {
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             currentIcon = iconService.getCurrentIcon()
+            if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+                showPaywall = true
+            }
         }
         .alert("Error", isPresented: $showError) {
             Button("OK") {}
         } message: {
             Text(errorMessage ?? "Failed to change app icon.")
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
     }
 
     private func selectIcon(_ iconID: String?) {
+        if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+            showPaywall = true
+            return
+        }
         Task {
             do {
                 try await iconService.setIcon(iconID)

@@ -21,6 +21,7 @@ enum PremiumFeature {
 @Observable
 class PurchaseService: NSObject {
     var isPremium = false
+    var hasResolvedCustomerInfo = false
     var currentOffering: Offering?
     var isLoading = false
     var offeringsLoadError: String?
@@ -92,6 +93,7 @@ class PurchaseService: NSObject {
         let result = try await Purchases.shared.purchase(package: package)
         let hasPremium = result.customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
         isPremium = hasPremium
+        hasResolvedCustomerInfo = true
         return hasPremium
     }
 
@@ -104,6 +106,7 @@ class PurchaseService: NSObject {
         let customerInfo = try await Purchases.shared.restorePurchases()
         let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
         isPremium = hasPremium
+        hasResolvedCustomerInfo = true
         return hasPremium
     }
 
@@ -115,6 +118,7 @@ class PurchaseService: NSObject {
             let customerInfo = try await Purchases.shared.customerInfo()
             let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
             isPremium = hasPremium
+            hasResolvedCustomerInfo = true
             return hasPremium
         } catch {
             return isPremium
@@ -156,6 +160,7 @@ extension PurchaseService: PurchasesDelegate {
         let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
         Task { @MainActor in
             self.isPremium = hasPremium
+            self.hasResolvedCustomerInfo = true
         }
     }
 }

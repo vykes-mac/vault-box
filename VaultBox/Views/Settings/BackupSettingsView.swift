@@ -16,6 +16,7 @@ struct BackupSettingsView: View {
     @State private var syncStatusText = "Ready"
     @State private var showError = false
     @State private var errorMessage = ""
+    @State private var showPaywall = false
 
     private var settings: AppSettings? { settingsQuery.first }
 
@@ -25,43 +26,47 @@ struct BackupSettingsView: View {
 
     var body: some View {
         List {
-            Section {
-                if let settings {
-                    Toggle(isOn: Binding(
-                        get: { settings.iCloudBackupEnabled },
-                        set: { newValue in
-                            settings.iCloudBackupEnabled = newValue
-                            try? modelContext.save()
+            if purchaseService.isPremium {
+                Section {
+                    if let settings {
+                        Toggle(isOn: Binding(
+                            get: { settings.iCloudBackupEnabled },
+                            set: { newValue in
+                                settings.iCloudBackupEnabled = newValue
+                                try? modelContext.save()
+                            }
+                        )) {
+                            Label("iCloud Backup", systemImage: "icloud")
                         }
-                    )) {
-                        Label("iCloud Backup", systemImage: "icloud")
+                        .disabled(iCloudStatus != .available)
                     }
-                    .disabled(iCloudStatus != .available)
+
+                    statusRow
+                } footer: {
+                    Text("All data is encrypted before uploading to your private iCloud storage. Apple cannot read your files.")
                 }
 
-                statusRow
-            } footer: {
-                Text("All data is encrypted before uploading to your private iCloud storage. Apple cannot read your files.")
-            }
-
-            Section {
-                Button {
-                    triggerManualSync()
-                } label: {
-                    HStack {
-                        Label("Backup Now", systemImage: "arrow.clockwise.icloud")
-                        Spacer()
-                        if isSyncing {
-                            ProgressView()
+                Section {
+                    Button {
+                        triggerManualSync()
+                    } label: {
+                        HStack {
+                            Label("Backup Now", systemImage: "arrow.clockwise.icloud")
+                            Spacer()
+                            if isSyncing {
+                                ProgressView()
+                            }
                         }
                     }
+                    .disabled(isSyncing || iCloudStatus != .available || settings?.iCloudBackupEnabled != true)
                 }
-                .disabled(isSyncing || iCloudStatus != .available || settings?.iCloudBackupEnabled != true)
-            }
 
-            Section("Status") {
-                LabeledContent("Uploaded", value: "\(uploadedCount) of \(allItems.count)")
-                LabeledContent("iCloud Account", value: iCloudStatusText)
+                Section("Status") {
+                    LabeledContent("Uploaded", value: "\(uploadedCount) of \(allItems.count)")
+                    LabeledContent("iCloud Account", value: iCloudStatusText)
+                }
+            } else {
+                premiumRequiredSection
             }
         }
         .navigationTitle("Backup")
@@ -69,10 +74,37 @@ struct BackupSettingsView: View {
         .task {
             await checkiCloudStatus()
         }
+        .onChange(of: purchaseService.isPremium) { _, isPremium in
+            if !isPremium {
+                disablePremiumBackupState()
+            }
+        }
         .alert("Backup Error", isPresented: $showError) {
             Button("OK") {}
         } message: {
             Text(errorMessage)
+        }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
+    }
+
+    private var premiumRequiredSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Premium Required", systemImage: "lock.fill")
+                    .font(.headline)
+                Text("iCloud Backup is available on Premium.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.vaultTextSecondary)
+                Button {
+                    showPaywall = true
+                } label: {
+                    Label("Upgrade to Premium", systemImage: "star.fill")
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(.vertical, 4)
         }
     }
 
@@ -104,6 +136,10 @@ struct BackupSettingsView: View {
     }
 
     private func triggerManualSync() {
+        guard purchaseService.isPremium else {
+            showPaywall = true
+            return
+        }
         isSyncing = true
         syncStatusText = "Syncing..."
 
@@ -140,6 +176,15 @@ struct BackupSettingsView: View {
                 syncStatusText = "Error"
             }
             isSyncing = false
+        }
+    }
+
+    private func disablePremiumBackupState() {
+        isSyncing = false
+        syncStatusText = "Premium required"
+        if let settings, settings.iCloudBackupEnabled {
+            settings.iCloudBackupEnabled = false
+            try? modelContext.save()
         }
     }
 }

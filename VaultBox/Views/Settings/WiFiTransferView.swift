@@ -6,30 +6,46 @@ struct WiFiTransferView: View {
     let authService: AuthService
 
     @Environment(\.modelContext) private var modelContext
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var viewModel: WiFiTransferViewModel?
+    @State private var showPaywall = false
 
     var body: some View {
         List {
-            if let vm = viewModel {
-                if vm.isRunning {
-                    runningSection(vm)
-                    statusSection(vm)
-                } else {
-                    startSection(vm)
-                    howItWorksSection
+            if purchaseService.isPremium {
+                if let vm = viewModel {
+                    if vm.isRunning {
+                        runningSection(vm)
+                        statusSection(vm)
+                    } else {
+                        startSection(vm)
+                        howItWorksSection
+                    }
                 }
+            } else {
+                premiumRequiredSection
             }
         }
         .navigationTitle("Wi-Fi Transfer")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
             if viewModel == nil {
+                let purchaseService = self.purchaseService
                 viewModel = WiFiTransferViewModel(
                     vaultService: vaultService,
                     authService: authService,
-                    modelContext: modelContext
+                    modelContext: modelContext,
+                    hasPremiumAccess: { purchaseService.isPremium }
                 )
+            }
+            if !purchaseService.isPremium {
+                viewModel?.stopServer()
+            }
+        }
+        .onChange(of: purchaseService.isPremium) { _, isPremium in
+            if !isPremium {
+                viewModel?.stopServer()
             }
         }
         .onDisappear {
@@ -42,6 +58,28 @@ struct WiFiTransferView: View {
             PINReEntryView(authService: authService) {
                 viewModel?.onPINVerified()
             }
+        }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
+    }
+
+    private var premiumRequiredSection: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Premium Required", systemImage: "lock.fill")
+                    .font(.headline)
+                Text("Wi-Fi Transfer is available on Premium.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.vaultTextSecondary)
+                Button {
+                    showPaywall = true
+                } label: {
+                    Label("Upgrade to Premium", systemImage: "star.fill")
+                }
+                .buttonStyle(.borderedProminent)
+            }
+            .padding(.vertical, 4)
         }
     }
 

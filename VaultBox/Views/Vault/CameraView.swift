@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 @preconcurrency import AVFoundation
 
 // MARK: - CameraView
@@ -7,6 +8,9 @@ struct CameraView: View {
     let vaultService: VaultService
     var isDecoyMode: Bool = false
 
+    @Environment(PurchaseService.self) private var purchaseService
+    @Query private var allItems: [VaultItem]
+
     @State private var capturedImage: UIImage?
     @State private var showPreview = false
     @State private var isSaving = false
@@ -14,6 +18,7 @@ struct CameraView: View {
     @State private var showSavedBanner = false
     @State private var errorMessage: String?
     @State private var showError = false
+    @State private var showPaywall = false
     @State private var cameraPosition: AVCaptureDevice.Position = .back
 
     var body: some View {
@@ -67,10 +72,19 @@ struct CameraView: View {
             } message: {
                 Text(errorMessage ?? "An unexpected error occurred.")
             }
+            .fullScreenCover(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
+            }
         }
     }
 
     private func saveToVault(_ image: UIImage) {
+        if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
+            showPreview = false
+            showPaywall = true
+            return
+        }
+
         isSaving = true
         Task {
             do {
@@ -88,8 +102,13 @@ struct CameraView: View {
                 }
             } catch {
                 isSaving = false
-                errorMessage = "Couldn't import this photo. Please try again."
-                showError = true
+                if let vaultError = error as? VaultError, case .freeLimitReached = vaultError {
+                    showPreview = false
+                    showPaywall = true
+                } else {
+                    errorMessage = "Couldn't import this photo. Please try again."
+                    showError = true
+                }
             }
         }
     }

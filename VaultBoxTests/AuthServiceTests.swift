@@ -7,7 +7,9 @@ import SwiftData
 struct AuthServiceTests {
 
     @MainActor
-    private func makeServices() throws -> (AuthService, EncryptionService, ModelContext) {
+    private func makeServices(
+        hasPremiumAccess: Bool = false
+    ) throws -> (AuthService, EncryptionService, ModelContext) {
         let schema = Schema([AppSettings.self, VaultItem.self, Album.self, BreakInAttempt.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
@@ -18,7 +20,11 @@ struct AuthServiceTests {
         try context.save()
 
         let encryption = EncryptionService(keyStorage: InMemoryKeyStorage())
-        let auth = AuthService(encryptionService: encryption, modelContext: context)
+        let auth = AuthService(
+            encryptionService: encryption,
+            modelContext: context,
+            hasPremiumAccess: { hasPremiumAccess }
+        )
         return (auth, encryption, context)
     }
 
@@ -111,13 +117,26 @@ struct AuthServiceTests {
     @Test("Decoy PIN returns decoy result")
     @MainActor
     func decoyPINReturnsDecoy() async throws {
-        let (auth, _, _) = try makeServices()
+        let (auth, _, _) = try makeServices(hasPremiumAccess: true)
         try await auth.createPIN("1234")
         try await auth.setupDecoyPIN("5678")
 
         let result = await auth.verifyPIN("5678")
         #expect(result == .decoy)
         #expect(auth.isDecoyMode == true)
+    }
+
+    @Test("Decoy PIN is ignored when premium is inactive")
+    @MainActor
+    func decoyPINIgnoredWithoutPremium() async throws {
+        let (auth, _, _) = try makeServices(hasPremiumAccess: false)
+        try await auth.createPIN("1234")
+        try await auth.setupDecoyPIN("5678")
+        auth.lock()
+
+        let result = await auth.verifyPIN("5678")
+        #expect(result == .failure)
+        #expect(auth.isDecoyMode == false)
     }
 
     @Test("Decoy PIN cannot match real PIN")
@@ -167,6 +186,7 @@ struct AuthServiceTests {
         let (auth, _, _) = try makeServices()
         try await auth.createPIN("1234")
         _ = await auth.verifyPIN("1234")
+        auth.recordBackgroundEntry()
 
         let shouldLock = auth.shouldAutoLock()
         #expect(shouldLock == true)
@@ -174,18 +194,34 @@ struct AuthServiceTests {
 
     @Test("Route uses setup when setup is incomplete and session is locked")
     func routeUsesSetup() {
-        #expect(determineAppRootRoute(isSetupComplete: false, isUnlocked: false) == .setupPIN)
+        #expect(determineAppRootRoute(
+            hasCompletedOnboarding: true,
+            isSetupComplete: false,
+            isUnlocked: false
+        ) == .setupPIN)
     }
 
     @Test("Route uses lock when setup is complete and session is locked")
     func routeUsesLock() {
-        #expect(determineAppRootRoute(isSetupComplete: true, isUnlocked: false) == .lock)
+        #expect(determineAppRootRoute(
+            hasCompletedOnboarding: true,
+            isSetupComplete: true,
+            isUnlocked: false
+        ) == .lock)
     }
 
     @Test("Route prioritizes main when session is unlocked")
     func routeUsesMainWhenUnlocked() {
-        #expect(determineAppRootRoute(isSetupComplete: true, isUnlocked: true) == .main)
-        #expect(determineAppRootRoute(isSetupComplete: false, isUnlocked: true) == .main)
+        #expect(determineAppRootRoute(
+            hasCompletedOnboarding: true,
+            isSetupComplete: true,
+            isUnlocked: true
+        ) == .main)
+        #expect(determineAppRootRoute(
+            hasCompletedOnboarding: false,
+            isSetupComplete: false,
+            isUnlocked: true
+        ) == .main)
     }
 
     @Test("Route transitions from setup to main after create PIN")
@@ -193,13 +229,15 @@ struct AuthServiceTests {
     func routeTransitionsToMainAfterCreatePIN() async throws {
         let (auth, _, _) = try makeServices()
         #expect(determineAppRootRoute(
+            hasCompletedOnboarding: false,
             isSetupComplete: auth.isSetupComplete,
             isUnlocked: auth.isUnlocked
-        ) == .setupPIN)
+        ) == .onboarding)
 
         try await auth.createPIN("1234")
 
         #expect(determineAppRootRoute(
+            hasCompletedOnboarding: true,
             isSetupComplete: auth.isSetupComplete,
             isUnlocked: auth.isUnlocked
         ) == .main)

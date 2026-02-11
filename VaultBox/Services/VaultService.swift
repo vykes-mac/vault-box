@@ -13,6 +13,7 @@ enum VaultError: LocalizedError {
     case itemNotFound
     case thumbnailNotFound
     case freeLimitReached
+    case premiumRequired
     case fileNotFound
     case photosPermissionDenied
 
@@ -26,6 +27,8 @@ enum VaultError: LocalizedError {
             "No thumbnail available for this item."
         case .freeLimitReached:
             "You've reached the free item limit. Upgrade to Premium for unlimited storage."
+        case .premiumRequired:
+            "This feature requires a Premium subscription."
         case .fileNotFound:
             "The encrypted file could not be found on disk."
         case .photosPermissionDenied:
@@ -41,10 +44,16 @@ enum VaultError: LocalizedError {
 class VaultService {
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
+    private let hasPremiumAccess: () -> Bool
 
-    init(encryptionService: EncryptionService, modelContext: ModelContext) {
+    init(
+        encryptionService: EncryptionService,
+        modelContext: ModelContext,
+        hasPremiumAccess: @escaping () -> Bool = { false }
+    ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
+        self.hasPremiumAccess = hasPremiumAccess
     }
 
     // MARK: - Import Result
@@ -89,6 +98,7 @@ class VaultService {
     }
 
     private func importImage(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
         let imageData = try await loadImageData(from: provider)
         let filename = provider.suggestedName ?? "Untitled"
 
@@ -127,6 +137,7 @@ class VaultService {
     }
 
     private func importVideo(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
         let (videoData, tempURL) = try await loadVideoData(from: provider)
         let filename = provider.suggestedName ?? "Untitled"
 
@@ -188,6 +199,7 @@ class VaultService {
     // MARK: - Import from Camera
 
     func importFromCamera(_ image: UIImage, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
         guard let jpegData = image.jpegData(compressionQuality: 1.0) else {
             throw VaultError.importFailed
         }
@@ -228,6 +240,7 @@ class VaultService {
     // MARK: - Import Document
 
     func importDocument(at url: URL, album: Album?) async throws -> VaultItem {
+        try enforceImportLimit()
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
 
@@ -359,6 +372,13 @@ class VaultService {
         let descriptor = FetchDescriptor<AppSettings>()
         let limit = (try? modelContext.fetch(descriptor).first)?.freeItemLimit ?? Constants.freeItemLimit
         return getTotalItemCount() >= limit
+    }
+
+    private func enforceImportLimit() throws {
+        guard !hasPremiumAccess() else { return }
+        if isAtFreeLimit() {
+            throw VaultError.freeLimitReached
+        }
     }
 
     // MARK: - Private Helpers

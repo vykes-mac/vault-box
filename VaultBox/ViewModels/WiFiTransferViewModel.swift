@@ -9,6 +9,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     let vaultService: VaultService
     let authService: AuthService
     let modelContext: ModelContext
+    private let hasPremiumAccess: () -> Bool
     private let encryptionService = EncryptionService()
     private let transferService = WiFiTransferService()
     private var countdownTask: Task<Void, Never>?
@@ -19,19 +20,27 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     var timeoutSecondsRemaining = 0
     var showPINReEntry = false
 
-    init(vaultService: VaultService, authService: AuthService, modelContext: ModelContext) {
+    init(
+        vaultService: VaultService,
+        authService: AuthService,
+        modelContext: ModelContext,
+        hasPremiumAccess: @escaping () -> Bool = { false }
+    ) {
         self.vaultService = vaultService
         self.authService = authService
         self.modelContext = modelContext
+        self.hasPremiumAccess = hasPremiumAccess
     }
 
     // MARK: - Start / Stop
 
     func requestStart() {
+        guard hasPremiumAccess() else { return }
         showPINReEntry = true
     }
 
     func onPINVerified() {
+        guard hasPremiumAccess() else { return }
         showPINReEntry = false
         Task {
             await transferService.setDelegate(self)
@@ -105,6 +114,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     // MARK: - WiFiTransferDelegate
 
     func transferServiceDidReceiveFile(data: Data, filename: String, contentType: String) async throws {
+        guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         let lowerCT = contentType.lowercased()
         if lowerCT.hasPrefix("image/") {
             if let image = UIImage(data: data) {
@@ -120,6 +130,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     }
 
     func transferServiceNeedsItems() async throws -> [TransferItemPayload] {
+        guard hasPremiumAccess() else { return [] }
         let descriptor = FetchDescriptor<VaultItem>(sortBy: [SortDescriptor(\VaultItem.importedAt, order: .reverse)])
         guard let items = try? modelContext.fetch(descriptor) else { return [] }
         return items.map { item in
@@ -134,6 +145,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     }
 
     func transferServiceNeedsDecryptedFile(itemID: String) async throws -> (Data, String, String) {
+        guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         guard let uuid = UUID(uuidString: itemID) else {
             throw VaultError.itemNotFound
         }
@@ -156,6 +168,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     }
 
     func transferServiceNeedsThumbnail(itemID: String) async throws -> Data {
+        guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         guard let uuid = UUID(uuidString: itemID) else {
             throw VaultError.itemNotFound
         }

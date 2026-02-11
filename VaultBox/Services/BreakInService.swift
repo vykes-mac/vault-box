@@ -9,11 +9,13 @@ import UserNotifications
 @Observable
 class BreakInService: NSObject {
     private let modelContext: ModelContext
+    private let hasPremiumAccess: () -> Bool
     private let locationManager = CLLocationManager()
     private var currentLocation: CLLocation?
 
-    init(modelContext: ModelContext) {
+    init(modelContext: ModelContext, hasPremiumAccess: @escaping () -> Bool = { false }) {
         self.modelContext = modelContext
+        self.hasPremiumAccess = hasPremiumAccess
         super.init()
         locationManager.delegate = self
         locationManager.desiredAccuracy = kCLLocationAccuracyBest
@@ -29,13 +31,15 @@ class BreakInService: NSObject {
             attempt.intruderPhotoData = photoData
         }
 
-        // Get GPS location
-        requestLocationUpdate()
-        // Wait briefly for location
-        try? await Task.sleep(for: .seconds(1))
-        if let location = currentLocation {
-            attempt.latitude = location.coordinate.latitude
-            attempt.longitude = location.coordinate.longitude
+        // Premium-only GPS capture
+        if hasPremiumAccess() {
+            requestLocationUpdate()
+            // Wait briefly for location
+            try? await Task.sleep(for: .seconds(1))
+            if let location = currentLocation {
+                attempt.latitude = location.coordinate.latitude
+                attempt.longitude = location.coordinate.longitude
+            }
         }
 
         modelContext.insert(attempt)

@@ -12,6 +12,7 @@ struct SecuritySettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var currentPIN = ""
     @State private var newPIN = ""
@@ -20,6 +21,7 @@ struct SecuritySettingsView: View {
     @State private var errorMessage = ""
     @State private var showError = false
     @State private var isProcessing = false
+    @State private var showPaywall = false
 
     enum Step {
         case enterCurrent
@@ -129,9 +131,16 @@ struct SecuritySettingsView: View {
         } message: {
             Text(errorMessage)
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
     }
 
     private func handleContinue() {
+        if mode == .decoySetup, purchaseService.isPremiumRequired(for: .decoyVault) {
+            showPaywall = true
+            return
+        }
         switch step {
         case .enterCurrent:
             verifyCurrent()
@@ -166,6 +175,11 @@ struct SecuritySettingsView: View {
     }
 
     private func confirmAndSave() {
+        if mode == .decoySetup, purchaseService.isPremiumRequired(for: .decoyVault) {
+            showPaywall = true
+            return
+        }
+
         guard newPIN == confirmPIN else {
             errorMessage = "PINs don't match. Try again."
             showError = true

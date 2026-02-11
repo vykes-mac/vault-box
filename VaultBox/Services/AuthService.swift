@@ -14,15 +14,21 @@ enum AuthResult {
 class AuthService {
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
+    private let hasPremiumAccess: () -> Bool
 
     private(set) var isSetupComplete: Bool = false
     private(set) var isUnlocked: Bool = false
     private(set) var isDecoyMode: Bool = false
     private var lastBackgroundAt: Date?
 
-    init(encryptionService: EncryptionService, modelContext: ModelContext) {
+    init(
+        encryptionService: EncryptionService,
+        modelContext: ModelContext,
+        hasPremiumAccess: @escaping () -> Bool = { false }
+    ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
+        self.hasPremiumAccess = hasPremiumAccess
         isSetupComplete = (try? loadSettings().isSetupComplete) == true
     }
 
@@ -80,7 +86,8 @@ class AuthService {
         let hash = await encryptionService.hashPIN(pin, salt: saltData)
 
         // Check decoy PIN
-        if let decoyHash = settings.decoyPINHash,
+        if hasPremiumAccess(),
+           let decoyHash = settings.decoyPINHash,
            let decoySaltString = settings.decoyPINSalt,
            let decoySalt = Data(base64Encoded: decoySaltString) {
             let decoyComputedHash = await encryptionService.hashPIN(pin, salt: decoySalt)

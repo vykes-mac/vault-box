@@ -25,6 +25,7 @@ struct ImportView: View {
     @State private var showErrorAlert = false
     @State private var errorAlertTitle = "Couldn't Delete Originals"
     @State private var errorAlertMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    @State private var showPaywall = false
 
     var body: some View {
         ZStack {
@@ -92,6 +93,9 @@ struct ImportView: View {
         } message: {
             Text("VaultBox needs Photos access to delete originals. You can keep originals or allow access in Settings.")
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
     }
 
     // MARK: - Progress Overlay
@@ -128,6 +132,7 @@ struct ImportView: View {
         Task { @MainActor in
             var importedItems: [VaultItem] = []
             var identifiers: [String] = []
+            var hitFreeLimit = false
 
             for (index, pickerItem) in selectedItems.enumerated() {
                 var didImport = false
@@ -150,6 +155,10 @@ struct ImportView: View {
                         didImport = true
                     }
                 } catch {
+                    if let vaultError = error as? VaultError, case .freeLimitReached = vaultError {
+                        hitFreeLimit = true
+                        break
+                    }
                     // Skip failed items and continue with the remainder.
                 }
 
@@ -162,6 +171,11 @@ struct ImportView: View {
 
             isImporting = false
             incrementImportCount(by: importedItems.count)
+
+            if hitFreeLimit && identifiers.isEmpty {
+                showPaywall = true
+                return
+            }
 
             if !identifiers.isEmpty {
                 pendingAssetIdentifiers = identifiers

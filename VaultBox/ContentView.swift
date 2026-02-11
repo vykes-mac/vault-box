@@ -25,6 +25,7 @@ func determineAppRootRoute(hasCompletedOnboarding: Bool, isSetupComplete: Bool, 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var authService: AuthService?
     @State private var vaultService: VaultService?
@@ -85,6 +86,14 @@ struct ContentView: View {
                oldRoute == .onboarding || oldRoute == .setupPIN || oldRoute == nil {
                 showPostSetupPaywall = true
             }
+        }
+        .onChange(of: purchaseService.hasResolvedCustomerInfo) { _, hasResolved in
+            guard hasResolved else { return }
+            handlePremiumStatusChange(isPremium: purchaseService.isPremium)
+        }
+        .onChange(of: purchaseService.isPremium) { _, isPremium in
+            guard purchaseService.hasResolvedCustomerInfo else { return }
+            handlePremiumStatusChange(isPremium: isPremium)
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
             VaultBoxPaywallView()
@@ -160,8 +169,58 @@ struct ContentView: View {
         // Check if panic gesture is enabled
         let descriptor = FetchDescriptor<AppSettings>()
         if let settings = try? modelContext.fetch(descriptor).first,
-           settings.panicGestureEnabled {
+           settings.panicGestureEnabled,
+           purchaseService.isPremium {
             service.startMonitoring()
+        }
+    }
+
+    private func handlePremiumStatusChange(isPremium: Bool) {
+        let descriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(descriptor).first else {
+            if isPremium {
+                panicGestureService?.startMonitoring()
+            } else {
+                panicGestureService?.stopMonitoring()
+            }
+            return
+        }
+
+        if isPremium {
+            if settings.panicGestureEnabled {
+                panicGestureService?.startMonitoring()
+            } else {
+                panicGestureService?.stopMonitoring()
+            }
+            return
+        }
+
+        panicGestureService?.stopMonitoring()
+        var hasSettingsChanges = false
+
+        if settings.panicGestureEnabled {
+            settings.panicGestureEnabled = false
+            hasSettingsChanges = true
+        }
+
+        if settings.iCloudBackupEnabled {
+            settings.iCloudBackupEnabled = false
+            hasSettingsChanges = true
+        }
+
+        if authService?.isDecoyMode == true {
+            authService?.lock()
+        }
+
+        if hasSettingsChanges {
+            try? modelContext.save()
+        }
+
+        Task { @MainActor in
+            let iconService = AppIconService()
+            if iconService.getCurrentIcon() != nil {
+                try? await iconService.setIcon(nil)
+            }
         }
     }
 
@@ -194,9 +253,21 @@ struct ContentView: View {
 
     private func initializeServices() {
         let encryptionService = EncryptionService()
-        let auth = AuthService(encryptionService: encryptionService, modelContext: modelContext)
-        let vault = VaultService(encryptionService: encryptionService, modelContext: modelContext)
-        let breakIn = BreakInService(modelContext: modelContext)
+        let purchaseService = self.purchaseService
+        let auth = AuthService(
+            encryptionService: encryptionService,
+            modelContext: modelContext,
+            hasPremiumAccess: { purchaseService.isPremium }
+        )
+        let vault = VaultService(
+            encryptionService: encryptionService,
+            modelContext: modelContext,
+            hasPremiumAccess: { purchaseService.isPremium }
+        )
+        let breakIn = BreakInService(
+            modelContext: modelContext,
+            hasPremiumAccess: { purchaseService.isPremium }
+        )
         authService = auth
         vaultService = vault
         breakInService = breakIn
