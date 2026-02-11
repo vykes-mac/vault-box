@@ -20,6 +20,16 @@ struct PINSetupView: View {
         isConfirming ? pin.count : Constants.pinMaxLength
     }
 
+    private var setupHintText: String {
+        if isConfirming {
+            return "Re-enter your \(pin.count)-digit PIN"
+        }
+        if pin.count < Constants.pinMinLength {
+            return "Enter \(Constants.pinMinLength)-\(Constants.pinMaxLength) digits"
+        }
+        return "Minimum met. Continue now or add up to \(Constants.pinMaxLength) digits."
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
@@ -31,7 +41,7 @@ struct PINSetupView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text(isConfirming ? "Enter your PIN again" : "Choose a 4-8 digit PIN to protect your vault")
+                Text(isConfirming ? "Enter your PIN again" : "Choose a PIN to protect your vault")
                     .font(.callout)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .multilineTextAlignment(.center)
@@ -41,11 +51,16 @@ struct PINSetupView: View {
             // Dots
             PINDotsView(
                 enteredCount: currentPin.count,
-                totalLength: isConfirming ? pin.count : max(currentPin.count, Constants.pinMinLength),
+                totalLength: isConfirming ? pin.count : Constants.pinMaxLength,
                 state: dotState
             )
             .offset(x: shakeOffset)
-            .padding(.bottom, 12)
+            .padding(.bottom, 10)
+
+            Text(setupHintText)
+                .font(.caption)
+                .foregroundStyle(Color.vaultTextSecondary)
+                .padding(.bottom, 10)
 
             // Error message
             if let errorMessage {
@@ -61,13 +76,13 @@ struct PINSetupView: View {
 
             // Continue button (only in first entry, after 4+ digits)
             if !isConfirming && pin.count >= Constants.pinMinLength {
-                Button("Continue") {
+                Button("Continue with \(pin.count)-digit PIN") {
                     isConfirming = true
                     errorMessage = nil
                     dotState = .normal
                 }
-                .font(.headline)
-                .foregroundStyle(Color.vaultAccent)
+                .buttonStyle(.borderedProminent)
+                .tint(Color.vaultAccent)
                 .padding(.bottom, 20)
             } else {
                 Spacer().frame(height: 44)
