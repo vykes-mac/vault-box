@@ -164,6 +164,7 @@ struct ContentView: View {
             ImportView(
                 vaultService: vaultService,
                 album: nil,
+                isDecoyMode: authService.isDecoyMode,
                 onDismiss: { showImporter = false }
             )
         }

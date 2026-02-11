@@ -12,6 +12,7 @@ struct SettingsView: View {
     @State private var showPaywall = false
     @State private var showChangePIN = false
     @State private var showDecoySetup = false
+    @State private var showDecoyInfo = false
     @State private var showBreakInLog = false
     @State private var showAppIconPicker = false
     @State private var showBackupSettings = false
@@ -55,6 +56,12 @@ struct SettingsView: View {
             .sheet(isPresented: $showDecoySetup) {
                 NavigationStack {
                     SecuritySettingsView(authService: authService, mode: .decoySetup)
+                }
+                .presentationBackground(Color.vaultBackground)
+            }
+            .sheet(isPresented: $showDecoyInfo) {
+                NavigationStack {
+                    DecoyVaultInfoView()
                 }
                 .presentationBackground(Color.vaultBackground)
             }
@@ -142,6 +149,19 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(Color.vaultTextSecondary)
                     }
+                }
+            }
+
+            Button {
+                showDecoyInfo = true
+            } label: {
+                HStack {
+                    Label("What is Decoy Vault?", systemImage: "info.circle")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
                 }
             }
 
@@ -367,5 +387,49 @@ struct SettingsView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+}
+
+private struct DecoyVaultInfoView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Group {
+                    Text("Decoy Vault lets you unlock VaultBox with a second PIN that shows a separate, harmless set of items.")
+                    Text("How it works")
+                        .font(.headline)
+                    Text("1. Set a separate decoy PIN in Security settings.")
+                    Text("2. Enter that decoy PIN on the lock screen.")
+                    Text("3. VaultBox opens a filtered view that only shows decoy items.")
+                }
+                .foregroundStyle(Color.vaultTextPrimary)
+
+                Group {
+                    Text("Important details")
+                        .font(.headline)
+                    Text("• There is no visible 'decoy mode' badge.")
+                    Text("• Real vault items stay hidden while decoy mode is active.")
+                    Text("• To make decoy mode look normal, add a few non-sensitive photos/videos while unlocked with the decoy PIN.")
+                    Text("• Use a decoy PIN that is different from your real PIN.")
+                }
+                .foregroundStyle(Color.vaultTextPrimary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(Constants.standardPadding)
+        }
+        .background(Color.vaultBackground.ignoresSafeArea())
+        .navigationTitle("Decoy Vault")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) {
+                Button("Done") {
+                    dismiss()
+                }
+            }
+        }
+        .toolbarBackground(Color.vaultBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 }

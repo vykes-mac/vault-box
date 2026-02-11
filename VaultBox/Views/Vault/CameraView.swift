@@ -84,7 +84,11 @@ struct CameraView: View {
         isSaving = true
         Task {
             do {
-                let item = try await vaultService.importFromCamera(image, album: nil)
+                let item = try await vaultService.importFromCamera(
+                    image,
+                    album: nil,
+                    isDecoyMode: isDecoyMode
+                )
                 vaultService.queueVisionAnalysis(for: [item])
                 isSaving = false
                 capturedPhoto = nil

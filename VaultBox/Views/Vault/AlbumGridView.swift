@@ -211,7 +211,7 @@ struct AlbumGridView: View {
         LazyVGrid(columns: columns, spacing: Constants.standardPadding) {
             // "All Items" always first
             NavigationLink {
-                AlbumDetailView(album: nil, vaultService: vaultService)
+                AlbumDetailView(album: nil, vaultService: vaultService, isDecoyMode: isDecoyMode)
             } label: {
                 albumCard(name: "All Items", itemCount: visibleItems.count, albumID: nil)
             }
@@ -220,7 +220,7 @@ struct AlbumGridView: View {
             // User albums
             ForEach(visibleAlbums) { album in
                 NavigationLink {
-                    AlbumDetailView(album: album, vaultService: vaultService)
+                    AlbumDetailView(album: album, vaultService: vaultService, isDecoyMode: isDecoyMode)
                 } label: {
                     albumCard(
                         name: album.name,
@@ -319,7 +319,7 @@ struct AlbumGridView: View {
     private func createAlbum() {
         let name = newAlbumName.trimmingCharacters(in: .whitespaces)
         guard !name.isEmpty else { return }
-        let album = Album(name: name, sortOrder: albums.count)
+        let album = Album(name: name, sortOrder: albums.count, isDecoy: isDecoyMode)
         modelContext.insert(album)
         try? modelContext.save()
     }
@@ -342,16 +342,33 @@ struct AlbumGridView: View {
                 }
             }
         } else {
-            // Move items to "All Items" (nil album)
+            // In decoy mode, keep contents in decoy space to avoid cross-mode leakage.
             if let items = album.items {
-                for item in items {
-                    item.album = nil
+                if isDecoyMode {
+                    let fallbackAlbum = fallbackDecoyAlbum(excluding: album)
+                    for item in items {
+                        item.album = fallbackAlbum
+                    }
+                } else {
+                    // Move items to "All Items" (nil album)
+                    for item in items {
+                        item.album = nil
+                    }
                 }
             }
         }
         modelContext.delete(album)
         try? modelContext.save()
         albumToDelete = nil
+    }
+
+    private func fallbackDecoyAlbum(excluding album: Album) -> Album {
+        if let existing = albums.first(where: { $0.isDecoy && $0.id != album.id }) {
+            return existing
+        }
+        let created = Album(name: "Personal", sortOrder: albums.count, isDecoy: true)
+        modelContext.insert(created)
+        return created
     }
 }
 
@@ -360,6 +377,7 @@ struct AlbumGridView: View {
 struct AlbumDetailView: View {
     let album: Album?
     let vaultService: VaultService
+    var isDecoyMode: Bool = false
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
@@ -379,9 +397,16 @@ struct AlbumDetailView: View {
 
     private var albumItems: [VaultItem] {
         if let album {
-            return album.items ?? []
+            let items = album.items ?? []
+            if isDecoyMode {
+                return items.filter { $0.album?.isDecoy == true }
+            }
+            return items.filter { $0.album?.isDecoy != true }
         }
-        return allItems
+        if isDecoyMode {
+            return allItems.filter { $0.album?.isDecoy == true }
+        }
+        return allItems.filter { $0.album?.isDecoy != true }
     }
 
     private var displayedItems: [VaultItem] {

@@ -153,6 +153,7 @@ struct VaultGridView: View {
                 ImportView(
                     vaultService: vaultService,
                     album: nil,
+                    isDecoyMode: isDecoyMode,
                     onDismiss: { showImporter = false }
                 )
             }
@@ -212,7 +213,7 @@ struct VaultGridView: View {
     private var albumPickerSheet: some View {
         NavigationStack {
             List {
-                ForEach(albums.filter { !$0.isDecoy }) { album in
+                ForEach(albums.filter { isDecoyMode ? $0.isDecoy : !$0.isDecoy }) { album in
                     Button {
                         batchMoveToAlbum(album)
                         showAlbumPicker = false
@@ -446,6 +447,7 @@ struct VaultGridView: View {
     }
 
     private func batchMoveToAlbum(_ album: Album) {
+        guard album.isDecoy == isDecoyMode else { return }
         let items = selectedVaultItems()
         Task {
             try? await vaultService.moveItems(items, to: album)

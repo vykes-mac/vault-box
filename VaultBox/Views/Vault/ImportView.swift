@@ -10,6 +10,7 @@ import UniformTypeIdentifiers
 struct ImportView: View {
     let vaultService: VaultService
     let album: Album?
+    let isDecoyMode: Bool
     let onDismiss: () -> Void
 
     @Environment(\.modelContext) private var modelContext
@@ -156,27 +157,39 @@ struct ImportView: View {
                         let item = try await vaultService.importPhotoData(
                             imageData,
                             filename: nil,
-                            album: album
+                            album: album,
+                            isDecoyMode: isDecoyMode
                         )
                         importedItems.append(item)
                         didImport = true
                     } else if supportsVideo,
                               let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
                         defer { try? FileManager.default.removeItem(at: movie.url) }
-                        let item = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
+                        let item = try await vaultService.importVideo(
+                            at: movie.url,
+                            filename: movie.filename,
+                            album: album,
+                            isDecoyMode: isDecoyMode
+                        )
                         importedItems.append(item)
                         didImport = true
                     } else if let imageData = try await pickerItem.loadTransferable(type: Data.self) {
                         let item = try await vaultService.importPhotoData(
                             imageData,
                             filename: nil,
-                            album: album
+                            album: album,
+                            isDecoyMode: isDecoyMode
                         )
                         importedItems.append(item)
                         didImport = true
                     } else if let movie = try await pickerItem.loadTransferable(type: VideoTransferable.self) {
                         defer { try? FileManager.default.removeItem(at: movie.url) }
-                        let item = try await vaultService.importVideo(at: movie.url, filename: movie.filename, album: album)
+                        let item = try await vaultService.importVideo(
+                            at: movie.url,
+                            filename: movie.filename,
+                            album: album,
+                            isDecoyMode: isDecoyMode
+                        )
                         importedItems.append(item)
                         didImport = true
                     }

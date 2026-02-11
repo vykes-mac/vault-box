@@ -71,7 +71,12 @@ class VaultService {
 
     // MARK: - Import from PHPicker
 
-    func importPhotos(from results: [PHPickerResult], album: Album?, progress: ((Int, Int) -> Void)? = nil) async throws -> ImportResult {
+    func importPhotos(
+        from results: [PHPickerResult],
+        album: Album?,
+        isDecoyMode: Bool = false,
+        progress: ((Int, Int) -> Void)? = nil
+    ) async throws -> ImportResult {
         var importedItems: [VaultItem] = []
         var assetIdentifiers: [String] = []
 
@@ -82,11 +87,11 @@ class VaultService {
             do {
                 // Prefer image first so Live Photos are treated as photos.
                 if provider.hasItemConformingToTypeIdentifier(UTType.image.identifier) {
-                    let item = try await importImage(from: provider, album: album)
+                    let item = try await importImage(from: provider, album: album, isDecoyMode: isDecoyMode)
                     importedItems.append(item)
                     didImport = true
                 } else if provider.hasItemConformingToTypeIdentifier(UTType.movie.identifier) {
-                    let item = try await importVideo(from: provider, album: album)
+                    let item = try await importVideo(from: provider, album: album, isDecoyMode: isDecoyMode)
                     importedItems.append(item)
                     didImport = true
                 }
@@ -104,22 +109,32 @@ class VaultService {
         return ImportResult(items: importedItems, assetIdentifiers: assetIdentifiers)
     }
 
-    private func importImage(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
+    private func importImage(from provider: NSItemProvider, album: Album?, isDecoyMode: Bool) async throws -> VaultItem {
         let imageData = try await loadImageData(from: provider)
-        return try await importPhotoData(imageData, filename: provider.suggestedName, album: album)
+        return try await importPhotoData(
+            imageData,
+            filename: provider.suggestedName,
+            album: album,
+            isDecoyMode: isDecoyMode
+        )
     }
 
-    private func importVideo(from provider: NSItemProvider, album: Album?) async throws -> VaultItem {
+    private func importVideo(from provider: NSItemProvider, album: Album?, isDecoyMode: Bool) async throws -> VaultItem {
         let tempURL = try await loadVideoURL(from: provider)
         defer { try? FileManager.default.removeItem(at: tempURL) }
 
         let suggested = provider.suggestedName ?? tempURL.deletingPathExtension().lastPathComponent
-        return try await importVideo(at: tempURL, filename: suggested, album: album)
+        return try await importVideo(at: tempURL, filename: suggested, album: album, isDecoyMode: isDecoyMode)
     }
 
     // MARK: - Import from Camera
 
-    func importPhotoData(_ data: Data, filename: String?, album: Album?) async throws -> VaultItem {
+    func importPhotoData(
+        _ data: Data,
+        filename: String?,
+        album: Album?,
+        isDecoyMode: Bool = false
+    ) async throws -> VaultItem {
         try enforceImportLimit()
         let resolvedName: String
         if let trimmed = filename?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty {
@@ -127,6 +142,7 @@ class VaultService {
         } else {
             resolvedName = "Photo"
         }
+        let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
 
         let (pixelWidth, pixelHeight) = photoDimensions(from: data)
 
@@ -152,7 +168,7 @@ class VaultService {
         item.encryptedThumbnailData = encryptedThumbnail
         item.pixelWidth = pixelWidth
         item.pixelHeight = pixelHeight
-        item.album = album
+        item.album = targetAlbum
 
         modelContext.insert(item)
         try modelContext.save()
@@ -160,11 +176,16 @@ class VaultService {
         return item
     }
 
-    func importFromCamera(_ image: UIImage, album: Album?) async throws -> VaultItem {
+    func importFromCamera(
+        _ image: UIImage,
+        album: Album?,
+        isDecoyMode: Bool = false
+    ) async throws -> VaultItem {
         try enforceImportLimit()
         guard let jpegData = image.jpegData(compressionQuality: 1.0) else {
             throw VaultError.importFailed
         }
+        let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
 
         let pixelWidth = Int(image.size.width * image.scale)
         let pixelHeight = Int(image.size.height * image.scale)
@@ -191,7 +212,7 @@ class VaultService {
         item.encryptedThumbnailData = encryptedThumbnail
         item.pixelWidth = pixelWidth
         item.pixelHeight = pixelHeight
-        item.album = album
+        item.album = targetAlbum
 
         modelContext.insert(item)
         try modelContext.save()
@@ -199,7 +220,12 @@ class VaultService {
         return item
     }
 
-    func importVideo(at url: URL, filename: String?, album: Album?) async throws -> VaultItem {
+    func importVideo(
+        at url: URL,
+        filename: String?,
+        album: Album?,
+        isDecoyMode: Bool = false
+    ) async throws -> VaultItem {
         try enforceImportLimit()
         try enforceVideoSizeLimit(for: url)
 
@@ -209,6 +235,8 @@ class VaultService {
         } else {
             resolvedName = "Video"
         }
+
+        let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
 
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
@@ -260,7 +288,7 @@ class VaultService {
         item.pixelWidth = pixelWidth
         item.pixelHeight = pixelHeight
         item.durationSeconds = durationSeconds
-        item.album = album
+        item.album = targetAlbum
 
         modelContext.insert(item)
         try modelContext.save()
@@ -270,8 +298,9 @@ class VaultService {
 
     // MARK: - Import Document
 
-    func importDocument(at url: URL, album: Album?) async throws -> VaultItem {
+    func importDocument(at url: URL, album: Album?, isDecoyMode: Bool = false) async throws -> VaultItem {
         try enforceImportLimit()
+        let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
         let accessing = url.startAccessingSecurityScopedResource()
         defer { if accessing { url.stopAccessingSecurityScopedResource() } }
 
@@ -292,7 +321,7 @@ class VaultService {
             encryptedFileRelativePath: relativePath,
             fileSize: Int64(data.count)
         )
-        item.album = album
+        item.album = targetAlbum
 
         modelContext.insert(item)
         try modelContext.save()
@@ -461,6 +490,36 @@ class VaultService {
     private func buildFileURL(for item: VaultItem) async throws -> URL {
         let vaultDir = try await encryptionService.vaultFilesDirectory()
         return vaultDir.appendingPathComponent(item.encryptedFileRelativePath)
+    }
+
+    private func resolveAlbum(requested album: Album?, isDecoyMode: Bool) throws -> Album? {
+        if isDecoyMode {
+            if let album, album.isDecoy {
+                return album
+            }
+            return try defaultDecoyAlbum()
+        }
+
+        if album?.isDecoy == true {
+            return nil
+        }
+        return album
+    }
+
+    private func defaultDecoyAlbum() throws -> Album {
+        let descriptor = FetchDescriptor<Album>(
+            predicate: #Predicate { $0.isDecoy == true },
+            sortBy: [SortDescriptor(\Album.createdAt)]
+        )
+
+        if let existing = try modelContext.fetch(descriptor).first {
+            return existing
+        }
+
+        let count = (try? modelContext.fetchCount(FetchDescriptor<Album>())) ?? 0
+        let album = Album(name: "Personal", sortOrder: count, isDecoy: true)
+        modelContext.insert(album)
+        return album
     }
 
     private func loadImageData(from provider: NSItemProvider) async throws -> Data {
