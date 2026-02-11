@@ -32,21 +32,27 @@ struct ContentView: View {
     @State private var panicGestureService: PanicGestureService?
     @State private var showImporter = false
     @State private var showPrivacyShield = false
+    @State private var showPostSetupPaywall = false
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
         return (try? modelContext.fetch(descriptor).first?.hasCompletedOnboarding) ?? false
     }
 
+    private var currentRoute: AppRootRoute? {
+        guard let authService else { return nil }
+        return determineAppRootRoute(
+            hasCompletedOnboarding: hasCompletedOnboarding,
+            isSetupComplete: authService.isSetupComplete,
+            isUnlocked: authService.isUnlocked
+        )
+    }
+
     var body: some View {
         ZStack {
             Group {
-                if let authService, let vaultService {
-                    switch determineAppRootRoute(
-                        hasCompletedOnboarding: hasCompletedOnboarding,
-                        isSetupComplete: authService.isSetupComplete,
-                        isUnlocked: authService.isUnlocked
-                    ) {
+                if let authService, let vaultService, let currentRoute {
+                    switch currentRoute {
                     case .onboarding:
                         OnboardingView(authService: authService)
                     case .setupPIN:
@@ -73,6 +79,15 @@ struct ContentView: View {
                     .transition(.opacity)
                     .zIndex(1)
             }
+        }
+        .onChange(of: currentRoute) { oldRoute, newRoute in
+            if newRoute == .main,
+               oldRoute == .onboarding || oldRoute == .setupPIN || oldRoute == nil {
+                showPostSetupPaywall = true
+            }
+        }
+        .fullScreenCover(isPresented: $showPostSetupPaywall) {
+            VaultBoxPaywallView()
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {

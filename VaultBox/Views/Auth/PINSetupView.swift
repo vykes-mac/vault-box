@@ -107,15 +107,10 @@ struct PINSetupView: View {
         .alert("Enable Face ID?", isPresented: $showBiometricPrompt) {
             Button("Enable") {
                 Task {
-                    let context = await authService.authenticateWithBiometrics()
-                    if context {
-                        // Biometrics enabled via successful auth
-                    }
+                    _ = await authService.authenticateWithBiometrics()
                 }
             }
-            Button("Not Now", role: .cancel) {
-                // Keep current unlock session state; root routing will continue to main.
-            }
+            Button("Not Now", role: .cancel) { }
         } message: {
             Text("Use Face ID to quickly unlock your vault.")
         }
