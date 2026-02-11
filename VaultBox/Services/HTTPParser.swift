@@ -48,7 +48,10 @@ struct HTTPResponse: Sendable {
     static func ok(html: String) -> HTTPResponse {
         HTTPResponse(
             statusCode: 200,
-            headers: ["Content-Type": "text/html; charset=utf-8"],
+            headers: [
+                "Content-Type": "text/html; charset=utf-8",
+                "Cache-Control": "no-store"
+            ],
             body: Data(html.utf8)
         )
     }

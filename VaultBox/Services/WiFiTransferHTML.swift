@@ -246,23 +246,63 @@ enum WiFiTransferHTML {
                     div.className = 'grid-item';
 
                     const hasThumb = item.type === 'photo' || item.type === 'video';
-                    const thumbHTML = hasThumb
-                        ? '<img class="thumb" src="/thumbnail/' + item.id + '" loading="lazy" onerror="this.outerHTML=\\'<div class=\\\\'thumb-placeholder\\\\'>' + fileIcon(item.type) + '</div>\\';">'
-                        : '<div class="thumb-placeholder">' + fileIcon(item.type) + '</div>';
+                    if (hasThumb) {
+                        const img = document.createElement('img');
+                        img.className = 'thumb';
+                        img.loading = 'lazy';
+                        img.src = '/thumbnail/' + item.id;
+                        img.addEventListener('error', () => {
+                            const fallback = document.createElement('div');
+                            fallback.className = 'thumb-placeholder';
+                            fallback.textContent = fileIcon(item.type);
+                            img.replaceWith(fallback);
+                        });
+                        div.appendChild(img);
+                    } else {
+                        const placeholder = document.createElement('div');
+                        placeholder.className = 'thumb-placeholder';
+                        placeholder.textContent = fileIcon(item.type);
+                        div.appendChild(placeholder);
+                    }
 
-                    div.innerHTML = thumbHTML +
-                        '<div class="info">' +
-                        '<div class="name">' + item.filename + '</div>' +
-                        '<div class="meta">' + formatSize(item.fileSize) + '</div>' +
-                        '<a href="/download/' + item.id + '">Download</a>' +
-                        '</div>';
+                    const info = document.createElement('div');
+                    info.className = 'info';
+
+                    const name = document.createElement('div');
+                    name.className = 'name';
+                    name.textContent = item.filename;
+
+                    const meta = document.createElement('div');
+                    meta.className = 'meta';
+                    meta.textContent = formatSize(item.fileSize);
+
+                    const link = document.createElement('a');
+                    link.href = '/download/' + item.id;
+                    link.textContent = 'Download';
+
+                    info.appendChild(name);
+                    info.appendChild(meta);
+                    info.appendChild(link);
+                    div.appendChild(info);
                     grid.appendChild(div);
                 });
             })
             .catch(() => {});
     }
 
+    var heartbeatTimer = null;
+    function startHeartbeat() {
+        if (heartbeatTimer !== null) return;
+
+        const ping = () => {
+            fetch('/api/ping', { cache: 'no-store' }).catch(() => {});
+        };
+        ping();
+        heartbeatTimer = setInterval(ping, 5000);
+    }
+
     loadItems();
+    startHeartbeat();
     </script>
     </body>
     </html>

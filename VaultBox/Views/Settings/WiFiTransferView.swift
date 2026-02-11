@@ -154,7 +154,7 @@ struct WiFiTransferView: View {
 
     private func statusSection(_ vm: WiFiTransferViewModel) -> some View {
         Section("Status") {
-            LabeledContent("Connected Devices", value: "\(vm.connectedDeviceCount)")
+            LabeledContent("Active Browsers", value: "\(vm.connectedDeviceCount)")
 
             LabeledContent("Auto-stop in") {
                 Text(formatTime(vm.timeoutSecondsRemaining))

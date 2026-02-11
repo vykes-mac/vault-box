@@ -27,8 +27,12 @@ actor WiFiTransferService {
 
     private var listener: NWListener?
     private var connections: [Int: NWConnection] = [:]
+    private var connectionClients: [Int: String] = [:]
+    private var recentClients: [String: Date] = [:]
     private var nextConnectionID = 0
     private var inactivityTask: Task<Void, Never>?
+    private var clientCleanupTask: Task<Void, Never>?
+    private static let clientPresenceSeconds: TimeInterval = 15
 
     private(set) var isRunning = false
     private(set) var connectedDeviceCount = 0
@@ -66,6 +70,7 @@ actor WiFiTransferService {
         self.listener = listener
         self.localIPAddress = Self.getWiFiAddress()
         listener.start(queue: .global(qos: .userInitiated))
+        startClientCleanupTimer()
 
         isRunning = true
         notifyStateChange()
@@ -75,11 +80,15 @@ actor WiFiTransferService {
     func stop() {
         inactivityTask?.cancel()
         inactivityTask = nil
+        clientCleanupTask?.cancel()
+        clientCleanupTask = nil
 
         for (_, connection) in connections {
             connection.cancel()
         }
         connections.removeAll()
+        connectionClients.removeAll()
+        recentClients.removeAll()
 
         listener?.cancel()
         listener = nil
@@ -110,8 +119,8 @@ actor WiFiTransferService {
         let id = nextConnectionID
         nextConnectionID += 1
         connections[id] = connection
-        connectedDeviceCount = connections.count
-        notifyStateChange()
+        connectionClients[id] = Self.clientIdentifier(for: connection)
+        markClientSeen(forConnectionID: id)
 
         connection.stateUpdateHandler = { [weak self] state in
             guard let self else { return }
@@ -128,9 +137,9 @@ actor WiFiTransferService {
         switch state {
         case .failed, .cancelled:
             connections.removeValue(forKey: id)
+            connectionClients.removeValue(forKey: id)
             buffers.removeValue(forKey: id)
-            connectedDeviceCount = connections.count
-            notifyStateChange()
+            pruneInactiveClients()
         default:
             break
         }
@@ -180,13 +189,16 @@ actor WiFiTransferService {
 
         let requestData = buffers[id]!
         buffers.removeValue(forKey: id)
-
-        resetInactivityTimer()
+        markClientSeen(forConnectionID: id)
 
         guard let request = HTTPParser.parseRequest(from: requestData) else {
             let response = HTTPResponse.error("Bad Request", code: 400)
             sendResponse(response, on: connection, id: id)
             return true
+        }
+
+        if request.path != "/api/ping" {
+            resetInactivityTimer()
         }
 
         let response = await handleRequest(request)
@@ -209,8 +221,8 @@ actor WiFiTransferService {
         if let connection = connections.removeValue(forKey: id) {
             connection.cancel()
         }
-        connectedDeviceCount = connections.count
-        notifyStateChange()
+        connectionClients.removeValue(forKey: id)
+        pruneInactiveClients()
     }
 
     // MARK: - HTTP Routing
@@ -225,6 +237,10 @@ actor WiFiTransferService {
 
         if method == "GET" && path == "/api/items" {
             return await handleGetItems()
+        }
+
+        if method == "GET" && path == "/api/ping" {
+            return .ok(json: Data("{\"ok\":true}".utf8))
         }
 
         if method == "GET" && path.hasPrefix("/download/") {
@@ -327,6 +343,32 @@ actor WiFiTransferService {
         }
     }
 
+    private func startClientCleanupTimer() {
+        clientCleanupTask?.cancel()
+        clientCleanupTask = Task { [weak self] in
+            while let self, !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: 5_000_000_000)
+                await self.pruneInactiveClients()
+            }
+        }
+    }
+
+    private func markClientSeen(forConnectionID id: Int) {
+        guard let client = connectionClients[id], !client.isEmpty else { return }
+        recentClients[client] = Date()
+        pruneInactiveClients()
+    }
+
+    private func pruneInactiveClients() {
+        let cutoff = Date().addingTimeInterval(-Self.clientPresenceSeconds)
+        recentClients = recentClients.filter { $0.value >= cutoff }
+        let count = recentClients.count
+        if connectedDeviceCount != count {
+            connectedDeviceCount = count
+            notifyStateChange()
+        }
+    }
+
     // MARK: - Wi-Fi Address
 
     static func getWiFiAddress() -> String? {
@@ -360,6 +402,15 @@ actor WiFiTransferService {
         }
 
         return address
+    }
+
+    private static func clientIdentifier(for connection: NWConnection) -> String {
+        switch connection.endpoint {
+        case let .hostPort(host, _):
+            return host.debugDescription
+        default:
+            return ""
+        }
     }
 
     // MARK: - Notify
