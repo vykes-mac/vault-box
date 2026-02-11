@@ -3,7 +3,8 @@ import SwiftUI
 struct AppIconPickerView: View {
     @Environment(PurchaseService.self) private var purchaseService
 
-    @State private var iconService = AppIconService()
+    private let iconService = AppIconService()
+    @State private var availableIcons = [AppIconService.IconOption]()
     @State private var currentIcon: String?
     @State private var errorMessage: String?
     @State private var showError = false
@@ -11,7 +12,7 @@ struct AppIconPickerView: View {
 
     var body: some View {
         List {
-            ForEach(AppIconService.availableIcons, id: \.displayName) { icon in
+            ForEach(availableIcons, id: \.displayName) { icon in
                 Button {
                     selectIcon(icon.id)
                 } label: {
@@ -34,10 +35,17 @@ struct AppIconPickerView: View {
                     }
                 }
             }
+
+            if availableIcons.count <= 1 {
+                Text("No alternate app icons are configured in this build.")
+                    .font(.footnote)
+                    .foregroundStyle(Color.vaultTextSecondary)
+            }
         }
         .navigationTitle("App Icon")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            availableIcons = iconService.availableIcons()
             currentIcon = iconService.getCurrentIcon()
             if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
                 showPaywall = true
@@ -54,6 +62,11 @@ struct AppIconPickerView: View {
     }
 
     private func selectIcon(_ iconID: String?) {
+        if iconID != nil, !availableIcons.contains(where: { $0.id == iconID }) {
+            errorMessage = "This app icon is not available in the current build."
+            showError = true
+            return
+        }
         if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
             showPaywall = true
             return
@@ -63,7 +76,7 @@ struct AppIconPickerView: View {
                 try await iconService.setIcon(iconID)
                 currentIcon = iconID
             } catch {
-                errorMessage = "Couldn't change the app icon. Please try again."
+                errorMessage = error.localizedDescription
                 showError = true
             }
         }

@@ -24,6 +24,9 @@ struct SettingsView: View {
     @Query private var settingsQuery: [AppSettings]
 
     private var settings: AppSettings? { settingsQuery.first }
+    private var hasConfiguredAlternateIcons: Bool {
+        AppIconService().availableIcons().count > 1
+    }
 
     var body: some View {
         NavigationStack {
@@ -196,6 +199,9 @@ struct SettingsView: View {
     private var appearanceSection: some View {
         Section("Appearance") {
             Button {
+                if !hasConfiguredAlternateIcons {
+                    return
+                }
                 if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
                     showPaywall = true
                 } else {
@@ -206,7 +212,11 @@ struct SettingsView: View {
                     Label("App Icon", systemImage: "app.badge")
                         .foregroundStyle(Color.vaultTextPrimary)
                     Spacer()
-                    if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+                    if !hasConfiguredAlternateIcons {
+                        Text("Unavailable")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    } else if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
                         Image(systemName: "lock.fill")
                             .font(.caption)
                             .foregroundStyle(Color.vaultPremium)
@@ -217,6 +227,7 @@ struct SettingsView: View {
                     }
                 }
             }
+            .disabled(!hasConfiguredAlternateIcons)
 
             if let settings {
                 Picker(selection: Binding(
