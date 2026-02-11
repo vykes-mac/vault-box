@@ -8,6 +8,7 @@ struct VideoPlayerView: View {
     let vaultService: VaultService
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppPrivacyShield.self) private var privacyShield
 
     @State private var player: AVPlayer?
     @State private var tempFileURL: URL?
@@ -36,11 +37,25 @@ struct VideoPlayerView: View {
                 }
                 .padding()
             }
+
+            if privacyShield.isVisible {
+                Color.black
+                    .ignoresSafeArea()
+                    .overlay {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 36, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .zIndex(10)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .statusBar(hidden: true)
         .task {
             await loadVideo()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            dismiss()
         }
         .onDisappear {
             cleanupTempFile()

@@ -3,6 +3,7 @@ import LocalAuthentication
 
 struct LockScreenView: View {
     let authService: AuthService
+    let onPresented: (() -> Void)?
 
     @State private var pin: String = ""
     @State private var pinLength: Int = 4
@@ -39,6 +40,11 @@ struct LockScreenView: View {
             return String(format: "Try again in %d:%02d", minutes, seconds)
         }
         return "Enter your PIN"
+    }
+
+    init(authService: AuthService, onPresented: (() -> Void)? = nil) {
+        self.authService = authService
+        self.onPresented = onPresented
     }
 
     var body: some View {
@@ -101,6 +107,7 @@ struct LockScreenView: View {
         .padding(.horizontal, Constants.standardPadding)
         .background(Color.vaultBackground.ignoresSafeArea())
         .onAppear {
+            onPresented?()
             pinLength = authService.getPINLength()
             checkLockout()
             if !isLockedOut && authService.isBiometricsEnabled() {

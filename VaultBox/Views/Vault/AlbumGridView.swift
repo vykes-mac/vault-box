@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - Smart Album Type
 
@@ -8,6 +9,10 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
     case documents = "Documents"
     case screenshots = "Screenshots"
     case qrCodes = "QR Codes"
+    case animals = "Animals"
+    case plants = "Plants"
+    case buildings = "Buildings"
+    case landmarks = "Landmarks"
 
     var id: String { rawValue }
 
@@ -17,6 +22,10 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .documents: "document"
         case .screenshots: "screenshot"
         case .qrCodes: "qrcode"
+        case .animals: "animals"
+        case .plants: "plants"
+        case .buildings: "buildings"
+        case .landmarks: "landmarks"
         }
     }
 
@@ -26,6 +35,10 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .documents: "doc.text.fill"
         case .screenshots: "rectangle.dashed"
         case .qrCodes: "qrcode"
+        case .animals: "pawprint.fill"
+        case .plants: "leaf.fill"
+        case .buildings: "building.2.fill"
+        case .landmarks: "building.columns.fill"
         }
     }
 }
@@ -446,6 +459,9 @@ struct AlbumDetailView: View {
                 vaultService: vaultService
             )
         }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            detailItem = nil
+        }
     }
 
     // MARK: - Empty State
@@ -591,6 +607,9 @@ struct SmartAlbumDetailView: View {
                 initialIndex: index,
                 vaultService: vaultService
             )
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            detailItem = nil
         }
     }
 

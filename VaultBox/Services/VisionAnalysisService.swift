@@ -3,6 +3,7 @@ import Vision
 import UIKit
 import ImageIO
 import CoreImage
+import CoreML
 
 // MARK: - Analysis Types
 
@@ -117,6 +118,9 @@ actor VisionAnalysisService {
                 .fastOCR(Self.recognizeText(on: analysisImage, orientation: analysisOrientation, level: .fast))
             }
             group.addTask {
+                .scene(Self.classifySceneTags(on: analysisImage, orientation: analysisOrientation))
+            }
+            group.addTask {
                 try? await Task.sleep(for: timeout)
                 return .timeout
             }
@@ -140,13 +144,17 @@ actor VisionAnalysisService {
                     completedDetectors += 1
                     ocrText = Self.normalizedOCRText(text)
 
+                case .scene(let sceneTags):
+                    completedDetectors += 1
+                    tags.formUnion(sceneTags)
+
                 case .timeout:
                     timeoutReached = true
                     Self.debugLog("Analysis timeout hit for item \(input.itemID.uuidString). Returning partial results.")
                     group.cancelAll()
                 }
 
-                if timeoutReached || completedDetectors == 3 {
+                if timeoutReached || completedDetectors == 4 {
                     group.cancelAll()
                     break
                 }
@@ -337,6 +345,65 @@ actor VisionAnalysisService {
         }
     }
 
+    private nonisolated static func classifySceneTags(
+        on cgImage: CGImage,
+        orientation: CGImagePropertyOrientation
+    ) -> [String] {
+        do {
+            return try runSceneClassification(on: cgImage, orientation: orientation, useCPUOnly: forceCPUOnlySceneClassification)
+        } catch {
+            guard shouldRetrySceneClassification(error) else {
+                if Self.shouldLogVisionError(error) {
+                    Self.debugLog("Scene classifier error (orientation=\(orientation.rawValue)): \(error)")
+                }
+                return []
+            }
+
+            let fallbackImage = downscaleImageIfNeeded(
+                cgImage,
+                maxDimension: Constants.visionSceneClassificationFallbackMaxDimension
+            ) ?? cgImage
+            do {
+                let tags = try runSceneClassification(
+                    on: fallbackImage,
+                    orientation: orientation,
+                    useCPUOnly: true
+                )
+                if !tags.isEmpty {
+                    Self.debugLog("Scene classifier fallback succeeded.")
+                }
+                return tags
+            } catch {
+                if Self.shouldLogVisionError(error) {
+                    Self.debugLog("Scene classifier fallback error (orientation=\(orientation.rawValue)): \(error)")
+                }
+                return []
+            }
+        }
+    }
+
+    private nonisolated static func runSceneClassification(
+        on cgImage: CGImage,
+        orientation: CGImagePropertyOrientation,
+        useCPUOnly: Bool
+    ) throws -> [String] {
+        let request = VNClassifyImageRequest()
+        if #available(iOS 17.0, *) {
+            if useCPUOnly, let cpuDevice = preferredCPUComputeDevice {
+                request.setComputeDevice(cpuDevice, for: .main)
+            }
+        } else {
+            request.usesCPUOnly = useCPUOnly
+        }
+        request.preferBackgroundProcessing = true
+        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
+        try handler.perform([request])
+        let observations = (request.results ?? [])
+            .filter { $0.confidence >= Constants.visionSceneClassificationMinConfidence }
+            .prefix(Constants.visionSceneClassificationMaxLabels)
+        return Array(Self.mapSceneTags(from: observations))
+    }
+
     private nonisolated static func recognizeText(
         on cgImage: CGImage,
         orientation: CGImagePropertyOrientation,
@@ -418,14 +485,108 @@ actor VisionAnalysisService {
         text.count > 20
     }
 
+    private nonisolated static func mapSceneTags<S: Sequence>(
+        from observations: S
+    ) -> Set<String> where S.Element == VNClassificationObservation {
+        var tags = Set<String>()
+
+        for observation in observations {
+            let identifier = normalizedClassifierIdentifier(observation.identifier)
+
+            if containsAnyKeyword(identifier, keywords: animalKeywords) {
+                tags.insert("animals")
+            }
+            if containsAnyKeyword(identifier, keywords: plantKeywords) {
+                tags.insert("plants")
+            }
+            if containsAnyKeyword(identifier, keywords: buildingKeywords) {
+                tags.insert("buildings")
+            }
+            if containsAnyKeyword(identifier, keywords: landmarkKeywords) {
+                tags.insert("landmarks")
+            }
+        }
+
+        return tags
+    }
+
+    private nonisolated static func normalizedClassifierIdentifier(_ identifier: String) -> String {
+        var value = identifier.lowercased()
+        value = value.replacingOccurrences(of: ".", with: " ")
+        value = value.replacingOccurrences(of: "_", with: " ")
+        value = value.replacingOccurrences(of: "-", with: " ")
+        value = value.replacingOccurrences(of: "/", with: " ")
+        return value
+    }
+
+    private nonisolated static func containsAnyKeyword(_ value: String, keywords: [String]) -> Bool {
+        for keyword in keywords where value.contains(keyword) {
+            return true
+        }
+        return false
+    }
+
+    private nonisolated static func shouldRetrySceneClassification(_ error: Error) -> Bool {
+        let nsError = error as NSError
+        if nsError.domain == NSOSStatusErrorDomain,
+           nsError.code == -1,
+           nsError.localizedDescription.localizedCaseInsensitiveContains("espresso context") {
+            return true
+        }
+        if nsError.domain == VNErrorDomain, nsError.code == 9 {
+            return true
+        }
+        return false
+    }
+
+    private nonisolated static func downscaleImageIfNeeded(
+        _ cgImage: CGImage,
+        maxDimension: CGFloat
+    ) -> CGImage? {
+        let sourceMax = CGFloat(max(cgImage.width, cgImage.height))
+        guard sourceMax > maxDimension else { return cgImage }
+
+        let scale = maxDimension / sourceMax
+        let ciImage = CIImage(cgImage: cgImage).transformed(by: CGAffineTransform(scaleX: scale, y: scale))
+        let rect = ciImage.extent.integral
+        guard rect.width > 0, rect.height > 0 else { return nil }
+
+        let context = CIContext(options: [.cacheIntermediates: false])
+        return context.createCGImage(ciImage, from: rect)
+    }
+
     private nonisolated static func shouldLogVisionError(_ error: Error) -> Bool {
         #if targetEnvironment(simulator)
         let nsError = error as NSError
         if nsError.domain == VNErrorDomain, nsError.code == 9 {
             return false
         }
+        if nsError.domain == NSOSStatusErrorDomain,
+           nsError.code == -1,
+           nsError.localizedDescription.localizedCaseInsensitiveContains("espresso context") {
+            return false
+        }
         #endif
         return true
+    }
+
+    private nonisolated static var forceCPUOnlySceneClassification: Bool {
+        #if targetEnvironment(simulator)
+        true
+        #else
+        false
+        #endif
+    }
+
+    private nonisolated static var preferredCPUComputeDevice: MLComputeDevice? {
+        if #available(iOS 17.0, *) {
+            for device in MLComputeDevice.allComputeDevices {
+                if case .cpu = device {
+                    return device
+                }
+            }
+        }
+        return nil
     }
 
     private nonisolated static func debugLog(_ message: String) {
@@ -444,6 +605,7 @@ private enum DetectorOutcome: Sendable {
     case face(Bool)
     case barcode(Bool)
     case fastOCR(String?)
+    case scene([String])
     case timeout
 }
 
@@ -451,3 +613,25 @@ private enum AccurateOCROutcome: Sendable {
     case text(String?)
     case timeout
 }
+
+private let animalKeywords = [
+    "animal", "mammal", "bird", "dog", "cat", "pet", "wildlife", "insect", "fish", "reptile",
+    "amphibian", "horse", "cow", "sheep", "goat", "lion", "tiger", "bear", "monkey", "elephant",
+    "deer", "fox", "wolf", "rabbit", "bunny", "puppy", "kitten"
+]
+
+private let plantKeywords = [
+    "plant", "flower", "leaf", "tree", "forest", "grass", "vegetation", "garden", "cactus",
+    "succulent", "herb", "moss", "fern", "shrub", "vine", "bouquet", "blossom", "petal",
+    "flora", "rose", "tulip", "orchid", "lily", "sunflower", "daisy", "peony", "lavender"
+]
+
+private let buildingKeywords = [
+    "building", "architecture", "house", "home", "apartment", "office", "skyscraper", "tower",
+    "bridge", "facade", "interior", "room", "kitchen", "bathroom", "bedroom", "city", "urban"
+]
+
+private let landmarkKeywords = [
+    "landmark", "monument", "temple", "church", "mosque", "cathedral", "castle", "palace",
+    "statue", "memorial", "museum", "stadium", "attraction"
+]

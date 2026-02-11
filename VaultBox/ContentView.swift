@@ -9,6 +9,12 @@ enum AppRootRoute: Equatable {
     case main
 }
 
+@MainActor
+@Observable
+final class AppPrivacyShield {
+    var isVisible = true
+}
+
 func determineAppRootRoute(hasCompletedOnboarding: Bool, isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRoute {
     if isUnlocked {
         return .main
@@ -26,14 +32,16 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(AppPrivacyShield.self) private var privacyShield
 
     @State private var authService: AuthService?
     @State private var vaultService: VaultService?
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
     @State private var showImporter = false
-    @State private var showPrivacyShield = false
     @State private var showPostSetupPaywall = false
+    @State private var awaitingLockRouteAfterForeground = false
+    @State private var privacyShieldRevealToken = 0
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -59,7 +67,10 @@ struct ContentView: View {
                     case .setupPIN:
                         PINSetupView(authService: authService)
                     case .lock:
-                        LockScreenView(authService: authService)
+                        LockScreenView(
+                            authService: authService,
+                            onPresented: handleLockScreenPresented
+                        )
                     case .main:
                         mainTabView(authService: authService, vaultService: vaultService)
                     }
@@ -69,7 +80,7 @@ struct ContentView: View {
                 }
             }
 
-            if showPrivacyShield {
+            if privacyShield.isVisible {
                 Color.black
                     .ignoresSafeArea()
                     .overlay {
@@ -77,7 +88,6 @@ struct ContentView: View {
                             .font(.system(size: 36, weight: .semibold))
                             .foregroundStyle(.white)
                     }
-                    .transition(.opacity)
                     .zIndex(1)
             }
         }
@@ -86,6 +96,7 @@ struct ContentView: View {
                oldRoute == .onboarding || oldRoute == .setupPIN || oldRoute == nil {
                 showPostSetupPaywall = true
             }
+            attemptPrivacyShieldReveal()
         }
         .onChange(of: purchaseService.hasResolvedCustomerInfo) { _, hasResolved in
             guard hasResolved else { return }
@@ -225,28 +236,54 @@ struct ContentView: View {
     }
 
     private func handleDidEnterBackground() {
-        showPrivacyShield = true
+        privacyShieldRevealToken &+= 1
+        privacyShield.isVisible = true
         guard let authService else { return }
         guard authService.isSetupComplete else { return }
         authService.recordBackgroundEntry()
     }
 
     private func handleWillResignActive() {
-        showPrivacyShield = true
+        privacyShieldRevealToken &+= 1
+        privacyShield.isVisible = true
     }
 
     private func handleDidBecomeActive() {
+        privacyShieldRevealToken &+= 1
+
+        var shouldAwaitLockRoute = false
         if let authService, authService.isSetupComplete, authService.isUnlocked, authService.shouldAutoLock() {
+            shouldAwaitLockRoute = true
             authService.lock()
         }
+        awaitingLockRouteAfterForeground = shouldAwaitLockRoute
 
+        attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
+    }
+
+    private func attemptPrivacyShieldReveal(token: Int? = nil) {
+        guard scenePhase == .active else { return }
+        guard !awaitingLockRouteAfterForeground else { return }
+
+        let expectedToken = token ?? privacyShieldRevealToken
         Task { @MainActor in
-            // Keep content obscured until route changes (lock/main) are committed.
+            // Wait for the route change transaction to settle before revealing content.
             await Task.yield()
-            if scenePhase == .active {
-                showPrivacyShield = false
-            }
+            await Task.yield()
+
+            guard expectedToken == privacyShieldRevealToken else { return }
+            guard scenePhase == .active else { return }
+            guard !awaitingLockRouteAfterForeground else { return }
+
+            awaitingLockRouteAfterForeground = false
+            privacyShield.isVisible = false
         }
+    }
+
+    private func handleLockScreenPresented() {
+        guard awaitingLockRouteAfterForeground else { return }
+        awaitingLockRouteAfterForeground = false
+        attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
     }
 
     // MARK: - Service Initialization

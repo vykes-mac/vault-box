@@ -10,6 +10,7 @@ struct PhotoDetailView: View {
     let vaultService: VaultService
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(AppPrivacyShield.self) private var privacyShield
 
     @State private var currentIndex: Int
     @State private var showBars = true
@@ -79,6 +80,17 @@ struct PhotoDetailView: View {
                 }
                 .transition(.opacity)
             }
+
+            if privacyShield.isVisible {
+                Color.black
+                    .ignoresSafeArea()
+                    .overlay {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 36, weight: .semibold))
+                            .foregroundStyle(.white)
+                    }
+                    .zIndex(10)
+            }
         }
         .toolbar(.hidden, for: .navigationBar)
         .statusBar(hidden: !showBars)
@@ -93,6 +105,9 @@ struct PhotoDetailView: View {
         }
         .fullScreenCover(isPresented: $showVideoPlayer) {
             VideoPlayerView(item: currentItem, vaultService: vaultService)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+            closeForPrivacy()
         }
         .confirmationDialog(
             "Delete Item?",
@@ -278,6 +293,11 @@ struct PhotoDetailView: View {
             try? await vaultService.deleteItems([item])
             dismiss()
         }
+    }
+
+    private func closeForPrivacy() {
+        showVideoPlayer = false
+        dismiss()
     }
 
     private func formatFileSize(_ bytes: Int64) -> String {

@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UIKit
 
 // MARK: - Sort & Filter
 
@@ -157,6 +158,9 @@ struct VaultGridView: View {
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
+                detailItem = nil
             }
         }
     }

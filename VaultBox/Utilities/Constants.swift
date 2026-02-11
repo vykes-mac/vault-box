@@ -92,6 +92,9 @@ enum Constants {
 
     static let visionAnalysisTimeout: TimeInterval = 3.0
     static let visionAnalysisMaxDimension: CGFloat = 2048
+    static let visionSceneClassificationMinConfidence: Float = 0.55
+    static let visionSceneClassificationMaxLabels: Int = 8
+    static let visionSceneClassificationFallbackMaxDimension: CGFloat = 1024
 
     // MARK: - File Storage
 

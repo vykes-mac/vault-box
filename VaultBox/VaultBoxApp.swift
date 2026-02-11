@@ -5,6 +5,7 @@ import SwiftData
 struct VaultBoxApp: App {
     let modelContainer: ModelContainer
     @State private var purchaseService = PurchaseService()
+    @State private var privacyShield = AppPrivacyShield()
     @State private var themeColorScheme: ColorScheme?
 
     init() {
@@ -34,6 +35,7 @@ struct VaultBoxApp: App {
         WindowGroup {
             ContentView()
                 .environment(purchaseService)
+                .environment(privacyShield)
                 .preferredColorScheme(themeColorScheme)
                 .onAppear {
                     purchaseService.configure()
