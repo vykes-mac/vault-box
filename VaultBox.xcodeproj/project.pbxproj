@@ -65,6 +65,7 @@
 		E6B5F70829415263748C9D0F /* PhotoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A4E6F71829304152637B8E /* PhotoDetailView.swift */; };
 		F7C6E81930526374859DAE10 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */; };
 		F8A1B2C3D4E5F60718293A4B /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304A5B /* VaultService.swift */; };
+		CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -132,6 +133,7 @@
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
 		C3D4E5F60718293041526B7D /* VaultGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGridView.swift; sourceTree = "<group>"; };
 		C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINSetupView.swift; sourceTree = "<group>"; };
+		CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070002 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070003 /* Secrets.Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Debug.xcconfig; sourceTree = "<group>"; };
@@ -177,6 +179,7 @@
 			isa = PBXGroup;
 			children = (
 				B3C4D5E6F7081920304A5B6C /* LockScreenView.swift */,
+				CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */,
 				694FE4365623C81A79223EFC /* PINDotsView.swift */,
 				F0EC25525A796155921B2DB4 /* PINKeypadView.swift */,
 				C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */,
@@ -546,6 +549,7 @@
 				BB11CC22DD33EE44FF550B04 /* WiFiTransferViewModel.swift in Sources */,
 				BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */,
 				BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */,
+				CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

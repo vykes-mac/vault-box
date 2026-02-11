@@ -302,6 +302,7 @@ final class AppSettings {
     var panicGestureEnabled: Bool          // face-down lock
     var breakInAlertsEnabled: Bool
     var lastUnlockedAt: Date?
+    var hasCompletedOnboarding: Bool       // tracks whether user has seen onboarding
     var failedAttemptCount: Int            // resets on successful auth
     var lockoutUntil: Date?               // progressive lockout
 
@@ -314,6 +315,7 @@ final class AppSettings {
         self.iCloudBackupEnabled = false
         self.autoLockSeconds = 0
         self.panicGestureEnabled = false
+        self.hasCompletedOnboarding = false
         self.breakInAlertsEnabled = true
         self.failedAttemptCount = 0
     }
@@ -627,8 +629,28 @@ class AppIconService {
 App Launch
     │
     ▼
+┌──────────────────┐
+│ OnboardingView    │ ← First launch only (2-page value hook + permissions)
+└───────┬──────────┘
+        │ "Continue"
+        ▼
+┌──────────────────┐
+│ PINSetupView      │ ← Create PIN (sets hasCompletedOnboarding = true)
+└───────┬──────────┘
+        │ (PIN created)
+        ▼
+┌─────────────────────────────────────┐
+│ TabView                              │
+│  ...                                 │
+└─────────────────────────────────────┘
+
+Returning users:
+
+App Launch
+    │
+    ▼
 ┌─────────────┐
-│ LockScreen   │ ← Always shown first (PIN + biometrics)
+│ LockScreen   │ ← PIN + biometrics gate
 └──────┬──────┘
        │ (authenticated)
        ▼
@@ -642,6 +664,37 @@ App Launch
 ```
 
 ### Screen Specs
+
+#### 6.0 OnboardingView
+
+Shown only on first app launch (`hasCompletedOnboarding == false && isSetupComplete == false`). Existing users who already have a PIN skip this screen entirely.
+
+**Layout — Screen 1 (Value Hook):**
+
+- SF Symbol `lock.shield.fill` at 120pt, `Color.vaultPremium` (#FFD60A)
+- Title: "Your Hidden Album isn't private" — `.largeTitle`, bold
+- Body: "Anyone with your passcode can open it. VaultBox encrypts every photo with AES-256 so only you can see them." — `.body`, `Color.vaultTextSecondary`
+- "Get Started" CTA — full-width, gold background (`Color.vaultPremium`), black text, 50pt height, 12pt corner radius
+- 32pt bottom padding
+
+**Layout — Screen 2 (Permissions Primer):**
+
+- Title: "VaultBox needs a few permissions" — `.title2`, bold
+- Subtitle: "We'll ask one at a time — you can change these later in Settings." — `.callout`, `Color.vaultTextSecondary`
+- Three info rows:
+  - `faceid` — "Face ID / Touch ID" / "Unlock your vault in a flash"
+  - `photo.on.rectangle` — "Photo Library" / "Import photos & videos to encrypt"
+  - `camera.fill` — "Camera" / "Capture directly into your vault"
+- "Continue" CTA — same style as Screen 1
+- 32pt bottom padding
+
+**Navigation:**
+
+- Two-page `TabView` with `.tabViewStyle(.page)`, swipe enabled
+- Page indicator: two dots above CTA showing current page
+- "Get Started" animates to Screen 2
+- "Continue" presents `PINSetupView` via `.fullScreenCover`
+- After PIN creation completes, `hasCompletedOnboarding` is set to `true` and routing transitions to `.main`
 
 #### 6.1 LockScreenView
 

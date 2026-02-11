@@ -3,14 +3,18 @@ import SwiftData
 import UIKit
 
 enum AppRootRoute: Equatable {
+    case onboarding
     case setupPIN
     case lock
     case main
 }
 
-func determineAppRootRoute(isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRoute {
+func determineAppRootRoute(hasCompletedOnboarding: Bool, isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRoute {
     if isUnlocked {
         return .main
+    }
+    if !hasCompletedOnboarding && !isSetupComplete {
+        return .onboarding
     }
     if !isSetupComplete {
         return .setupPIN
@@ -29,14 +33,22 @@ struct ContentView: View {
     @State private var showImporter = false
     @State private var showPrivacyShield = false
 
+    private var hasCompletedOnboarding: Bool {
+        let descriptor = FetchDescriptor<AppSettings>()
+        return (try? modelContext.fetch(descriptor).first?.hasCompletedOnboarding) ?? false
+    }
+
     var body: some View {
         ZStack {
             Group {
                 if let authService, let vaultService {
                     switch determineAppRootRoute(
+                        hasCompletedOnboarding: hasCompletedOnboarding,
                         isSetupComplete: authService.isSetupComplete,
                         isUnlocked: authService.isUnlocked
                     ) {
+                    case .onboarding:
+                        OnboardingView(authService: authService)
                     case .setupPIN:
                         PINSetupView(authService: authService)
                     case .lock:

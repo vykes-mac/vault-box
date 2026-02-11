@@ -21,6 +21,7 @@ final class AppSettings {
     var failedAttemptCount: Int = 0
     var lockoutUntil: Date?
     var importCount: Int = 0
+    var hasCompletedOnboarding: Bool = false
     var themeMode: String = "system" // "system", "light", "dark"
 
     init(pinHash: String = "", pinSalt: String = "") {
@@ -37,6 +38,7 @@ final class AppSettings {
         self.pinLength = Constants.pinMinLength
         self.failedAttemptCount = 0
         self.importCount = 0
+        self.hasCompletedOnboarding = false
         self.themeMode = "system"
     }
 }

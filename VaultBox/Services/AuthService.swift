@@ -53,6 +53,7 @@ class AuthService {
         settings.pinSalt = salt.base64EncodedString()
         settings.pinLength = pin.count
         settings.isSetupComplete = true
+        settings.hasCompletedOnboarding = true
         settings.lastUnlockedAt = Date()
 
         // Generate and store master key derived from PIN
