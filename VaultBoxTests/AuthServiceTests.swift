@@ -28,17 +28,26 @@ struct AuthServiceTests {
         return (auth, encryption, context)
     }
 
-    @Test("Create PIN stores hash and marks setup complete")
+    @Test("Create PIN stores hash and waits for setup finalization")
     @MainActor
     func createPIN() async throws {
         let (auth, _, context) = try makeServices()
 
         try await auth.createPIN("1234")
 
-        let settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
-        #expect(settings.isSetupComplete == true)
+        var settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+        #expect(settings.isSetupComplete == false)
+        #expect(settings.hasCompletedOnboarding == false)
         #expect(!settings.pinHash.isEmpty)
         #expect(!settings.pinSalt.isEmpty)
+        #expect(auth.isSetupComplete == false)
+        #expect(auth.isUnlocked == false)
+
+        try auth.completeInitialSetup()
+
+        settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+        #expect(settings.isSetupComplete == true)
+        #expect(settings.hasCompletedOnboarding == true)
         #expect(auth.isSetupComplete == true)
         #expect(auth.isUnlocked == true)
     }
@@ -171,6 +180,7 @@ struct AuthServiceTests {
     func lockResetsState() async throws {
         let (auth, _, _) = try makeServices()
         try await auth.createPIN("1234")
+        try auth.completeInitialSetup()
         _ = await auth.verifyPIN("1234")
         #expect(auth.isUnlocked == true)
         #expect(auth.isSetupComplete == true)
@@ -224,7 +234,7 @@ struct AuthServiceTests {
         ) == .main)
     }
 
-    @Test("Route transitions from setup to main after create PIN")
+    @Test("Route transitions from setup to main after setup finalization")
     @MainActor
     func routeTransitionsToMainAfterCreatePIN() async throws {
         let (auth, _, _) = try makeServices()
@@ -235,6 +245,14 @@ struct AuthServiceTests {
         ) == .onboarding)
 
         try await auth.createPIN("1234")
+
+        #expect(determineAppRootRoute(
+            hasCompletedOnboarding: false,
+            isSetupComplete: auth.isSetupComplete,
+            isUnlocked: auth.isUnlocked
+        ) == .onboarding)
+
+        try auth.completeInitialSetup()
 
         #expect(determineAppRootRoute(
             hasCompletedOnboarding: true,

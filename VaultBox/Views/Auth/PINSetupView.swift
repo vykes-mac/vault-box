@@ -107,10 +107,16 @@ struct PINSetupView: View {
         .alert("Enable Face ID?", isPresented: $showBiometricPrompt) {
             Button("Enable") {
                 Task {
-                    _ = await authService.authenticateWithBiometrics()
+                    _ = await authService.authenticateWithBiometrics(
+                        localizedReason: "Enable biometrics to quickly unlock your vault.",
+                        unlockSession: false
+                    )
+                    completeInitialSetup()
                 }
             }
-            Button("Not Now", role: .cancel) { }
+            Button("Not Now", role: .cancel) {
+                completeInitialSetup()
+            }
         } message: {
             Text("Use Face ID to quickly unlock your vault.")
         }
@@ -153,6 +159,8 @@ struct PINSetupView: View {
                     try await authService.createPIN(pin)
                     if authService.isBiometricsAvailable() {
                         showBiometricPrompt = true
+                    } else {
+                        completeInitialSetup()
                     }
                 } catch {
                     dotState = .error
@@ -181,6 +189,16 @@ struct PINSetupView: View {
         }
         DispatchQueue.main.asyncAfter(deadline: .now() + Constants.pinShakeDuration) {
             shakeOffset = 0
+        }
+    }
+
+    private func completeInitialSetup() {
+        do {
+            try authService.completeInitialSetup()
+        } catch {
+            dotState = .error
+            errorMessage = error.localizedDescription
+            isSubmitting = false
         }
     }
 }

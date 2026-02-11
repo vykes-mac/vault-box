@@ -58,20 +58,25 @@ class AuthService {
         settings.pinHash = hash
         settings.pinSalt = salt.base64EncodedString()
         settings.pinLength = pin.count
-        settings.isSetupComplete = true
-        settings.hasCompletedOnboarding = true
-        settings.lastUnlockedAt = Date()
 
         // Generate and store master key derived from PIN
         let masterKey = await encryptionService.deriveMasterKey(from: pin, salt: salt)
         try await encryptionService.storeMasterKey(masterKey)
 
         try modelContext.save()
+    }
 
-        // Keep the user in an unlocked session after first-time setup.
+    func completeInitialSetup() throws {
+        let settings = try loadSettings()
+        settings.isSetupComplete = true
+        settings.hasCompletedOnboarding = true
+        settings.lastUnlockedAt = Date()
+        try modelContext.save()
+
         isSetupComplete = true
         isUnlocked = true
         isDecoyMode = false
+        lastBackgroundAt = nil
     }
 
     func verifyPIN(_ pin: String) async -> AuthResult {
@@ -189,22 +194,32 @@ class AuthService {
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
     }
 
-    func authenticateWithBiometrics() async -> Bool {
+    func authenticateWithBiometrics(
+        localizedReason: String = "Unlock your vault",
+        unlockSession: Bool = true,
+        enableForFutureUnlocks: Bool = true
+    ) async -> Bool {
         let context = LAContext()
         context.localizedFallbackTitle = "Enter PIN"
 
         do {
             let success = try await context.evaluatePolicy(
                 .deviceOwnerAuthenticationWithBiometrics,
-                localizedReason: "Unlock your vault"
+                localizedReason: localizedReason
             )
             if success {
-                isUnlocked = true
-                isDecoyMode = false
-                lastBackgroundAt = nil
+                if unlockSession {
+                    isUnlocked = true
+                    isDecoyMode = false
+                    lastBackgroundAt = nil
+                }
                 let settings = try? loadSettings()
-                settings?.biometricsEnabled = true
-                settings?.lastUnlockedAt = Date()
+                if enableForFutureUnlocks {
+                    settings?.biometricsEnabled = true
+                }
+                if unlockSession {
+                    settings?.lastUnlockedAt = Date()
+                }
                 try? modelContext.save()
             }
             return success

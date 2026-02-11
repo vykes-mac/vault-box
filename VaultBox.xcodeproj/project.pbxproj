@@ -55,8 +55,10 @@
 		C3D4E5F60A1B2C3D4E5F6072 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F60A1B2C3D4E5F60728A /* ImportView.swift */; };
 		C3D4E5F616A1B2C3D4E5F607 /* VaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E5F61601B2C3D4E5F60728 /* VaultViewModel.swift */; };
 		C5AF8C2501E19869249D4501 /* PanicGestureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B392794C825D7F4163AAE13A /* PanicGestureService.swift */; };
+		CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */; };
 		CCAC5953DE5FB171D2A840FE /* PINSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */; };
 		CF09C7F31AD41774B786645D /* VaultBoxUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */; };
+		D2E3F4A5B6C7081929304A5B /* VisionAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */; };
 		D3CC7D2809F750D3F2737FFA /* AppIconPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */; };
 		D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED3E42B8DBCF2065727C874 /* EncryptionService.swift */; };
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
@@ -65,8 +67,6 @@
 		E6B5F70829415263748C9D0F /* PhotoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A4E6F71829304152637B8E /* PhotoDetailView.swift */; };
 		F7C6E81930526374859DAE10 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */; };
 		F8A1B2C3D4E5F60718293A4B /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304A5B /* VaultService.swift */; };
-		CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */; };
-		D2E3F4A5B6C7081929304A5B /* VisionAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -110,7 +110,6 @@
 		939D7F9B442409D15296F28E /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
 		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F6071829304A5B /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
-		C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionAnalysisService.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF11 /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF12 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		AA11BB22CC33DD44EE55FF13 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
@@ -133,13 +132,14 @@
 		BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINReEntryView.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A06 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
+		C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionAnalysisService.swift; sourceTree = "<group>"; };
 		C3D4E5F60718293041526B7D /* VaultGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGridView.swift; sourceTree = "<group>"; };
 		C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINSetupView.swift; sourceTree = "<group>"; };
-		CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070001 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070002 /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070003 /* Secrets.Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Debug.xcconfig; sourceTree = "<group>"; };
 		CC22DD33EE44FF550A070004 /* Secrets.Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Release.xcconfig; sourceTree = "<group>"; };
+		CC33DD44EE55FF66AA77BB02 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		D2939C27F07D011312BB7C89 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInAttempt.swift; sourceTree = "<group>"; };
 		D4E5F60A1B2C3D4E5F60728A /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
