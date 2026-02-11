@@ -17,7 +17,8 @@ struct VaultBoxApp: App {
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
-                isStoredInMemoryOnly: false
+                isStoredInMemoryOnly: false,
+                cloudKitDatabase: .none
             )
             modelContainer = try ModelContainer(
                 for: schema,

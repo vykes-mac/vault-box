@@ -587,7 +587,7 @@
 			baseConfigurationReference = CC22DD33EE44FF550A070003 /* Secrets.Debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
@@ -738,7 +738,7 @@
 			baseConfigurationReference = CC22DD33EE44FF550A070004 /* Secrets.Release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGNING_ALLOWED = NO;
+				CODE_SIGNING_ALLOWED = YES;
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;

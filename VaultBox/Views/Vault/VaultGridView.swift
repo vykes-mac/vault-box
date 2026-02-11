@@ -132,6 +132,13 @@ struct VaultGridView: View {
             .sheet(isPresented: $showAlbumPicker) {
                 albumPickerSheet
             }
+            .sheet(isPresented: $showImporter) {
+                ImportView(
+                    vaultService: vaultService,
+                    album: nil,
+                    onDismiss: { showImporter = false }
+                )
+            }
             .sheet(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
             }

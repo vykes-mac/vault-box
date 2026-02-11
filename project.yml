@@ -36,7 +36,7 @@ targets:
         TARGETED_DEVICE_FAMILY: "1"
         SUPPORTED_INTERFACE_ORIENTATIONS: UIInterfaceOrientationPortrait
         SWIFT_STRICT_CONCURRENCY: complete
-        CODE_SIGNING_ALLOWED: "NO"
+        CODE_SIGNING_ALLOWED: "YES"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     dependencies:
       - package: RevenueCat
