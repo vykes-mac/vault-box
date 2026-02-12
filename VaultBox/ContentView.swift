@@ -9,6 +9,13 @@ enum AppRootRoute: Equatable {
     case main
 }
 
+private enum MainTab: Int {
+    case vault = 0
+    case albums = 1
+    case camera = 2
+    case settings = 3
+}
+
 @MainActor
 @Observable
 final class AppPrivacyShield {
@@ -69,6 +76,7 @@ struct ContentView: View {
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
+    @SceneStorage("mainTabSelection") private var selectedMainTabRawValue = MainTab.vault.rawValue
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -177,27 +185,31 @@ struct ContentView: View {
     // MARK: - Tab View
 
     private func mainTabView(authService: AuthService, vaultService: VaultService) -> some View {
-        TabView {
+        TabView(selection: selectedMainTabBinding) {
             // swiftlint:disable:previous closure_body_length
             VaultGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Vault", systemImage: "lock.shield")
                 }
+                .tag(MainTab.vault)
 
             AlbumGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Albums", systemImage: "rectangle.stack")
                 }
+                .tag(MainTab.albums)
 
             CameraView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Camera", systemImage: "camera")
                 }
+                .tag(MainTab.camera)
 
             SettingsView(authService: authService, vaultService: vaultService)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
+                .tag(MainTab.settings)
         }
         .onAppear {
             setupPanicGesture(authService: authService)
@@ -210,6 +222,13 @@ struct ContentView: View {
                 onDismiss: { showImporter = false }
             )
         }
+    }
+
+    private var selectedMainTabBinding: Binding<MainTab> {
+        Binding(
+            get: { MainTab(rawValue: selectedMainTabRawValue) ?? .vault },
+            set: { selectedMainTabRawValue = $0.rawValue }
+        )
     }
 
     private func setupPanicGesture(authService: AuthService) {

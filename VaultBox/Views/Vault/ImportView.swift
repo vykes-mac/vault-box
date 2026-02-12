@@ -17,6 +17,7 @@ struct ImportView: View {
     @Environment(\.openURL) private var openURL
 
     @State private var selectedItems: [PhotosPickerItem] = []
+    @State private var showFileImporter = false
     @State private var showPicker = true
     @State private var isImporting = false
     @State private var importProgress: Int = 0
@@ -34,6 +35,17 @@ struct ImportView: View {
         ZStack {
             if showPicker {
                 VStack(spacing: 12) {
+                    HStack {
+                        Spacer()
+                        Button("Close") {
+                            onDismiss()
+                        }
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Color.vaultAccent)
+                        .padding(.horizontal, 20)
+                        .padding(.top, 12)
+                    }
+
                     Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
                         .font(.footnote)
                         .foregroundStyle(Color.vaultTextSecondary)
@@ -53,8 +65,18 @@ struct ImportView: View {
                     .onChange(of: selectedItems) { _, newValue in
                         guard !newValue.isEmpty else { return }
                         showPicker = false
-                        startImport()
+                        startPhotoImport()
                     }
+
+                    Button {
+                        showFileImporter = true
+                    } label: {
+                        Label("Import from Files", systemImage: "folder.badge.plus")
+                            .font(.headline)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .tint(Color.vaultAccent)
+                    .padding(.top, 8)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
             }
@@ -105,6 +127,13 @@ struct ImportView: View {
         .fullScreenCover(isPresented: $showPaywall) {
             VaultBoxPaywallView()
         }
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: [.image, .movie],
+            allowsMultipleSelection: true
+        ) { result in
+            handleFileSelection(result)
+        }
     }
 
     // MARK: - Progress Overlay
@@ -133,7 +162,7 @@ struct ImportView: View {
 
     // MARK: - Import
 
-    private func startImport() {
+    private func startPhotoImport() {
         isImporting = true
         importTotal = selectedItems.count
         importProgress = 0
@@ -241,6 +270,92 @@ struct ImportView: View {
                 onDismiss()
             }
         }
+    }
+
+    private func handleFileSelection(_ result: Result<[URL], Error>) {
+        guard case .success(let urls) = result, !urls.isEmpty else { return }
+        showPicker = false
+        startFileImport(urls: urls)
+    }
+
+    private func startFileImport(urls: [URL]) {
+        isImporting = true
+        importTotal = urls.count
+        importProgress = 0
+
+        Task { @MainActor in
+            var importedItems: [VaultItem] = []
+            var hitFreeLimit = false
+            var tooLargeMessage: String?
+
+            for (index, originalURL) in urls.enumerated() {
+                do {
+                    let hasAccess = originalURL.startAccessingSecurityScopedResource()
+                    defer {
+                        if hasAccess {
+                            originalURL.stopAccessingSecurityScopedResource()
+                        }
+                    }
+
+                    let item = try await importFile(at: originalURL)
+                    importedItems.append(item)
+                } catch {
+                    if let vaultError = error as? VaultError, case .freeLimitReached = vaultError {
+                        hitFreeLimit = true
+                        break
+                    }
+                    if let vaultError = error as? VaultError,
+                       case .videoTooLarge = vaultError {
+                        tooLargeMessage = vaultError.errorDescription
+                    }
+                }
+
+                importProgress = index + 1
+            }
+
+            isImporting = false
+            incrementImportCount(by: importedItems.count)
+
+            if !importedItems.isEmpty {
+                vaultService.queueVisionAnalysis(for: importedItems)
+            }
+
+            if hitFreeLimit && importedItems.isEmpty {
+                showPaywall = true
+                return
+            }
+
+            if let tooLargeMessage {
+                errorAlertTitle = "Video Too Large"
+                errorAlertMessage = tooLargeMessage
+                showErrorAlert = true
+                return
+            }
+
+            onDismiss()
+        }
+    }
+
+    private func importFile(at url: URL) async throws -> VaultItem {
+        let resourceValues = try url.resourceValues(forKeys: [.contentTypeKey])
+        let type = resourceValues.contentType
+
+        if type?.conforms(to: .movie) == true {
+            return try await vaultService.importVideo(
+                at: url,
+                filename: url.lastPathComponent,
+                album: album,
+                isDecoyMode: isDecoyMode
+            )
+        }
+
+        let data = try Data(contentsOf: url)
+        return try await vaultService.importPhotoData(
+            data,
+            filename: url.lastPathComponent,
+            album: album,
+            isDecoyMode: isDecoyMode
+        )
     }
 
     private func deleteCameraRollOriginals() {
