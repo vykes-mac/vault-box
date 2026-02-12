@@ -1,5 +1,18 @@
 import SwiftUI
 import SwiftData
+import UserNotifications
+
+private final class NotificationPresentationDelegate: NSObject, UNUserNotificationCenterDelegate {
+    nonisolated(unsafe) static let shared = NotificationPresentationDelegate()
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        willPresent notification: UNNotification,
+        withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
+    ) {
+        completionHandler([.banner, .list, .sound])
+    }
+}
 
 @main
 struct VaultBoxApp: App {
@@ -25,6 +38,7 @@ struct VaultBoxApp: App {
                 for: schema,
                 configurations: [modelConfiguration]
             )
+            UNUserNotificationCenter.current().delegate = NotificationPresentationDelegate.shared
             seedSettingsIfNeeded(container: modelContainer)
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
