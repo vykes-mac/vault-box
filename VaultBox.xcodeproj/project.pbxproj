@@ -9,9 +9,14 @@
 /* Begin PBXBuildFile section */
 		050BB4392E19DB0EB7B22155 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7023E56BE3EEDDB5A4C1276 /* Album.swift */; };
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
-		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
-		1B71542B2897BEE13955901F /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA42777D37B992122D9CF537 /* BreakInService.swift */; };
-		1E3D1F3FD1CF7E9D6B4DFC03 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */; };
+			0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
+			1B71542B2897BEE13955901F /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA42777D37B992122D9CF537 /* BreakInService.swift */; };
+			1E3D1F3FD1CF7E9D6B4DFC03 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */; };
+			A1D0E7F2C3B4A59687766554 /* BreakInPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0E7F2C3B4A59687766553 /* BreakInPermissionService.swift */; };
+			A1D0E7F2C3B4A59687766556 /* BreakInPermissionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0E7F2C3B4A59687766555 /* BreakInPermissionServiceTests.swift */; };
+			A1D0E7F2C3B4A59687766558 /* PostOnboardingSecuritySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0E7F2C3B4A59687766557 /* PostOnboardingSecuritySetupView.swift */; };
+			A1D0E7F2C3B4A5968776655A /* BreakInPermissionSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */; };
+			A1D0E7F2C3B4A5968776655C /* ContentViewRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D0E7F2C3B4A5968776655B /* ContentViewRouteTests.swift */; };
 		200FC0CC6BF6FB3AAAE3FE79 /* BackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939D7F9B442409D15296F28E /* BackupSettingsView.swift */; };
 		2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */; };
 		2C1B54A9961CFB491BC0FC57 /* AppIconService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36A2035C23392BD435080480 /* AppIconService.swift */; };
@@ -93,11 +98,16 @@
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
 		2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxTests.swift; sourceTree = "<group>"; };
-		32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceTests.swift; sourceTree = "<group>"; };
-		34702C72F8A36861926F0D3C /* VaultBoxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxApp.swift; sourceTree = "<group>"; };
-		36A2035C23392BD435080480 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
-		3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
-		3FC3D21281CAA279B031A721 /* BreakInLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInLogView.swift; sourceTree = "<group>"; };
+			32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthServiceTests.swift; sourceTree = "<group>"; };
+			34702C72F8A36861926F0D3C /* VaultBoxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxApp.swift; sourceTree = "<group>"; };
+			36A2035C23392BD435080480 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
+			3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseService.swift; sourceTree = "<group>"; };
+			A1D0E7F2C3B4A59687766553 /* BreakInPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionService.swift; sourceTree = "<group>"; };
+			A1D0E7F2C3B4A59687766555 /* BreakInPermissionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionServiceTests.swift; sourceTree = "<group>"; };
+			A1D0E7F2C3B4A59687766557 /* PostOnboardingSecuritySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOnboardingSecuritySetupView.swift; sourceTree = "<group>"; };
+			A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
+			A1D0E7F2C3B4A5968776655B /* ContentViewRouteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewRouteTests.swift; sourceTree = "<group>"; };
+			3FC3D21281CAA279B031A721 /* BreakInLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInLogView.swift; sourceTree = "<group>"; };
 		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		470321758F2AECDDF122BCBF /* CloudService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudService.swift; sourceTree = "<group>"; };
 		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -185,6 +195,7 @@
 				694FE4365623C81A79223EFC /* PINDotsView.swift */,
 				F0EC25525A796155921B2DB4 /* PINKeypadView.swift */,
 				C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */,
+				A1D0E7F2C3B4A59687766557 /* PostOnboardingSecuritySetupView.swift */,
 			);
 			path = Auth;
 			sourceTree = "<group>";
@@ -200,13 +211,15 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
-		235789091AB060360248372C /* VaultBoxTests */ = {
-			isa = PBXGroup;
-			children = (
-				32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */,
-				FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */,
-				2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
-			);
+			235789091AB060360248372C /* VaultBoxTests */ = {
+				isa = PBXGroup;
+				children = (
+					32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */,
+					A1D0E7F2C3B4A59687766555 /* BreakInPermissionServiceTests.swift */,
+					A1D0E7F2C3B4A5968776655B /* ContentViewRouteTests.swift */,
+					FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */,
+					2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
+				);
 			path = VaultBoxTests;
 			sourceTree = "<group>";
 		};
@@ -229,14 +242,15 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
-		6FA1BCC5C66B2C7B24E388AC /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				36A2035C23392BD435080480 /* AppIconService.swift */,
-				1A86E457B9D24261AA37C220 /* AuthService.swift */,
-				DA42777D37B992122D9CF537 /* BreakInService.swift */,
-				470321758F2AECDDF122BCBF /* CloudService.swift */,
-				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
+			6FA1BCC5C66B2C7B24E388AC /* Services */ = {
+				isa = PBXGroup;
+				children = (
+					36A2035C23392BD435080480 /* AppIconService.swift */,
+					1A86E457B9D24261AA37C220 /* AuthService.swift */,
+					A1D0E7F2C3B4A59687766553 /* BreakInPermissionService.swift */,
+					DA42777D37B992122D9CF537 /* BreakInService.swift */,
+					470321758F2AECDDF122BCBF /* CloudService.swift */,
+					BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
 				BB11CC22DD33EE44FF550A01 /* HTTPParser.swift */,
 				B392794C825D7F4163AAE13A /* PanicGestureService.swift */,
 				3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */,
@@ -286,6 +300,7 @@
 			children = (
 				1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */,
 				939D7F9B442409D15296F28E /* BackupSettingsView.swift */,
+				A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */,
 				3FC3D21281CAA279B031A721 /* BreakInLogView.swift */,
 				BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */,
 				7930F7D01A3C2BBE27388328 /* SecuritySettingsView.swift */,
@@ -480,14 +495,16 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		087EA3CA89D23128A3F50155 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */,
-				A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */,
-				7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
-			);
+			087EA3CA89D23128A3F50155 /* Sources */ = {
+				isa = PBXSourcesBuildPhase;
+				buildActionMask = 2147483647;
+				files = (
+					C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */,
+					A1D0E7F2C3B4A59687766556 /* BreakInPermissionServiceTests.swift in Sources */,
+					A1D0E7F2C3B4A5968776655C /* ContentViewRouteTests.swift in Sources */,
+					A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */,
+					7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
+				);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		204127892B6735B6A8A51D0D /* Sources */ = {
@@ -511,10 +528,11 @@
 				0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */,
 				A1B2C3D416E5F60718293A4B /* AuthViewModel.swift in Sources */,
 				200FC0CC6BF6FB3AAAE3FE79 /* BackupSettingsView.swift in Sources */,
-				5C8FA68F0A92A77B692DD53B /* BreakInAttempt.swift in Sources */,
-				47F3A82E6F857DB27524E72D /* BreakInLogView.swift in Sources */,
-				1B71542B2897BEE13955901F /* BreakInService.swift in Sources */,
-				E5A6B48B1DF67069311D8E53 /* CloudService.swift in Sources */,
+					5C8FA68F0A92A77B692DD53B /* BreakInAttempt.swift in Sources */,
+					47F3A82E6F857DB27524E72D /* BreakInLogView.swift in Sources */,
+					A1D0E7F2C3B4A59687766554 /* BreakInPermissionService.swift in Sources */,
+					1B71542B2897BEE13955901F /* BreakInService.swift in Sources */,
+					E5A6B48B1DF67069311D8E53 /* CloudService.swift in Sources */,
 				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */,
@@ -527,7 +545,9 @@
 				822A4D69398B4376160E0A4E /* PINDotsView.swift in Sources */,
 				39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */,
 				CCAC5953DE5FB171D2A840FE /* PINSetupView.swift in Sources */,
+				A1D0E7F2C3B4A59687766558 /* PostOnboardingSecuritySetupView.swift in Sources */,
 				2A3B4C5D6E7F80A1B2C3D4E5 /* PurchaseService.swift in Sources */,
+				A1D0E7F2C3B4A5968776655A /* BreakInPermissionSetupView.swift in Sources */,
 				6DD01C1408A8E6E9687376D8 /* SecuritySettingsView.swift in Sources */,
 				B188AD5A98AACC8E36AE6F6F /* SettingsView.swift in Sources */,
 				1E3D1F3FD1CF7E9D6B4DFC03 /* SettingsViewModel.swift in Sources */,

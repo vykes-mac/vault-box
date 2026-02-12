@@ -28,6 +28,31 @@ func determineAppRootRoute(hasCompletedOnboarding: Bool, isSetupComplete: Bool, 
     return .lock
 }
 
+struct PostSetupOverlayDecision: Equatable {
+    let showSecuritySetup: Bool
+    let deferPaywallUntilSecuritySetupCompletes: Bool
+
+    static let none = PostSetupOverlayDecision(
+        showSecuritySetup: false,
+        deferPaywallUntilSecuritySetupCompletes: false
+    )
+}
+
+func determinePostSetupOverlayDecision(oldRoute: AppRootRoute?, newRoute: AppRootRoute?) -> PostSetupOverlayDecision {
+    guard newRoute == .main else { return .none }
+    guard oldRoute == .onboarding || oldRoute == .setupPIN else { return .none }
+
+    return PostSetupOverlayDecision(
+        showSecuritySetup: true,
+        deferPaywallUntilSecuritySetupCompletes: true
+    )
+}
+
+func resolveDeferredPostSetupPaywall(shouldDefer: Bool) -> (showPaywall: Bool, shouldDefer: Bool) {
+    guard shouldDefer else { return (false, false) }
+    return (true, false)
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -39,7 +64,9 @@ struct ContentView: View {
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
     @State private var showImporter = false
+    @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
+    @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
 
@@ -92,9 +119,10 @@ struct ContentView: View {
             }
         }
         .onChange(of: currentRoute) { oldRoute, newRoute in
-            if newRoute == .main,
-               oldRoute == .onboarding || oldRoute == .setupPIN || oldRoute == nil {
-                showPostSetupPaywall = true
+            let decision = determinePostSetupOverlayDecision(oldRoute: oldRoute, newRoute: newRoute)
+            if decision.showSecuritySetup {
+                deferPostSetupPaywallUntilSecuritySetupCompletes = decision.deferPaywallUntilSecuritySetupCompletes
+                showPostOnboardingSecuritySetup = true
             }
             attemptPrivacyShieldReveal()
         }
@@ -105,6 +133,20 @@ struct ContentView: View {
         .onChange(of: purchaseService.isPremium) { _, isPremium in
             guard purchaseService.hasResolvedCustomerInfo else { return }
             handlePremiumStatusChange(isPremium: isPremium)
+        }
+        .fullScreenCover(
+            isPresented: $showPostOnboardingSecuritySetup,
+            onDismiss: handlePostOnboardingSecuritySetupDismissed
+        ) {
+            if let authService {
+                PostOnboardingSecuritySetupView(
+                    authService: authService,
+                    includeLocation: purchaseService.isPremium,
+                    onContinue: {
+                        showPostOnboardingSecuritySetup = false
+                    }
+                )
+            }
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
             VaultBoxPaywallView()
@@ -287,22 +329,33 @@ struct ContentView: View {
         attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
     }
 
+    private func handlePostOnboardingSecuritySetupDismissed() {
+        let paywallDecision = resolveDeferredPostSetupPaywall(
+            shouldDefer: deferPostSetupPaywallUntilSecuritySetupCompletes
+        )
+        showPostSetupPaywall = paywallDecision.showPaywall
+        deferPostSetupPaywallUntilSecuritySetupCompletes = paywallDecision.shouldDefer
+    }
+
     // MARK: - Service Initialization
 
     private func initializeServices() {
         let encryptionService = EncryptionService()
         let purchaseService = self.purchaseService
+        let breakIn = BreakInService(
+            modelContext: modelContext,
+            hasPremiumAccess: { purchaseService.isPremium }
+        )
         let auth = AuthService(
             encryptionService: encryptionService,
             modelContext: modelContext,
-            hasPremiumAccess: { purchaseService.isPremium }
+            hasPremiumAccess: { purchaseService.isPremium },
+            onBreakInThresholdReached: { attemptedPIN, _ in
+                _ = await breakIn.captureIntruder(attemptedPIN: attemptedPIN)
+            }
         )
         let vault = VaultService(
             encryptionService: encryptionService,
-            modelContext: modelContext,
-            hasPremiumAccess: { purchaseService.isPremium }
-        )
-        let breakIn = BreakInService(
             modelContext: modelContext,
             hasPremiumAccess: { purchaseService.isPremium }
         )

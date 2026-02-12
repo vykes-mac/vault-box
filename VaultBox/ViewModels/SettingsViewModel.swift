@@ -64,10 +64,12 @@ class SettingsViewModel {
 
     // MARK: - Break-In Alerts
 
-    func toggleBreakInAlerts(enabled: Bool, modelContext: ModelContext) {
-        guard let settings = loadSettings(modelContext: modelContext) else { return }
+    @discardableResult
+    func toggleBreakInAlerts(enabled: Bool, modelContext: ModelContext) -> Bool {
+        guard let settings = loadSettings(modelContext: modelContext) else { return false }
         settings.breakInAlertsEnabled = enabled
         try? modelContext.save()
+        return settings.breakInAlertsEnabled
     }
 
     // MARK: - iCloud Backup

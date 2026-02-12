@@ -9,7 +9,6 @@ struct PINSetupView: View {
     @State private var dotState: PINDotsView.DotState = .normal
     @State private var shakeOffset: CGFloat = 0
     @State private var errorMessage: String?
-    @State private var showBiometricPrompt = false
     @State private var isSubmitting = false
 
     private var currentPin: String {
@@ -104,22 +103,6 @@ struct PINSetupView: View {
         }
         .padding(.horizontal, Constants.standardPadding)
         .background(Color.vaultBackground.ignoresSafeArea())
-        .alert("Enable Face ID?", isPresented: $showBiometricPrompt) {
-            Button("Enable") {
-                Task {
-                    _ = await authService.authenticateWithBiometrics(
-                        localizedReason: "Enable biometrics to quickly unlock your vault.",
-                        unlockSession: false
-                    )
-                    completeInitialSetup()
-                }
-            }
-            Button("Not Now", role: .cancel) {
-                completeInitialSetup()
-            }
-        } message: {
-            Text("Use Face ID to quickly unlock your vault.")
-        }
     }
 
     private func handleDigit(_ digit: String) {
@@ -157,11 +140,7 @@ struct PINSetupView: View {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
                 do {
                     try await authService.createPIN(pin)
-                    if authService.isBiometricsAvailable() {
-                        showBiometricPrompt = true
-                    } else {
-                        completeInitialSetup()
-                    }
+                    completeInitialSetup()
                 } catch {
                     dotState = .error
                     errorMessage = error.localizedDescription

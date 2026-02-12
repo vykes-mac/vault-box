@@ -5,10 +5,19 @@ import SwiftData
 
 @Suite("AuthService Tests")
 struct AuthServiceTests {
+    @MainActor
+    private final class BreakInThresholdRecorder {
+        var invocations: [(pin: String, count: Int)] = []
+
+        func record(pin: String, count: Int) {
+            invocations.append((pin: pin, count: count))
+        }
+    }
 
     @MainActor
     private func makeServices(
-        hasPremiumAccess: Bool = false
+        hasPremiumAccess: Bool = false,
+        onBreakInThresholdReached: (@MainActor @Sendable (_ attemptedPIN: String, _ failedAttemptCount: Int) async -> Void)? = nil
     ) throws -> (AuthService, EncryptionService, ModelContext) {
         let schema = Schema([AppSettings.self, VaultItem.self, Album.self, BreakInAttempt.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -23,9 +32,22 @@ struct AuthServiceTests {
         let auth = AuthService(
             encryptionService: encryption,
             modelContext: context,
-            hasPremiumAccess: { hasPremiumAccess }
+            hasPremiumAccess: { hasPremiumAccess },
+            onBreakInThresholdReached: onBreakInThresholdReached
         )
         return (auth, encryption, context)
+    }
+
+    @MainActor
+    private func waitForInvocationCount(
+        _ expectedCount: Int,
+        recorder: BreakInThresholdRecorder,
+        timeoutSeconds: Double = 1.0
+    ) async {
+        let deadline = Date().addingTimeInterval(timeoutSeconds)
+        while recorder.invocations.count < expectedCount && Date() < deadline {
+            try? await Task.sleep(for: .milliseconds(10))
+        }
     }
 
     @Test("Create PIN stores hash and waits for setup finalization")
@@ -91,6 +113,47 @@ struct AuthServiceTests {
         #expect(remaining! <= 30)
     }
 
+    @Test("Break-in callback not called for failed attempts 1 and 2")
+    @MainActor
+    func breakInCallbackNotCalledBeforeThreshold() async throws {
+        let recorder = BreakInThresholdRecorder()
+        let (auth, _, _) = try makeServices(
+            onBreakInThresholdReached: { attemptedPIN, failedAttemptCount in
+                recorder.record(pin: attemptedPIN, count: failedAttemptCount)
+            }
+        )
+        try await auth.createPIN("1234")
+        auth.lock()
+
+        _ = await auth.verifyPIN("0000")
+        _ = await auth.verifyPIN("0000")
+
+        await waitForInvocationCount(1, recorder: recorder, timeoutSeconds: 0.2)
+        #expect(recorder.invocations.isEmpty)
+    }
+
+    @Test("Break-in callback called at failed attempt 3")
+    @MainActor
+    func breakInCallbackCalledAtThirdAttempt() async throws {
+        let recorder = BreakInThresholdRecorder()
+        let (auth, _, _) = try makeServices(
+            onBreakInThresholdReached: { attemptedPIN, failedAttemptCount in
+                recorder.record(pin: attemptedPIN, count: failedAttemptCount)
+            }
+        )
+        try await auth.createPIN("1234")
+        auth.lock()
+
+        _ = await auth.verifyPIN("0000")
+        _ = await auth.verifyPIN("0000")
+        _ = await auth.verifyPIN("0000")
+
+        await waitForInvocationCount(1, recorder: recorder)
+        #expect(recorder.invocations.count == 1)
+        #expect(recorder.invocations.first?.pin == "0000")
+        #expect(recorder.invocations.first?.count == 3)
+    }
+
     @Test("Lockout escalates at 5 failed attempts")
     @MainActor
     func lockoutAt5Attempts() async throws {
@@ -106,6 +169,70 @@ struct AuthServiceTests {
         let remaining = auth.getLockoutRemainingSeconds()
         #expect(remaining != nil)
         #expect(remaining! > 30) // Should be 120s
+    }
+
+    @Test("Break-in callback called at failed attempt 5 from preloaded count")
+    @MainActor
+    func breakInCallbackCalledAtFifthAttempt() async throws {
+        let recorder = BreakInThresholdRecorder()
+        let (auth, _, context) = try makeServices(
+            onBreakInThresholdReached: { attemptedPIN, failedAttemptCount in
+                recorder.record(pin: attemptedPIN, count: failedAttemptCount)
+            }
+        )
+        try await auth.createPIN("1234")
+        auth.lock()
+
+        let settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+        settings.failedAttemptCount = 4
+        settings.lockoutUntil = nil
+        try context.save()
+
+        _ = await auth.verifyPIN("9999")
+
+        await waitForInvocationCount(1, recorder: recorder)
+        #expect(recorder.invocations.count == 1)
+        #expect(recorder.invocations.first?.pin == "9999")
+        #expect(recorder.invocations.first?.count == 5)
+    }
+
+    @Test("Break-in callback only fires on threshold crossings")
+    @MainActor
+    func breakInCallbackOnlyAtThresholdCrossings() async throws {
+        let recorder = BreakInThresholdRecorder()
+        let (auth, _, context) = try makeServices(
+            onBreakInThresholdReached: { attemptedPIN, failedAttemptCount in
+                recorder.record(pin: attemptedPIN, count: failedAttemptCount)
+            }
+        )
+        try await auth.createPIN("1234")
+        auth.lock()
+
+        let settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+
+        settings.failedAttemptCount = 2
+        settings.lockoutUntil = nil
+        try context.save()
+        _ = await auth.verifyPIN("1111") // -> 3, threshold
+
+        settings.failedAttemptCount = 3
+        settings.lockoutUntil = nil
+        try context.save()
+        _ = await auth.verifyPIN("1111") // -> 4, non-threshold
+
+        settings.failedAttemptCount = 4
+        settings.lockoutUntil = nil
+        try context.save()
+        _ = await auth.verifyPIN("1111") // -> 5, threshold
+
+        settings.failedAttemptCount = 5
+        settings.lockoutUntil = nil
+        try context.save()
+        _ = await auth.verifyPIN("1111") // -> 6, non-threshold
+
+        await waitForInvocationCount(2, recorder: recorder)
+        #expect(recorder.invocations.count == 2)
+        #expect(recorder.invocations.map { $0.count } == [3, 5])
     }
 
     @Test("Successful auth resets failed attempts")

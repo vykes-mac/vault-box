@@ -20,6 +20,7 @@ struct SettingsView: View {
     @State private var showClearBreakInConfirm = false
     @State private var showRestoreAlert = false
     @State private var restoreMessage = ""
+    @State private var showBreakInPermissionSetup = false
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -67,6 +68,15 @@ struct SettingsView: View {
                     DecoyVaultInfoView()
                 }
                 .presentationBackground(Color.vaultBackground)
+            }
+            .sheet(isPresented: $showBreakInPermissionSetup) {
+                BreakInPermissionSetupView(
+                    includeLocation: purchaseService.isPremium,
+                    title: "Complete Break-in Setup",
+                    subtitle: "Choose which break-in protections to enable. We only show each permission prompt after you tap that step.",
+                    continueButtonTitle: "Done",
+                    onContinue: { showBreakInPermissionSetup = false }
+                )
             }
             .navigationDestination(isPresented: $showBreakInLog) {
                 BreakInLogView()
@@ -313,7 +323,7 @@ struct SettingsView: View {
             if let settings {
                 Toggle(isOn: Binding(
                     get: { settings.breakInAlertsEnabled },
-                    set: { viewModel?.toggleBreakInAlerts(enabled: $0, modelContext: modelContext) }
+                    set: { handleBreakInAlertsToggleChange($0) }
                 )) {
                     Label("Break-in Alerts", systemImage: "exclamationmark.shield")
                 }
@@ -333,6 +343,13 @@ struct SettingsView: View {
                     .foregroundStyle(Color.vaultDestructive)
             }
         }
+    }
+
+    private func handleBreakInAlertsToggleChange(_ enabled: Bool) {
+        guard let viewModel else { return }
+        _ = viewModel.toggleBreakInAlerts(enabled: enabled, modelContext: modelContext)
+        guard enabled else { return }
+        showBreakInPermissionSetup = true
     }
 
     // MARK: - Storage Section

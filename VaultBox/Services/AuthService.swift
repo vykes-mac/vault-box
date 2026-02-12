@@ -15,6 +15,7 @@ class AuthService {
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
     private let hasPremiumAccess: () -> Bool
+    private let onBreakInThresholdReached: (@MainActor @Sendable (_ attemptedPIN: String, _ failedAttemptCount: Int) async -> Void)?
 
     private(set) var isSetupComplete: Bool = false
     private(set) var isUnlocked: Bool = false
@@ -24,11 +25,13 @@ class AuthService {
     init(
         encryptionService: EncryptionService,
         modelContext: ModelContext,
-        hasPremiumAccess: @escaping () -> Bool = { false }
+        hasPremiumAccess: @escaping () -> Bool = { false },
+        onBreakInThresholdReached: (@MainActor @Sendable (_ attemptedPIN: String, _ failedAttemptCount: Int) async -> Void)? = nil
     ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
         self.hasPremiumAccess = hasPremiumAccess
+        self.onBreakInThresholdReached = onBreakInThresholdReached
         isSetupComplete = (try? loadSettings().isSetupComplete) == true
     }
 
@@ -235,6 +238,7 @@ class AuthService {
 
         settings.failedAttemptCount += 1
         let count = settings.failedAttemptCount
+        let isBreakInThreshold = Constants.lockoutThresholds.contains { $0.attempts == count }
 
         // Find applicable lockout threshold
         for threshold in Constants.lockoutThresholds.reversed() {
@@ -245,6 +249,12 @@ class AuthService {
         }
 
         try? modelContext.save()
+
+        if isBreakInThreshold, let onBreakInThresholdReached {
+            Task { @MainActor in
+                await onBreakInThresholdReached(pin, count)
+            }
+        }
     }
 
     func getLockoutRemainingSeconds() -> Int? {

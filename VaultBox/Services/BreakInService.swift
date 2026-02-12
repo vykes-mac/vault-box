@@ -32,7 +32,7 @@ class BreakInService: NSObject {
         }
 
         // Premium-only GPS capture
-        if hasPremiumAccess() {
+        if hasPremiumAccess(), hasLocationAuthorization {
             requestLocationUpdate()
             // Wait briefly for location
             try? await Task.sleep(for: .seconds(1))
@@ -50,7 +50,7 @@ class BreakInService: NSObject {
         try? modelContext.save()
 
         // Send local notification
-        await sendBreakInNotification()
+        await sendBreakInNotificationIfEnabled()
 
         return attempt
     }
@@ -58,11 +58,11 @@ class BreakInService: NSObject {
     // MARK: - Front Camera Capture
 
     private func captureFrontCameraPhoto() async -> Data? {
-        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
+        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
             return nil
         }
 
-        guard AVCaptureDevice.authorizationStatus(for: .video) == .authorized else {
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
             return nil
         }
 
@@ -98,14 +98,23 @@ class BreakInService: NSObject {
 
     // MARK: - Location
 
+    private var hasLocationAuthorization: Bool {
+        BreakInPermissionService.isLocationAuthorized(locationManager.authorizationStatus)
+    }
+
     private func requestLocationUpdate() {
-        locationManager.requestWhenInUseAuthorization()
         locationManager.requestLocation()
     }
 
     // MARK: - Notification
 
-    private func sendBreakInNotification() async {
+    private func sendBreakInNotificationIfEnabled() async {
+        guard areBreakInAlertsEnabled() else { return }
+
+        let center = UNUserNotificationCenter.current()
+        let notificationSettings = await center.notificationSettings()
+        guard BreakInPermissionService.isNotificationAuthorized(notificationSettings.authorizationStatus) else { return }
+
         let content = UNMutableNotificationContent()
         content.title = "Security Alert"
         content.body = "Someone tried to access VaultBox"
@@ -117,7 +126,15 @@ class BreakInService: NSObject {
             trigger: nil
         )
 
-        try? await UNUserNotificationCenter.current().add(request)
+        try? await center.add(request)
+    }
+
+    private func areBreakInAlertsEnabled() -> Bool {
+        let descriptor = FetchDescriptor<AppSettings>()
+        guard let settings = try? modelContext.fetch(descriptor).first else {
+            return true
+        }
+        return settings.breakInAlertsEnabled
     }
 
     // MARK: - Purge

@@ -98,13 +98,13 @@ struct OnboardingView: View {
             Spacer()
 
             VStack(spacing: 8) {
-                Text("VaultBox needs a\nfew permissions")
+                Text("Break-in protection needs\na few permissions")
                     .font(.title2)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text("We'll ask one at a time, you can\nchange these later in Settings.")
+                Text("After you create your PIN, we'll guide you through security permissions with clear context.")
                     .font(.callout)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.vaultTextSecondary)
@@ -112,19 +112,19 @@ struct OnboardingView: View {
 
             VStack(spacing: 20) {
                 permissionRow(
-                    icon: "faceid",
-                    title: "Face ID / Touch ID",
-                    subtitle: "Unlock your vault in a flash"
-                )
-                permissionRow(
-                    icon: "photo.on.rectangle",
-                    title: "Photo Library",
-                    subtitle: "Import photos & videos to encrypt"
+                    icon: "bell.badge",
+                    title: "Notifications",
+                    subtitle: "Get instant break-in alerts"
                 )
                 permissionRow(
                     icon: "camera.fill",
                     title: "Camera",
-                    subtitle: "Capture directly into your vault"
+                    subtitle: "Capture intruder photos on failed PIN attempts"
+                )
+                permissionRow(
+                    icon: "location.fill",
+                    title: "Location (Premium)",
+                    subtitle: "Record GPS evidence when available"
                 )
             }
             .padding(.top, 8)
