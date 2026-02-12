@@ -53,6 +53,10 @@ func resolveDeferredPostSetupPaywall(shouldDefer: Bool) -> (showPaywall: Bool, s
     return (true, false)
 }
 
+func shouldDismissMainShellPresentations(oldRoute: AppRootRoute?, newRoute: AppRootRoute?) -> Bool {
+    oldRoute == .main && newRoute == .lock
+}
+
 func shouldRenderMainShell(for route: AppRootRoute) -> Bool {
     route == .main || route == .lock
 }
@@ -135,6 +139,9 @@ struct ContentView: View {
             if decision.showSecuritySetup {
                 deferPostSetupPaywallUntilSecuritySetupCompletes = decision.deferPaywallUntilSecuritySetupCompletes
                 showPostOnboardingSecuritySetup = true
+            }
+            if shouldDismissMainShellPresentations(oldRoute: oldRoute, newRoute: newRoute) {
+                dismissActivePresentationsForLock()
             }
             attemptPrivacyShieldReveal()
         }
@@ -347,6 +354,22 @@ struct ContentView: View {
         )
         showPostSetupPaywall = paywallDecision.showPaywall
         deferPostSetupPaywallUntilSecuritySetupCompletes = paywallDecision.shouldDefer
+    }
+
+    private func dismissActivePresentationsForLock() {
+        showImporter = false
+        showPostOnboardingSecuritySetup = false
+        showPostSetupPaywall = false
+
+        let candidateScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+        let windowScene = candidateScenes.first {
+            $0.activationState == .foregroundActive || $0.activationState == .foregroundInactive
+        }
+        guard let rootViewController = windowScene?.windows.first(where: \.isKeyWindow)?.rootViewController else {
+            return
+        }
+
+        rootViewController.dismiss(animated: false)
     }
 
     // MARK: - Service Initialization

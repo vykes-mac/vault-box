@@ -46,4 +46,17 @@ struct ContentViewRouteTests {
         #expect(!shouldRenderMainShell(for: .onboarding))
         #expect(!shouldRenderMainShell(for: .setupPIN))
     }
+
+    @Test("Main to lock transition dismisses main-shell presentations")
+    func mainToLockDismissesMainShellPresentations() {
+        #expect(shouldDismissMainShellPresentations(oldRoute: .main, newRoute: .lock))
+    }
+
+    @Test("Other route transitions do not dismiss main-shell presentations")
+    func nonMainToLockTransitionsDoNotDismissMainShellPresentations() {
+        #expect(!shouldDismissMainShellPresentations(oldRoute: .onboarding, newRoute: .lock))
+        #expect(!shouldDismissMainShellPresentations(oldRoute: .setupPIN, newRoute: .lock))
+        #expect(!shouldDismissMainShellPresentations(oldRoute: .lock, newRoute: .main))
+        #expect(!shouldDismissMainShellPresentations(oldRoute: .main, newRoute: .main))
+    }
 }
