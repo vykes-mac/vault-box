@@ -47,7 +47,7 @@ class AuthService {
 
     // MARK: - PIN Management
 
-    func createPIN(_ pin: String) async throws {
+    func createPIN(_ pin: String) async throws -> String {
         guard pin.count >= Constants.pinMinLength,
               pin.count <= Constants.pinMaxLength,
               pin.allSatisfy(\.isNumber) else {
@@ -62,11 +62,97 @@ class AuthService {
         settings.pinSalt = salt.base64EncodedString()
         settings.pinLength = pin.count
 
+        let recoveryCode = generateRecoveryCode()
+        let recoverySalt = await encryptionService.generateSalt()
+        let recoveryHash = await encryptionService.hashSecret(recoveryCode, salt: recoverySalt)
+        settings.recoveryCodeHash = recoveryHash
+        settings.recoveryCodeSalt = recoverySalt.base64EncodedString()
+        settings.recoveryCodeUsedAt = nil
+
         // Generate and store master key derived from PIN
         let masterKey = await encryptionService.deriveMasterKey(from: pin, salt: salt)
         try await encryptionService.storeMasterKey(masterKey)
 
         try modelContext.save()
+        return recoveryCode
+    }
+
+    func verifyRecoveryCode(_ code: String) async -> Bool {
+        guard let settings = try? loadSettings(),
+              let storedHash = settings.recoveryCodeHash,
+              let saltString = settings.recoveryCodeSalt,
+              settings.recoveryCodeUsedAt == nil,
+              let salt = Data(base64Encoded: saltString) else {
+            return false
+        }
+
+        let computed = await encryptionService.hashSecret(code, salt: salt)
+        return computed == storedHash
+    }
+
+    func resetPINUsingRecoveryCode(_ code: String, newPIN: String) async throws {
+        guard newPIN.count >= Constants.pinMinLength,
+              newPIN.count <= Constants.pinMaxLength,
+              newPIN.allSatisfy(\.isNumber) else {
+            throw AuthError.invalidPIN
+        }
+
+        guard await verifyRecoveryCode(code) else {
+            throw AuthError.invalidRecoveryCode
+        }
+
+        let settings = try loadSettings()
+        let newSalt = await encryptionService.generateSalt()
+        let newHash = await encryptionService.hashPIN(newPIN, salt: newSalt)
+
+        settings.pinHash = newHash
+        settings.pinSalt = newSalt.base64EncodedString()
+        settings.pinLength = newPIN.count
+        settings.failedAttemptCount = 0
+        settings.lockoutUntil = nil
+        settings.recoveryCodeUsedAt = Date()
+
+        let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
+        try await encryptionService.storeMasterKey(masterKey)
+
+        try modelContext.save()
+        isUnlocked = true
+        isDecoyMode = false
+        lastBackgroundAt = nil
+    }
+
+    func regenerateRecoveryCode() async throws -> String {
+        let settings = try loadSettings()
+        let recoveryCode = generateRecoveryCode()
+        let salt = await encryptionService.generateSalt()
+        settings.recoveryCodeHash = await encryptionService.hashSecret(recoveryCode, salt: salt)
+        settings.recoveryCodeSalt = salt.base64EncodedString()
+        settings.recoveryCodeUsedAt = nil
+        try modelContext.save()
+        return recoveryCode
+    }
+
+    func revokeRecoveryCode() throws {
+        let settings = try loadSettings()
+        settings.recoveryCodeHash = nil
+        settings.recoveryCodeSalt = nil
+        settings.recoveryCodeUsedAt = nil
+        try modelContext.save()
+    }
+
+    func isRecoveryCodeAvailable() -> Bool {
+        guard let settings = try? loadSettings() else { return false }
+        return settings.recoveryCodeHash != nil && settings.recoveryCodeSalt != nil
+    }
+
+    func isRecoveryCodeUsed() -> Bool {
+        guard let settings = try? loadSettings() else { return false }
+        return settings.recoveryCodeUsedAt != nil
+    }
+
+    private func generateRecoveryCode(length: Int = 16) -> String {
+        let charset = Array("ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789")
+        return String((0..<max(length, 12)).compactMap { _ in charset.randomElement() })
     }
 
     func completeInitialSetup() throws {
@@ -309,6 +395,7 @@ enum AuthError: LocalizedError {
     case invalidPIN
     case incorrectPIN
     case decoyMatchesReal
+    case invalidRecoveryCode
 
     var errorDescription: String? {
         switch self {
@@ -320,6 +407,8 @@ enum AuthError: LocalizedError {
             "Incorrect PIN. Please try again."
         case .decoyMatchesReal:
             "Decoy PIN must be different from your real PIN."
+        case .invalidRecoveryCode:
+            "Recovery code is invalid, missing, or already used."
         }
     }
 }
