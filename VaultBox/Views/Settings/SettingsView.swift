@@ -379,12 +379,12 @@ struct SettingsView: View {
                     .foregroundStyle(Color.vaultTextPrimary)
             }
 
-            Link(destination: URL(string: "https://vaultbox.app/privacy")!) {
+            Link(destination: URL(string: "https://vaultbox.pacsix.com/privacy/")!) {
                 Label("Privacy Policy", systemImage: "hand.raised")
                     .foregroundStyle(Color.vaultTextPrimary)
             }
 
-            Link(destination: URL(string: "https://vaultbox.app/terms")!) {
+            Link(destination: URL(string: "https://vaultbox.pacsix.com/terms/")!) {
                 Label("Terms of Service", systemImage: "doc.text")
                     .foregroundStyle(Color.vaultTextPrimary)
             }
