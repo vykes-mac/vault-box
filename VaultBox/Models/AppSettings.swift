@@ -10,6 +10,9 @@ final class AppSettings {
     var biometricsEnabled: Bool = false
     var decoyPINHash: String?
     var decoyPINSalt: String?
+    var recoveryCodeHash: String?
+    var recoveryCodeSalt: String?
+    var recoveryCodeUsedAt: Date?
     var freeItemLimit: Int = Constants.freeItemLimit
     var selectedAltIconName: String?
     var iCloudBackupEnabled: Bool = false

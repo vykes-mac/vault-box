@@ -21,6 +21,10 @@ struct SettingsView: View {
     @State private var showRestoreAlert = false
     @State private var restoreMessage = ""
     @State private var showBreakInPermissionSetup = false
+    @State private var showRecoveryCodeSheet = false
+    @State private var generatedRecoveryCode: String?
+    @State private var showRecoveryActionError = false
+    @State private var recoveryActionErrorMessage = ""
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -102,6 +106,14 @@ struct SettingsView: View {
                 Button("OK") {}
             } message: {
                 Text(restoreMessage)
+            }
+            .alert("Recovery Code", isPresented: $showRecoveryActionError) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(recoveryActionErrorMessage)
+            }
+            .sheet(isPresented: $showRecoveryCodeSheet) {
+                recoveryCodeSheet
             }
         }
     }
@@ -201,6 +213,76 @@ struct SettingsView: View {
                     }
                 }
             }
+
+            Button {
+                regenerateRecoveryCode()
+            } label: {
+                HStack {
+                    Label("Regenerate Recovery Code", systemImage: "key.horizontal")
+                    Spacer()
+                    if authService.isRecoveryCodeUsed() {
+                        Text("Required")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultDestructive)
+                    }
+                }
+                .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Button(role: .destructive) {
+                revokeRecoveryCode()
+            } label: {
+                Label("Revoke Recovery Code", systemImage: "key.slash")
+            }
+            .disabled(!authService.isRecoveryCodeAvailable())
+        }
+    }
+
+    private var recoveryCodeSheet: some View {
+        VStack(spacing: 18) {
+            Text("New Recovery Code")
+                .font(.title3)
+                .fontWeight(.bold)
+
+            Text("Save this one-time code somewhere secure. It won't be shown again.")
+                .font(.callout)
+                .foregroundStyle(Color.vaultTextSecondary)
+                .multilineTextAlignment(.center)
+
+            Text(generatedRecoveryCode ?? "")
+                .font(.system(.title3, design: .monospaced))
+                .padding()
+                .frame(maxWidth: .infinity)
+                .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 12))
+
+            Button("Done") {
+                showRecoveryCodeSheet = false
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.vaultAccent)
+        }
+        .padding(Constants.standardPadding)
+        .presentationDetents([.medium])
+    }
+
+    private func regenerateRecoveryCode() {
+        Task {
+            do {
+                generatedRecoveryCode = try await authService.regenerateRecoveryCode()
+                showRecoveryCodeSheet = true
+            } catch {
+                recoveryActionErrorMessage = error.localizedDescription
+                showRecoveryActionError = true
+            }
+        }
+    }
+
+    private func revokeRecoveryCode() {
+        do {
+            try authService.revokeRecoveryCode()
+        } catch {
+            recoveryActionErrorMessage = error.localizedDescription
+            showRecoveryActionError = true
         }
     }
 

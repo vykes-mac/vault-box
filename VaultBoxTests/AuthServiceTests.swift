@@ -108,6 +108,31 @@ struct AuthServiceTests {
         #expect(await auth.verifyPIN("567890") == .success)
     }
 
+    @Test("Recovery reset preserves master key and invalidates one-time code")
+    @MainActor
+    func recoveryResetPreservesMasterKey() async throws {
+        let (auth, encryption, context) = try makeServices()
+        let recoveryCode = try await auth.createPIN("1234")
+
+        let beforeKey = try await encryption.loadMasterKey()
+        let beforeKeyData = beforeKey.withUnsafeBytes { Data($0) }
+
+        try await auth.resetPINUsingRecoveryCode(recoveryCode, newPIN: "5678")
+
+        let settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+        #expect(settings.recoveryCodeUsedAt != nil)
+
+        let afterKey = try await encryption.loadMasterKey()
+        let afterKeyData = afterKey.withUnsafeBytes { Data($0) }
+        #expect(afterKeyData == beforeKeyData)
+
+        #expect(await auth.verifyRecoveryCode(recoveryCode) == false)
+
+        auth.lock()
+        #expect(await auth.verifyPIN("1234") == .failure)
+        #expect(await auth.verifyPIN("5678") == .success)
+    }
+
     @Test("Wrong PIN returns failure")
     @MainActor
     func wrongPINReturnsFailure() async throws {

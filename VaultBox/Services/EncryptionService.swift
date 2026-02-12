@@ -171,9 +171,13 @@ actor EncryptionService {
     // MARK: - PIN Hashing
 
     func hashPIN(_ pin: String, salt: Data) -> String {
-        let pinData = Data(pin.utf8)
+        hashSecret(pin, salt: salt)
+    }
+
+    func hashSecret(_ value: String, salt: Data) -> String {
+        let valueData = Data(value.utf8)
         var combined = salt
-        combined.append(pinData)
+        combined.append(valueData)
         let hash = SHA256.hash(data: combined)
         return hash.compactMap { String(format: "%02x", $0) }.joined()
     }

@@ -12,6 +12,13 @@ struct LockScreenView: View {
     @State private var isVerifying: Bool = false
     @State private var lockoutRemaining: Int? = nil
     @State private var lockoutTimer: Timer?
+
+    @State private var showRecoveryPrompt = false
+    @State private var recoveryCodeInput = ""
+    @State private var showRecoveryError = false
+    @State private var recoveryErrorMessage = ""
+    @State private var showRecoveryPINReset = false
+
     @State private var isShowingForgotPINSheet: Bool = false
     @State private var forgotPINErrorMessage: String?
 
@@ -67,7 +74,7 @@ struct LockScreenView: View {
                 .foregroundStyle(isLockedOut ? Color.vaultDestructive : Color.vaultTextPrimary)
                 .padding(.bottom, 32)
 
-            // Dots — hidden during lockout
+            // Dots - hidden during lockout
             if !isLockedOut {
                 PINDotsView(
                     enteredCount: pin.count,
@@ -77,7 +84,7 @@ struct LockScreenView: View {
                 .offset(x: shakeOffset)
                 .padding(.bottom, 12)
             } else {
-                Spacer().frame(height: 14 + 12) // dot height + padding
+                Spacer().frame(height: 14 + 12)
             }
 
             if let forgotPINErrorMessage {
@@ -86,7 +93,6 @@ struct LockScreenView: View {
                     .foregroundStyle(Color.vaultDestructive)
                     .padding(.bottom, 8)
             } else {
-                // Error spacer
                 Text(" ")
                     .font(.caption)
                     .padding(.bottom, 8)
@@ -94,7 +100,7 @@ struct LockScreenView: View {
 
             Spacer().frame(height: 44)
 
-            // Keypad — disabled during lockout
+            // Keypad - disabled during lockout
             if !isLockedOut {
                 PINKeypadView(
                     onDigitTap: { digit in
@@ -109,15 +115,25 @@ struct LockScreenView: View {
                     biometricType: biometricType
                 )
 
-                if biometricType != .none {
-                    Button("Forgot PIN?") {
-                        handleForgotPIN()
+                VStack(spacing: 12) {
+                    Button("Use Recovery Code") {
+                        forgotPINErrorMessage = nil
+                        recoveryCodeInput = ""
+                        showRecoveryPrompt = true
                     }
                     .font(.callout)
-                    .foregroundStyle(Color.vaultAccent)
-                    .padding(.top, 16)
                     .disabled(isVerifying)
+
+                    if biometricType != .none {
+                        Button("Forgot PIN?") {
+                            handleForgotPIN()
+                        }
+                        .font(.callout)
+                        .foregroundStyle(Color.vaultAccent)
+                        .disabled(isVerifying)
+                    }
                 }
+                .padding(.top, 16)
             }
 
             Spacer()
@@ -136,6 +152,34 @@ struct LockScreenView: View {
         .onDisappear {
             lockoutTimer?.invalidate()
             lockoutTimer = nil
+        }
+        .alert("Recovery Code", isPresented: $showRecoveryPrompt) {
+            SecureField("Enter recovery code", text: $recoveryCodeInput)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+            Button("Cancel", role: .cancel) {}
+            Button("Verify") {
+                verifyRecoveryCode()
+            }
+        } message: {
+            Text("Enter your one-time recovery code to reset your PIN.")
+        }
+        .alert("Recovery Code Error", isPresented: $showRecoveryError) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(recoveryErrorMessage)
+        }
+        .fullScreenCover(isPresented: $showRecoveryPINReset) {
+            PINSetupView(
+                authService: authService,
+                mode: .recoveryReset(recoveryCode: recoveryCodeInput),
+                onFinish: {
+                    recoveryCodeInput = ""
+                    pin = ""
+                    dotState = .normal
+                    checkLockout()
+                }
+            )
         }
         .fullScreenCover(isPresented: $isShowingForgotPINSheet) {
             NavigationStack {
@@ -240,6 +284,26 @@ struct LockScreenView: View {
             }
 
             isVerifying = false
+        }
+    }
+
+    private func verifyRecoveryCode() {
+        let trimmedCode = recoveryCodeInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedCode.isEmpty else {
+            recoveryErrorMessage = "Please enter a recovery code."
+            showRecoveryError = true
+            return
+        }
+
+        recoveryCodeInput = trimmedCode
+        Task {
+            let isValid = await authService.verifyRecoveryCode(trimmedCode)
+            if isValid {
+                showRecoveryPINReset = true
+            } else {
+                recoveryErrorMessage = "Invalid, missing, or already-used recovery code."
+                showRecoveryError = true
+            }
         }
     }
 
