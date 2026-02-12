@@ -1,8 +1,8 @@
 import SwiftUI
 
 struct PINKeypadView: View {
-    let onDigitTap: (String) -> Void
-    let onDeleteTap: () -> Void
+    let onDigitTap: (String) -> Bool
+    let onDeleteTap: () -> Bool
     let onBiometricTap: (() -> Void)?
     let biometricType: BiometricType
 
@@ -42,7 +42,9 @@ struct PINKeypadView: View {
         switch key {
         case .digit(let digit):
             Button {
-                onDigitTap(digit)
+                if onDigitTap(digit) {
+                    Haptics.pinDigitTap()
+                }
             } label: {
                 Text(digit)
                     .font(.title)
@@ -72,7 +74,9 @@ struct PINKeypadView: View {
 
         case .delete:
             Button {
-                onDeleteTap()
+                if onDeleteTap() {
+                    Haptics.pinDeleteTap()
+                }
             } label: {
                 Image(systemName: "delete.backward")
                     .font(.title2)
@@ -94,8 +98,8 @@ private enum KeypadKey: Hashable {
     ZStack {
         Color.black.ignoresSafeArea()
         PINKeypadView(
-            onDigitTap: { _ in },
-            onDeleteTap: {},
+            onDigitTap: { _ in true },
+            onDeleteTap: { true },
             onBiometricTap: {},
             biometricType: .faceID
         )

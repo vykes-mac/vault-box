@@ -13,10 +13,12 @@ struct VaultBoxPaywallView: View {
                     displayCloseButton: true
                 )
                 .onPurchaseCompleted { _ in
+                    Haptics.purchaseComplete()
                     purchaseService.isPremium = true
                     dismiss()
                 }
                 .onRestoreCompleted { _ in
+                    Haptics.purchaseComplete()
                     purchaseService.isPremium = true
                     dismiss()
                 }

@@ -90,12 +90,14 @@ struct SecuritySettingsView: View {
             // Keypad
             PINKeypadView(
                 onDigitTap: { digit in
-                    guard activePIN.wrappedValue.count < Constants.pinMaxLength else { return }
+                    guard activePIN.wrappedValue.count < Constants.pinMaxLength else { return false }
                     activePIN.wrappedValue.append(digit)
+                    return true
                 },
                 onDeleteTap: {
-                    guard !activePIN.wrappedValue.isEmpty else { return }
+                    guard !activePIN.wrappedValue.isEmpty else { return false }
                     activePIN.wrappedValue.removeLast()
+                    return true
                 },
                 onBiometricTap: nil,
                 biometricType: .none
@@ -165,12 +167,15 @@ struct SecuritySettingsView: View {
 
             switch result {
             case .success, .decoy:
+                Haptics.pinCorrect()
                 step = .enterNew
             case .failure:
+                Haptics.pinWrong()
                 errorMessage = "Incorrect PIN. Please try again."
                 showError = true
                 currentPIN = ""
             case .locked:
+                Haptics.pinWrong()
                 errorMessage = "Too many attempts. Please wait."
                 showError = true
                 currentPIN = ""
@@ -185,6 +190,7 @@ struct SecuritySettingsView: View {
         }
 
         guard newPIN == confirmPIN else {
+            Haptics.pinWrong()
             errorMessage = "PINs don't match. Try again."
             showError = true
             confirmPIN = ""
@@ -202,8 +208,10 @@ struct SecuritySettingsView: View {
                 case .decoySetup:
                     try await authService.setupDecoyPIN(newPIN)
                 }
+                Haptics.pinCorrect()
                 dismiss()
             } catch {
+                Haptics.pinWrong()
                 errorMessage = error.localizedDescription
                 showError = true
                 isProcessing = false

@@ -78,22 +78,23 @@ struct PINReEntryView: View {
 
     // MARK: - Input
 
-    private func handleDigit(_ digit: String) {
-        guard !isVerifying, pin.count < pinLength else { return }
+    private func handleDigit(_ digit: String) -> Bool {
+        guard !isVerifying, pin.count < pinLength else { return false }
 
-        Haptics.pinDigitTap()
         pin += digit
         dotState = .normal
 
         if pin.count == pinLength {
             verify()
         }
+        return true
     }
 
-    private func handleDelete() {
-        guard !pin.isEmpty, !isVerifying else { return }
+    private func handleDelete() -> Bool {
+        guard !pin.isEmpty, !isVerifying else { return false }
         pin.removeLast()
         dotState = .normal
+        return true
     }
 
     // MARK: - Verification

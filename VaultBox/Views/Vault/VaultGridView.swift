@@ -406,6 +406,7 @@ struct VaultGridView: View {
             if selectedItems.contains(item.id) {
                 selectedItems.remove(item.id)
             } else {
+                Haptics.itemSelected()
                 selectedItems.insert(item.id)
             }
         } else {

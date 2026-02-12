@@ -217,8 +217,8 @@ struct PINSetupView: View {
         .presentationDragIndicator(.hidden)
     }
 
-    private func handleDigit(_ digit: String) {
-        guard !isSubmitting, currentPin.count < maxLength else { return }
+    private func handleDigit(_ digit: String) -> Bool {
+        guard !isSubmitting, currentPin.count < maxLength else { return false }
 
         if isConfirming {
             confirmPin += digit
@@ -228,19 +228,21 @@ struct PINSetupView: View {
         } else {
             pin += digit
         }
+        return true
     }
 
-    private func handleDelete() {
-        guard !isSubmitting else { return }
+    private func handleDelete() -> Bool {
+        guard !isSubmitting else { return false }
         if isConfirming {
-            guard !confirmPin.isEmpty else { return }
+            guard !confirmPin.isEmpty else { return false }
             confirmPin.removeLast()
         } else {
-            guard !pin.isEmpty else { return }
+            guard !pin.isEmpty else { return false }
             pin.removeLast()
         }
         dotState = .normal
         errorMessage = nil
+        return true
     }
 
     private func verifyConfirmation() {
@@ -248,6 +250,7 @@ struct PINSetupView: View {
         if confirmPin == pin {
             isSubmitting = true
             dotState = .success
+            Haptics.pinCorrect()
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
                 do {
@@ -266,12 +269,14 @@ struct PINSetupView: View {
                         }
                     }
                 } catch {
+                    Haptics.pinWrong()
                     dotState = .error
                     errorMessage = error.localizedDescription
                     isSubmitting = false
                 }
             }
         } else {
+            Haptics.pinWrong()
             dotState = .error
             errorMessage = "PINs don't match. Try again."
             shakeAnimation()
