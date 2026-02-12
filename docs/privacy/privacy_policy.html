@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VaultBox — Privacy Policy</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+          Arial, sans-serif;
+        line-height: 1.7;
+        color: #1d1d1f;
+        background: #ffffff;
+        padding: 40px 24px;
+        max-width: 720px;
+        margin: 0 auto;
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      h2 {
+        font-size: 20px;
+        font-weight: 600;
+        margin-top: 36px;
+        margin-bottom: 12px;
+      }
+      p {
+        margin-bottom: 16px;
+      }
+      .effective-date {
+        color: #86868b;
+        font-size: 14px;
+        margin-bottom: 32px;
+      }
+      ul {
+        margin-bottom: 16px;
+        padding-left: 24px;
+      }
+      li {
+        margin-bottom: 8px;
+      }
+      a {
+        color: #0066cc;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .highlight {
+        background: #f5f5f7;
+        border-left: 3px solid #0066cc;
+        padding: 16px 20px;
+        margin: 20px 0;
+        border-radius: 0 8px 8px 0;
+      }
+      footer {
+        margin-top: 48px;
+        padding-top: 24px;
+        border-top: 1px solid #e5e5e5;
+        color: #86868b;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Privacy Policy</h1>
+    <p class="effective-date">Effective Date: February 11, 2026</p>
+
+    <div class="highlight">
+      <strong>The short version:</strong> VaultBox encrypts your photos and
+      videos on your device. We cannot see, access, or read your content. We
+      collect no personal data. Your privacy is not just a feature — it is the
+      entire product.
+    </div>
+
+    <h2>1. Who We Are</h2>
+    <p>
+      VaultBox is developed and operated by <strong>Pack6 LLC</strong>, a
+      company registered in Jamaica. In this policy, "we," "us," and "our" refer
+      to Pack6 LLC.
+    </p>
+
+    <h2>2. What Data We Collect</h2>
+    <p>
+      We designed VaultBox to collect as little data as possible. Here is a
+      complete and honest breakdown:
+    </p>
+
+    <p><strong>Data we DO NOT collect:</strong></p>
+    <ul>
+      <li>
+        Your photos, videos, or documents — all content is encrypted on your
+        device and never transmitted to our servers
+      </li>
+      <li>
+        Your PIN or biometric data — your PIN is hashed locally and never leaves
+        your device
+      </li>
+      <li>Your name, email address, or phone number</li>
+      <li>
+        Your location (location is only used locally for break-in alerts and is
+        never sent to us)
+      </li>
+      <li>Browsing history, contacts, messages, or any other personal data</li>
+      <li>Analytics, device fingerprints, or advertising identifiers</li>
+    </ul>
+
+    <p><strong>Data that may be collected by third parties:</strong></p>
+    <ul>
+      <li>
+        <strong>Apple (App Store & iCloud):</strong> If you purchase a
+        subscription, Apple processes the transaction. We receive a record that
+        a purchase was made but we do not receive your payment details, Apple
+        ID, or name. If you enable iCloud backup within VaultBox, your encrypted
+        data is stored in your personal iCloud account — we have no access to
+        it.
+      </li>
+      <li>
+        <strong>RevenueCat:</strong> We use RevenueCat to manage subscriptions.
+        RevenueCat receives an anonymous app user ID and purchase transaction
+        data from Apple. RevenueCat does not receive your name, email, or any
+        content from your vault. You can review RevenueCat's privacy policy at
+        <a href="https://www.revenuecat.com/privacy">revenuecat.com/privacy</a>.
+      </li>
+    </ul>
+
+    <h2>3. How Your Data Is Protected</h2>
+    <p>
+      Every photo, video, and document you store in VaultBox is encrypted using
+      AES-256-GCM encryption via Apple's CryptoKit framework before it is saved
+      to your device. This means:
+    </p>
+    <ul>
+      <li>Your content is encrypted at rest on your device at all times</li>
+      <li>
+        If you enable iCloud backup, only the already-encrypted data is uploaded
+        to your personal iCloud account — we never see the unencrypted content
+      </li>
+      <li>
+        Your PIN is never stored in plaintext — it is hashed with a random salt
+        using a one-way cryptographic function
+      </li>
+      <li>
+        Biometric authentication (Face ID / Touch ID) is handled entirely by iOS
+        — we never receive or store biometric data
+      </li>
+    </ul>
+
+    <h2>4. iCloud Backup</h2>
+    <p>
+      If you choose to enable iCloud backup (a premium feature), your encrypted
+      vault data is stored in your personal iCloud account using Apple's
+      CloudKit private database. This means:
+    </p>
+    <ul>
+      <li>The data is associated with your Apple ID, not with us</li>
+      <li>We cannot access, read, or decrypt your iCloud backup</li>
+      <li>
+        You can delete your iCloud backup at any time through your device's
+        iCloud storage settings
+      </li>
+      <li>
+        Apple's iCloud terms and privacy policy govern the storage of this data
+      </li>
+    </ul>
+
+    <h2>5. Break-In Detection</h2>
+    <p>
+      If you enable break-in alerts, VaultBox may capture a photo using the
+      front-facing camera and record the device's approximate location when an
+      incorrect PIN is entered multiple times. This data is:
+    </p>
+    <ul>
+      <li>
+        Stored locally on your device only, encrypted like all other vault
+        content
+      </li>
+      <li>Never transmitted to us or any third party</li>
+      <li>
+        Fully under your control — you can view, delete, or disable this feature
+        at any time in Settings
+      </li>
+    </ul>
+
+    <h2>6. Children's Privacy</h2>
+    <p>
+      VaultBox is not intended for use by anyone under the age of 17. We do not
+      knowingly collect any information from children. The app is rated 17+ on
+      the App Store.
+    </p>
+
+    <h2>7. Third-Party Services</h2>
+    <p>
+      VaultBox does not include any advertising SDKs, analytics trackers, or
+      social media integrations. The only third-party service used is:
+    </p>
+    <ul>
+      <li>
+        <strong>RevenueCat</strong> — for subscription management only. No
+        personal data is shared with RevenueCat beyond anonymous transaction
+        records.
+      </li>
+    </ul>
+
+    <h2>8. Data Retention & Deletion</h2>
+    <p>
+      Since we do not collect your data, there is nothing for us to retain or
+      delete. All vault content exists solely on your device (and optionally in
+      your personal iCloud account). To delete all VaultBox data, simply delete
+      the app from your device and, if applicable, remove VaultBox data from
+      your iCloud storage.
+    </p>
+
+    <h2>9. Your Rights</h2>
+    <p>
+      Because we do not collect personal data, most data-rights regulations
+      (such as GDPR or CCPA) do not apply in the traditional sense. However, you
+      always have the right to:
+    </p>
+    <ul>
+      <li>
+        Delete all your data by removing the app and its associated iCloud data
+      </li>
+      <li>
+        Disable any optional feature (break-in alerts, iCloud backup) at any
+        time
+      </li>
+      <li>Contact us with any privacy questions or concerns</li>
+    </ul>
+
+    <h2>10. Changes to This Policy</h2>
+    <p>
+      If we make material changes to this privacy policy, we will update the
+      effective date at the top of this page and notify users through an in-app
+      notice. Continued use of VaultBox after changes are posted constitutes
+      acceptance of the revised policy.
+    </p>
+
+    <h2>11. Contact Us</h2>
+    <p>
+      If you have any questions about this privacy policy or VaultBox's privacy
+      practices, contact us at:
+    </p>
+    <p>
+      <strong>Pack6 LLC</strong><br />
+      Email: <a href="mailto:knyrmcleish@gmail.com">knyrmcleish@gmail.com</a>
+    </p>
+
+    <footer>
+      <p>&copy; 2026 Pack6 LLC. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
