@@ -98,6 +98,7 @@ struct SettingsView: View {
             }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
+                    Haptics.deleteConfirmed()
                     viewModel?.clearBreakInLog(modelContext: modelContext)
                 }
                 Button("Cancel", role: .cancel) {}

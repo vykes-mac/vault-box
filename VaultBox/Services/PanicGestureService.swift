@@ -33,9 +33,7 @@ class PanicGestureService {
     }
 
     private func triggerPanic() {
-        // Heavy haptic feedback
-        let generator = UIImpactFeedbackGenerator(style: .heavy)
-        generator.impactOccurred()
+        Haptics.panicTriggered()
 
         // Clear temp files
         clearTempFiles()

@@ -290,6 +290,7 @@ struct PhotoDetailView: View {
 
     private func deleteCurrentItem() {
         let item = currentItem
+        Haptics.deleteConfirmed()
         Task {
             try? await vaultService.deleteItems([item])
             dismiss()

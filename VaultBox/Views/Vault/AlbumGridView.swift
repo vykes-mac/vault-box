@@ -335,6 +335,7 @@ struct AlbumGridView: View {
 
     private func deleteAlbum(deleteContents: Bool) {
         guard let album = albumToDelete else { return }
+        Haptics.deleteConfirmed()
         if deleteContents {
             if let items = album.items {
                 Task {

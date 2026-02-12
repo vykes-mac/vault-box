@@ -6,6 +6,10 @@ enum Haptics {
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
     }
 
+    static func pinDeleteTap() {
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+    }
+
     static func pinCorrect() {
         UINotificationFeedbackGenerator().notificationOccurred(.success)
     }
