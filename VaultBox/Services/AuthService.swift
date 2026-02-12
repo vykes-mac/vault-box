@@ -21,6 +21,7 @@ class AuthService {
     private(set) var isUnlocked: Bool = false
     private(set) var isDecoyMode: Bool = false
     private var lastBackgroundAt: Date?
+    private var biometricRecoveryAuthorizedUntil: Date?
 
     init(
         encryptionService: EncryptionService,
@@ -231,6 +232,51 @@ class AuthService {
         }
     }
 
+    func beginBiometricRecoveryReset() async -> Bool {
+        let success = await authenticateWithBiometrics(
+            localizedReason: "Verify your identity to reset your PIN",
+            unlockSession: false,
+            enableForFutureUnlocks: false
+        )
+
+        biometricRecoveryAuthorizedUntil = success
+            ? Date().addingTimeInterval(60)
+            : nil
+        return success
+    }
+
+    func completeBiometricRecoveryReset(newPIN: String) async throws {
+        guard biometricRecoveryAuthorizedUntil.map({ $0 > Date() }) == true else {
+            throw AuthError.biometricVerificationRequired
+        }
+
+        guard newPIN.count >= Constants.pinMinLength,
+              newPIN.count <= Constants.pinMaxLength,
+              newPIN.allSatisfy(\.isNumber) else {
+            throw AuthError.invalidPIN
+        }
+
+        let settings = try loadSettings()
+        let newSalt = await encryptionService.generateSalt()
+        let newHash = await encryptionService.hashPIN(newPIN, salt: newSalt)
+        let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
+        try await encryptionService.storeMasterKey(masterKey)
+
+        settings.pinHash = newHash
+        settings.pinSalt = newSalt.base64EncodedString()
+        settings.pinLength = newPIN.count
+        settings.failedAttemptCount = 0
+        settings.lockoutUntil = nil
+        settings.lastUnlockedAt = Date()
+
+        isUnlocked = true
+        isDecoyMode = false
+        lastBackgroundAt = nil
+        biometricRecoveryAuthorizedUntil = nil
+
+        try modelContext.save()
+    }
+
     // MARK: - Lockout
 
     func handleFailedAttempt(_ pin: String) async {
@@ -309,6 +355,7 @@ enum AuthError: LocalizedError {
     case invalidPIN
     case incorrectPIN
     case decoyMatchesReal
+    case biometricVerificationRequired
 
     var errorDescription: String? {
         switch self {
@@ -320,6 +367,8 @@ enum AuthError: LocalizedError {
             "Incorrect PIN. Please try again."
         case .decoyMatchesReal:
             "Decoy PIN must be different from your real PIN."
+        case .biometricVerificationRequired:
+            "Biometric verification is required before resetting PIN."
         }
     }
 }

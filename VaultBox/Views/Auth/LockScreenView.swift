@@ -12,6 +12,8 @@ struct LockScreenView: View {
     @State private var isVerifying: Bool = false
     @State private var lockoutRemaining: Int? = nil
     @State private var lockoutTimer: Timer?
+    @State private var isShowingForgotPINSheet: Bool = false
+    @State private var forgotPINErrorMessage: String?
 
     private var biometricType: PINKeypadView.BiometricType {
         let context = LAContext()
@@ -78,10 +80,17 @@ struct LockScreenView: View {
                 Spacer().frame(height: 14 + 12) // dot height + padding
             }
 
-            // Error spacer
-            Text(" ")
-                .font(.caption)
-                .padding(.bottom, 8)
+            if let forgotPINErrorMessage {
+                Text(forgotPINErrorMessage)
+                    .font(.caption)
+                    .foregroundStyle(Color.vaultDestructive)
+                    .padding(.bottom, 8)
+            } else {
+                // Error spacer
+                Text(" ")
+                    .font(.caption)
+                    .padding(.bottom, 8)
+            }
 
             Spacer().frame(height: 44)
 
@@ -99,6 +108,14 @@ struct LockScreenView: View {
                     } : nil,
                     biometricType: biometricType
                 )
+
+                Button("Forgot PIN?") {
+                    handleForgotPIN()
+                }
+                .font(.callout)
+                .foregroundStyle(Color.vaultAccent)
+                .padding(.top, 16)
+                .disabled(isVerifying)
             }
 
             Spacer()
@@ -117,6 +134,24 @@ struct LockScreenView: View {
         .onDisappear {
             lockoutTimer?.invalidate()
             lockoutTimer = nil
+        }
+        .sheet(isPresented: $isShowingForgotPINSheet) {
+            PINSetupView(
+                authService: authService,
+                createTitle: "Reset your PIN",
+                createSubtitle: "Use a new PIN to secure your vault",
+                confirmTitle: "Confirm new PIN",
+                confirmSubtitle: "Re-enter your new PIN",
+                onPINConfirmed: { newPIN in
+                    try await authService.completeBiometricRecoveryReset(newPIN: newPIN)
+                },
+                onSuccess: {
+                    isShowingForgotPINSheet = false
+                    pin = ""
+                    pinLength = authService.getPINLength()
+                    forgotPINErrorMessage = nil
+                }
+            )
         }
     }
 
@@ -144,6 +179,20 @@ struct LockScreenView: View {
         guard !isVerifying else { return }
         Task {
             _ = await authService.authenticateWithBiometrics()
+        }
+    }
+
+    private func handleForgotPIN() {
+        guard !isVerifying else { return }
+
+        forgotPINErrorMessage = nil
+        Task {
+            let success = await authService.beginBiometricRecoveryReset()
+            if success {
+                isShowingForgotPINSheet = true
+            } else {
+                forgotPINErrorMessage = "Biometric verification failed."
+            }
         }
     }
 

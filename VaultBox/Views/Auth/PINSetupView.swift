@@ -2,6 +2,12 @@ import SwiftUI
 
 struct PINSetupView: View {
     let authService: AuthService
+    let createTitle: String
+    let createSubtitle: String
+    let confirmTitle: String
+    let confirmSubtitle: String
+    let onPINConfirmed: ((String) async throws -> Void)?
+    let onSuccess: (() -> Void)?
 
     @State private var pin: String = ""
     @State private var confirmPin: String = ""
@@ -29,18 +35,36 @@ struct PINSetupView: View {
         return "Minimum met. Continue now or add up to \(Constants.pinMaxLength) digits."
     }
 
+    init(
+        authService: AuthService,
+        createTitle: String = "Create a PIN",
+        createSubtitle: String = "Choose a PIN to protect your vault",
+        confirmTitle: String = "Confirm your PIN",
+        confirmSubtitle: String = "Enter your PIN again",
+        onPINConfirmed: ((String) async throws -> Void)? = nil,
+        onSuccess: (() -> Void)? = nil
+    ) {
+        self.authService = authService
+        self.createTitle = createTitle
+        self.createSubtitle = createSubtitle
+        self.confirmTitle = confirmTitle
+        self.confirmSubtitle = confirmSubtitle
+        self.onPINConfirmed = onPINConfirmed
+        self.onSuccess = onSuccess
+    }
+
     var body: some View {
         VStack(spacing: 0) {
             Spacer()
 
             // Title
             VStack(spacing: 8) {
-                Text(isConfirming ? "Confirm your PIN" : "Create a PIN")
+                Text(isConfirming ? confirmTitle : createTitle)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text(isConfirming ? "Enter your PIN again" : "Choose a PIN to protect your vault")
+                Text(isConfirming ? confirmSubtitle : createSubtitle)
                     .font(.callout)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .multilineTextAlignment(.center)
@@ -139,8 +163,13 @@ struct PINSetupView: View {
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
                 do {
-                    try await authService.createPIN(pin)
-                    completeInitialSetup()
+                    if let onPINConfirmed {
+                        try await onPINConfirmed(pin)
+                        onSuccess?()
+                    } else {
+                        try await authService.createPIN(pin)
+                        completeInitialSetup()
+                    }
                 } catch {
                     dotState = .error
                     errorMessage = error.localizedDescription
