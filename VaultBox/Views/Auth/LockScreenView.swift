@@ -109,13 +109,15 @@ struct LockScreenView: View {
                     biometricType: biometricType
                 )
 
-                Button("Forgot PIN?") {
-                    handleForgotPIN()
+                if biometricType != .none {
+                    Button("Forgot PIN?") {
+                        handleForgotPIN()
+                    }
+                    .font(.callout)
+                    .foregroundStyle(Color.vaultAccent)
+                    .padding(.top, 16)
+                    .disabled(isVerifying)
                 }
-                .font(.callout)
-                .foregroundStyle(Color.vaultAccent)
-                .padding(.top, 16)
-                .disabled(isVerifying)
             }
 
             Spacer()
@@ -135,23 +137,27 @@ struct LockScreenView: View {
             lockoutTimer?.invalidate()
             lockoutTimer = nil
         }
-        .sheet(isPresented: $isShowingForgotPINSheet) {
-            PINSetupView(
-                authService: authService,
-                createTitle: "Reset your PIN",
-                createSubtitle: "Use a new PIN to secure your vault",
-                confirmTitle: "Confirm new PIN",
-                confirmSubtitle: "Re-enter your new PIN",
-                onPINConfirmed: { newPIN in
-                    try await authService.completeBiometricRecoveryReset(newPIN: newPIN)
-                },
-                onSuccess: {
-                    isShowingForgotPINSheet = false
-                    pin = ""
-                    pinLength = authService.getPINLength()
-                    forgotPINErrorMessage = nil
-                }
-            )
+        .fullScreenCover(isPresented: $isShowingForgotPINSheet) {
+            NavigationStack {
+                PINSetupView(
+                    authService: authService,
+                    createTitle: "Reset your PIN",
+                    createSubtitle: "Use a new PIN to secure your vault",
+                    confirmTitle: "Confirm new PIN",
+                    confirmSubtitle: "Re-enter your new PIN",
+                    onPINConfirmed: { newPIN in
+                        try await authService.completeBiometricRecoveryReset(newPIN: newPIN)
+                    },
+                    onSuccess: {
+                        isShowingForgotPINSheet = false
+                        pin = ""
+                        pinLength = authService.getPINLength()
+                        forgotPINErrorMessage = nil
+                    },
+                    showsCloseButton: true
+                )
+                .navigationBarTitleDisplayMode(.inline)
+            }
         }
     }
 
@@ -184,6 +190,10 @@ struct LockScreenView: View {
 
     private func handleForgotPIN() {
         guard !isVerifying else { return }
+        guard biometricType != .none else {
+            forgotPINErrorMessage = "Biometric authentication is not available on this device."
+            return
+        }
 
         forgotPINErrorMessage = nil
         Task {

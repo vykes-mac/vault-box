@@ -8,6 +8,7 @@ struct PINSetupView: View {
     let confirmSubtitle: String
     let onPINConfirmed: ((String) async throws -> Void)?
     let onSuccess: (() -> Void)?
+    let showsCloseButton: Bool
 
     @State private var pin: String = ""
     @State private var confirmPin: String = ""
@@ -16,6 +17,7 @@ struct PINSetupView: View {
     @State private var shakeOffset: CGFloat = 0
     @State private var errorMessage: String?
     @State private var isSubmitting = false
+    @Environment(\.dismiss) private var dismiss
 
     private var currentPin: String {
         isConfirming ? confirmPin : pin
@@ -42,7 +44,8 @@ struct PINSetupView: View {
         confirmTitle: String = "Confirm your PIN",
         confirmSubtitle: String = "Enter your PIN again",
         onPINConfirmed: ((String) async throws -> Void)? = nil,
-        onSuccess: (() -> Void)? = nil
+        onSuccess: (() -> Void)? = nil,
+        showsCloseButton: Bool = false
     ) {
         self.authService = authService
         self.createTitle = createTitle
@@ -51,6 +54,7 @@ struct PINSetupView: View {
         self.confirmSubtitle = confirmSubtitle
         self.onPINConfirmed = onPINConfirmed
         self.onSuccess = onSuccess
+        self.showsCloseButton = showsCloseButton
     }
 
     var body: some View {
@@ -125,8 +129,25 @@ struct PINSetupView: View {
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, Constants.standardPadding)
         .background(Color.vaultBackground.ignoresSafeArea())
+        .toolbar {
+            if showsCloseButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.headline)
+                    }
+                    .foregroundStyle(Color.vaultTextPrimary)
+                    .accessibilityLabel("Close")
+                }
+            }
+        }
+        .toolbarBackground(Color.vaultBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 
     private func handleDigit(_ digit: String) {
