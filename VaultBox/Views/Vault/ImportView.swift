@@ -33,27 +33,38 @@ struct ImportView: View {
     var body: some View {
         ZStack {
             if showPicker {
-                VStack(spacing: 12) {
-                    Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
-                        .font(.footnote)
-                        .foregroundStyle(Color.vaultTextSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 24)
+                NavigationStack {
+                    VStack(spacing: 12) {
+                        Text("VaultBox imports only what you select. Originals stay in Photos unless you choose Delete after import.")
+                            .font(.footnote)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
 
-                    PhotosPicker(
-                        selection: $selectedItems,
-                        matching: .any(of: [.images, .videos]),
-                        preferredItemEncoding: .current,
-                        photoLibrary: .shared()
-                    ) {
-                        Text("Select Photos")
+                        PhotosPicker(
+                            selection: $selectedItems,
+                            matching: .any(of: [.images, .videos]),
+                            preferredItemEncoding: .current,
+                            photoLibrary: .shared()
+                        ) {
+                            Text("Select Photos")
+                        }
+                        .photosPickerStyle(.inline)
+                        .photosPickerDisabledCapabilities(.selectionActions)
+                        .onChange(of: selectedItems) { _, newValue in
+                            guard !newValue.isEmpty else { return }
+                            showPicker = false
+                            startImport()
+                        }
                     }
-                    .photosPickerStyle(.inline)
-                    .photosPickerDisabledCapabilities(.selectionActions)
-                    .onChange(of: selectedItems) { _, newValue in
-                        guard !newValue.isEmpty else { return }
-                        showPicker = false
-                        startImport()
+                    .navigationTitle("Import")
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel", role: .cancel) {
+                                onDismiss()
+                            }
+                        }
                     }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)

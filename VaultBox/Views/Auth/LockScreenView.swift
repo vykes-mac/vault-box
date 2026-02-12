@@ -18,6 +18,7 @@ struct LockScreenView: View {
     @State private var showRecoveryError = false
     @State private var recoveryErrorMessage = ""
     @State private var showRecoveryPINReset = false
+    @State private var showForgotPINOptions = false
 
     @State private var isShowingForgotPINSheet: Bool = false
     @State private var forgotPINErrorMessage: String?
@@ -116,22 +117,13 @@ struct LockScreenView: View {
                 )
 
                 VStack(spacing: 12) {
-                    Button("Use Recovery Code") {
+                    Button("Forgot PIN?") {
                         forgotPINErrorMessage = nil
-                        recoveryCodeInput = ""
-                        showRecoveryPrompt = true
+                        showForgotPINOptions = true
                     }
                     .font(.callout)
+                    .foregroundStyle(Color.vaultAccent)
                     .disabled(isVerifying)
-
-                    if biometricType != .none {
-                        Button("Forgot PIN?") {
-                            handleForgotPIN()
-                        }
-                        .font(.callout)
-                        .foregroundStyle(Color.vaultAccent)
-                        .disabled(isVerifying)
-                    }
                 }
                 .padding(.top, 16)
             }
@@ -140,7 +132,11 @@ struct LockScreenView: View {
                 .frame(maxHeight: .infinity)
         }
         .padding(.horizontal, Constants.standardPadding)
-        .background(Color.vaultBackground.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            Color.vaultBackground
+                .ignoresSafeArea()
+        }
         .onAppear {
             onPresented?()
             pinLength = authService.getPINLength()
@@ -152,6 +148,19 @@ struct LockScreenView: View {
         .onDisappear {
             lockoutTimer?.invalidate()
             lockoutTimer = nil
+        }
+        .confirmationDialog("Reset PIN", isPresented: $showForgotPINOptions, titleVisibility: .visible) {
+            if biometricType != .none {
+                Button("Use \(biometricType == .faceID ? "Face ID" : "Touch ID")") {
+                    handleForgotPIN()
+                }
+            }
+            Button("Use Recovery Code") {
+                startRecoveryCodeFlow()
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("Choose how you want to verify before resetting your PIN.")
         }
         .alert("Recovery Code", isPresented: $showRecoveryPrompt) {
             SecureField("Enter recovery code", text: $recoveryCodeInput)
@@ -248,6 +257,12 @@ struct LockScreenView: View {
                 forgotPINErrorMessage = "Biometric verification failed."
             }
         }
+    }
+
+    private func startRecoveryCodeFlow() {
+        forgotPINErrorMessage = nil
+        recoveryCodeInput = ""
+        showRecoveryPrompt = true
     }
 
     // MARK: - Verification

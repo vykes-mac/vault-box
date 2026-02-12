@@ -72,7 +72,7 @@
   </head>
   <body>
     <h1>Privacy Policy</h1>
-    <p class="effective-date">Effective Date: February 11, 2026</p>
+    <p class="effective-date">Effective Date: February 12, 2026</p>
 
     <div class="highlight">
       <strong>The short version:</strong> VaultBox encrypts your photos and
@@ -101,8 +101,9 @@
         device and never transmitted to our servers
       </li>
       <li>
-        Your PIN or biometric data — your PIN is hashed locally and never leaves
-        your device
+        Your PIN, recovery code, or biometric data — your PIN and recovery code
+        are processed locally, only protected representations are stored on your
+        device, and none of this leaves your device
       </li>
       <li>Your name, email address, or phone number</li>
       <li>
@@ -147,6 +148,10 @@
       <li>
         Your PIN is never stored in plaintext — it is hashed with a random salt
         using a one-way cryptographic function
+      </li>
+      <li>
+        Recovery codes are stored only as one-way hashed values with salt on
+        your device; we cannot retrieve your original recovery code
       </li>
       <li>
         Biometric authentication (Face ID / Touch ID) is handled entirely by iOS
