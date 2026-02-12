@@ -7,10 +7,15 @@ enum PINSetupMode {
 
 struct PINSetupView: View {
     let authService: AuthService
-    var mode: PINSetupMode = .initialSetup
-    var onFinish: (() -> Void)? = nil
-
-    @Environment(\.dismiss) private var dismiss
+    let mode: PINSetupMode
+    let createTitle: String
+    let createSubtitle: String
+    let confirmTitle: String
+    let confirmSubtitle: String
+    let onPINConfirmed: ((String) async throws -> Void)?
+    let onSuccess: (() -> Void)?
+    let onFinish: (() -> Void)?
+    let showsCloseButton: Bool
 
     @State private var pin: String = ""
     @State private var confirmPin: String = ""
@@ -21,6 +26,8 @@ struct PINSetupView: View {
     @State private var isSubmitting = false
     @State private var generatedRecoveryCode: String?
     @State private var showRecoveryCodeSheet = false
+
+    @Environment(\.dismiss) private var dismiss
 
     private var currentPin: String {
         isConfirming ? confirmPin : pin
@@ -40,21 +47,36 @@ struct PINSetupView: View {
         return "Minimum met. Continue now or add up to \(Constants.pinMaxLength) digits."
     }
 
-    private var titleText: String {
-        switch mode {
-        case .initialSetup:
-            return isConfirming ? "Confirm your PIN" : "Create a PIN"
-        case .recoveryReset:
-            return isConfirming ? "Confirm New PIN" : "Reset your PIN"
-        }
-    }
+    init(
+        authService: AuthService,
+        mode: PINSetupMode = .initialSetup,
+        createTitle: String? = nil,
+        createSubtitle: String? = nil,
+        confirmTitle: String? = nil,
+        confirmSubtitle: String? = nil,
+        onPINConfirmed: ((String) async throws -> Void)? = nil,
+        onSuccess: (() -> Void)? = nil,
+        onFinish: (() -> Void)? = nil,
+        showsCloseButton: Bool = false
+    ) {
+        self.authService = authService
+        self.mode = mode
+        self.onPINConfirmed = onPINConfirmed
+        self.onSuccess = onSuccess
+        self.onFinish = onFinish
+        self.showsCloseButton = showsCloseButton
 
-    private var subtitleText: String {
         switch mode {
         case .initialSetup:
-            return isConfirming ? "Enter your PIN again" : "Choose a PIN to protect your vault"
+            self.createTitle = createTitle ?? "Create a PIN"
+            self.createSubtitle = createSubtitle ?? "Choose a PIN to protect your vault"
+            self.confirmTitle = confirmTitle ?? "Confirm your PIN"
+            self.confirmSubtitle = confirmSubtitle ?? "Enter your PIN again"
         case .recoveryReset:
-            return isConfirming ? "Enter your new PIN again" : "Set a new PIN to unlock your vault"
+            self.createTitle = createTitle ?? "Reset your PIN"
+            self.createSubtitle = createSubtitle ?? "Set a new PIN to unlock your vault"
+            self.confirmTitle = confirmTitle ?? "Confirm New PIN"
+            self.confirmSubtitle = confirmSubtitle ?? "Enter your new PIN again"
         }
     }
 
@@ -63,12 +85,12 @@ struct PINSetupView: View {
             Spacer()
 
             VStack(spacing: 8) {
-                Text(titleText)
+                Text(isConfirming ? confirmTitle : createTitle)
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text(subtitleText)
+                Text(isConfirming ? confirmSubtitle : createSubtitle)
                     .font(.callout)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .multilineTextAlignment(.center)
@@ -125,12 +147,29 @@ struct PINSetupView: View {
 
             Spacer()
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, Constants.standardPadding)
         .background(Color.vaultBackground.ignoresSafeArea())
         .sheet(isPresented: $showRecoveryCodeSheet) {
             recoveryCodeSheet
                 .interactiveDismissDisabled()
         }
+        .toolbar {
+            if showsCloseButton {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.headline)
+                    }
+                    .foregroundStyle(Color.vaultTextPrimary)
+                    .accessibilityLabel("Close")
+                }
+            }
+        }
+        .toolbarBackground(Color.vaultBackground, for: .navigationBar)
+        .toolbarBackground(.visible, for: .navigationBar)
     }
 
     private var recoveryCodeSheet: some View {
@@ -155,7 +194,7 @@ struct PINSetupView: View {
                 .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 12))
 
             Button("I Saved This Code") {
-                finalizeSetupFlow()
+                completeFlow(shouldCompleteInitialSetup: true)
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.vaultAccent)
@@ -199,13 +238,18 @@ struct PINSetupView: View {
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
                 do {
-                    switch mode {
-                    case .initialSetup:
-                        generatedRecoveryCode = try await authService.createPIN(pin)
-                        showRecoveryCodeSheet = true
-                    case .recoveryReset(let recoveryCode):
-                        try await authService.resetPINUsingRecoveryCode(recoveryCode, newPIN: pin)
-                        finalizeSetupFlow()
+                    if let onPINConfirmed {
+                        try await onPINConfirmed(pin)
+                        completeFlow(shouldCompleteInitialSetup: false)
+                    } else {
+                        switch mode {
+                        case .initialSetup:
+                            generatedRecoveryCode = try await authService.createPIN(pin)
+                            showRecoveryCodeSheet = true
+                        case .recoveryReset(let recoveryCode):
+                            try await authService.resetPINUsingRecoveryCode(recoveryCode, newPIN: pin)
+                            completeFlow(shouldCompleteInitialSetup: false)
+                        }
                     }
                 } catch {
                     dotState = .error
@@ -237,13 +281,14 @@ struct PINSetupView: View {
         }
     }
 
-    private func finalizeSetupFlow() {
+    private func completeFlow(shouldCompleteInitialSetup: Bool) {
         do {
-            if case .initialSetup = mode {
+            if shouldCompleteInitialSetup {
                 try authService.completeInitialSetup()
             }
             showRecoveryCodeSheet = false
             isSubmitting = false
+            onSuccess?()
             onFinish?()
             dismiss()
         } catch {

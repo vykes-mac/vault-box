@@ -12,11 +12,15 @@ struct LockScreenView: View {
     @State private var isVerifying: Bool = false
     @State private var lockoutRemaining: Int? = nil
     @State private var lockoutTimer: Timer?
+
     @State private var showRecoveryPrompt = false
     @State private var recoveryCodeInput = ""
     @State private var showRecoveryError = false
     @State private var recoveryErrorMessage = ""
-    @State private var showPINReset = false
+    @State private var showRecoveryPINReset = false
+
+    @State private var isShowingForgotPINSheet: Bool = false
+    @State private var forgotPINErrorMessage: String?
 
     private var biometricType: PINKeypadView.BiometricType {
         let context = LAContext()
@@ -70,7 +74,7 @@ struct LockScreenView: View {
                 .foregroundStyle(isLockedOut ? Color.vaultDestructive : Color.vaultTextPrimary)
                 .padding(.bottom, 32)
 
-            // Dots — hidden during lockout
+            // Dots - hidden during lockout
             if !isLockedOut {
                 PINDotsView(
                     enteredCount: pin.count,
@@ -80,17 +84,23 @@ struct LockScreenView: View {
                 .offset(x: shakeOffset)
                 .padding(.bottom, 12)
             } else {
-                Spacer().frame(height: 14 + 12) // dot height + padding
+                Spacer().frame(height: 14 + 12)
             }
 
-            // Error spacer
-            Text(" ")
-                .font(.caption)
-                .padding(.bottom, 8)
+            if let forgotPINErrorMessage {
+                Text(forgotPINErrorMessage)
+                    .font(.caption)
+                    .foregroundStyle(Color.vaultDestructive)
+                    .padding(.bottom, 8)
+            } else {
+                Text(" ")
+                    .font(.caption)
+                    .padding(.bottom, 8)
+            }
 
             Spacer().frame(height: 44)
 
-            // Keypad — disabled during lockout
+            // Keypad - disabled during lockout
             if !isLockedOut {
                 PINKeypadView(
                     onDigitTap: { digit in
@@ -105,11 +115,24 @@ struct LockScreenView: View {
                     biometricType: biometricType
                 )
 
-                Button("Use Recovery Code") {
-                    recoveryCodeInput = ""
-                    showRecoveryPrompt = true
+                VStack(spacing: 12) {
+                    Button("Use Recovery Code") {
+                        forgotPINErrorMessage = nil
+                        recoveryCodeInput = ""
+                        showRecoveryPrompt = true
+                    }
+                    .font(.callout)
+                    .disabled(isVerifying)
+
+                    if biometricType != .none {
+                        Button("Forgot PIN?") {
+                            handleForgotPIN()
+                        }
+                        .font(.callout)
+                        .foregroundStyle(Color.vaultAccent)
+                        .disabled(isVerifying)
+                    }
                 }
-                .font(.callout)
                 .padding(.top, 16)
             }
 
@@ -146,7 +169,7 @@ struct LockScreenView: View {
         } message: {
             Text(recoveryErrorMessage)
         }
-        .fullScreenCover(isPresented: $showPINReset) {
+        .fullScreenCover(isPresented: $showRecoveryPINReset) {
             PINSetupView(
                 authService: authService,
                 mode: .recoveryReset(recoveryCode: recoveryCodeInput),
@@ -157,6 +180,28 @@ struct LockScreenView: View {
                     checkLockout()
                 }
             )
+        }
+        .fullScreenCover(isPresented: $isShowingForgotPINSheet) {
+            NavigationStack {
+                PINSetupView(
+                    authService: authService,
+                    createTitle: "Reset your PIN",
+                    createSubtitle: "Use a new PIN to secure your vault",
+                    confirmTitle: "Confirm new PIN",
+                    confirmSubtitle: "Re-enter your new PIN",
+                    onPINConfirmed: { newPIN in
+                        try await authService.completeBiometricRecoveryReset(newPIN: newPIN)
+                    },
+                    onSuccess: {
+                        isShowingForgotPINSheet = false
+                        pin = ""
+                        pinLength = authService.getPINLength()
+                        forgotPINErrorMessage = nil
+                    },
+                    showsCloseButton: true
+                )
+                .navigationBarTitleDisplayMode(.inline)
+            }
         }
     }
 
@@ -184,6 +229,24 @@ struct LockScreenView: View {
         guard !isVerifying else { return }
         Task {
             _ = await authService.authenticateWithBiometrics()
+        }
+    }
+
+    private func handleForgotPIN() {
+        guard !isVerifying else { return }
+        guard biometricType != .none else {
+            forgotPINErrorMessage = "Biometric authentication is not available on this device."
+            return
+        }
+
+        forgotPINErrorMessage = nil
+        Task {
+            let success = await authService.beginBiometricRecoveryReset()
+            if success {
+                isShowingForgotPINSheet = true
+            } else {
+                forgotPINErrorMessage = "Biometric verification failed."
+            }
         }
     }
 
@@ -225,16 +288,18 @@ struct LockScreenView: View {
     }
 
     private func verifyRecoveryCode() {
-        guard !recoveryCodeInput.isEmpty else {
+        let trimmedCode = recoveryCodeInput.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedCode.isEmpty else {
             recoveryErrorMessage = "Please enter a recovery code."
             showRecoveryError = true
             return
         }
 
+        recoveryCodeInput = trimmedCode
         Task {
-            let isValid = await authService.verifyRecoveryCode(recoveryCodeInput)
+            let isValid = await authService.verifyRecoveryCode(trimmedCode)
             if isValid {
-                showPINReset = true
+                showRecoveryPINReset = true
             } else {
                 recoveryErrorMessage = "Invalid, missing, or already-used recovery code."
                 showRecoveryError = true
