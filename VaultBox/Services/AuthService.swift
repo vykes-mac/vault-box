@@ -113,8 +113,12 @@ class AuthService {
         settings.lockoutUntil = nil
         settings.recoveryCodeUsedAt = Date()
 
-        let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
-        try await encryptionService.storeMasterKey(masterKey)
+        // Preserve existing vault encryption key so previously encrypted
+        // items remain decryptable after a recovery-code PIN reset.
+        if await !encryptionService.hasMasterKey() {
+            let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
+            try await encryptionService.storeMasterKey(masterKey)
+        }
 
         try modelContext.save()
         isUnlocked = true
