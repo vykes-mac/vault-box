@@ -1,6 +1,13 @@
 import SwiftUI
 import SwiftData
 
+private enum SettingsDestination: String {
+    case breakInLog
+    case appIconPicker
+    case backupSettings
+    case wifiTransfer
+}
+
 struct SettingsView: View {
     let authService: AuthService
     let vaultService: VaultService
@@ -21,6 +28,7 @@ struct SettingsView: View {
     @State private var showRestoreAlert = false
     @State private var restoreMessage = ""
     @State private var showBreakInPermissionSetup = false
+    @SceneStorage("settingsActiveDestination") private var activeDestinationRawValue = ""
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -47,6 +55,7 @@ struct SettingsView: View {
                 if viewModel == nil {
                     viewModel = SettingsViewModel(authService: authService, vaultService: vaultService)
                 }
+                restoreLastDestinationIfNeeded()
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
@@ -90,6 +99,18 @@ struct SettingsView: View {
             .navigationDestination(isPresented: $showWiFiTransfer) {
                 WiFiTransferView(vaultService: vaultService, authService: authService)
             }
+            .onChange(of: showBreakInLog) { _, isPresented in
+                updatePersistedDestination(isPresented: isPresented, destination: .breakInLog)
+            }
+            .onChange(of: showAppIconPicker) { _, isPresented in
+                updatePersistedDestination(isPresented: isPresented, destination: .appIconPicker)
+            }
+            .onChange(of: showBackupSettings) { _, isPresented in
+                updatePersistedDestination(isPresented: isPresented, destination: .backupSettings)
+            }
+            .onChange(of: showWiFiTransfer) { _, isPresented in
+                updatePersistedDestination(isPresented: isPresented, destination: .wifiTransfer)
+            }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
                     viewModel?.clearBreakInLog(modelContext: modelContext)
@@ -103,6 +124,31 @@ struct SettingsView: View {
             } message: {
                 Text(restoreMessage)
             }
+        }
+    }
+
+    private func restoreLastDestinationIfNeeded() {
+        guard let destination = SettingsDestination(rawValue: activeDestinationRawValue) else { return }
+        switch destination {
+        case .breakInLog:
+            showBreakInLog = true
+        case .appIconPicker:
+            showAppIconPicker = true
+        case .backupSettings:
+            showBackupSettings = true
+        case .wifiTransfer:
+            showWiFiTransfer = true
+        }
+    }
+
+    private func updatePersistedDestination(isPresented: Bool, destination: SettingsDestination) {
+        if isPresented {
+            activeDestinationRawValue = destination.rawValue
+            return
+        }
+
+        if !showBreakInLog && !showAppIconPicker && !showBackupSettings && !showWiFiTransfer {
+            activeDestinationRawValue = ""
         }
     }
 
