@@ -85,6 +85,29 @@ struct AuthServiceTests {
         #expect(auth.isUnlocked == true)
     }
 
+    @Test("Change PIN preserves master key and updates PIN length")
+    @MainActor
+    func changePINPreservesMasterKey() async throws {
+        let (auth, encryption, context) = try makeServices()
+        try await auth.createPIN("1234")
+
+        let beforeKey = try await encryption.loadMasterKey()
+        let beforeKeyData = beforeKey.withUnsafeBytes { Data($0) }
+
+        try await auth.changePIN(old: "1234", new: "567890")
+
+        let settings = try context.fetch(FetchDescriptor<AppSettings>()).first!
+        #expect(settings.pinLength == 6)
+
+        let afterKey = try await encryption.loadMasterKey()
+        let afterKeyData = afterKey.withUnsafeBytes { Data($0) }
+        #expect(afterKeyData == beforeKeyData)
+
+        auth.lock()
+        #expect(await auth.verifyPIN("1234") == .failure)
+        #expect(await auth.verifyPIN("567890") == .success)
+    }
+
     @Test("Wrong PIN returns failure")
     @MainActor
     func wrongPINReturnsFailure() async throws {
