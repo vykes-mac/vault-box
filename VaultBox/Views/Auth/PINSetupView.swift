@@ -250,21 +250,23 @@ struct PINSetupView: View {
         if confirmPin == pin {
             isSubmitting = true
             dotState = .success
-            Haptics.pinCorrect()
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinSuccessDelay))
                 do {
                     if let onPINConfirmed {
                         try await onPINConfirmed(pin)
+                        Haptics.pinCorrect()
                         completeFlow(shouldCompleteInitialSetup: false)
                     } else {
                         switch mode {
                         case .initialSetup:
                             generatedRecoveryCode = try await authService.createPIN(pin)
+                            Haptics.pinCorrect()
                             hasCopiedRecoveryCode = false
                             showRecoveryCodeSheet = true
                         case .recoveryReset(let recoveryCode):
                             try await authService.resetPINUsingRecoveryCode(recoveryCode, newPIN: pin)
+                            Haptics.pinCorrect()
                             completeFlow(shouldCompleteInitialSetup: false)
                         }
                     }
