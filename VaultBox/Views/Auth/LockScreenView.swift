@@ -140,7 +140,11 @@ struct LockScreenView: View {
                 .frame(maxHeight: .infinity)
         }
         .padding(.horizontal, Constants.standardPadding)
-        .background(Color.vaultBackground.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background {
+            Color.vaultBackground
+                .ignoresSafeArea()
+        }
         .onAppear {
             onPresented?()
             pinLength = authService.getPINLength()

@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 enum PINSetupMode {
     case initialSetup
@@ -26,6 +27,7 @@ struct PINSetupView: View {
     @State private var isSubmitting = false
     @State private var generatedRecoveryCode: String?
     @State private var showRecoveryCodeSheet = false
+    @State private var hasCopiedRecoveryCode = false
 
     @Environment(\.dismiss) private var dismiss
 
@@ -193,6 +195,17 @@ struct PINSetupView: View {
                 .frame(maxWidth: .infinity)
                 .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 12))
 
+            Button {
+                copyRecoveryCodeToClipboard()
+            } label: {
+                Label(
+                    hasCopiedRecoveryCode ? "Copied" : "Copy Code",
+                    systemImage: hasCopiedRecoveryCode ? "checkmark.circle.fill" : "doc.on.doc"
+                )
+            }
+            .buttonStyle(.bordered)
+            .tint(hasCopiedRecoveryCode ? .green : Color.vaultAccent)
+
             Button("I Saved This Code") {
                 completeFlow(shouldCompleteInitialSetup: true)
             }
@@ -245,6 +258,7 @@ struct PINSetupView: View {
                         switch mode {
                         case .initialSetup:
                             generatedRecoveryCode = try await authService.createPIN(pin)
+                            hasCopiedRecoveryCode = false
                             showRecoveryCodeSheet = true
                         case .recoveryReset(let recoveryCode):
                             try await authService.resetPINUsingRecoveryCode(recoveryCode, newPIN: pin)
@@ -286,6 +300,7 @@ struct PINSetupView: View {
             if shouldCompleteInitialSetup {
                 try authService.completeInitialSetup()
             }
+            hasCopiedRecoveryCode = false
             showRecoveryCodeSheet = false
             isSubmitting = false
             onSuccess?()
@@ -295,6 +310,18 @@ struct PINSetupView: View {
             dotState = .error
             errorMessage = error.localizedDescription
             isSubmitting = false
+        }
+    }
+
+    private func copyRecoveryCodeToClipboard() {
+        guard let generatedRecoveryCode else { return }
+
+        UIPasteboard.general.string = generatedRecoveryCode
+        hasCopiedRecoveryCode = true
+
+        Task {
+            try? await Task.sleep(for: .seconds(1.5))
+            hasCopiedRecoveryCode = false
         }
     }
 }

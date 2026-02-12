@@ -53,6 +53,10 @@ func resolveDeferredPostSetupPaywall(shouldDefer: Bool) -> (showPaywall: Bool, s
     return (true, false)
 }
 
+func shouldRenderMainShell(for route: AppRootRoute) -> Bool {
+    route == .main || route == .lock
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -88,18 +92,26 @@ struct ContentView: View {
         ZStack {
             Group {
                 if let authService, let vaultService, let currentRoute {
-                    switch currentRoute {
-                    case .onboarding:
-                        OnboardingView(authService: authService)
-                    case .setupPIN:
-                        PINSetupView(authService: authService)
-                    case .lock:
-                        LockScreenView(
-                            authService: authService,
-                            onPresented: handleLockScreenPresented
-                        )
-                    case .main:
+                    if shouldRenderMainShell(for: currentRoute) {
                         mainTabView(authService: authService, vaultService: vaultService)
+                            .overlay {
+                                if currentRoute == .lock {
+                                    ZStack {
+                                        Color.vaultBackground
+                                            .ignoresSafeArea()
+                                        LockScreenView(
+                                            authService: authService,
+                                            onPresented: handleLockScreenPresented
+                                        )
+                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                                    }
+                                    .ignoresSafeArea()
+                                }
+                            }
+                    } else if currentRoute == .onboarding {
+                        OnboardingView(authService: authService)
+                    } else {
+                        PINSetupView(authService: authService)
                     }
                 } else {
                     ProgressView()

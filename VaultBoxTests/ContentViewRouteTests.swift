@@ -34,5 +34,16 @@ struct ContentViewRouteTests {
         #expect(resolution.showPaywall)
         #expect(!resolution.shouldDefer)
     }
-}
 
+    @Test("Main shell is preserved for lock and main routes")
+    func mainShellIsPreservedForLockAndMain() {
+        #expect(shouldRenderMainShell(for: .main))
+        #expect(shouldRenderMainShell(for: .lock))
+    }
+
+    @Test("Main shell is not used for onboarding and setup routes")
+    func mainShellIsNotUsedForSetupFlow() {
+        #expect(!shouldRenderMainShell(for: .onboarding))
+        #expect(!shouldRenderMainShell(for: .setupPIN))
+    }
+}
