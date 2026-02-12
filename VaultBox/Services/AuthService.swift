@@ -140,17 +140,18 @@ class AuthService {
         }
 
         let settings = try loadSettings()
-        let oldSaltData = Data(base64Encoded: settings.pinSalt) ?? Data()
         let newSalt = await encryptionService.generateSalt()
         let newHash = await encryptionService.hashPIN(new, salt: newSalt)
 
-        try await encryptionService.rotateMasterKey(
-            oldPIN: old, oldSalt: oldSaltData,
-            newPIN: new, newSalt: newSalt
-        )
+        // Keep existing master key so previously encrypted items remain decryptable.
+        if await !encryptionService.hasMasterKey() {
+            let masterKey = await encryptionService.deriveMasterKey(from: new, salt: newSalt)
+            try await encryptionService.storeMasterKey(masterKey)
+        }
 
         settings.pinHash = newHash
         settings.pinSalt = newSalt.base64EncodedString()
+        settings.pinLength = new.count
         try modelContext.save()
     }
 
@@ -259,8 +260,12 @@ class AuthService {
         let settings = try loadSettings()
         let newSalt = await encryptionService.generateSalt()
         let newHash = await encryptionService.hashPIN(newPIN, salt: newSalt)
-        let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
-        try await encryptionService.storeMasterKey(masterKey)
+        // Preserve the existing master key for provisioned users so previously
+        // encrypted vault data remains decryptable after PIN recovery reset.
+        if await !encryptionService.hasMasterKey() {
+            let masterKey = await encryptionService.deriveMasterKey(from: newPIN, salt: newSalt)
+            try await encryptionService.storeMasterKey(masterKey)
+        }
 
         settings.pinHash = newHash
         settings.pinSalt = newSalt.base64EncodedString()
