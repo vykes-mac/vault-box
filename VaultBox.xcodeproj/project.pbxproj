@@ -66,6 +66,9 @@
 		D2E3F4A5B6C7081929304A5B /* VisionAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */; };
 		D3CC7D2809F750D3F2737FFA /* AppIconPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */; };
 		D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED3E42B8DBCF2065727C874 /* EncryptionService.swift */; };
+		FB01A1B2C3D4E5F600000002 /* FeatureBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */; };
+		FB01A1B2C3D4E5F600000004 /* FeatureBoardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */; };
+		FB01A1B2C3D4E5F600000006 /* FeatureRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */; };
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
 		E5A6B48B1DF67069311D8E53 /* CloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470321758F2AECDDF122BCBF /* CloudService.swift */; };
 		E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */; };
@@ -159,6 +162,9 @@
 		DA42777D37B992122D9CF537 /* BreakInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInService.swift; sourceTree = "<group>"; };
 		E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardModels.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardService.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsView.swift; sourceTree = "<group>"; };
 		F0EC25525A796155921B2DB4 /* PINKeypadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINKeypadView.swift; sourceTree = "<group>"; };
 		F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
@@ -251,6 +257,7 @@
 				DA42777D37B992122D9CF537 /* BreakInService.swift */,
 				470321758F2AECDDF122BCBF /* CloudService.swift */,
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
+				FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */,
 				BB11CC22DD33EE44FF550A01 /* HTTPParser.swift */,
 				B392794C825D7F4163AAE13A /* PanicGestureService.swift */,
 				3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */,
@@ -290,6 +297,7 @@
 				B7023E56BE3EEDDB5A4C1276 /* Album.swift */,
 				816F0C902D0934CACAF3E697 /* AppSettings.swift */,
 				D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */,
+				FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */,
 				E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */,
 			);
 			path = Models;
@@ -302,6 +310,7 @@
 				939D7F9B442409D15296F28E /* BackupSettingsView.swift */,
 				A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */,
 				3FC3D21281CAA279B031A721 /* BreakInLogView.swift */,
+				FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */,
 				BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */,
 				7930F7D01A3C2BBE27388328 /* SecuritySettingsView.swift */,
 				0393F6655D2D2937C94CC92D /* SettingsView.swift */,
@@ -536,6 +545,9 @@
 				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */,
+				FB01A1B2C3D4E5F600000002 /* FeatureBoardModels.swift in Sources */,
+				FB01A1B2C3D4E5F600000004 /* FeatureBoardService.swift in Sources */,
+				FB01A1B2C3D4E5F600000006 /* FeatureRequestsView.swift in Sources */,
 				C3D4E5F60A1B2C3D4E5F6072 /* ImportView.swift in Sources */,
 				071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */,
 				A2B3C4D5E6F70819203A4B5C /* LockScreenView.swift in Sources */,

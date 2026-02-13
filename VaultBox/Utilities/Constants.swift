@@ -70,6 +70,8 @@ enum Constants {
     // MARK: - Cloud
 
     static let cloudRecordType = "EncryptedVaultItem"
+    static let featureRequestRecordType = "FeatureRequest"
+    static let featureVoteRecordType = "FeatureVote"
 
     // MARK: - Wi-Fi Transfer
 
