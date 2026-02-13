@@ -278,7 +278,8 @@ private extension FeatureBoardService {
         do {
             featureRecord = try await database.record(for: featureRecordID)
         } catch let error as CKError where error.code == .unknownItem {
-            throw FeatureBoardError.invalidFeatureID
+            // Feature was deleted — nothing to adjust; quietly succeed.
+            return
         } catch {
             throw error
         }
