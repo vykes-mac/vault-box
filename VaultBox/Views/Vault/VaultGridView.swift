@@ -40,6 +40,8 @@ struct VaultGridView: View {
     @State private var showPaywall = false
     @State private var searchText = ""
     @State private var isImportingDocuments = false
+    @State private var showDocumentDeletePrompt = false
+    @State private var pendingDocumentURLs: [URL] = []
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
@@ -172,6 +174,19 @@ struct VaultGridView: View {
                 } onCancel: {
                     showDocumentPicker = false
                 }
+            }
+            .alert(
+                "Delete \(pendingDocumentURLs.count) original\(pendingDocumentURLs.count == 1 ? "" : "s") from Files?",
+                isPresented: $showDocumentDeletePrompt
+            ) {
+                Button("Delete", role: .destructive) {
+                    deleteOriginalDocuments()
+                }
+                Button("Keep", role: .cancel) {
+                    pendingDocumentURLs = []
+                }
+            } message: {
+                Text("The imported documents are safely encrypted in your vault.")
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
@@ -531,9 +546,11 @@ struct VaultGridView: View {
         isImportingDocuments = true
         Task {
             var importedItems: [VaultItem] = []
+            var successfulURLs: [URL] = []
             for url in urls {
                 if let item = try? await vaultService.importDocument(at: url, album: nil, isDecoyMode: isDecoyMode) {
                     importedItems.append(item)
+                    successfulURLs.append(url)
                 }
             }
             // Queue vision analysis so documents get smart-tagged (e.g. "document" smart album)
@@ -541,6 +558,23 @@ struct VaultGridView: View {
                 vaultService.queueVisionAnalysis(for: importedItems)
             }
             isImportingDocuments = false
+
+            if !successfulURLs.isEmpty {
+                pendingDocumentURLs = successfulURLs
+                showDocumentDeletePrompt = true
+            }
+        }
+    }
+
+    private func deleteOriginalDocuments() {
+        let urls = pendingDocumentURLs
+        pendingDocumentURLs = []
+        Task {
+            for url in urls {
+                let accessing = url.startAccessingSecurityScopedResource()
+                defer { if accessing { url.stopAccessingSecurityScopedResource() } }
+                try? FileManager.default.removeItem(at: url)
+            }
         }
     }
 
