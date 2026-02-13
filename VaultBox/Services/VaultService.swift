@@ -315,12 +315,20 @@ class VaultService {
         let encryptedData = try await encryptionService.encryptData(data)
         try encryptedData.write(to: fileURL)
 
+        // Generate thumbnail for documents (PDF first page, image-based docs)
+        var encryptedThumbnail: Data?
+        if let thumbnail = DocumentThumbnailService.generateThumbnail(from: data, filename: filename),
+           let jpegData = thumbnail.jpegData(compressionQuality: Constants.thumbnailJPEGQuality) {
+            encryptedThumbnail = try? await encryptionService.encryptData(jpegData)
+        }
+
         let item = VaultItem(
             type: .document,
             originalFilename: filename,
             encryptedFileRelativePath: relativePath,
             fileSize: Int64(data.count)
         )
+        item.encryptedThumbnailData = encryptedThumbnail
         item.album = targetAlbum
 
         modelContext.insert(item)
@@ -375,6 +383,56 @@ class VaultService {
         try decryptedData.write(to: tempURL)
 
         return tempURL
+    }
+
+    /// Decrypts a document to a temporary file URL for viewing.
+    /// Caller is responsible for deleting the temp file when done.
+    func decryptDocumentURL(for item: VaultItem) async throws -> URL {
+        let fileURL = try await buildFileURL(for: item)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw VaultError.fileNotFound
+        }
+
+        let decryptedData = try await encryptionService.decryptFile(at: fileURL)
+
+        let ext = (item.originalFilename as NSString).pathExtension
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(UUID()).\(ext.isEmpty ? "dat" : ext)")
+        try decryptedData.write(to: tempURL)
+
+        return tempURL
+    }
+
+    // MARK: - Custom Album Cover
+
+    /// Encrypts a cover image (resized to thumbnail size) for an album.
+    func encryptAlbumCoverImage(_ imageData: Data) async throws -> Data {
+        guard let image = UIImage(data: imageData) else {
+            throw VaultError.importFailed
+        }
+        let maxSize = Constants.thumbnailMaxSize
+        let thumbnail = image.preparingThumbnail(of: coverThumbnailSize(for: image.size, maxSize: maxSize)) ?? image
+        guard let jpegData = thumbnail.jpegData(compressionQuality: Constants.thumbnailJPEGQuality) else {
+            throw VaultError.importFailed
+        }
+        return try await encryptionService.encryptData(jpegData)
+    }
+
+    /// Decrypts a custom album cover image.
+    func decryptAlbumCoverImage(_ encryptedData: Data) async throws -> UIImage {
+        let decryptedData = try await encryptionService.decryptData(encryptedData)
+        guard let image = UIImage(data: decryptedData) else {
+            throw VaultError.thumbnailNotFound
+        }
+        return image
+    }
+
+    private func coverThumbnailSize(for originalSize: CGSize, maxSize: CGSize) -> CGSize {
+        let widthRatio = maxSize.width / originalSize.width
+        let heightRatio = maxSize.height / originalSize.height
+        let scale = max(widthRatio, heightRatio)
+        return CGSize(width: originalSize.width * scale, height: originalSize.height * scale)
     }
 
     // MARK: - Organize Methods
@@ -447,13 +505,14 @@ class VaultService {
         guard let visionService else { return }
 
         let inputs = items.compactMap { item -> VisionAnalysisInput? in
-            guard item.type == .photo else { return nil }
+            guard item.type == .photo || item.type == .document else { return nil }
             return VisionAnalysisInput(
                 itemID: item.id,
                 encryptedFileRelativePath: item.encryptedFileRelativePath,
                 pixelWidth: item.pixelWidth,
                 pixelHeight: item.pixelHeight,
-                itemType: item.type.rawValue
+                itemType: item.type.rawValue,
+                originalFilename: item.originalFilename
             )
         }
 

@@ -14,6 +14,7 @@ enum VaultFilter: String, CaseIterable {
     case all = "All"
     case photos = "Photos"
     case videos = "Videos"
+    case documents = "Documents"
     case favorites = "Favorites"
 }
 
@@ -31,11 +32,14 @@ struct VaultGridView: View {
     @State private var isSelectionMode = false
     @State private var selectedItems: Set<UUID> = []
     @State private var showImporter = false
+    @State private var showDocumentPicker = false
     @State private var detailItem: VaultItem?
+    @State private var documentDetailItem: VaultItem?
     @State private var showDeleteConfirm = false
     @State private var showAlbumPicker = false
     @State private var showPaywall = false
     @State private var searchText = ""
+    @State private var isImportingDocuments = false
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
@@ -74,6 +78,7 @@ struct VaultGridView: View {
         case .all: break
         case .photos: items = items.filter { $0.type == .photo }
         case .videos: items = items.filter { $0.type == .video }
+        case .documents: items = items.filter { $0.type == .document }
         case .favorites: items = items.filter { $0.isFavorite }
         }
 
@@ -157,11 +162,23 @@ struct VaultGridView: View {
                     onDismiss: { showImporter = false }
                 )
             }
+            .fullScreenCover(item: $documentDetailItem) { item in
+                DocumentDetailView(item: item, vaultService: vaultService)
+            }
+            .sheet(isPresented: $showDocumentPicker) {
+                DocumentPickerView { urls in
+                    showDocumentPicker = false
+                    importDocuments(urls)
+                } onCancel: {
+                    showDocumentPicker = false
+                }
+            }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
                 detailItem = nil
+                documentDetailItem = nil
             }
         }
     }
@@ -262,13 +279,29 @@ struct VaultGridView: View {
 
     private func thumbnailCell(for item: VaultItem) -> some View {
         ZStack {
-            // Thumbnail image
+            // Thumbnail image or document placeholder
             if let image = thumbnailCache[item.id] {
                 Image(uiImage: image)
                     .resizable()
                     .aspectRatio(contentMode: .fill)
                     .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                     .clipped()
+            } else if item.type == .document {
+                // Document placeholder with icon
+                Color.vaultSurface
+                    .overlay(
+                        VStack(spacing: 4) {
+                            Image(systemName: DocumentThumbnailService.placeholderIcon(for: item.originalFilename))
+                                .font(.title2)
+                                .foregroundStyle(Color.vaultAccent.opacity(0.6))
+                            Text(item.originalFilename)
+                                .font(.system(size: 8))
+                                .foregroundStyle(Color.vaultTextSecondary)
+                                .lineLimit(2)
+                                .multilineTextAlignment(.center)
+                                .padding(.horizontal, 4)
+                        }
+                    )
             } else {
                 Color.vaultSurface
             }
@@ -303,6 +336,24 @@ struct VaultGridView: View {
                             .background(.black.opacity(0.6))
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                             .padding(4)
+                    }
+                }
+            }
+
+            // Document type badge (bottom-left)
+            if item.type == .document {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Image(systemName: "doc.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 4)
+                            .padding(.vertical, 2)
+                            .background(.black.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 2))
+                            .padding(4)
+                        Spacer()
                     }
                 }
             }
@@ -381,11 +432,27 @@ struct VaultGridView: View {
         }
 
         ToolbarItem(placement: .topBarTrailing) {
-            Button {
-                if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
-                    showPaywall = true
-                } else {
-                    showImporter = true
+            Menu {
+                Button {
+                    if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
+                        showPaywall = true
+                    } else {
+                        showImporter = true
+                    }
+                } label: {
+                    Label("Import Photos & Videos", systemImage: "photo.on.rectangle.angled")
+                }
+
+                Button {
+                    if purchaseService.isPremiumRequired(for: .documentStorage) {
+                        showPaywall = true
+                    } else if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
+                        showPaywall = true
+                    } else {
+                        showDocumentPicker = true
+                    }
+                } label: {
+                    Label("Import Documents", systemImage: "doc.badge.plus")
                 }
             } label: {
                 Image(systemName: "plus")
@@ -409,6 +476,8 @@ struct VaultGridView: View {
                 Haptics.itemSelected()
                 selectedItems.insert(item.id)
             }
+        } else if item.type == .document {
+            documentDetailItem = item
         } else {
             detailItem = item
         }
@@ -454,6 +523,24 @@ struct VaultGridView: View {
             try? await vaultService.moveItems(items, to: album)
             selectedItems.removeAll()
             isSelectionMode = false
+        }
+    }
+
+    private func importDocuments(_ urls: [URL]) {
+        guard !urls.isEmpty else { return }
+        isImportingDocuments = true
+        Task {
+            var importedItems: [VaultItem] = []
+            for url in urls {
+                if let item = try? await vaultService.importDocument(at: url, album: nil, isDecoyMode: isDecoyMode) {
+                    importedItems.append(item)
+                }
+            }
+            // Queue vision analysis so documents get smart-tagged (e.g. "document" smart album)
+            if !importedItems.isEmpty {
+                vaultService.queueVisionAnalysis(for: importedItems)
+            }
+            isImportingDocuments = false
         }
     }
 

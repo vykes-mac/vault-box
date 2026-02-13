@@ -20,6 +20,8 @@ struct VaultBoxApp: App {
     @State private var purchaseService = PurchaseService()
     @State private var privacyShield = AppPrivacyShield()
     @State private var themeColorScheme: ColorScheme?
+    @State private var pendingShareURL: URL?
+    @State private var showSharedPhotoViewer = false
 
     init() {
         do {
@@ -27,7 +29,8 @@ struct VaultBoxApp: App {
                 VaultItem.self,
                 Album.self,
                 BreakInAttempt.self,
-                AppSettings.self
+                AppSettings.self,
+                SharedItem.self
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
@@ -54,12 +57,43 @@ struct VaultBoxApp: App {
                 .onAppear {
                     purchaseService.configure()
                     loadTheme()
+                    cleanupExpiredShares()
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
                     loadTheme()
                 }
+                .onOpenURL { url in
+                    pendingShareURL = url
+                    showSharedPhotoViewer = true
+                }
+                .fullScreenCover(isPresented: $showSharedPhotoViewer) {
+                    if let url = pendingShareURL,
+                       let parsed = SharingService.parseShareURL(url) {
+                        SharedPhotoViewer(
+                            shareID: parsed.shareID,
+                            keyBase64URL: parsed.keyBase64URL,
+                            sharingService: SharingService()
+                        )
+                    }
+                }
         }
         .modelContainer(modelContainer)
+    }
+
+    private func cleanupExpiredShares() {
+        Task {
+            let sharingService = SharingService()
+            await sharingService.cleanupExpiredShares()
+
+            // Also clean up local SharedItem records that have expired
+            let context = ModelContext(modelContainer)
+            let descriptor = FetchDescriptor<SharedItem>()
+            if let items = try? context.fetch(descriptor) {
+                for item in items where item.isExpired && !item.isRevoked {
+                    // Mark as expired locally; CloudKit cleanup handled by cleanupExpiredShares above
+                }
+            }
+        }
     }
 
     private func loadTheme() {

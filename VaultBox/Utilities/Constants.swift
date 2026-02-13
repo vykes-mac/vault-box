@@ -100,6 +100,23 @@ enum Constants {
     static let visionSceneClassificationMaxLabels: Int = 8
     static let visionSceneClassificationFallbackMaxDimension: CGFloat = 1024
 
+    // MARK: - Time-Limited Sharing
+
+    static let sharedPhotoRecordType = "SharedPhoto"
+    static let shareURLScheme = "vaultbox"
+    static let shareURLHost = "shared"
+
+    /// Duration options for time-limited sharing (in seconds).
+    static let shareDurations: [(label: String, seconds: TimeInterval)] = [
+        ("1 Hour", 3600),
+        ("24 Hours", 86400),
+        ("7 Days", 604800)
+    ]
+
+    // MARK: - Document Storage
+
+    static let maxDocumentImportBytes = 100 * 1024 * 1024 // 100 MB
+
     // MARK: - File Storage
 
     static let vaultDataDirectory = "VaultData"

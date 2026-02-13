@@ -136,7 +136,8 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
             if isVideoUpload {
                 _ = try await vaultService.importVideo(at: tempURL, filename: filename, album: nil)
             } else {
-                _ = try await vaultService.importDocument(at: tempURL, album: nil)
+                let item = try await vaultService.importDocument(at: tempURL, album: nil)
+                vaultService.queueVisionAnalysis(for: [item])
             }
         }
     }

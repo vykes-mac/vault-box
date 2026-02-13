@@ -76,6 +76,15 @@
 		FB01A1B2C3D4E5F600000002 /* FeatureBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */; };
 		FB01A1B2C3D4E5F600000004 /* FeatureBoardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */; };
 		FB01A1B2C3D4E5F600000006 /* FeatureRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */; };
+		DD0100000000000000010002 /* AlbumCoverPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000010001 /* AlbumCoverPickerView.swift */; };
+		DD0100000000000000020002 /* DocumentPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000020001 /* DocumentPickerView.swift */; };
+		DD0100000000000000030002 /* DocumentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000030001 /* DocumentDetailView.swift */; };
+		DD0100000000000000040002 /* DocumentThumbnailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000040001 /* DocumentThumbnailService.swift */; };
+		DD0100000000000000050002 /* SharedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000050001 /* SharedItem.swift */; };
+		DD0100000000000000060002 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000060001 /* SharingService.swift */; };
+		DD0100000000000000070002 /* ShareConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000070001 /* ShareConfigView.swift */; };
+		DD0100000000000000080002 /* SharedItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000080001 /* SharedItemsView.swift */; };
+		DD0100000000000000090002 /* SharedPhotoViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000090001 /* SharedPhotoViewer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -171,6 +180,15 @@
 		FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsView.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxUITests.swift; sourceTree = "<group>"; };
+		DD0100000000000000010001 /* AlbumCoverPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCoverPickerView.swift; sourceTree = "<group>"; };
+		DD0100000000000000020001 /* DocumentPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerView.swift; sourceTree = "<group>"; };
+		DD0100000000000000030001 /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
+		DD0100000000000000040001 /* DocumentThumbnailService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentThumbnailService.swift; sourceTree = "<group>"; };
+		DD0100000000000000050001 /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItem.swift; sourceTree = "<group>"; };
+		DD0100000000000000060001 /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
+		DD0100000000000000070001 /* ShareConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareConfigView.swift; sourceTree = "<group>"; };
+		DD0100000000000000080001 /* SharedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItemsView.swift; sourceTree = "<group>"; };
+		DD0100000000000000090001 /* SharedPhotoViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPhotoViewer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -258,11 +276,13 @@
 				A1D0E7F2C3B4A59687766553 /* BreakInPermissionService.swift */,
 				DA42777D37B992122D9CF537 /* BreakInService.swift */,
 				470321758F2AECDDF122BCBF /* CloudService.swift */,
+				DD0100000000000000040001 /* DocumentThumbnailService.swift */,
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
 				FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */,
 				BB11CC22DD33EE44FF550A01 /* HTTPParser.swift */,
 				B392794C825D7F4163AAE13A /* PanicGestureService.swift */,
 				3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */,
+				DD0100000000000000060001 /* SharingService.swift */,
 				A1B2C3D4E5F6071829304A5B /* VaultService.swift */,
 				C1D2E3F4A5B60718293A4B5C /* VisionAnalysisService.swift */,
 				BB11CC22DD33EE44FF550A02 /* WiFiTransferHTML.swift */,
@@ -289,9 +309,20 @@
 				1C67CB70A87A01D3BDDD2D9B /* Components */,
 				04E556EF62C75DC58BE05D8E /* Paywall */,
 				939892434EAAB162892D3F7C /* Settings */,
+				DD01000000000000000A0001 /* Sharing */,
 				BBCA9D0EF8AB682AD00164CA /* Vault */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		DD01000000000000000A0001 /* Sharing */ = {
+			isa = PBXGroup;
+			children = (
+				DD0100000000000000070001 /* ShareConfigView.swift */,
+				DD0100000000000000080001 /* SharedItemsView.swift */,
+				DD0100000000000000090001 /* SharedPhotoViewer.swift */,
+			);
+			path = Sharing;
 			sourceTree = "<group>";
 		};
 		90940B6A470BDAF89BA024AF /* Models */ = {
@@ -301,6 +332,7 @@
 				816F0C902D0934CACAF3E697 /* AppSettings.swift */,
 				D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */,
 				FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */,
+				DD0100000000000000050001 /* SharedItem.swift */,
 				E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */,
 			);
 			path = Models;
@@ -346,8 +378,11 @@
 		BBCA9D0EF8AB682AD00164CA /* Vault */ = {
 			isa = PBXGroup;
 			children = (
+				DD0100000000000000010001 /* AlbumCoverPickerView.swift */,
 				B2C3D4E5F6081930415C7D8E /* AlbumGridView.swift */,
 				AA11BB22CC33DD44EE55FF11 /* CameraView.swift */,
+				DD0100000000000000030001 /* DocumentDetailView.swift */,
+				DD0100000000000000020001 /* DocumentPickerView.swift */,
 				D4E5F60A1B2C3D4E5F60728A /* ImportView.swift */,
 				D5A4E6F71829304152637B8E /* PhotoDetailView.swift */,
 				E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */,
@@ -590,6 +625,15 @@
 				BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */,
 				BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */,
 				CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */,
+				DD0100000000000000010002 /* AlbumCoverPickerView.swift in Sources */,
+				DD0100000000000000020002 /* DocumentPickerView.swift in Sources */,
+				DD0100000000000000030002 /* DocumentDetailView.swift in Sources */,
+				DD0100000000000000040002 /* DocumentThumbnailService.swift in Sources */,
+				DD0100000000000000050002 /* SharedItem.swift in Sources */,
+				DD0100000000000000060002 /* SharingService.swift in Sources */,
+				DD0100000000000000070002 /* ShareConfigView.swift in Sources */,
+				DD0100000000000000080002 /* SharedItemsView.swift in Sources */,
+				DD0100000000000000090002 /* SharedPhotoViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

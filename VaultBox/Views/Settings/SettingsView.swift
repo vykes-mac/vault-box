@@ -44,6 +44,7 @@ struct SettingsView: View {
                     appearanceSection
                     backupSection
                     transferSection
+                    sharingSection
                     privacySection
                     feedbackSection
                 }
@@ -429,6 +430,18 @@ struct SettingsView: View {
                             .foregroundStyle(Color.vaultTextSecondary)
                     }
                 }
+            }
+        }
+    }
+
+    // MARK: - Sharing Section
+
+    private var sharingSection: some View {
+        Section("Sharing") {
+            NavigationLink {
+                SharedItemsView(sharingService: SharingService())
+            } label: {
+                Label("Shared Items", systemImage: "link.circle")
             }
         }
     }

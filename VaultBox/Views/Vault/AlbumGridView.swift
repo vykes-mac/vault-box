@@ -53,12 +53,17 @@ struct AlbumGridView: View {
     @Query private var allItems: [VaultItem]
     @Environment(\.modelContext) private var modelContext
 
+    @Environment(PurchaseService.self) private var purchaseService
+
     @State private var showCreateAlert = false
     @State private var newAlbumName = ""
     @State private var albumToRename: Album?
     @State private var renameText = ""
     @State private var albumToDelete: Album?
     @State private var coverCache: [UUID: UIImage] = [:]
+    @State private var albumForCoverPicker: Album?
+    @State private var showPaywall = false
+    @State private var coverRefreshToken = 0
 
     private var visibleAlbums: [Album] {
         if isDecoyMode {
@@ -149,6 +154,19 @@ struct AlbumGridView: View {
             } message: {
                 Text("Items in this album will be moved to All Items, or deleted permanently.")
             }
+            .sheet(item: $albumForCoverPicker) { album in
+                AlbumCoverPickerView(
+                    album: album,
+                    vaultService: vaultService
+                ) {
+                    // Invalidate cache and bump token to re-trigger .task(id:)
+                    coverCache[album.id] = nil
+                    coverRefreshToken += 1
+                }
+            }
+            .sheet(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
+            }
         }
     }
 
@@ -237,6 +255,16 @@ struct AlbumGridView: View {
                         Label("Rename", systemImage: "pencil")
                     }
 
+                    Button {
+                        if purchaseService.isPremiumRequired(for: .customAlbumCovers) {
+                            showPaywall = true
+                        } else {
+                            albumForCoverPicker = album
+                        }
+                    } label: {
+                        Label("Set Cover", systemImage: "photo.on.rectangle")
+                    }
+
                     Divider()
 
                     Button(role: .destructive) {
@@ -296,7 +324,7 @@ struct AlbumGridView: View {
                 .font(.caption)
                 .foregroundStyle(Color.vaultTextSecondary)
         }
-        .task {
+        .task(id: coverRefreshToken) {
             if let albumID {
                 await loadCover(for: albumID)
             }
@@ -309,7 +337,13 @@ struct AlbumGridView: View {
         guard coverCache[albumID] == nil else { return }
         guard let album = albums.first(where: { $0.id == albumID }) else { return }
 
-        // Use explicit cover item, or first item in album
+        // Priority: custom cover image > explicit cover item > first item in album
+        if let customData = album.customCoverImageData,
+           let image = try? await vaultService.decryptAlbumCoverImage(customData) {
+            coverCache[albumID] = image
+            return
+        }
+
         let coverSource = album.coverItem ?? album.items?.first
         guard let source = coverSource else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: source) else { return }
@@ -386,6 +420,7 @@ struct AlbumDetailView: View {
     @State private var filter: VaultFilter = .all
     @State private var thumbnailCache: [UUID: UIImage] = [:]
     @State private var detailItem: VaultItem?
+    @State private var documentDetailItem: VaultItem?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -417,6 +452,7 @@ struct AlbumDetailView: View {
         case .all: break
         case .photos: items = items.filter { $0.type == .photo }
         case .videos: items = items.filter { $0.type == .video }
+        case .documents: items = items.filter { $0.type == .document }
         case .favorites: items = items.filter { $0.isFavorite }
         }
 
@@ -444,7 +480,11 @@ struct AlbumDetailView: View {
                         ForEach(displayedItems) { item in
                             thumbnailCell(for: item)
                                 .onTapGesture {
-                                    detailItem = item
+                                    if item.type == .document {
+                                        documentDetailItem = item
+                                    } else {
+                                        detailItem = item
+                                    }
                                 }
                         }
                     }
@@ -485,8 +525,12 @@ struct AlbumDetailView: View {
                 vaultService: vaultService
             )
         }
+        .fullScreenCover(item: $documentDetailItem) { item in
+            DocumentDetailView(item: item, vaultService: vaultService)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             detailItem = nil
+            documentDetailItem = nil
         }
     }
 
@@ -578,6 +622,7 @@ struct SmartAlbumDetailView: View {
 
     @State private var thumbnailCache: [UUID: UIImage] = [:]
     @State private var detailItem: VaultItem?
+    @State private var documentDetailItem: VaultItem?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -611,7 +656,11 @@ struct SmartAlbumDetailView: View {
                         ForEach(matchingItems) { item in
                             thumbnailCell(for: item)
                                 .onTapGesture {
-                                    detailItem = item
+                                    if item.type == .document {
+                                        documentDetailItem = item
+                                    } else {
+                                        detailItem = item
+                                    }
                                 }
                         }
                     }
@@ -627,15 +676,20 @@ struct SmartAlbumDetailView: View {
         .navigationTitle(smartAlbumType.rawValue)
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(item: $detailItem) { item in
-            let index = matchingItems.firstIndex(where: { $0.id == item.id }) ?? 0
+            let nonDocumentItems = matchingItems.filter { $0.type != .document }
+            let index = nonDocumentItems.firstIndex(where: { $0.id == item.id }) ?? 0
             PhotoDetailView(
-                items: matchingItems,
+                items: nonDocumentItems,
                 initialIndex: index,
                 vaultService: vaultService
             )
         }
+        .fullScreenCover(item: $documentDetailItem) { item in
+            DocumentDetailView(item: item, vaultService: vaultService)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             detailItem = nil
+            documentDetailItem = nil
         }
     }
 
@@ -665,6 +719,22 @@ struct SmartAlbumDetailView: View {
                             .background(.black.opacity(0.6))
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                             .padding(4)
+                    }
+                }
+            }
+
+            if item.type == .document {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Image(systemName: "doc.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.white)
+                            .padding(4)
+                            .background(.black.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 2))
+                            .padding(4)
+                        Spacer()
                     }
                 }
             }
