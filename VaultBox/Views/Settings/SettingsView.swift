@@ -27,6 +27,7 @@ struct SettingsView: View {
     @State private var hasCopiedRecoveryCode = false
     @State private var showRecoveryActionAlert = false
     @State private var recoveryActionMessage = ""
+    @State private var showFeatureRequests = false
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -44,6 +45,7 @@ struct SettingsView: View {
                     backupSection
                     transferSection
                     privacySection
+                    feedbackSection
                 }
                 storageSection
                 aboutSection
@@ -95,6 +97,9 @@ struct SettingsView: View {
             }
             .navigationDestination(isPresented: $showWiFiTransfer) {
                 WiFiTransferView(vaultService: vaultService, authService: authService)
+            }
+            .navigationDestination(isPresented: $showFeatureRequests) {
+                FeatureRequestsView()
             }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
@@ -462,6 +467,25 @@ struct SettingsView: View {
         _ = viewModel.toggleBreakInAlerts(enabled: enabled, modelContext: modelContext)
         guard enabled else { return }
         showBreakInPermissionSetup = true
+    }
+
+    // MARK: - Feedback Section
+
+    private var feedbackSection: some View {
+        Section("Feedback") {
+            Button {
+                showFeatureRequests = true
+            } label: {
+                HStack {
+                    Label("Feature Requests", systemImage: "lightbulb")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                }
+            }
+        }
     }
 
     // MARK: - Storage Section

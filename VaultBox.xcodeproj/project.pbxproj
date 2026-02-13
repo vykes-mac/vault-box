@@ -10,6 +10,7 @@
 		050BB4392E19DB0EB7B22155 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7023E56BE3EEDDB5A4C1276 /* Album.swift */; };
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
+		151A606E2F3EAB32006C5943 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */; };
 		1B71542B2897BEE13955901F /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA42777D37B992122D9CF537 /* BreakInService.swift */; };
 		1E3D1F3FD1CF7E9D6B4DFC03 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */; };
 		200FC0CC6BF6FB3AAAE3FE79 /* BackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939D7F9B442409D15296F28E /* BackupSettingsView.swift */; };
@@ -72,6 +73,9 @@
 		E6B5F70829415263748C9D0F /* PhotoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A4E6F71829304152637B8E /* PhotoDetailView.swift */; };
 		F7C6E81930526374859DAE10 /* VideoPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */; };
 		F8A1B2C3D4E5F60718293A4B /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F6071829304A5B /* VaultService.swift */; };
+		FB01A1B2C3D4E5F600000002 /* FeatureBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */; };
+		FB01A1B2C3D4E5F600000004 /* FeatureBoardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */; };
+		FB01A1B2C3D4E5F600000006 /* FeatureRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +98,7 @@
 /* Begin PBXFileReference section */
 		009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		0393F6655D2D2937C94CC92D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
@@ -161,6 +166,9 @@
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		F0EC25525A796155921B2DB4 /* PINKeypadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINKeypadView.swift; sourceTree = "<group>"; };
 		F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardModels.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardService.swift; sourceTree = "<group>"; };
+		FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsView.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FFE0AA33519991168C48D2B4 /* VaultBoxUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxUITests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -251,6 +259,7 @@
 				DA42777D37B992122D9CF537 /* BreakInService.swift */,
 				470321758F2AECDDF122BCBF /* CloudService.swift */,
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
+				FB01A1B2C3D4E5F600000003 /* FeatureBoardService.swift */,
 				BB11CC22DD33EE44FF550A01 /* HTTPParser.swift */,
 				B392794C825D7F4163AAE13A /* PanicGestureService.swift */,
 				3B4C5D6E7F80A1B2C3D4E5F6 /* PurchaseService.swift */,
@@ -265,6 +274,7 @@
 		7CA7C4D9FA9BF31CE861C7BE = {
 			isa = PBXGroup;
 			children = (
+				151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */,
 				EF063D184B44030504E78953 /* VaultBox */,
 				235789091AB060360248372C /* VaultBoxTests */,
 				B168FC54781B942CAEFCFEF2 /* VaultBoxUITests */,
@@ -290,6 +300,7 @@
 				B7023E56BE3EEDDB5A4C1276 /* Album.swift */,
 				816F0C902D0934CACAF3E697 /* AppSettings.swift */,
 				D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */,
+				FB01A1B2C3D4E5F600000001 /* FeatureBoardModels.swift */,
 				E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */,
 			);
 			path = Models;
@@ -302,6 +313,7 @@
 				939D7F9B442409D15296F28E /* BackupSettingsView.swift */,
 				A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */,
 				3FC3D21281CAA279B031A721 /* BreakInLogView.swift */,
+				FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */,
 				BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */,
 				7930F7D01A3C2BBE27388328 /* SecuritySettingsView.swift */,
 				0393F6655D2D2937C94CC92D /* SettingsView.swift */,
@@ -488,6 +500,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				151A606E2F3EAB32006C5943 /* Launch Screen.storyboard in Resources */,
 				96A41D0233E76E2E72B739CB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -536,6 +549,9 @@
 				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */,
+				FB01A1B2C3D4E5F600000002 /* FeatureBoardModels.swift in Sources */,
+				FB01A1B2C3D4E5F600000004 /* FeatureBoardService.swift in Sources */,
+				FB01A1B2C3D4E5F600000006 /* FeatureRequestsView.swift in Sources */,
 				C3D4E5F60A1B2C3D4E5F6072 /* ImportView.swift in Sources */,
 				071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */,
 				A2B3C4D5E6F70819203A4B5C /* LockScreenView.swift in Sources */,
