@@ -121,7 +121,8 @@ actor FeatureBoardService {
             // Try to extract the winning record directly from the error,
             // which avoids an extra round-trip.
             if let serverRecord = serverRecordFromConflict(error),
-               let dto = featureDTO(from: serverRecord) {
+               let dto = featureDTO(from: serverRecord),
+               dto.status == .open {
                 return dto
             }
 
@@ -130,7 +131,8 @@ actor FeatureBoardService {
             if let existing = try await fetchFeatureByIDOrQuery(
                 recordName: deterministicName,
                 normalizedTitle: normalized
-            ), let dto = featureDTO(from: existing) {
+            ), let dto = featureDTO(from: existing),
+               dto.status == .open {
                 return dto
             }
 
@@ -278,7 +280,13 @@ private extension FeatureBoardService {
         do {
             featureRecord = try await database.record(for: featureRecordID)
         } catch let error as CKError where error.code == .unknownItem {
-            // Feature was deleted — nothing to adjust; quietly succeed.
+            // Feature was deleted — clean up the orphaned vote record so it
+            // doesn't resurface if the same deterministic feature ID is reused.
+            do {
+                try await database.deleteRecord(withID: voteRecordID)
+            } catch {
+                Self.logger.warning("Failed to delete orphaned vote record \(voteRecordID.recordName, privacy: .public): \(error.localizedDescription, privacy: .public)")
+            }
             return
         } catch {
             throw error
