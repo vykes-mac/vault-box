@@ -5,11 +5,17 @@ enum FeatureVoteValue: Int, Sendable {
     case up = 1
 }
 
-struct FeatureRequestDTO: Identifiable, Hashable, Sendable {
+enum FeatureStatus: String, Codable, CaseIterable, Hashable, Sendable {
+    case open
+    case inProgress = "in_progress"
+    case closed
+}
+
+struct FeatureRequestDTO: Identifiable, Hashable, Sendable, Codable {
     let id: String
     let title: String
     let details: String
-    let status: String
+    let status: FeatureStatus
     let upVotes: Int
     let downVotes: Int
     let score: Int

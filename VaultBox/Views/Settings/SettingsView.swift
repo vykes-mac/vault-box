@@ -469,7 +469,7 @@ struct SettingsView: View {
         showBreakInPermissionSetup = true
     }
 
-    // MARK: - Storage Section
+    // MARK: - Feedback Section
 
     private var feedbackSection: some View {
         Section("Feedback") {

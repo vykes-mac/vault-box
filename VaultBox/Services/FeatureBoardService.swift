@@ -1,8 +1,11 @@
 import Foundation
 import CloudKit
 import CryptoKit
+import os
 
 actor FeatureBoardService {
+    private static let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "VaultBox", category: "FeatureBoardService")
+
     private enum Keys {
         static let title = "title"
         static let details = "details"
@@ -38,7 +41,7 @@ actor FeatureBoardService {
     }
 
     func listFeatures(limit: Int = 100) async throws -> [FeatureRequestDTO] {
-        let predicate = NSPredicate(format: "%K == %@", Keys.status, "open")
+        let predicate = NSPredicate(format: "%K == %@", Keys.status, FeatureStatus.open.rawValue)
         let query = CKQuery(recordType: Constants.featureRequestRecordType, predicate: predicate)
         query.sortDescriptors = [
             NSSortDescriptor(key: Keys.score, ascending: false),
@@ -78,29 +81,61 @@ actor FeatureBoardService {
         }
 
         let normalized = normalizeTitle(trimmedTitle)
+
+        // Fast path: return an existing open feature if one is already visible.
         if let existing = try await findOpenFeature(normalizedTitle: normalized),
            let dto = featureDTO(from: existing) {
             return dto
         }
 
+        // Derive a deterministic record ID from the normalized title so that
+        // two concurrent creates for the same title target the same record.
+        // The second save will produce a serverRecordChanged conflict instead
+        // of silently creating a duplicate.
+        let deterministicName = "feature_\(sha256Hex(normalized))"
+
         let createdByHash = try await currentUserHash()
-        let recordID = CKRecord.ID(recordName: "feature_\(UUID().uuidString)")
+        let recordID = CKRecord.ID(recordName: deterministicName)
         let record = CKRecord(recordType: Constants.featureRequestRecordType, recordID: recordID)
         record[Keys.title] = trimmedTitle as CKRecordValue
         record[Keys.details] = trimmedDetails as CKRecordValue
         record[Keys.normalizedTitle] = normalized as CKRecordValue
-        record[Keys.status] = "open" as CKRecordValue
+        record[Keys.status] = FeatureStatus.open.rawValue as CKRecordValue
         record[Keys.upVotes] = Int64(0) as CKRecordValue
         record[Keys.downVotes] = Int64(0) as CKRecordValue
         record[Keys.score] = Int64(0) as CKRecordValue
         record[Keys.createdAt] = Date() as CKRecordValue
         record[Keys.createdByHash] = createdByHash as CKRecordValue
 
-        let saved = try await database.save(record)
-        guard let dto = featureDTO(from: saved) else {
-            throw FeatureBoardError.invalidRecord
+        do {
+            let saved = try await database.save(record)
+            guard let dto = featureDTO(from: saved) else {
+                throw FeatureBoardError.invalidRecord
+            }
+            return dto
+        } catch {
+            // Handle the conflict raised when a concurrent create already
+            // persisted a record with the same deterministic ID.
+            guard isServerRecordChanged(error) else { throw error }
+
+            // Try to extract the winning record directly from the error,
+            // which avoids an extra round-trip.
+            if let serverRecord = serverRecordFromConflict(error),
+               let dto = featureDTO(from: serverRecord) {
+                return dto
+            }
+
+            // Fallback: fetch the existing record by its deterministic ID,
+            // then by query if the direct fetch also fails.
+            if let existing = try await fetchFeatureByIDOrQuery(
+                recordName: deterministicName,
+                normalizedTitle: normalized
+            ), let dto = featureDTO(from: existing) {
+                return dto
+            }
+
+            throw error
         }
-        return dto
     }
 
     func setVote(featureID: String, vote: FeatureVoteValue) async throws {
@@ -114,10 +149,14 @@ actor FeatureBoardService {
 
     func removeVote(featureID: String) async throws {
         let normalizedFeatureID = featureID.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !normalizedFeatureID.isEmpty else { return }
+        guard !normalizedFeatureID.isEmpty else {
+            throw FeatureBoardError.invalidFeatureID
+        }
 
         try await performRemoveVoteWithRetry(featureID: normalizedFeatureID, retryOnConflict: true)
     }
+
+    private static let voteBatchSize = 200
 
     func myVotes(featureIDs: [String]) async throws -> [String: FeatureVoteValue] {
         guard !featureIDs.isEmpty else { return [:] }
@@ -127,18 +166,36 @@ actor FeatureBoardService {
         let predicate = NSPredicate(format: "%K == %@", Keys.voterHash, userHash)
         let query = CKQuery(recordType: Constants.featureVoteRecordType, predicate: predicate)
 
-        let results: [(CKRecord.ID, Result<CKRecord, any Error>)]
+        var allResults: [(CKRecord.ID, Result<CKRecord, any Error>)] = []
+        var cursor: CKQueryOperation.Cursor?
+
+        // First batch
         do {
-            (results, _) = try await database.records(matching: query, resultsLimit: 400)
+            let (batch, nextCursor) = try await database.records(
+                matching: query,
+                resultsLimit: Self.voteBatchSize
+            )
+            allResults.append(contentsOf: batch)
+            cursor = nextCursor
         } catch {
             if isRecordTypeNotFound(error) { return [:] }
             throw error
         }
 
+        // Continue fetching while a cursor is returned
+        while let activeCursor = cursor {
+            let (batch, nextCursor) = try await database.records(
+                continuingMatchFrom: activeCursor,
+                resultsLimit: Self.voteBatchSize
+            )
+            allResults.append(contentsOf: batch)
+            cursor = nextCursor
+        }
+
         var votes: [String: FeatureVoteValue] = [:]
         votes.reserveCapacity(featureIDs.count)
 
-        for result in results {
+        for result in allResults {
             guard case .success(let record) = result.1,
                   let featureID = record[Keys.featureID] as? String,
                   featureIDSet.contains(featureID),
@@ -159,7 +216,14 @@ private extension FeatureBoardService {
     func performVoteWithRetry(featureID: String, vote: FeatureVoteValue, retryOnConflict: Bool) async throws {
         let userHash = try await currentUserHash()
         let featureRecordID = CKRecord.ID(recordName: featureID)
-        let featureRecord = try await database.record(for: featureRecordID)
+        let featureRecord: CKRecord
+        do {
+            featureRecord = try await database.record(for: featureRecordID)
+        } catch let error as CKError where error.code == .unknownItem {
+            throw FeatureBoardError.invalidFeatureID
+        } catch {
+            throw error
+        }
 
         let voteRecordID = CKRecord.ID(recordName: voteRecordName(featureID: featureID, userHash: userHash))
         let existingVoteRecord = try await voteRecordIfExists(recordID: voteRecordID)
@@ -210,7 +274,14 @@ private extension FeatureBoardService {
         }
 
         let featureRecordID = CKRecord.ID(recordName: featureID)
-        let featureRecord = try await database.record(for: featureRecordID)
+        let featureRecord: CKRecord
+        do {
+            featureRecord = try await database.record(for: featureRecordID)
+        } catch let error as CKError where error.code == .unknownItem {
+            throw FeatureBoardError.invalidFeatureID
+        } catch {
+            throw error
+        }
 
         var upVotes = numericValue(from: featureRecord[Keys.upVotes])
         var downVotes = numericValue(from: featureRecord[Keys.downVotes])
@@ -255,7 +326,7 @@ private extension FeatureBoardService {
         let predicate = NSPredicate(
             format: "%K == %@ AND %K == %@",
             Keys.status,
-            "open",
+            FeatureStatus.open.rawValue,
             Keys.normalizedTitle,
             normalizedTitle
         )
@@ -314,7 +385,8 @@ private extension FeatureBoardService {
         guard let title = record[Keys.title] as? String else { return nil }
 
         let details = (record[Keys.details] as? String) ?? ""
-        let status = (record[Keys.status] as? String) ?? "open"
+        let statusString = (record[Keys.status] as? String) ?? FeatureStatus.open.rawValue
+        let status = FeatureStatus(rawValue: statusString) ?? .open
         let upVotes = numericValue(from: record[Keys.upVotes])
         let downVotes = numericValue(from: record[Keys.downVotes])
         let score = numericValue(from: record[Keys.score])
@@ -389,12 +461,45 @@ private extension FeatureBoardService {
         // CloudKit returns .unknownItem when the record type doesn't exist in the schema yet.
         // It can also surface as .serverRejectedRequest with "Did not find record type" message.
         if ckError.code == .unknownItem { return true }
+        // ⚠️ Brittle: matching on the localized error string is fragile and may break
+        // if Apple changes the SDK wording in a future CloudKit release.
         if ckError.code == .serverRejectedRequest,
            let message = ckError.userInfo[NSLocalizedDescriptionKey] as? String,
            message.contains("Did not find record type") {
+            Self.logger.warning("isRecordTypeNotFound matched .serverRejectedRequest via localized string — ckError: \(ckError), matched message: \(message, privacy: .public)")
             return true
         }
         return false
+    }
+
+    /// Extracts the server's version of the record from a `.serverRecordChanged`
+    /// conflict error, if present.
+    func serverRecordFromConflict(_ error: Error) -> CKRecord? {
+        if let ckError = error as? CKError, ckError.code == .serverRecordChanged {
+            return ckError.serverRecord
+        }
+        if let ckError = error as? CKError, ckError.code == .partialFailure,
+           let partialErrors = ckError.partialErrorsByItemID {
+            for (_, partialError) in partialErrors {
+                if let inner = partialError as? CKError,
+                   inner.code == .serverRecordChanged,
+                   let record = inner.serverRecord {
+                    return record
+                }
+            }
+        }
+        return nil
+    }
+
+    /// Attempts a direct fetch by record ID first; falls back to a query by
+    /// normalized title when the direct fetch fails.
+    func fetchFeatureByIDOrQuery(recordName: String, normalizedTitle: String) async throws -> CKRecord? {
+        let recordID = CKRecord.ID(recordName: recordName)
+        do {
+            return try await database.record(for: recordID)
+        } catch {
+            return try await findOpenFeature(normalizedTitle: normalizedTitle)
+        }
     }
 
     func isServerRecordChanged(_ error: Error) -> Bool {
