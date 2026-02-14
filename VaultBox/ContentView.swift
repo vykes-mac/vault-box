@@ -71,6 +71,8 @@ struct ContentView: View {
     @State private var vaultService: VaultService?
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
+    @State private var searchEngine: SearchEngine?
+    @State private var indexingProgress = IndexingProgress()
     @State private var showImporter = false
     @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
@@ -212,6 +214,15 @@ struct ContentView: View {
                 .tabItem {
                     Label("Camera", systemImage: "camera")
                 }
+
+            AskVaultView(
+                vaultService: vaultService,
+                searchEngine: searchEngine,
+                indexingProgress: indexingProgress
+            )
+            .tabItem {
+                Label("Ask", systemImage: "sparkles")
+            }
 
             SettingsView(authService: authService, vaultService: vaultService)
                 .tabItem {
@@ -397,5 +408,36 @@ struct ContentView: View {
         authService = auth
         vaultService = vault
         breakInService = breakIn
+
+        // Initialize Ask My Vault search services
+        initializeSearchServices(encryptionService: encryptionService, vault: vault)
+    }
+
+    private func initializeSearchServices(encryptionService: EncryptionService, vault: VaultService) {
+        Task { @MainActor in
+            do {
+                let searchIndexService = try await SearchIndexService.open()
+                let embeddingService = EmbeddingService()
+                let ingestion = IngestionService(
+                    encryptionService: encryptionService,
+                    searchIndexService: searchIndexService,
+                    embeddingService: embeddingService
+                )
+                let engine = SearchEngine(
+                    searchIndexService: searchIndexService,
+                    embeddingService: embeddingService
+                )
+
+                vault.configureSearchIndex(ingestionService: ingestion, indexingProgress: self.indexingProgress)
+                self.searchEngine = engine
+
+                // Index any items that haven't been indexed yet
+                vault.indexUnindexedItems()
+            } catch {
+                #if DEBUG
+                print("[ContentView] Failed to initialize search services: \(error)")
+                #endif
+            }
+        }
     }
 }

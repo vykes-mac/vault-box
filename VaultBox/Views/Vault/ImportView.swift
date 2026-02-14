@@ -229,6 +229,7 @@ struct ImportView: View {
             // Queue vision analysis in background (does not block UI)
             if !importedItems.isEmpty {
                 vaultService.queueVisionAnalysis(for: importedItems)
+                vaultService.queueSearchIndexing(for: importedItems)
             }
 
             if hitFreeLimit && identifiers.isEmpty {

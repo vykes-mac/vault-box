@@ -119,6 +119,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
         if lowerCT.hasPrefix("image/") {
             let item = try await vaultService.importPhotoData(data, filename: filename, album: nil)
             vaultService.queueVisionAnalysis(for: [item])
+            vaultService.queueSearchIndexing(for: [item])
         } else {
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(filename)
@@ -138,6 +139,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
             } else {
                 let item = try await vaultService.importDocument(at: tempURL, album: nil)
                 vaultService.queueVisionAnalysis(for: [item])
+                vaultService.queueSearchIndexing(for: [item])
             }
         }
     }

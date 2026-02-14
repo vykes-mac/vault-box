@@ -604,6 +604,7 @@ struct VaultGridView: View {
             // Queue vision analysis so documents get smart-tagged (e.g. "document" smart album)
             if !importedItems.isEmpty {
                 vaultService.queueVisionAnalysis(for: importedItems)
+                vaultService.queueSearchIndexing(for: importedItems)
             }
             isImportingDocuments = false
 

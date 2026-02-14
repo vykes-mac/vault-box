@@ -21,6 +21,11 @@ final class VaultItem {
     var cloudRecordID: String?
     var smartTags: [String] = []
     var extractedText: String?
+    var isIndexed: Bool = false
+    var indexingFailed: Bool = false
+    var extractedTextPreview: String?
+    var totalPages: Int?
+    var chunkCount: Int = 0
 
     enum ItemType: String, Codable {
         case photo

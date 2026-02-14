@@ -90,6 +90,7 @@ struct CameraView: View {
                     isDecoyMode: isDecoyMode
                 )
                 vaultService.queueVisionAnalysis(for: [item])
+                vaultService.queueSearchIndexing(for: [item])
                 isSaving = false
                 capturedPhoto = nil
                 savedCount += 1

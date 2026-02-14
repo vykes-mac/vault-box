@@ -117,6 +117,29 @@ enum Constants {
 
     static let maxDocumentImportBytes = 100 * 1024 * 1024 // 100 MB
 
+    // MARK: - Ask My Vault
+
+    static let searchIndexDatabaseName = "search_index.db"
+    static let chunkTargetWords = 175
+    static let chunkMaxWords = 200
+    static let chunkMinWords = 20
+    static let chunkOverlapWords = 30
+    static let embeddingDimension = 384
+    static let searchFTSWeight: Float = 0.4
+    static let searchVectorWeight: Float = 0.6
+    static let searchMaxResults = 10
+    static let searchDebounceMs = 300
+    /// Minimum cosine similarity for a vector result to be considered relevant.
+    /// MiniLM L2-normalized embeddings produce dot products in [-1, 1].
+    /// Matches above ~0.35 are typically topically related.
+    static let searchMinVectorScore: Float = 0.3
+    /// Minimum combined hybrid score (after merge) to be shown to the user.
+    /// Prevents showing irrelevant results when nothing in the vault matches.
+    static let searchMinCombinedScore: Float = 0.25
+    static let ocrMinCharsForTextPage = 50
+    static let bgTaskIdentifier = "com.vaultbox.searchIndexing"
+    static let tokenizerMaxLength = 128
+
     // MARK: - File Storage
 
     static let vaultDataDirectory = "VaultData"

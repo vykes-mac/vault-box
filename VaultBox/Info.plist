@@ -37,6 +37,11 @@
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>
+		<string>processing</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>com.vaultbox.searchIndexing</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>

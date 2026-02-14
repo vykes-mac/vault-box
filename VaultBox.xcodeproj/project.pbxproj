@@ -11,7 +11,21 @@
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
 		151A606E2F3EAB32006C5943 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */; };
-		156426282F400B2F00760EAE /* DocumentImportView 2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426272F400B2F00760EAE /* DocumentImportView 2.swift */; };
+		1564262B2F402AAE00760EAE /* MiniLM.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 156426292F402AAE00760EAE /* MiniLM.mlmodelc */; };
+		1564262C2F402AAE00760EAE /* vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1564262A2F402AAE00760EAE /* vocab.txt */; };
+		156426352F402B8C00760EAE /* SearchIndexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426332F402B8C00760EAE /* SearchIndexService.swift */; };
+		156426362F402B8C00760EAE /* ChunkingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564262D2F402B8C00760EAE /* ChunkingEngine.swift */; };
+		156426372F402B8C00760EAE /* EmbeddingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564262E2F402B8C00760EAE /* EmbeddingService.swift */; };
+		156426382F402B8C00760EAE /* ImageOCRExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564262F2F402B8C00760EAE /* ImageOCRExtractor.swift */; };
+		156426392F402B8C00760EAE /* PDFTextExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426312F402B8C00760EAE /* PDFTextExtractor.swift */; };
+		1564263A2F402B8C00760EAE /* SearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426322F402B8C00760EAE /* SearchEngine.swift */; };
+		1564263B2F402B8C00760EAE /* IngestionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426302F402B8C00760EAE /* IngestionService.swift */; };
+		1564263C2F402B8C00760EAE /* WordPieceTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426342F402B8C00760EAE /* WordPieceTokenizer.swift */; };
+		1564263E2F402BA600760EAE /* VectorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564263D2F402BA600760EAE /* VectorMath.swift */; };
+		156426462F402BF000760EAE /* AskVaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426452F402BF000760EAE /* AskVaultViewModel.swift */; };
+		1564265C2F402C6A00760EAE /* SuggestionChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564265A2F402C6A00760EAE /* SuggestionChipView.swift */; };
+		1564265D2F402C6A00760EAE /* SearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426592F402C6A00760EAE /* SearchResultCard.swift */; };
+		1564265E2F402C6A00760EAE /* AskVaultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426582F402C6A00760EAE /* AskVaultView.swift */; };
 		1B71542B2897BEE13955901F /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA42777D37B992122D9CF537 /* BreakInService.swift */; };
 		1E3D1F3FD1CF7E9D6B4DFC03 /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */; };
 		200FC0CC6BF6FB3AAAE3FE79 /* BackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 939D7F9B442409D15296F28E /* BackupSettingsView.swift */; };
@@ -109,6 +123,21 @@
 		009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		0393F6655D2D2937C94CC92D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		156426292F402AAE00760EAE /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
+		1564262A2F402AAE00760EAE /* vocab.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = vocab.txt; sourceTree = "<group>"; };
+		1564262D2F402B8C00760EAE /* ChunkingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkingEngine.swift; sourceTree = "<group>"; };
+		1564262E2F402B8C00760EAE /* EmbeddingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingService.swift; sourceTree = "<group>"; };
+		1564262F2F402B8C00760EAE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
+		156426302F402B8C00760EAE /* IngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngestionService.swift; sourceTree = "<group>"; };
+		156426312F402B8C00760EAE /* PDFTextExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTextExtractor.swift; sourceTree = "<group>"; };
+		156426322F402B8C00760EAE /* SearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchEngine.swift; sourceTree = "<group>"; };
+		156426332F402B8C00760EAE /* SearchIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndexService.swift; sourceTree = "<group>"; };
+		156426342F402B8C00760EAE /* WordPieceTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPieceTokenizer.swift; sourceTree = "<group>"; };
+		1564263D2F402BA600760EAE /* VectorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorMath.swift; sourceTree = "<group>"; };
+		156426452F402BF000760EAE /* AskVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultViewModel.swift; sourceTree = "<group>"; };
+		156426582F402C6A00760EAE /* AskVaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultView.swift; sourceTree = "<group>"; };
+		156426592F402C6A00760EAE /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
+		1564265A2F402C6A00760EAE /* SuggestionChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionChipView.swift; sourceTree = "<group>"; };
 		1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
@@ -227,6 +256,16 @@
 			path = Auth;
 			sourceTree = "<group>";
 		};
+		1564265B2F402C6A00760EAE /* Ask */ = {
+			isa = PBXGroup;
+			children = (
+				156426582F402C6A00760EAE /* AskVaultView.swift */,
+				156426592F402C6A00760EAE /* SearchResultCard.swift */,
+				1564265A2F402C6A00760EAE /* SuggestionChipView.swift */,
+			);
+			path = Ask;
+			sourceTree = "<group>";
+		};
 		1C67CB70A87A01D3BDDD2D9B /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -272,6 +311,14 @@
 		6FA1BCC5C66B2C7B24E388AC /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				1564262D2F402B8C00760EAE /* ChunkingEngine.swift */,
+				1564262E2F402B8C00760EAE /* EmbeddingService.swift */,
+				1564262F2F402B8C00760EAE /* ImageOCRExtractor.swift */,
+				156426302F402B8C00760EAE /* IngestionService.swift */,
+				156426312F402B8C00760EAE /* PDFTextExtractor.swift */,
+				156426322F402B8C00760EAE /* SearchEngine.swift */,
+				156426332F402B8C00760EAE /* SearchIndexService.swift */,
+				156426342F402B8C00760EAE /* WordPieceTokenizer.swift */,
 				36A2035C23392BD435080480 /* AppIconService.swift */,
 				1A86E457B9D24261AA37C220 /* AuthService.swift */,
 				A1D0E7F2C3B4A59687766553 /* BreakInPermissionService.swift */,
@@ -306,6 +353,7 @@
 		84A8A65D4FE0BBA14A7A77EB /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				1564265B2F402C6A00760EAE /* Ask */,
 				0F9830AC2BFA45A7D6D1CAA2 /* Auth */,
 				1C67CB70A87A01D3BDDD2D9B /* Components */,
 				04E556EF62C75DC58BE05D8E /* Paywall */,
@@ -356,6 +404,7 @@
 		B362F9A7F22DB9959EE25CC9 /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				156426452F402BF000760EAE /* AskVaultViewModel.swift */,
 				F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */,
 				B2C3D4E516F6071829304A5B /* AuthViewModel.swift */,
 				1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */,
@@ -395,6 +444,7 @@
 		EC332CB3A9FCF466563E700B /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				1564263D2F402BA600760EAE /* VectorMath.swift */,
 				7C49A0C51724A12AFC4766DA /* Constants.swift */,
 				AA11BB22CC33DD44EE55FF16 /* Haptics.swift */,
 				AA11BB22CC33DD44EE55FF17 /* VaultBoxError.swift */,
@@ -428,6 +478,8 @@
 			isa = PBXGroup;
 			children = (
 				BADE5E1C90AC5304992FC1ED /* Assets.xcassets */,
+				156426292F402AAE00760EAE /* MiniLM.mlmodelc */,
+				1564262A2F402AAE00760EAE /* vocab.txt */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -537,6 +589,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				151A606E2F3EAB32006C5943 /* Launch Screen.storyboard in Resources */,
+				1564262B2F402AAE00760EAE /* MiniLM.mlmodelc in Resources */,
+				1564262C2F402AAE00760EAE /* vocab.txt in Resources */,
 				96A41D0233E76E2E72B739CB /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -575,6 +629,16 @@
 				2C1B54A9961CFB491BC0FC57 /* AppIconService.swift in Sources */,
 				DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */,
 				0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */,
+				156426352F402B8C00760EAE /* SearchIndexService.swift in Sources */,
+				1564263E2F402BA600760EAE /* VectorMath.swift in Sources */,
+				156426462F402BF000760EAE /* AskVaultViewModel.swift in Sources */,
+				156426362F402B8C00760EAE /* ChunkingEngine.swift in Sources */,
+				156426372F402B8C00760EAE /* EmbeddingService.swift in Sources */,
+				156426382F402B8C00760EAE /* ImageOCRExtractor.swift in Sources */,
+				156426392F402B8C00760EAE /* PDFTextExtractor.swift in Sources */,
+				1564263A2F402B8C00760EAE /* SearchEngine.swift in Sources */,
+				1564263B2F402B8C00760EAE /* IngestionService.swift in Sources */,
+				1564263C2F402B8C00760EAE /* WordPieceTokenizer.swift in Sources */,
 				A1B2C3D416E5F60718293A4B /* AuthViewModel.swift in Sources */,
 				200FC0CC6BF6FB3AAAE3FE79 /* BackupSettingsView.swift in Sources */,
 				5C8FA68F0A92A77B692DD53B /* BreakInAttempt.swift in Sources */,
@@ -627,6 +691,9 @@
 				BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */,
 				CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */,
 				DD0100000000000000010002 /* AlbumCoverPickerView.swift in Sources */,
+				1564265C2F402C6A00760EAE /* SuggestionChipView.swift in Sources */,
+				1564265D2F402C6A00760EAE /* SearchResultCard.swift in Sources */,
+				1564265E2F402C6A00760EAE /* AskVaultView.swift in Sources */,
 				DD0100000000000000020002 /* DocumentPickerView.swift in Sources */,
 				DD0100000000000000030002 /* DocumentDetailView.swift in Sources */,
 				DD0100000000000000040002 /* DocumentThumbnailService.swift in Sources */,
