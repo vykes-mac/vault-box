@@ -455,12 +455,19 @@ struct BackupSettingsView: View {
         Task {
             do {
                 let cloudService = CloudService(encryptionService: encryptionService)
-                let count = try await vaultService.restoreFromiCloud(
+                let restoredItems = try await vaultService.restoreFromiCloud(
                     cloudService: cloudService
                 ) { completed, total in
                     restoreProgress = (completed, total)
                 }
-                restoredItemCount = count
+                restoredItemCount = restoredItems.count
+
+                // Queue vision analysis & search indexing — same as all other import flows
+                if !restoredItems.isEmpty {
+                    vaultService.queueVisionAnalysis(for: restoredItems)
+                    vaultService.queueSearchIndexing(for: restoredItems)
+                }
+
                 showRestoreSuccess = true
             } catch {
                 errorMessage = "Restore failed — \(error.localizedDescription)"

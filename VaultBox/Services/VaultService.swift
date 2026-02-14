@@ -487,13 +487,13 @@ class VaultService {
     // MARK: - iCloud Restore
 
     /// Restores all backed-up items from iCloud that don't already exist locally.
-    /// Returns the number of items successfully restored.
+    /// Returns the restored `VaultItem` array.
     func restoreFromiCloud(
         cloudService: CloudService,
         progress: @escaping (Int, Int) -> Void
-    ) async throws -> Int {
+    ) async throws -> [VaultItem] {
         let records = try await cloudService.fetchAllCloudRecords()
-        guard !records.isEmpty else { return 0 }
+        guard !records.isEmpty else { return [] }
 
         // Build a set of existing item IDs to avoid duplicates
         let allDescriptor = FetchDescriptor<VaultItem>()
@@ -501,7 +501,7 @@ class VaultService {
         let existingIDs = Set(existingItems.map { $0.id.uuidString })
 
         let vaultDir = try await encryptionService.vaultFilesDirectory()
-        var restoredCount = 0
+        var restoredItems: [VaultItem] = []
         let total = records.count
 
         await cloudService.setDownloadProgress(completed: 0, total: total)
@@ -557,7 +557,7 @@ class VaultService {
 
                 modelContext.insert(item)
                 try modelContext.save()
-                restoredCount += 1
+                restoredItems.append(item)
             } catch {
                 // Skip failed items and continue with the rest
                 #if DEBUG
@@ -570,7 +570,7 @@ class VaultService {
         }
 
         await cloudService.resetDownloadProgress()
-        return restoredCount
+        return restoredItems
     }
 
     // MARK: - Stats Methods
