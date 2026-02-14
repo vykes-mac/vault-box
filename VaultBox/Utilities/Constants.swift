@@ -103,7 +103,7 @@ enum Constants {
 
     // MARK: - Time-Limited Sharing
 
-    static let sharedPhotoRecordType = "SharedPhoto"
+    static let sharedFileRecordType = "SharedFile"
     static let shareURLScheme = "vaultbox"
     static let shareURLHost = "shared"
 

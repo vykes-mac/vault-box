@@ -93,7 +93,7 @@
 		DD0100000000000000060002 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000060001 /* SharingService.swift */; };
 		DD0100000000000000070002 /* ShareConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000070001 /* ShareConfigView.swift */; };
 		DD0100000000000000080002 /* SharedItemsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000080001 /* SharedItemsView.swift */; };
-		DD0100000000000000090002 /* SharedPhotoViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000090001 /* SharedPhotoViewer.swift */; };
+		DD0100000000000000090002 /* SharedContentViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = DD0100000000000000090001 /* SharedContentViewer.swift */; };
 		E5A6B48B1DF67069311D8E53 /* CloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470321758F2AECDDF122BCBF /* CloudService.swift */; };
 		E5F60716A1B2C3D4E5F60718 /* AlbumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F6071816A1B2C3D4E5F60728 /* AlbumViewModel.swift */; };
 		E6B5F70829415263748C9D0F /* PhotoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5A4E6F71829304152637B8E /* PhotoDetailView.swift */; };
@@ -213,7 +213,7 @@
 		DD0100000000000000060001 /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
 		DD0100000000000000070001 /* ShareConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareConfigView.swift; sourceTree = "<group>"; };
 		DD0100000000000000080001 /* SharedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItemsView.swift; sourceTree = "<group>"; };
-		DD0100000000000000090001 /* SharedPhotoViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedPhotoViewer.swift; sourceTree = "<group>"; };
+		DD0100000000000000090001 /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E6D5F72A41637485960EBF21 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		F0EC25525A796155921B2DB4 /* PINKeypadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINKeypadView.swift; sourceTree = "<group>"; };
@@ -442,7 +442,7 @@
 				153B05782F40F3A6005CB1BB /* ScreenshotProofView.swift */,
 				DD0100000000000000070001 /* ShareConfigView.swift */,
 				DD0100000000000000080001 /* SharedItemsView.swift */,
-				DD0100000000000000090001 /* SharedPhotoViewer.swift */,
+				DD0100000000000000090001 /* SharedContentViewer.swift */,
 			);
 			path = Sharing;
 			sourceTree = "<group>";
@@ -709,7 +709,7 @@
 				DD0100000000000000060002 /* SharingService.swift in Sources */,
 				DD0100000000000000070002 /* ShareConfigView.swift in Sources */,
 				DD0100000000000000080002 /* SharedItemsView.swift in Sources */,
-				DD0100000000000000090002 /* SharedPhotoViewer.swift in Sources */,
+				DD0100000000000000090002 /* SharedContentViewer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

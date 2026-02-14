@@ -8,11 +8,14 @@ struct DocumentDetailView: View {
     let vaultService: VaultService
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var tempFileURL: URL?
     @State private var isLoading = true
     @State private var errorMessage: String?
     @State private var showShareSheet = false
+    @State private var showSecureShare = false
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -65,8 +68,21 @@ struct DocumentDetailView: View {
                 }
                 ToolbarItem(placement: .topBarTrailing) {
                     if tempFileURL != nil {
-                        Button {
-                            showShareSheet = true
+                        Menu {
+                            Button {
+                                showShareSheet = true
+                            } label: {
+                                Label("Share", systemImage: "square.and.arrow.up")
+                            }
+                            Button {
+                                if purchaseService.isPremiumRequired(for: .timeLimitedSharing) {
+                                    showPaywall = true
+                                } else {
+                                    showSecureShare = true
+                                }
+                            } label: {
+                                Label("Share Securely", systemImage: "clock.badge.checkmark")
+                            }
                         } label: {
                             Image(systemName: "square.and.arrow.up")
                         }
@@ -77,6 +93,17 @@ struct DocumentDetailView: View {
                 if let url = tempFileURL {
                     ActivityView(activityItems: [url])
                 }
+            }
+            .sheet(isPresented: $showSecureShare) {
+                ShareConfigView(
+                    item: item,
+                    vaultService: vaultService,
+                    sharingService: SharingService()
+                )
+                .presentationDetents([.large])
+            }
+            .fullScreenCover(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
             }
         }
         .task {

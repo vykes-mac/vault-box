@@ -183,7 +183,7 @@ struct PhotoDetailView: View {
 
     private var moreMenu: some View {
         Menu {
-            if currentItem.type == .photo {
+            if currentItem.type == .photo || currentItem.type == .document {
                 Button {
                     if purchaseService.isPremiumRequired(for: .timeLimitedSharing) {
                         showPaywall = true

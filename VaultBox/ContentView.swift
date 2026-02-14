@@ -68,8 +68,6 @@ private struct ParsedShare: Identifiable {
 }
 
 struct ContentView: View {
-    @Binding var pendingShareURL: URL?
-
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(PurchaseService.self) private var purchaseService
@@ -87,7 +85,9 @@ struct ContentView: View {
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
+    @State private var pendingShareURL: URL?
     @State private var activeShare: ParsedShare?
+    @State private var isDismissingForLock = false
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -192,13 +192,22 @@ struct ContentView: View {
             VaultBoxPaywallView()
         }
         .fullScreenCover(item: $activeShare, onDismiss: {
-            pendingShareURL = nil
+            // Only clear the pending URL when the user explicitly dismissed
+            // the viewer (not when the lock cycle killed it).
+            if isDismissingForLock {
+                isDismissingForLock = false
+            } else {
+                pendingShareURL = nil
+            }
         }) { share in
-            SharedPhotoViewer(
+            SharedContentViewer(
                 shareID: share.shareID,
                 keyBase64URL: share.keyBase64URL,
                 sharingService: SharingService()
             )
+        }
+        .onOpenURL { url in
+            pendingShareURL = url
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -408,6 +417,13 @@ struct ContentView: View {
         showImporter = false
         showPostOnboardingSecuritySetup = false
         showPostSetupPaywall = false
+
+        // Mark that any share viewer dismiss is caused by the lock cycle,
+        // so pendingShareURL survives and can be re-presented after unlock.
+        if activeShare != nil {
+            isDismissingForLock = true
+            activeShare = nil
+        }
 
         let candidateScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
         let windowScene = candidateScenes.first {

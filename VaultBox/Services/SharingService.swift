@@ -38,12 +38,14 @@ enum ShareDuration: CaseIterable, Identifiable {
     }
 }
 
-// MARK: - SharedPhotoResult
+// MARK: - SharedFileResult
 
-/// The result of receiving a shared photo, including the decrypted image data
-/// and the sender's permission preferences.
-struct SharedPhotoResult {
-    let imageData: Data
+/// The result of receiving a shared file, including the decrypted data,
+/// MIME type, original filename, and the sender's permission preferences.
+struct SharedFileResult {
+    let fileData: Data
+    let mimeType: String
+    let originalFilename: String
     let allowSave: Bool
 }
 
@@ -59,22 +61,23 @@ actor SharingService {
         self.database = container.publicCloudDatabase
     }
 
-    // MARK: - Share a Photo
+    // MARK: - Share a File
 
-    /// Encrypts the photo with a one-time key, uploads to CloudKit public DB,
+    /// Encrypts the file with a one-time key, uploads to CloudKit public DB,
     /// and returns the share URL containing the decryption key in the fragment.
-    func sharePhoto(
-        imageData: Data,
+    func shareFile(
+        fileData: Data,
         duration: ShareDuration,
         allowSave: Bool = false,
-        mimeType: String = "image/jpeg"
+        mimeType: String = "image/jpeg",
+        originalFilename: String
     ) async throws -> (shareURL: String, cloudRecordName: String, expiresAt: Date) {
         // 1. Generate a one-time symmetric key
         let oneTimeKey = SymmetricKey(size: .bits256)
 
-        // 2. Encrypt the photo with the one-time key
+        // 2. Encrypt the file with the one-time key
         let nonce = AES.GCM.Nonce()
-        let sealedBox = try AES.GCM.seal(imageData, using: oneTimeKey, nonce: nonce)
+        let sealedBox = try AES.GCM.seal(fileData, using: oneTimeKey, nonce: nonce)
         guard let encryptedData = sealedBox.combined else {
             throw SharingError.encryptionFailed
         }
@@ -91,12 +94,13 @@ actor SharingService {
         // 5. Create CloudKit record
         let shareID = UUID().uuidString
         let recordID = CKRecord.ID(recordName: "share_\(shareID)")
-        let record = CKRecord(recordType: Constants.sharedPhotoRecordType, recordID: recordID)
+        let record = CKRecord(recordType: Constants.sharedFileRecordType, recordID: recordID)
         record["shareID"] = shareID as CKRecordValue
         record["encryptedData"] = CKAsset(fileURL: tempURL)
         record["expiresAt"] = expiresAt as CKRecordValue
         record["createdAt"] = Date() as CKRecordValue
         record["mimeType"] = mimeType as CKRecordValue
+        record["originalFilename"] = originalFilename as CKRecordValue
         record["allowSave"] = (allowSave ? 1 : 0) as CKRecordValue
 
         // 6. Upload to CloudKit public database
@@ -112,16 +116,16 @@ actor SharingService {
 
         let shareURL = "\(Constants.shareURLScheme)://\(Constants.shareURLHost)/\(shareID)#\(keyBase64)"
 
-        logger.info("Shared photo with ID \(shareID), expires at \(expiresAt)")
+        logger.info("Shared file with ID \(shareID), expires at \(expiresAt)")
 
         return (shareURL: shareURL, cloudRecordName: cloudRecordName, expiresAt: expiresAt)
     }
 
-    // MARK: - Receive a Shared Photo
+    // MARK: - Receive a Shared File
 
-    /// Fetches and decrypts a shared photo from a share URL.
-    /// Returns the decrypted image data and sender permissions, or throws if expired/invalid.
-    func receiveSharedPhoto(shareID: String, keyBase64URL: String) async throws -> SharedPhotoResult {
+    /// Fetches and decrypts a shared file from a share URL.
+    /// Returns the decrypted data, MIME type, filename, and sender permissions, or throws if expired/invalid.
+    func receiveSharedFile(shareID: String, keyBase64URL: String) async throws -> SharedFileResult {
         // 1. Decode the key from base64url
         var keyBase64 = keyBase64URL
             .replacingOccurrences(of: "-", with: "+")
@@ -166,16 +170,23 @@ actor SharingService {
         let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
         let decryptedData = try AES.GCM.open(sealedBox, using: key)
 
-        // 6. Read sender permissions
+        // 6. Read sender permissions and metadata
         let allowSave = (record["allowSave"] as? Int ?? 0) == 1
+        let mimeType = record["mimeType"] as? String ?? "application/octet-stream"
+        let originalFilename = record["originalFilename"] as? String ?? "Shared File"
 
-        logger.info("Received shared photo \(shareID)")
-        return SharedPhotoResult(imageData: decryptedData, allowSave: allowSave)
+        logger.info("Received shared file \(shareID)")
+        return SharedFileResult(
+            fileData: decryptedData,
+            mimeType: mimeType,
+            originalFilename: originalFilename,
+            allowSave: allowSave
+        )
     }
 
     // MARK: - Revoke a Share
 
-    /// Immediately deletes a shared photo from CloudKit, making the link dead.
+    /// Immediately deletes a shared file from CloudKit, making the link dead.
     func revokeShare(cloudRecordName: String) async throws {
         let recordID = CKRecord.ID(recordName: cloudRecordName)
         try await database.deleteRecord(withID: recordID)
@@ -184,12 +195,12 @@ actor SharingService {
 
     // MARK: - Cleanup Expired Shares
 
-    /// Queries for expired SharedPhoto records and deletes them.
+    /// Queries for expired SharedFile records and deletes them.
     /// Call on app launch and during background refresh.
     func cleanupExpiredShares() async {
         do {
             let predicate = NSPredicate(format: "expiresAt < %@", Date() as NSDate)
-            let query = CKQuery(recordType: Constants.sharedPhotoRecordType, predicate: predicate)
+            let query = CKQuery(recordType: Constants.sharedFileRecordType, predicate: predicate)
 
             let (results, _) = try await database.records(matching: query)
             var deletedCount = 0
@@ -203,7 +214,7 @@ actor SharingService {
             }
 
             if deletedCount > 0 {
-                logger.info("Cleaned up \(deletedCount) expired shared photos")
+                logger.info("Cleaned up \(deletedCount) expired shared files")
             }
         } catch {
             logger.error("Expired share cleanup failed: \(error.localizedDescription)")
@@ -258,17 +269,17 @@ enum SharingError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .encryptionFailed:
-            "Failed to encrypt the photo for sharing."
+            "Failed to encrypt the file for sharing."
         case .invalidShareURL:
             "This share link is invalid or corrupted."
         case .shareNotFound:
-            "This shared photo could not be found. It may have been revoked."
+            "This shared file could not be found. It may have been revoked."
         case .shareExpired:
             "This share has expired and is no longer available."
         case .downloadFailed:
-            "Failed to download the shared photo. Please check your connection."
+            "Failed to download the shared file. Please check your connection."
         case .iCloudUnavailable:
-            "iCloud is not available. Sign in to iCloud to share photos."
+            "iCloud is not available. Sign in to iCloud to share files."
         }
     }
 }

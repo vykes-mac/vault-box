@@ -21,7 +21,6 @@ struct VaultBoxApp: App {
     @State private var purchaseService = PurchaseService()
     @State private var privacyShield = AppPrivacyShield()
     @State private var themeColorScheme: ColorScheme?
-    @State private var pendingShareURL: URL?
 
     init() {
         do {
@@ -51,7 +50,7 @@ struct VaultBoxApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(pendingShareURL: $pendingShareURL)
+            ContentView()
                 .environment(purchaseService)
                 .environment(privacyShield)
                 .preferredColorScheme(themeColorScheme)
@@ -62,9 +61,6 @@ struct VaultBoxApp: App {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
                     loadTheme()
-                }
-                .onOpenURL { url in
-                    pendingShareURL = url
                 }
         }
         .modelContainer(modelContainer)

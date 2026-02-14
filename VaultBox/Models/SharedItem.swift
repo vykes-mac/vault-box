@@ -6,7 +6,7 @@ import Foundation
 @Model
 final class SharedItem {
     var id: UUID = UUID()
-    /// The CloudKit record name for the SharedPhoto record in the public database.
+    /// The CloudKit record name for the SharedFile record in the public database.
     var cloudRecordName: String = ""
     /// The UUID of the VaultItem that was shared.
     var vaultItemID: UUID = UUID()

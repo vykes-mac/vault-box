@@ -379,6 +379,17 @@ class VaultService {
         return image
     }
 
+    /// Returns raw decrypted file data for any VaultItem type (photo, video, document).
+    func decryptFileData(for item: VaultItem) async throws -> Data {
+        let fileURL = try await buildFileURL(for: item)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw VaultError.fileNotFound
+        }
+
+        return try await encryptionService.decryptFile(at: fileURL)
+    }
+
     func decryptVideoURL(for item: VaultItem) async throws -> URL {
         let fileURL = try await buildFileURL(for: item)
 

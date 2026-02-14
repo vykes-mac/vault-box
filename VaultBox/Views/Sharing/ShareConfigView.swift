@@ -31,7 +31,7 @@ struct ShareConfigView: View {
                             .font(.title2)
                             .fontWeight(.bold)
 
-                        Text("The recipient needs VaultBox installed to view the photo. The link expires automatically.")
+                        Text("The recipient needs VaultBox installed to view the file. The link expires automatically.")
                             .font(.callout)
                             .foregroundStyle(Color.vaultTextSecondary)
                             .multilineTextAlignment(.center)
@@ -92,7 +92,7 @@ struct ShareConfigView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Allow recipient to save")
                                         .font(.body)
-                                    Text(allowSave ? "Recipient can save to their photo library" : "View only — screenshots are blocked")
+                                    Text(allowSave ? "Recipient can save to their vault" : "View only — screenshots are blocked")
                                         .font(.caption)
                                         .foregroundStyle(Color.vaultTextSecondary)
                                 }
@@ -145,7 +145,7 @@ struct ShareConfigView: View {
                 }
                 .padding(.bottom, 16)
             }
-            .navigationTitle("Share Photo")
+            .navigationTitle("Share Securely")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
@@ -211,25 +211,33 @@ struct ShareConfigView: View {
                 return
             }
 
-            // Decrypt the full image
-            let imageData: Data
-            if item.type == .photo {
-                let image = try await vaultService.decryptFullImage(for: item)
-                guard let jpeg = image.jpegData(compressionQuality: 0.9) else {
+            // Prepare file data and MIME type based on item type
+            let (fileData, mimeType): (Data, String)
+            switch item.type {
+            case .photo:
+                let rawData = try await vaultService.decryptFileData(for: item)
+                guard let image = UIImage(data: rawData),
+                      let jpeg = image.jpegData(compressionQuality: 0.9) else {
                     errorMessage = "Failed to prepare the photo for sharing."
                     return
                 }
-                imageData = jpeg
-            } else {
-                errorMessage = "Only photos can be shared with time-limited links."
+                fileData = jpeg
+                mimeType = "image/jpeg"
+            case .document:
+                fileData = try await vaultService.decryptFileData(for: item)
+                mimeType = mimeTypeForFilename(item.originalFilename)
+            case .video:
+                errorMessage = "Video sharing is not yet supported."
                 return
             }
 
             // Create the share
-            let result = try await sharingService.sharePhoto(
-                imageData: imageData,
+            let result = try await sharingService.shareFile(
+                fileData: fileData,
                 duration: selectedDuration,
-                allowSave: allowSave
+                allowSave: allowSave,
+                mimeType: mimeType,
+                originalFilename: item.originalFilename
             )
 
             // Save locally for tracking
@@ -251,6 +259,26 @@ struct ShareConfigView: View {
     }
 
     // MARK: - Helpers
+
+    private func mimeTypeForFilename(_ filename: String) -> String {
+        let ext = (filename as NSString).pathExtension.lowercased()
+        switch ext {
+        case "pdf": return "application/pdf"
+        case "png": return "image/png"
+        case "jpg", "jpeg": return "image/jpeg"
+        case "gif": return "image/gif"
+        case "heic": return "image/heic"
+        case "webp": return "image/webp"
+        case "doc": return "application/msword"
+        case "docx": return "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        case "xls": return "application/vnd.ms-excel"
+        case "xlsx": return "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        case "txt": return "text/plain"
+        case "json": return "application/json"
+        case "xml": return "application/xml"
+        default: return "application/octet-stream"
+        }
+    }
 
     private func iconForDuration(_ duration: ShareDuration) -> String {
         switch duration {

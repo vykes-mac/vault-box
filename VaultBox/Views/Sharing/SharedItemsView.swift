@@ -138,7 +138,7 @@ struct SharedItemsView: View {
             Text("No Shared Items")
                 .font(.headline)
                 .foregroundStyle(Color.vaultTextPrimary)
-            Text("When you share a photo with a time-limited link, it will appear here.")
+            Text("When you share a file with a time-limited link, it will appear here.")
                 .font(.callout)
                 .foregroundStyle(Color.vaultTextSecondary)
                 .multilineTextAlignment(.center)
