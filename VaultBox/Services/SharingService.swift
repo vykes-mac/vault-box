@@ -6,6 +6,9 @@ import os
 // MARK: - ShareDuration
 
 enum ShareDuration: CaseIterable, Identifiable {
+    case oneMinute
+    case fiveMinutes
+    case thirtyMinutes
     case oneHour
     case twentyFourHours
     case sevenDays
@@ -14,6 +17,9 @@ enum ShareDuration: CaseIterable, Identifiable {
 
     var label: String {
         switch self {
+        case .oneMinute: "1 Minute"
+        case .fiveMinutes: "5 Minutes"
+        case .thirtyMinutes: "30 Minutes"
         case .oneHour: "1 Hour"
         case .twentyFourHours: "24 Hours"
         case .sevenDays: "7 Days"
@@ -22,11 +28,23 @@ enum ShareDuration: CaseIterable, Identifiable {
 
     var seconds: TimeInterval {
         switch self {
+        case .oneMinute: 60
+        case .fiveMinutes: 300
+        case .thirtyMinutes: 1800
         case .oneHour: 3600
         case .twentyFourHours: 86400
         case .sevenDays: 604800
         }
     }
+}
+
+// MARK: - SharedPhotoResult
+
+/// The result of receiving a shared photo, including the decrypted image data
+/// and the sender's permission preferences.
+struct SharedPhotoResult {
+    let imageData: Data
+    let allowSave: Bool
 }
 
 // MARK: - SharingService
@@ -48,6 +66,7 @@ actor SharingService {
     func sharePhoto(
         imageData: Data,
         duration: ShareDuration,
+        allowSave: Bool = false,
         mimeType: String = "image/jpeg"
     ) async throws -> (shareURL: String, cloudRecordName: String, expiresAt: Date) {
         // 1. Generate a one-time symmetric key
@@ -78,6 +97,7 @@ actor SharingService {
         record["expiresAt"] = expiresAt as CKRecordValue
         record["createdAt"] = Date() as CKRecordValue
         record["mimeType"] = mimeType as CKRecordValue
+        record["allowSave"] = (allowSave ? 1 : 0) as CKRecordValue
 
         // 6. Upload to CloudKit public database
         let savedRecord = try await database.save(record)
@@ -100,8 +120,8 @@ actor SharingService {
     // MARK: - Receive a Shared Photo
 
     /// Fetches and decrypts a shared photo from a share URL.
-    /// Returns the decrypted image data, or throws if expired/invalid.
-    func receiveSharedPhoto(shareID: String, keyBase64URL: String) async throws -> Data {
+    /// Returns the decrypted image data and sender permissions, or throws if expired/invalid.
+    func receiveSharedPhoto(shareID: String, keyBase64URL: String) async throws -> SharedPhotoResult {
         // 1. Decode the key from base64url
         var keyBase64 = keyBase64URL
             .replacingOccurrences(of: "-", with: "+")
@@ -146,8 +166,11 @@ actor SharingService {
         let sealedBox = try AES.GCM.SealedBox(combined: encryptedData)
         let decryptedData = try AES.GCM.open(sealedBox, using: key)
 
+        // 6. Read sender permissions
+        let allowSave = (record["allowSave"] as? Int ?? 0) == 1
+
         logger.info("Received shared photo \(shareID)")
-        return decryptedData
+        return SharedPhotoResult(imageData: decryptedData, allowSave: allowSave)
     }
 
     // MARK: - Revoke a Share
@@ -249,4 +272,3 @@ enum SharingError: LocalizedError {
         }
     }
 }
-

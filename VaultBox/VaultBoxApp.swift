@@ -22,7 +22,6 @@ struct VaultBoxApp: App {
     @State private var privacyShield = AppPrivacyShield()
     @State private var themeColorScheme: ColorScheme?
     @State private var pendingShareURL: URL?
-    @State private var showSharedPhotoViewer = false
 
     init() {
         do {
@@ -52,7 +51,7 @@ struct VaultBoxApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(pendingShareURL: $pendingShareURL)
                 .environment(purchaseService)
                 .environment(privacyShield)
                 .preferredColorScheme(themeColorScheme)
@@ -66,17 +65,6 @@ struct VaultBoxApp: App {
                 }
                 .onOpenURL { url in
                     pendingShareURL = url
-                    showSharedPhotoViewer = true
-                }
-                .fullScreenCover(isPresented: $showSharedPhotoViewer) {
-                    if let url = pendingShareURL,
-                       let parsed = SharingService.parseShareURL(url) {
-                        SharedPhotoViewer(
-                            shareID: parsed.shareID,
-                            keyBase64URL: parsed.keyBase64URL,
-                            sharingService: SharingService()
-                        )
-                    }
                 }
         }
         .modelContainer(modelContainer)

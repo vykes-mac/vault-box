@@ -61,7 +61,15 @@ func shouldRenderMainShell(for route: AppRootRoute) -> Bool {
     route == .main || route == .lock
 }
 
+private struct ParsedShare: Identifiable {
+    let id = UUID()
+    let shareID: String
+    let keyBase64URL: String
+}
+
 struct ContentView: View {
+    @Binding var pendingShareURL: URL?
+
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
     @Environment(PurchaseService.self) private var purchaseService
@@ -79,6 +87,7 @@ struct ContentView: View {
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
+    @State private var activeShare: ParsedShare?
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -145,7 +154,17 @@ struct ContentView: View {
             if shouldDismissMainShellPresentations(oldRoute: oldRoute, newRoute: newRoute) {
                 dismissActivePresentationsForLock()
             }
+            // Present pending share link after authentication completes
+            if newRoute == .main {
+                presentPendingShareIfNeeded()
+            }
             attemptPrivacyShieldReveal()
+        }
+        .onChange(of: pendingShareURL) { _, newURL in
+            // If a new URL arrives while already authenticated, present immediately
+            if newURL != nil, currentRoute == .main {
+                presentPendingShareIfNeeded()
+            }
         }
         .onChange(of: purchaseService.hasResolvedCustomerInfo) { _, hasResolved in
             guard hasResolved else { return }
@@ -171,6 +190,15 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
             VaultBoxPaywallView()
+        }
+        .fullScreenCover(item: $activeShare, onDismiss: {
+            pendingShareURL = nil
+        }) { share in
+            SharedPhotoViewer(
+                shareID: share.shareID,
+                keyBase64URL: share.keyBase64URL,
+                sharingService: SharingService()
+            )
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -365,6 +393,15 @@ struct ContentView: View {
         )
         showPostSetupPaywall = paywallDecision.showPaywall
         deferPostSetupPaywallUntilSecuritySetupCompletes = paywallDecision.shouldDefer
+    }
+
+    private func presentPendingShareIfNeeded() {
+        guard let url = pendingShareURL,
+              let parsed = SharingService.parseShareURL(url) else { return }
+        activeShare = ParsedShare(
+            shareID: parsed.shareID,
+            keyBase64URL: parsed.keyBase64URL
+        )
     }
 
     private func dismissActivePresentationsForLock() {

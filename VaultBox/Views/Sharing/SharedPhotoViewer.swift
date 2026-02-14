@@ -8,10 +8,15 @@ struct SharedPhotoViewer: View {
     let sharingService: SharingService
 
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
 
     @State private var decryptedImage: UIImage?
+    @State private var allowSave = false
     @State private var isLoading = true
+    @State private var isSaving = false
+    @State private var savedToVault = false
     @State private var errorMessage: String?
+    @StateObject private var captureMonitor = ScreenCaptureMonitor()
 
     var body: some View {
         NavigationStack {
@@ -38,12 +43,41 @@ struct SharedPhotoViewer: View {
                             .padding(.horizontal, 32)
                     }
                 } else if let image = decryptedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    if allowSave {
+                        // Saving permitted — show image normally, no screenshot protection
+                        Image(uiImage: image)
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    } else {
+                        // View only — wrap in secure layer to block screenshots and recordings
+                        ScreenshotProofView {
+                            Image(uiImage: image)
+                                .resizable()
+                                .aspectRatio(contentMode: .fit)
+                                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                        }
+                    }
+                }
+
+                // Screenshot detection banner (only when saving is not allowed)
+                if captureMonitor.screenshotDetected && !allowSave {
+                    VStack {
+                        Spacer()
+                        Label("Screenshot captured blank", systemImage: "eye.slash")
+                            .font(.callout)
+                            .fontWeight(.medium)
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 10)
+                            .background(.ultraThinMaterial.opacity(0.8))
+                            .clipShape(Capsule())
+                            .padding(.bottom, 40)
+                    }
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: captureMonitor.screenshotDetected)
             .navigationTitle("Shared Photo")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarColorScheme(.dark, for: .navigationBar)
@@ -52,13 +86,21 @@ struct SharedPhotoViewer: View {
                     Button("Done") { dismiss() }
                         .foregroundStyle(.white)
                 }
-                if decryptedImage != nil {
+                if decryptedImage != nil && allowSave {
                     ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            saveToPhotos()
-                        } label: {
-                            Image(systemName: "square.and.arrow.down")
-                                .foregroundStyle(.white)
+                        if savedToVault {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.green)
+                        } else if isSaving {
+                            ProgressView()
+                                .tint(.white)
+                        } else {
+                            Button {
+                                Task { await saveToVault() }
+                            } label: {
+                                Image(systemName: "square.and.arrow.down")
+                                    .foregroundStyle(.white)
+                            }
                         }
                     }
                 }
@@ -76,15 +118,16 @@ struct SharedPhotoViewer: View {
         defer { isLoading = false }
 
         do {
-            let data = try await sharingService.receiveSharedPhoto(
+            let result = try await sharingService.receiveSharedPhoto(
                 shareID: shareID,
                 keyBase64URL: keyBase64URL
             )
-            guard let image = UIImage(data: data) else {
+            guard let image = UIImage(data: result.imageData) else {
                 errorMessage = "The shared data is not a valid image."
                 return
             }
             decryptedImage = image
+            allowSave = result.allowSave
         } catch let error as SharingError {
             errorMessage = error.errorDescription
         } catch {
@@ -92,10 +135,49 @@ struct SharedPhotoViewer: View {
         }
     }
 
-    private func saveToPhotos() {
-        guard let image = decryptedImage else { return }
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
-        Haptics.purchaseComplete()
+    private func saveToVault() async {
+        guard let image = decryptedImage,
+              let jpegData = image.jpegData(compressionQuality: 1.0) else { return }
+        isSaving = true
+        defer { isSaving = false }
+
+        do {
+            let encryptionService = EncryptionService()
+            let vaultService = VaultService(
+                encryptionService: encryptionService,
+                modelContext: modelContext
+            )
+
+            // 1. Import into vault (encrypts, generates thumbnail, creates VaultItem)
+            let item = try await vaultService.importPhotoData(
+                jpegData,
+                filename: "Shared Photo",
+                album: nil
+            )
+
+            // 2. Queue vision analysis (scene classification, object detection, smart tags)
+            vaultService.queueVisionAnalysis(for: [item])
+
+            // 3. Queue search indexing (embeddings for Ask My Vault)
+            if let searchIndexService = try? await SearchIndexService.open() {
+                let embeddingService = EmbeddingService()
+                let ingestionService = IngestionService(
+                    encryptionService: encryptionService,
+                    searchIndexService: searchIndexService,
+                    embeddingService: embeddingService
+                )
+                vaultService.configureSearchIndex(
+                    ingestionService: ingestionService,
+                    indexingProgress: IndexingProgress()
+                )
+                vaultService.queueSearchIndexing(for: [item])
+            }
+
+            savedToVault = true
+            Haptics.purchaseComplete()
+        } catch {
+            errorMessage = "Failed to save to vault. Please try again."
+        }
     }
 
     private var errorIcon: String {

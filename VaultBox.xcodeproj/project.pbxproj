@@ -11,6 +11,8 @@
 		071816A1B2C3D4E5F6071829 /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
 		151A606E2F3EAB32006C5943 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */; };
+		153B05792F40F3A6005CB1BB /* ScreenCaptureMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153B05772F40F3A6005CB1BB /* ScreenCaptureMonitor.swift */; };
+		153B057A2F40F3A6005CB1BB /* ScreenshotProofView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153B05782F40F3A6005CB1BB /* ScreenshotProofView.swift */; };
 		1564262B2F402AAE00760EAE /* MiniLM.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = 156426292F402AAE00760EAE /* MiniLM.mlmodelc */; };
 		1564262C2F402AAE00760EAE /* vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = 1564262A2F402AAE00760EAE /* vocab.txt */; };
 		156426352F402B8C00760EAE /* SearchIndexService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156426332F402B8C00760EAE /* SearchIndexService.swift */; };
@@ -123,6 +125,8 @@
 		009A9FD52168A43BF2784BFB /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		0393F6655D2D2937C94CC92D /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		151A606D2F3EAB32006C5943 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
+		153B05772F40F3A6005CB1BB /* ScreenCaptureMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenCaptureMonitor.swift; sourceTree = "<group>"; };
+		153B05782F40F3A6005CB1BB /* ScreenshotProofView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotProofView.swift; sourceTree = "<group>"; };
 		156426292F402AAE00760EAE /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
 		1564262A2F402AAE00760EAE /* vocab.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = vocab.txt; sourceTree = "<group>"; };
 		1564262D2F402B8C00760EAE /* ChunkingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkingEngine.swift; sourceTree = "<group>"; };
@@ -434,6 +438,8 @@
 		DD01000000000000000A0001 /* Sharing */ = {
 			isa = PBXGroup;
 			children = (
+				153B05772F40F3A6005CB1BB /* ScreenCaptureMonitor.swift */,
+				153B05782F40F3A6005CB1BB /* ScreenshotProofView.swift */,
 				DD0100000000000000070001 /* ShareConfigView.swift */,
 				DD0100000000000000080001 /* SharedItemsView.swift */,
 				DD0100000000000000090001 /* SharedPhotoViewer.swift */,
@@ -687,6 +693,8 @@
 				BB11CC22DD33EE44FF550B02 /* WiFiTransferHTML.swift in Sources */,
 				BB11CC22DD33EE44FF550B03 /* WiFiTransferService.swift in Sources */,
 				BB11CC22DD33EE44FF550B04 /* WiFiTransferViewModel.swift in Sources */,
+				153B05792F40F3A6005CB1BB /* ScreenCaptureMonitor.swift in Sources */,
+				153B057A2F40F3A6005CB1BB /* ScreenshotProofView.swift in Sources */,
 				BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */,
 				BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */,
 				CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */,

@@ -109,6 +109,9 @@ enum Constants {
 
     /// Duration options for time-limited sharing (in seconds).
     static let shareDurations: [(label: String, seconds: TimeInterval)] = [
+        ("1 Minute", 60),
+        ("5 Minutes", 300),
+        ("30 Minutes", 1800),
         ("1 Hour", 3600),
         ("24 Hours", 86400),
         ("7 Days", 604800)

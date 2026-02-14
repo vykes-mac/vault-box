@@ -12,108 +12,138 @@ struct ShareConfigView: View {
     @Environment(\.dismiss) private var dismiss
 
     @State private var selectedDuration: ShareDuration = .twentyFourHours
+    @State private var allowSave = false
     @State private var isSharing = false
     @State private var shareURL: String?
     @State private var errorMessage: String?
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 24) {
-                // Header
-                VStack(spacing: 8) {
-                    Image(systemName: "clock.badge.checkmark")
-                        .font(.system(size: 40))
-                        .foregroundStyle(Color.vaultAccent)
+            ScrollView {
+                VStack(spacing: 24) {
+                    // Header
+                    VStack(spacing: 8) {
+                        Image(systemName: "clock.badge.checkmark")
+                            .font(.system(size: 40))
+                            .foregroundStyle(Color.vaultAccent)
 
-                    Text("Share Securely")
-                        .font(.title2)
-                        .fontWeight(.bold)
+                        Text("Share Securely")
+                            .font(.title2)
+                            .fontWeight(.bold)
 
-                    Text("The recipient needs VaultBox installed to view the photo. The link expires automatically.")
-                        .font(.callout)
-                        .foregroundStyle(Color.vaultTextSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-                .padding(.top, 16)
+                        Text("The recipient needs VaultBox installed to view the photo. The link expires automatically.")
+                            .font(.callout)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal)
+                    }
+                    .padding(.top, 16)
 
-                // Duration picker
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("Expires after")
-                        .font(.headline)
-                        .padding(.horizontal)
+                    // Duration picker
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Expires after")
+                            .font(.headline)
+                            .padding(.horizontal)
 
-                    ForEach(ShareDuration.allCases) { duration in
-                        Button {
-                            selectedDuration = duration
-                        } label: {
+                        ForEach(ShareDuration.allCases) { duration in
+                            Button {
+                                selectedDuration = duration
+                            } label: {
+                                HStack {
+                                    Image(systemName: iconForDuration(duration))
+                                        .font(.title3)
+                                        .frame(width: 30)
+
+                                    Text(duration.label)
+                                        .font(.body)
+
+                                    Spacer()
+
+                                    if selectedDuration == duration {
+                                        Image(systemName: "checkmark.circle.fill")
+                                            .foregroundStyle(Color.vaultAccent)
+                                    }
+                                }
+                                .padding(.horizontal)
+                                .padding(.vertical, 12)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .fill(selectedDuration == duration
+                                              ? Color.vaultAccent.opacity(0.1)
+                                              : Color.vaultSurface)
+                                )
+                            }
+                            .buttonStyle(.plain)
+                            .padding(.horizontal)
+                        }
+                    }
+
+                    // Permissions
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Permissions")
+                            .font(.headline)
+                            .padding(.horizontal)
+
+                        Toggle(isOn: $allowSave) {
                             HStack {
-                                Image(systemName: iconForDuration(duration))
+                                Image(systemName: allowSave ? "square.and.arrow.down" : "eye.slash")
                                     .font(.title3)
                                     .frame(width: 30)
-
-                                Text(duration.label)
-                                    .font(.body)
-
-                                Spacer()
-
-                                if selectedDuration == duration {
-                                    Image(systemName: "checkmark.circle.fill")
-                                        .foregroundStyle(Color.vaultAccent)
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Allow recipient to save")
+                                        .font(.body)
+                                    Text(allowSave ? "Recipient can save to their photo library" : "View only — screenshots are blocked")
+                                        .font(.caption)
+                                        .foregroundStyle(Color.vaultTextSecondary)
                                 }
                             }
+                        }
+                        .tint(Color.vaultAccent)
+                        .padding(.horizontal)
+                        .padding(.vertical, 12)
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color.vaultSurface)
+                        )
+                        .padding(.horizontal)
+                    }
+
+                    // Error message
+                    if let errorMessage {
+                        Text(errorMessage)
+                            .font(.footnote)
+                            .foregroundStyle(.red)
+                            .multilineTextAlignment(.center)
                             .padding(.horizontal)
-                            .padding(.vertical, 12)
-                            .background(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .fill(selectedDuration == duration
-                                          ? Color.vaultAccent.opacity(0.1)
-                                          : Color.vaultSurface)
-                            )
-                        }
-                        .buttonStyle(.plain)
-                        .padding(.horizontal)
                     }
-                }
 
-                Spacer()
-
-                // Error message
-                if let errorMessage {
-                    Text(errorMessage)
-                        .font(.footnote)
-                        .foregroundStyle(.red)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
-                }
-
-                // Share URL result + copy
-                if let shareURL {
-                    shareSuccessView(url: shareURL)
-                } else {
-                    // Share button
-                    Button {
-                        Task { await createShare() }
-                    } label: {
-                        HStack {
-                            if isSharing {
-                                ProgressView()
-                                    .tint(.white)
+                    // Share URL result + copy
+                    if let shareURL {
+                        shareSuccessView(url: shareURL)
+                    } else {
+                        // Share button
+                        Button {
+                            Task { await createShare() }
+                        } label: {
+                            HStack {
+                                if isSharing {
+                                    ProgressView()
+                                        .tint(.white)
+                                }
+                                Text(isSharing ? "Encrypting & Uploading..." : "Create Share Link")
+                                    .fontWeight(.semibold)
                             }
-                            Text(isSharing ? "Encrypting & Uploading..." : "Create Share Link")
-                                .fontWeight(.semibold)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 14)
+                            .background(Color.vaultAccent)
+                            .foregroundStyle(.white)
+                            .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                        .background(Color.vaultAccent)
-                        .foregroundStyle(.white)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                        .disabled(isSharing)
+                        .padding(.horizontal)
                     }
-                    .disabled(isSharing)
-                    .padding(.horizontal)
                 }
-
-                Spacer().frame(height: 8)
+                .padding(.bottom, 16)
             }
             .navigationTitle("Share Photo")
             .navigationBarTitleDisplayMode(.inline)
@@ -198,7 +228,8 @@ struct ShareConfigView: View {
             // Create the share
             let result = try await sharingService.sharePhoto(
                 imageData: imageData,
-                duration: selectedDuration
+                duration: selectedDuration,
+                allowSave: allowSave
             )
 
             // Save locally for tracking
@@ -223,6 +254,9 @@ struct ShareConfigView: View {
 
     private func iconForDuration(_ duration: ShareDuration) -> String {
         switch duration {
+        case .oneMinute: "timer"
+        case .fiveMinutes: "5.circle"
+        case .thirtyMinutes: "30.circle"
         case .oneHour: "clock"
         case .twentyFourHours: "clock.badge"
         case .sevenDays: "calendar.circle"
