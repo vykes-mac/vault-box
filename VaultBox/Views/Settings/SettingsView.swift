@@ -1,6 +1,7 @@
 import SwiftUI
 import SwiftData
 import UIKit
+import LocalAuthentication
 
 struct SettingsView: View {
     let authService: AuthService
@@ -9,8 +10,10 @@ struct SettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(\.scenePhase) private var scenePhase
 
     @State private var viewModel: SettingsViewModel?
+    @State private var isBiometricsAvailable: Bool = false
     @State private var showPaywall = false
     @State private var showChangePIN = false
     @State private var showDecoySetup = false
@@ -56,6 +59,12 @@ struct SettingsView: View {
             .onAppear {
                 if viewModel == nil {
                     viewModel = SettingsViewModel(authService: authService, vaultService: vaultService)
+                }
+                isBiometricsAvailable = authService.isBiometricsAvailable()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    isBiometricsAvailable = authService.isBiometricsAvailable()
                 }
             }
             .fullScreenCover(isPresented: $showPaywall) {
@@ -144,12 +153,27 @@ struct SettingsView: View {
                     get: { settings.biometricsEnabled },
                     set: { viewModel?.toggleBiometrics(enabled: $0, modelContext: modelContext) }
                 )) {
-                    Label(
-                        authService.isBiometricsAvailable() ? "Face ID" : "Touch ID",
-                        systemImage: "faceid"
-                    )
+                    Label(biometricLabel, systemImage: biometricIcon)
                 }
-                .disabled(!authService.isBiometricsAvailable())
+                .disabled(!isBiometricsAvailable)
+
+                if !isBiometricsAvailable {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("\(biometricLabel) is not available. Make sure it is enabled and enrolled in your device Settings.")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+
+                        Button {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        } label: {
+                            Text("Open Settings")
+                                .font(.caption)
+                                .fontWeight(.medium)
+                        }
+                    }
+                }
 
                 Picker(selection: Binding(
                     get: { settings.autoLockSeconds },
@@ -565,6 +589,32 @@ struct SettingsView: View {
         let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
         let build = Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"
         return "\(version) (\(build))"
+    }
+
+    // MARK: - Biometric Helpers
+
+    private var biometricLabel: String {
+        let context = LAContext()
+        _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+        switch context.biometryType {
+        case .faceID:
+            return "Face ID"
+        case .touchID:
+            return "Touch ID"
+        default:
+            return "Face ID"
+        }
+    }
+
+    private var biometricIcon: String {
+        let context = LAContext()
+        _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
+        switch context.biometryType {
+        case .touchID:
+            return "touchid"
+        default:
+            return "faceid"
+        }
     }
 }
 
