@@ -36,7 +36,7 @@ struct VaultBoxApp: App {
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
                 isStoredInMemoryOnly: false,
-                cloudKitDatabase: .automatic
+                cloudKitDatabase: .none
             )
             modelContainer = try ModelContainer(
                 for: schema,

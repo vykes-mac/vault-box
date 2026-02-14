@@ -484,6 +484,95 @@ class VaultService {
         try await PhotoLibraryDeleteHelper.deleteAssets(withLocalIdentifiers: localIdentifiers)
     }
 
+    // MARK: - iCloud Restore
+
+    /// Restores all backed-up items from iCloud that don't already exist locally.
+    /// Returns the number of items successfully restored.
+    func restoreFromiCloud(
+        cloudService: CloudService,
+        progress: @escaping (Int, Int) -> Void
+    ) async throws -> Int {
+        let records = try await cloudService.fetchAllCloudRecords()
+        guard !records.isEmpty else { return 0 }
+
+        // Build a set of existing item IDs to avoid duplicates
+        let allDescriptor = FetchDescriptor<VaultItem>()
+        let existingItems = (try? modelContext.fetch(allDescriptor)) ?? []
+        let existingIDs = Set(existingItems.map { $0.id.uuidString })
+
+        let vaultDir = try await encryptionService.vaultFilesDirectory()
+        var restoredCount = 0
+        let total = records.count
+
+        await cloudService.setDownloadProgress(completed: 0, total: total)
+
+        for (index, record) in records.enumerated() {
+            guard let itemIDString = record["itemID"] as? String,
+                  let itemID = UUID(uuidString: itemIDString),
+                  let itemTypeRaw = record["itemType"] as? String,
+                  let itemType = VaultItem.ItemType(rawValue: itemTypeRaw),
+                  let originalFilename = record["originalFilename"] as? String,
+                  let fileSize = record["fileSize"] as? Int64 else {
+                progress(index + 1, total)
+                await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                continue
+            }
+
+            // Skip if this item already exists locally
+            if existingIDs.contains(itemIDString) {
+                progress(index + 1, total)
+                await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                continue
+            }
+
+            do {
+                // Download encrypted file data from iCloud
+                let encryptedData = try await cloudService.downloadItem(recordID: record.recordID.recordName)
+
+                // Save encrypted file to vault directory
+                let relativePath = "\(UUID()).\(Constants.encryptedFileExtension)"
+                let fileURL = vaultDir.appendingPathComponent(relativePath)
+                try encryptedData.write(to: fileURL)
+
+                // Create VaultItem with metadata from CloudKit record
+                let item = VaultItem(
+                    type: itemType,
+                    originalFilename: originalFilename,
+                    encryptedFileRelativePath: relativePath,
+                    fileSize: fileSize
+                )
+                // Preserve original ID and dates
+                item.id = itemID
+                if let createdAt = record["createdAt"] as? Date {
+                    item.createdAt = createdAt
+                }
+                item.importedAt = Date()
+                item.isUploaded = true
+                item.cloudRecordID = record.recordID.recordName
+
+                // Restore encrypted thumbnail if available
+                if let thumbnailData = record["encryptedThumbnail"] as? Data {
+                    item.encryptedThumbnailData = thumbnailData
+                }
+
+                modelContext.insert(item)
+                try modelContext.save()
+                restoredCount += 1
+            } catch {
+                // Skip failed items and continue with the rest
+                #if DEBUG
+                print("[VaultService] Failed to restore item \(itemIDString): \(error)")
+                #endif
+            }
+
+            progress(index + 1, total)
+            await cloudService.setDownloadProgress(completed: index + 1, total: total)
+        }
+
+        await cloudService.resetDownloadProgress()
+        return restoredCount
+    }
+
     // MARK: - Stats Methods
 
     func getTotalItemCount() -> Int {
