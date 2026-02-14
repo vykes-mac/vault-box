@@ -131,7 +131,7 @@ actor SharingService {
         }
         if Date() > expiresAt {
             // Clean up the expired record
-            try? await database.deleteRecord(withID: recordID)
+            _ = try? await database.deleteRecord(withID: recordID)
             throw SharingError.shareExpired
         }
 
@@ -173,8 +173,9 @@ actor SharingService {
 
             for (recordID, result) in results {
                 if case .success = result {
-                    try? await database.deleteRecord(withID: recordID)
-                    deletedCount += 1
+                    if let _ = try? await database.deleteRecord(withID: recordID) {
+                        deletedCount += 1
+                    }
                 }
             }
 
@@ -248,3 +249,4 @@ enum SharingError: LocalizedError {
         }
     }
 }
+

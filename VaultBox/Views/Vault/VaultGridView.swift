@@ -52,6 +52,18 @@ struct VaultGridView: View {
         count: Constants.vaultGridColumns
     )
 
+    // Month names for date-based search (computed once)
+    private static let monthNames: [String] = Calendar.current.monthSymbols.map { $0.lowercased() }
+
+    private var isSearchActive: Bool {
+        !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    /// All unique smart tags present across visible vault items (for search suggestions).
+    private var allAvailableTags: [String] {
+        Set(filteredItems.flatMap { $0.smartTags }).sorted()
+    }
+
     private var displayedItems: [VaultItem] {
         var items = allItems
 
@@ -62,17 +74,14 @@ struct VaultGridView: View {
             items = items.filter { $0.album?.isDecoy != true }
         }
 
-        // Search filtering
+        // Search filtering — multi-word AND logic
         let query = searchText.trimmingCharacters(in: .whitespaces).lowercased()
         if !query.isEmpty {
+            let searchTerms = query.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
             items = items.filter { item in
-                // Match filename
-                if item.originalFilename.lowercased().contains(query) { return true }
-                // Match smart tags
-                if item.smartTags.contains(where: { $0.lowercased().contains(query) }) { return true }
-                // Match OCR extracted text
-                if let text = item.extractedText, text.lowercased().contains(query) { return true }
-                return false
+                searchTerms.allSatisfy { term in
+                    matchesSearchTerm(item: item, term: term)
+                }
             }
         }
 
@@ -105,51 +114,69 @@ struct VaultGridView: View {
     }
 
     private var itemCountText: String {
-        let count = filteredItems.count
-        if purchaseService.isPremium {
-            return "\(count) item\(count == 1 ? "" : "s")"
+        let total = filteredItems.count
+        let displayed = displayedItems.count
+        if isSearchActive || filter != .all {
+            return "\(displayed) of \(total) item\(total == 1 ? "" : "s")"
         }
-        return "\(count) of \(Constants.freeItemLimit) items"
+        if purchaseService.isPremium {
+            return "\(total) item\(total == 1 ? "" : "s")"
+        }
+        return "\(total) of \(Constants.freeItemLimit) items"
     }
 
     // MARK: - Body
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 0) {
-                if filteredItems.isEmpty {
-                    Spacer()
-                    emptyState
-                    Spacer()
-                } else {
-                    gridContent
-                    itemCountBar
-                }
+            mainContent
+                .navigationTitle("Vault")
+                .searchable(text: $searchText, prompt: "Search tags, albums, dates…")
+                .searchSuggestions { searchSuggestionsContent }
+                .toolbar { toolbarContent }
+                .overlay { sheetAndAlertModifiers }
+        }
+    }
+
+    private var mainContent: some View {
+        VStack(spacing: 0) {
+            if filteredItems.isEmpty {
+                Spacer()
+                emptyState
+                Spacer()
+            } else if displayedItems.isEmpty {
+                Spacer()
+                noResultsState
+                Spacer()
+            } else {
+                gridContent
+                itemCountBar
             }
-            .navigationTitle("Vault")
-            .searchable(text: $searchText, prompt: "Search photos, tags, text...")
-            .toolbar { toolbarContent }
+        }
+        .safeAreaInset(edge: .bottom) {
+            if isSelectionMode && !selectedItems.isEmpty {
+                selectionToolbar
+            }
+        }
+    }
+
+    /// Invisible overlay carrier for sheets, alerts, and full-screen covers.
+    private var sheetAndAlertModifiers: some View {
+        Color.clear
+            .allowsHitTesting(false)
             .fullScreenCover(item: $detailItem) { item in
-                let index = displayedItems.firstIndex(where: { $0.id == item.id }) ?? 0
                 PhotoDetailView(
                     items: displayedItems,
-                    initialIndex: index,
+                    initialIndex: displayedItems.firstIndex(where: { $0.id == item.id }) ?? 0,
                     vaultService: vaultService
                 )
-            }
-            .safeAreaInset(edge: .bottom) {
-                if isSelectionMode && !selectedItems.isEmpty {
-                    selectionToolbar
-                }
             }
             .confirmationDialog(
                 "Delete \(selectedItems.count) item\(selectedItems.count == 1 ? "" : "s")?",
                 isPresented: $showDeleteConfirm,
                 titleVisibility: .visible
             ) {
-                Button("Delete", role: .destructive) {
-                    batchDelete()
-                }
+                Button("Delete", role: .destructive) { batchDelete() }
             } message: {
                 Text("These items will be permanently deleted from your vault.")
             }
@@ -176,17 +203,13 @@ struct VaultGridView: View {
                 }
             }
             .alert(
-                "Delete \(pendingDocumentURLs.count) original\(pendingDocumentURLs.count == 1 ? "" : "s") from Files?",
+                "Delete from Files?",
                 isPresented: $showDocumentDeletePrompt
             ) {
-                Button("Delete", role: .destructive) {
-                    deleteOriginalDocuments()
-                }
-                Button("Keep", role: .cancel) {
-                    pendingDocumentURLs = []
-                }
+                Button("Delete", role: .destructive) { deleteOriginalDocuments() }
+                Button("Keep", role: .cancel) { pendingDocumentURLs = [] }
             } message: {
-                Text("The imported documents are safely encrypted in your vault.")
+                Text("Delete \(pendingDocumentURLs.count) original\(pendingDocumentURLs.count == 1 ? "" : "s")? The imported documents are safely encrypted in your vault.")
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
@@ -195,7 +218,6 @@ struct VaultGridView: View {
                 detailItem = nil
                 documentDetailItem = nil
             }
-        }
     }
 
     // MARK: - Selection Toolbar
@@ -274,6 +296,32 @@ struct VaultGridView: View {
             title: "No Items Yet",
             subtitle: "Tap + to add your first photo"
         )
+    }
+
+    private var noResultsState: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 48))
+                .foregroundStyle(Color.vaultTextSecondary)
+
+            Text("No Results")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(Color.vaultTextPrimary)
+
+            Group {
+                let tags = allAvailableTags
+                if tags.isEmpty {
+                    Text("Try searching by type, album name, or date")
+                } else {
+                    Text("Try \"\(tags.prefix(3).joined(separator: "\", \""))\" or search by album name or date")
+                }
+            }
+            .font(.subheadline)
+            .foregroundStyle(Color.vaultTextSecondary)
+            .multilineTextAlignment(.center)
+            .padding(.horizontal, 40)
+        }
     }
 
     // MARK: - Grid
@@ -563,6 +611,96 @@ struct VaultGridView: View {
                 pendingDocumentURLs = successfulURLs
                 showDocumentDeletePrompt = true
             }
+        }
+    }
+
+    // MARK: - Search Helpers
+
+    @ViewBuilder
+    private var searchSuggestionsContent: some View {
+        let candidates = searchSuggestionCandidates
+        ForEach(candidates, id: \.completion) { entry in
+            Label(entry.label, systemImage: entry.icon)
+                .searchCompletion(entry.completion)
+        }
+    }
+
+    private var searchSuggestionCandidates: [(label: String, icon: String, completion: String)] {
+        let query = searchText.trimmingCharacters(in: .whitespaces).lowercased()
+        let words = query.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+        let lastWord = words.last ?? ""
+        let previousWords = Set(words.dropLast())
+        let prefix = words.dropLast().joined(separator: " ")
+
+        let tags = allAvailableTags
+        let matched: [String]
+        if lastWord.isEmpty {
+            matched = Array(tags.prefix(8))
+        } else {
+            matched = tags.filter { !previousWords.contains($0) && $0.hasPrefix(lastWord) }
+        }
+
+        return matched.map { tag in
+            let completion = prefix.isEmpty ? tag : "\(prefix) \(tag)"
+            return (label: tag.capitalized, icon: iconForTag(tag), completion: completion)
+        }
+    }
+
+    private func matchesSearchTerm(item: VaultItem, term: String) -> Bool {
+        // Match filename
+        if item.originalFilename.lowercased().contains(term) { return true }
+
+        // Match smart tags
+        if item.smartTags.contains(where: { $0.contains(term) }) { return true }
+
+        // Match OCR extracted text
+        if let text = item.extractedText, text.lowercased().contains(term) { return true }
+
+        // Match item type (photo/video/document) — prefix match handles plurals
+        let typeName = item.type.rawValue
+        if typeName.hasPrefix(term) || term.hasPrefix(typeName) { return true }
+
+        // Match album name
+        if let albumName = item.album?.name.lowercased(), albumName.contains(term) { return true }
+
+        // Match favorites
+        if item.isFavorite && "favorite".hasPrefix(term) { return true }
+
+        // Match date — month name or year
+        let components = Calendar.current.dateComponents([.month, .year], from: item.createdAt)
+        if let month = components.month, Self.monthNames[month - 1].hasPrefix(term) { return true }
+        if let year = components.year, String(year).contains(term) { return true }
+
+        // Also check import date
+        let importComponents = Calendar.current.dateComponents([.month, .year], from: item.importedAt)
+        if let month = importComponents.month, month != components.month,
+           Self.monthNames[month - 1].hasPrefix(term) { return true }
+        if let year = importComponents.year, year != components.year,
+           String(year).contains(term) { return true }
+
+        return false
+    }
+
+    private func iconForTag(_ tag: String) -> String {
+        switch tag {
+        case "people": return "person.2.fill"
+        case "animals": return "pawprint.fill"
+        case "plants": return "leaf.fill"
+        case "buildings": return "building.2.fill"
+        case "landmarks": return "building.columns.fill"
+        case "document": return "doc.text.fill"
+        case "screenshot": return "rectangle.dashed"
+        case "qrcode": return "qrcode"
+        case "food": return "fork.knife"
+        case "vehicles": return "car.fill"
+        case "nature": return "mountain.2.fill"
+        case "beach": return "sun.max.fill"
+        case "sunset": return "sunset.fill"
+        case "sports": return "figure.run"
+        case "night": return "moon.stars.fill"
+        case "water": return "drop.fill"
+        case "celebration": return "sparkles"
+        default: return "tag"
         }
     }
 

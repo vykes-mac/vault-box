@@ -559,6 +559,33 @@ actor VisionAnalysisService {
             if containsAnyKeyword(identifier, keywords: landmarkKeywords) {
                 tags.insert("landmarks")
             }
+            if containsAnyKeyword(identifier, keywords: foodKeywords) {
+                tags.insert("food")
+            }
+            if containsAnyKeyword(identifier, keywords: vehicleKeywords) {
+                tags.insert("vehicles")
+            }
+            if containsAnyKeyword(identifier, keywords: natureKeywords) {
+                tags.insert("nature")
+            }
+            if containsAnyKeyword(identifier, keywords: beachKeywords) {
+                tags.insert("beach")
+            }
+            if containsAnyKeyword(identifier, keywords: sunsetKeywords) {
+                tags.insert("sunset")
+            }
+            if containsAnyKeyword(identifier, keywords: sportsKeywords) {
+                tags.insert("sports")
+            }
+            if containsAnyKeyword(identifier, keywords: nightKeywords) {
+                tags.insert("night")
+            }
+            if containsAnyKeyword(identifier, keywords: waterKeywords) {
+                tags.insert("water")
+            }
+            if containsAnyKeyword(identifier, keywords: celebrationKeywords) {
+                tags.insert("celebration")
+            }
         }
 
         return tags
@@ -688,4 +715,59 @@ private let buildingKeywords = [
 private let landmarkKeywords = [
     "landmark", "monument", "temple", "church", "mosque", "cathedral", "castle", "palace",
     "statue", "memorial", "museum", "stadium", "attraction"
+]
+
+private let foodKeywords = [
+    "food", "meal", "dish", "cooking", "baking", "fruit", "vegetable", "dessert", "cake",
+    "pizza", "burger", "salad", "pasta", "sushi", "bread", "rice", "soup", "coffee", "tea",
+    "drink", "beverage", "wine", "beer", "cocktail", "snack", "breakfast", "lunch", "dinner",
+    "restaurant", "plate", "ice cream", "chocolate", "cheese", "egg", "meat", "steak",
+    "sandwich", "taco", "noodle", "donut", "pie", "cookie", "grill", "barbecue"
+]
+
+private let vehicleKeywords = [
+    "vehicle", "car", "automobile", "truck", "motorcycle", "bicycle", "bike", "bus", "train",
+    "airplane", "aircraft", "boat", "ship", "yacht", "sailboat", "helicopter", "scooter",
+    "van", "taxi", "ambulance", "firetruck", "convertible", "sedan", "suv", "minivan",
+    "locomotive", "ferry", "canoe", "kayak", "jet"
+]
+
+private let natureKeywords = [
+    "mountain", "valley", "hill", "river", "lake", "waterfall", "cliff", "canyon", "island",
+    "meadow", "field", "countryside", "wilderness", "trail", "hiking", "landscape",
+    "volcano", "glacier", "desert", "prairie", "savanna", "jungle", "rainforest",
+    "creek", "stream", "pond", "marsh", "wetland"
+]
+
+private let beachKeywords = [
+    "beach", "sand", "seaside", "tropical", "coast", "shore", "surf", "wave", "palm",
+    "ocean", "seashore", "coastline", "reef", "lagoon", "pier", "boardwalk"
+]
+
+private let sunsetKeywords = [
+    "sunset", "sunrise", "dawn", "dusk", "twilight", "golden hour", "horizon",
+    "afterglow", "skyline"
+]
+
+private let sportsKeywords = [
+    "sport", "athlete", "basketball", "football", "soccer", "tennis", "golf", "baseball",
+    "swimming", "running", "cycling", "skiing", "snowboard", "surfing", "skateboard",
+    "climbing", "boxing", "martial", "volleyball", "cricket", "rugby", "yoga", "fitness",
+    "gym", "exercise", "workout", "stadium", "court", "field", "track", "rink", "arena"
+]
+
+private let nightKeywords = [
+    "night", "nighttime", "neon", "illuminated", "firework", "starry", "moonlight",
+    "city light", "nightscape", "dark sky"
+]
+
+private let waterKeywords = [
+    "water", "rain", "aquatic", "underwater", "pool", "fountain", "splash",
+    "swimming pool", "snorkel", "diving", "scuba"
+]
+
+private let celebrationKeywords = [
+    "celebration", "party", "birthday", "wedding", "festival", "holiday", "christmas",
+    "halloween", "thanksgiving", "valentine", "decoration", "gift", "candle", "balloon",
+    "firework", "confetti", "graduation", "anniversary", "ceremony", "toast", "champagne"
 ]

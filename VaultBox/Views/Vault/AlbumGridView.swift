@@ -13,6 +13,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
     case plants = "Plants"
     case buildings = "Buildings"
     case landmarks = "Landmarks"
+    case food = "Food"
+    case vehicles = "Vehicles"
+    case nature = "Nature"
+    case beach = "Beach"
+    case sunset = "Sunset"
+    case sports = "Sports"
+    case night = "Night"
+    case water = "Water"
+    case celebration = "Celebration"
 
     var id: String { rawValue }
 
@@ -26,6 +35,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .plants: "plants"
         case .buildings: "buildings"
         case .landmarks: "landmarks"
+        case .food: "food"
+        case .vehicles: "vehicles"
+        case .nature: "nature"
+        case .beach: "beach"
+        case .sunset: "sunset"
+        case .sports: "sports"
+        case .night: "night"
+        case .water: "water"
+        case .celebration: "celebration"
         }
     }
 
@@ -39,6 +57,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .plants: "leaf.fill"
         case .buildings: "building.2.fill"
         case .landmarks: "building.columns.fill"
+        case .food: "fork.knife"
+        case .vehicles: "car.fill"
+        case .nature: "mountain.2.fill"
+        case .beach: "sun.max.fill"
+        case .sunset: "sunset.fill"
+        case .sports: "figure.run"
+        case .night: "moon.stars.fill"
+        case .water: "drop.fill"
+        case .celebration: "sparkles"
         }
     }
 }
