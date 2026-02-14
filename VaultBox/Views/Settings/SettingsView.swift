@@ -5,6 +5,7 @@ import UIKit
 struct SettingsView: View {
     let authService: AuthService
     let vaultService: VaultService
+    var panicGestureService: PanicGestureService?
 
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
@@ -211,7 +212,7 @@ struct SettingsView: View {
                     } else {
                         Toggle("", isOn: Binding(
                             get: { settings.panicGestureEnabled },
-                            set: { viewModel?.togglePanicGesture(enabled: $0, modelContext: modelContext) }
+                            set: { viewModel?.togglePanicGesture(enabled: $0, modelContext: modelContext, panicGestureService: panicGestureService) }
                         ))
                         .labelsHidden()
                     }

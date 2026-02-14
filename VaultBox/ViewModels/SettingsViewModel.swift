@@ -47,10 +47,16 @@ class SettingsViewModel {
 
     // MARK: - Panic Gesture
 
-    func togglePanicGesture(enabled: Bool, modelContext: ModelContext) {
+    func togglePanicGesture(enabled: Bool, modelContext: ModelContext, panicGestureService: PanicGestureService?) {
         guard let settings = loadSettings(modelContext: modelContext) else { return }
         settings.panicGestureEnabled = enabled
         try? modelContext.save()
+
+        if enabled {
+            panicGestureService?.startMonitoring()
+        } else {
+            panicGestureService?.stopMonitoring()
+        }
     }
 
     // MARK: - Theme

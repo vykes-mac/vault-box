@@ -224,7 +224,7 @@ struct ContentView: View {
                 Label("Ask", systemImage: "sparkles")
             }
 
-            SettingsView(authService: authService, vaultService: vaultService)
+            SettingsView(authService: authService, vaultService: vaultService, panicGestureService: panicGestureService)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
