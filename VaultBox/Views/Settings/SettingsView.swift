@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import StoreKit
 import UIKit
 import LocalAuthentication
 
@@ -11,6 +12,7 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.requestReview) private var requestReview
 
     @State private var viewModel: SettingsViewModel?
     @State private var isBiometricsAvailable: Bool = false
@@ -548,7 +550,9 @@ struct SettingsView: View {
 
     private var aboutSection: some View {
         Section("About") {
-            Link(destination: URL(string: "https://apps.apple.com/app/id0000000000")!) {
+            Button {
+                requestReview()
+            } label: {
                 Label("Rate VaultBox", systemImage: "star")
                     .foregroundStyle(Color.vaultTextPrimary)
             }
