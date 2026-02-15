@@ -18,6 +18,15 @@ enum VaultFilter: String, CaseIterable {
     case favorites = "Favorites"
 }
 
+// MARK: - Grid Cell Frame Tracking
+
+struct GridCellFramePreferenceKey: PreferenceKey {
+    nonisolated(unsafe) static var defaultValue: [UUID: CGRect] = [:]
+    static func reduce(value: inout [UUID: CGRect], nextValue: () -> [UUID: CGRect]) {
+        value.merge(nextValue()) { $1 }
+    }
+}
+
 // MARK: - VaultGridView
 
 struct VaultGridView: View {
@@ -42,6 +51,19 @@ struct VaultGridView: View {
     @State private var isImportingDocuments = false
     @State private var showDocumentDeletePrompt = false
     @State private var pendingDocumentURLs: [URL] = []
+
+    // Drag-to-select state
+    @State private var cellFrames: [UUID: CGRect] = [:]
+    @State private var isDragSelecting = false
+    @State private var dragAdditive = true
+    @State private var dragStartIndex: Int?
+    @State private var dragCurrentIndex: Int?
+    @State private var preDragSelection: Set<UUID> = []
+
+    // Auto-scroll during drag-select
+    @State private var scrollViewHeight: CGFloat = 0
+    @State private var autoScrollTask: Task<Void, Never>?
+    @State private var autoScrollDirection: Int = 0
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
@@ -327,14 +349,48 @@ struct VaultGridView: View {
     // MARK: - Grid
 
     private var gridContent: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
-                ForEach(displayedItems) { item in
-                    thumbnailCell(for: item)
-                        .onTapGesture { handleTap(item) }
-                        .onLongPressGesture { enterSelectionMode(selecting: item) }
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
+                    ForEach(displayedItems) { item in
+                        thumbnailCell(for: item)
+                            .background(
+                                GeometryReader { geo in
+                                    Color.clear.preference(
+                                        key: GridCellFramePreferenceKey.self,
+                                        value: [item.id: geo.frame(in: .named("vaultGrid"))]
+                                    )
+                                }
+                            )
+                            .onTapGesture { handleTap(item) }
+                            .onLongPressGesture { enterSelectionMode(selecting: item) }
+                    }
+                }
+                .onPreferenceChange(GridCellFramePreferenceKey.self) { frames in
+                    cellFrames = frames
                 }
             }
+            .coordinateSpace(name: "vaultGrid")
+            .scrollDisabled(isDragSelecting)
+            .background(
+                GeometryReader { geo in
+                    Color.clear
+                        .onAppear { scrollViewHeight = geo.size.height }
+                        .onChange(of: geo.size.height) { _, newValue in
+                            scrollViewHeight = newValue
+                        }
+                }
+            )
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 10, coordinateSpace: .named("vaultGrid"))
+                    .onChanged { value in
+                        guard isSelectionMode else { return }
+                        handleDragSelection(value, scrollProxy: proxy)
+                    }
+                    .onEnded { _ in
+                        finishDragSelection()
+                    }
+            )
         }
     }
 
@@ -421,8 +477,14 @@ struct VaultGridView: View {
                 }
             }
 
-            // Selection checkmark (top-left)
+            // Selection overlay and checkmark
             if isSelectionMode {
+                // Dark overlay on selected items
+                if selectedItems.contains(item.id) {
+                    Color.black.opacity(0.3)
+                }
+
+                // Checkmark (top-left)
                 VStack {
                     HStack {
                         if selectedItems.contains(item.id) {
@@ -552,6 +614,132 @@ struct VaultGridView: View {
             isSelectionMode = true
             selectedItems.insert(item.id)
         }
+    }
+
+    // MARK: - Drag-to-Select
+
+    private func itemIndex(at point: CGPoint) -> Int? {
+        let items = displayedItems
+        for (id, frame) in cellFrames {
+            if frame.contains(point),
+               let idx = items.firstIndex(where: { $0.id == id }) {
+                return idx
+            }
+        }
+        return nil
+    }
+
+    private func handleDragSelection(_ value: DragGesture.Value, scrollProxy: ScrollViewProxy) {
+        let items = displayedItems
+
+        if !isDragSelecting {
+            guard let startIdx = itemIndex(at: value.startLocation) else { return }
+            isDragSelecting = true
+            dragStartIndex = startIdx
+            preDragSelection = selectedItems
+
+            let startItemId = items[startIdx].id
+            dragAdditive = !preDragSelection.contains(startItemId)
+        }
+
+        // Auto-scroll when finger is near the top or bottom edge
+        updateAutoScroll(fingerY: value.location.y, proxy: scrollProxy)
+
+        guard let startIdx = dragStartIndex,
+              let currentIdx = itemIndex(at: value.location) else { return }
+
+        guard currentIdx != dragCurrentIndex else { return }
+        let previousIndex = dragCurrentIndex
+        dragCurrentIndex = currentIdx
+
+        applyDragSelection(startIdx: startIdx, endIdx: currentIdx)
+
+        if currentIdx != previousIndex {
+            Haptics.itemSelected()
+        }
+    }
+
+    /// Apply selection for all items in the range between startIdx and endIdx.
+    private func applyDragSelection(startIdx: Int, endIdx: Int) {
+        let items = displayedItems
+        let rangeStart = min(startIdx, endIdx)
+        let rangeEnd = min(max(startIdx, endIdx), items.count - 1)
+
+        var updated = preDragSelection
+        for idx in rangeStart...rangeEnd {
+            let itemId = items[idx].id
+            if dragAdditive {
+                updated.insert(itemId)
+            } else {
+                updated.remove(itemId)
+            }
+        }
+        selectedItems = updated
+    }
+
+    private func finishDragSelection() {
+        guard isDragSelecting else { return }
+        stopAutoScroll()
+        autoScrollDirection = 0
+        isDragSelecting = false
+        dragStartIndex = nil
+        dragCurrentIndex = nil
+        preDragSelection = []
+    }
+
+    // MARK: - Auto-Scroll
+
+    private func updateAutoScroll(fingerY: CGFloat, proxy: ScrollViewProxy) {
+        let edgeThreshold: CGFloat = 60
+        let newDirection: Int
+
+        if fingerY < edgeThreshold && scrollViewHeight > 0 {
+            newDirection = -1 // up
+        } else if fingerY > scrollViewHeight - edgeThreshold && scrollViewHeight > 0 {
+            newDirection = 1  // down
+        } else {
+            newDirection = 0
+        }
+
+        guard newDirection != autoScrollDirection else { return }
+        stopAutoScroll()
+        autoScrollDirection = newDirection
+        if newDirection != 0 {
+            beginAutoScroll(direction: newDirection, proxy: proxy)
+        }
+    }
+
+    private func beginAutoScroll(direction: Int, proxy: ScrollViewProxy) {
+        autoScrollTask = Task { @MainActor in
+            let colCount = Constants.vaultGridColumns
+            while !Task.isCancelled && isDragSelecting {
+                let items = displayedItems
+                guard let currentIdx = dragCurrentIndex, let startIdx = dragStartIndex else { break }
+
+                let targetIdx: Int
+                if direction < 0 {
+                    targetIdx = max(0, currentIdx - colCount)
+                } else {
+                    targetIdx = min(items.count - 1, currentIdx + colCount)
+                }
+                guard targetIdx != currentIdx else { break }
+
+                withAnimation(.linear(duration: 0.12)) {
+                    proxy.scrollTo(items[targetIdx].id, anchor: direction < 0 ? .top : .bottom)
+                }
+
+                dragCurrentIndex = targetIdx
+                applyDragSelection(startIdx: startIdx, endIdx: targetIdx)
+                Haptics.itemSelected()
+
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+        }
+    }
+
+    private func stopAutoScroll() {
+        autoScrollTask?.cancel()
+        autoScrollTask = nil
     }
 
     private func selectedVaultItems() -> [VaultItem] {
