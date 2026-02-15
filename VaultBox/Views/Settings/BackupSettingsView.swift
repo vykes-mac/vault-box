@@ -395,9 +395,18 @@ struct BackupSettingsView: View {
             let hasMasterKey = await encryptionService.hasMasterKey()
 
             if hasMasterKey && !allItems.isEmpty {
-                // Local key exists and there are already local items, so the
-                // key is correct — proceed directly with restore.
-                performRestore(encryptionService: encryptionService)
+                // Local key exists with local items, but we must verify it
+                // matches the iCloud backup key. If a cloud key backup
+                // exists we cannot confirm a match without the PIN, so ask
+                // for it. Only skip PIN when there is no cloud key backup
+                // (i.e. this device is the backup origin).
+                let cloudService = CloudService(encryptionService: encryptionService)
+                let hasCloudKey = await cloudService.hasKeyBackup()
+                if hasCloudKey {
+                    showPINEntry = true
+                } else {
+                    performRestore(encryptionService: encryptionService)
+                }
             } else {
                 // Either no local key, or this is a fresh install (vault is
                 // empty) where the setup flow created a new key that doesn't

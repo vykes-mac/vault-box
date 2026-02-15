@@ -10,6 +10,7 @@ struct SharedContentViewer: View {
 
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var decryptedImage: UIImage?
     @State private var tempFileURL: URL?
@@ -203,7 +204,8 @@ struct SharedContentViewer: View {
             let encryptionService = EncryptionService()
             let vaultService = VaultService(
                 encryptionService: encryptionService,
-                modelContext: modelContext
+                modelContext: modelContext,
+                hasPremiumAccess: { purchaseService.isPremium }
             )
 
             if let image = decryptedImage {

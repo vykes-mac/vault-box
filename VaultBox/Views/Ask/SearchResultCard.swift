@@ -87,17 +87,16 @@ struct SearchResultCard: View {
             return Text(text)
         }
 
-        let lowercasedText = text.lowercased()
         var result = Text("")
         var currentIndex = text.startIndex
 
-        // Collect all highlight ranges for all query terms
+        // Collect all highlight ranges for all query terms using
+        // case-insensitive search directly on the original string so that
+        // the returned indices are always valid for `text`.
         var ranges: [(Range<String.Index>, String)] = []
         for term in queryTerms {
-            let lowercasedTerm = term.lowercased()
-            var searchStart = lowercasedText.startIndex
-            while let range = lowercasedText.range(of: lowercasedTerm, range: searchStart..<lowercasedText.endIndex) {
-                // Map the range back to the original string's indices
+            var searchStart = text.startIndex
+            while let range = text.range(of: term, options: .caseInsensitive, range: searchStart..<text.endIndex) {
                 ranges.append((range, String(text[range])))
                 searchStart = range.upperBound
             }
