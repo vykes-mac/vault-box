@@ -162,6 +162,10 @@ struct VaultGridView: View {
 
     private var mainContent: some View {
         VStack(spacing: 0) {
+            if !purchaseService.isPremium && vaultService.isAtFreeLimit() {
+                freeLimitBanner
+            }
+
             if filteredItems.isEmpty {
                 Spacer()
                 emptyState
@@ -509,6 +513,38 @@ struct VaultGridView: View {
         .task {
             await loadThumbnail(for: item)
         }
+    }
+
+    // MARK: - Free Limit Banner
+
+    private var freeLimitBanner: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "exclamationmark.circle")
+                .font(.title3)
+                .foregroundStyle(Color.vaultPremium)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("You've reached your free limit")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
+                    .foregroundStyle(Color.vaultTextPrimary)
+                Text("Upgrade for unlimited storage.")
+                    .font(.caption)
+                    .foregroundStyle(Color.vaultTextSecondary)
+            }
+
+            Spacer()
+
+            Button("Unlock") {
+                showPaywall = true
+            }
+            .font(.subheadline)
+            .fontWeight(.semibold)
+            .buttonStyle(.borderedProminent)
+            .tint(Color.vaultPremium)
+        }
+        .padding(Constants.standardPadding)
+        .background(Color.vaultPremium.opacity(0.1))
     }
 
     // MARK: - Item Count Bar

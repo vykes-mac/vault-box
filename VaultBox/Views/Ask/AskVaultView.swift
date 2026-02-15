@@ -46,7 +46,18 @@ struct AskVaultView: View {
                     loadingState
                 }
             }
-            .navigationTitle("Ask My Vault")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    HStack(spacing: 6) {
+                        Text("Ask My Vault")
+                            .font(.headline)
+                        if purchaseService.isPremiumRequired(for: .askMyVault) {
+                            PremiumBadge()
+                        }
+                    }
+                }
+            }
             .toolbarBackground(Color.vaultBackground, for: .navigationBar)
             .searchable(text: $searchText, prompt: "Ask your vault...")
             .onSubmit(of: .search) {
@@ -140,6 +151,49 @@ struct AskVaultView: View {
         }
     }
 
+    // MARK: - Premium Upsell Card
+
+    private var askVaultUpsellCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                Image(systemName: "sparkle.magnifyingglass")
+                    .font(.system(size: 24, weight: .light))
+                    .foregroundStyle(Color.vaultPremium)
+                Spacer()
+                PremiumBadge()
+            }
+
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Search Your Entire Vault")
+                    .font(.headline)
+                    .foregroundStyle(Color.vaultTextPrimary)
+
+                Text("Ask questions about your photos, documents, and screenshots with AI-powered search.")
+                    .font(.subheadline)
+                    .foregroundStyle(Color.vaultTextSecondary)
+            }
+
+            Button {
+                showPaywall = true
+            } label: {
+                Label("Upgrade to Premium", systemImage: "star.fill")
+                    .font(.subheadline)
+                    .fontWeight(.semibold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(Color.vaultPremium)
+        }
+        .padding(Constants.standardPadding)
+        .background(Color.vaultSurface)
+        .overlay(
+            RoundedRectangle(cornerRadius: Constants.cardCornerRadius)
+                .stroke(Color.vaultPremium.opacity(0.4), lineWidth: 1)
+        )
+        .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius))
+    }
+
     // MARK: - Indexing Progress
 
     private var indexingProgressBar: some View {
@@ -196,23 +250,23 @@ struct AskVaultView: View {
                     .padding(.horizontal, 24)
             }
 
-            // Suggestion Chips
-            VStack(spacing: 10) {
-                Text("Try asking")
-                    .font(.caption)
-                    .fontWeight(.medium)
-                    .foregroundStyle(Color.vaultTextSecondary)
-                    .textCase(.uppercase)
+            // Premium upsell card for free users; suggestion chips for premium users
+            if purchaseService.isPremiumRequired(for: .askMyVault) {
+                askVaultUpsellCard
+            } else {
+                VStack(spacing: 10) {
+                    Text("Try asking")
+                        .font(.caption)
+                        .fontWeight(.medium)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                        .textCase(.uppercase)
 
-                FlowLayout(spacing: 8) {
-                    ForEach(AskVaultViewModel.suggestions, id: \.self) { suggestion in
-                        SuggestionChipView(text: suggestion) {
-                            if purchaseService.isPremiumRequired(for: .askMyVault) {
-                                showPaywall = true
-                                return
+                    FlowLayout(spacing: 8) {
+                        ForEach(AskVaultViewModel.suggestions, id: \.self) { suggestion in
+                            SuggestionChipView(text: suggestion) {
+                                searchText = suggestion
+                                viewModel.selectSuggestion(suggestion)
                             }
-                            searchText = suggestion
-                            viewModel.selectSuggestion(suggestion)
                         }
                     }
                 }

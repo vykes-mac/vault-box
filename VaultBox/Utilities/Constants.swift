@@ -4,7 +4,7 @@ enum Constants {
 
     // MARK: - Free Tier
 
-    static let freeItemLimit = 50
+    static let freeItemLimit = 25
 
     // MARK: - Encryption
 
