@@ -20,6 +20,10 @@ class AskVaultViewModel {
     /// Maps item UUIDs to (name, type) for displaying results.
     private(set) var itemLookup: [UUID: (name: String, type: VaultItem.ItemType)] = [:]
 
+    /// Item IDs that are allowed in the current vault context (decoy vs regular).
+    /// Search results are post-filtered against this set.
+    private(set) var allowedItemIDs: Set<UUID> = []
+
     // MARK: - Indexing Progress
 
     let indexingProgress: IndexingProgress
@@ -76,7 +80,7 @@ class AskVaultViewModel {
             do {
                 let searchResults = try await searchEngine.search(query: query)
                 guard !Task.isCancelled else { return }
-                results = searchResults
+                results = searchResults.filter { allowedItemIDs.contains($0.itemID) }
                 hasSearched = true
             } catch {
                 guard !Task.isCancelled else { return }
@@ -109,7 +113,7 @@ class AskVaultViewModel {
             do {
                 let searchResults = try await searchEngine.search(query: query)
                 guard !Task.isCancelled else { return }
-                results = searchResults
+                results = searchResults.filter { allowedItemIDs.contains($0.itemID) }
                 hasSearched = true
             } catch {
                 guard !Task.isCancelled else { return }
@@ -132,6 +136,7 @@ class AskVaultViewModel {
             lookup[item.id] = (name: item.originalFilename, type: item.type)
         }
         itemLookup = lookup
+        allowedItemIDs = Set(items.map { $0.id })
     }
 
     /// The current query split into terms for highlight matching.

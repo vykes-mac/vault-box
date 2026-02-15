@@ -532,8 +532,8 @@ struct SettingsView: View {
 
     private var storageSection: some View {
         Section("Storage") {
-            LabeledContent("Items", value: viewModel?.itemCountText(purchaseService: purchaseService) ?? "—")
-            LabeledContent("Storage Used", value: viewModel?.storageUsedText() ?? "—")
+            LabeledContent("Items", value: viewModel?.itemCountText(purchaseService: purchaseService, isDecoyMode: authService.isDecoyMode) ?? "—")
+            LabeledContent("Storage Used", value: viewModel?.storageUsedText(isDecoyMode: authService.isDecoyMode) ?? "—")
 
             if !purchaseService.isPremium {
                 Button {

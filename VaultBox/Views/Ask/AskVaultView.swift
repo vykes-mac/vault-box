@@ -5,11 +5,20 @@ struct AskVaultView: View {
     let vaultService: VaultService
     let searchEngine: SearchEngine?
     let indexingProgress: IndexingProgress
+    var isDecoyMode: Bool = false
 
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.modelContext) private var modelContext
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+
+    private var filteredItems: [VaultItem] {
+        if isDecoyMode {
+            return allItems.filter { $0.album?.isDecoy == true }
+        } else {
+            return allItems.filter { $0.album?.isDecoy != true }
+        }
+    }
 
     @State private var viewModel: AskVaultViewModel?
     @State private var searchText = ""
@@ -54,7 +63,7 @@ struct AskVaultView: View {
                 VaultBoxPaywallView()
             }
             .fullScreenCover(item: $detailItem) { item in
-                let nonDocItems = allItems.filter { $0.type != .document }
+                let nonDocItems = filteredItems.filter { $0.type != .document }
                 let index = nonDocItems.firstIndex(where: { $0.id == item.id }) ?? 0
                 PhotoDetailView(
                     items: nonDocItems,
@@ -116,11 +125,11 @@ struct AskVaultView: View {
                 .padding(.bottom, Constants.sectionSpacing)
             }
         }
-        .onChange(of: allItems) { _, newItems in
+        .onChange(of: filteredItems) { _, newItems in
             viewModel.updateItemLookup(from: newItems)
         }
         .onAppear {
-            viewModel.updateItemLookup(from: allItems)
+            viewModel.updateItemLookup(from: filteredItems)
         }
         // Premium gate: dismisses search and shows paywall when free user taps search bar
         .background {
@@ -286,7 +295,7 @@ struct AskVaultView: View {
     // MARK: - Navigation
 
     private func navigateToItem(_ itemID: UUID) {
-        guard let item = allItems.first(where: { $0.id == itemID }) else { return }
+        guard let item = filteredItems.first(where: { $0.id == itemID }) else { return }
         switch item.type {
         case .document:
             documentDetailItem = item

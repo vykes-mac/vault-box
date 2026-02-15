@@ -255,7 +255,8 @@ struct ContentView: View {
             AskVaultView(
                 vaultService: vaultService,
                 searchEngine: searchEngine,
-                indexingProgress: indexingProgress
+                indexingProgress: indexingProgress,
+                isDecoyMode: authService.isDecoyMode
             )
             .tabItem {
                 Label("Ask", systemImage: "sparkles")

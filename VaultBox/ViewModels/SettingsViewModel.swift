@@ -88,16 +88,16 @@ class SettingsViewModel {
 
     // MARK: - Storage Info
 
-    func itemCountText(purchaseService: PurchaseService) -> String {
-        let count = vaultService.getTotalItemCount()
+    func itemCountText(purchaseService: PurchaseService, isDecoyMode: Bool) -> String {
+        let count = vaultService.getItemCount(isDecoyMode: isDecoyMode)
         if purchaseService.isPremium {
             return "\(count) item\(count == 1 ? "" : "s")"
         }
         return "\(count) of \(Constants.freeItemLimit) items"
     }
 
-    func storageUsedText() -> String {
-        let bytes = vaultService.getTotalStorageUsed()
+    func storageUsedText(isDecoyMode: Bool) -> String {
+        let bytes = vaultService.getStorageUsed(isDecoyMode: isDecoyMode)
         return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 

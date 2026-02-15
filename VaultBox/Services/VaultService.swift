@@ -591,10 +591,30 @@ class VaultService {
         return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
 
+    func getItemCount(isDecoyMode: Bool) -> Int {
+        let descriptor = FetchDescriptor<VaultItem>()
+        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
+        if isDecoyMode {
+            return items.filter { $0.album?.isDecoy == true }.count
+        } else {
+            return items.filter { $0.album?.isDecoy != true }.count
+        }
+    }
+
     func getTotalStorageUsed() -> Int64 {
         let descriptor = FetchDescriptor<VaultItem>()
         guard let items = try? modelContext.fetch(descriptor) else { return 0 }
         return items.reduce(0) { $0 + $1.fileSize }
+    }
+
+    func getStorageUsed(isDecoyMode: Bool) -> Int64 {
+        let descriptor = FetchDescriptor<VaultItem>()
+        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
+        if isDecoyMode {
+            return items.filter { $0.album?.isDecoy == true }.reduce(0) { $0 + $1.fileSize }
+        } else {
+            return items.filter { $0.album?.isDecoy != true }.reduce(0) { $0 + $1.fileSize }
+        }
     }
 
     func isAtFreeLimit() -> Bool {
