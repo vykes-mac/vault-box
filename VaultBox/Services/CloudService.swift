@@ -21,6 +21,7 @@ actor CloudService {
     private let encryptionService: EncryptionService
 
     private(set) var uploadProgress: (completed: Int, total: Int) = (0, 0)
+    private(set) var downloadProgress: (completed: Int, total: Int) = (0, 0)
 
     init(encryptionService: EncryptionService) {
         self.container = CKContainer(identifier: "iCloud.com.vaultbox.app")
@@ -77,6 +78,7 @@ actor CloudService {
 
     // MARK: - Fetch All
 
+    /// Fetches all backed-up vault item records from CloudKit with cursor-based pagination.
     func fetchAllCloudRecords() async throws -> [CKRecord] {
         let query = CKQuery(
             recordType: Constants.cloudRecordType,
@@ -85,15 +87,84 @@ actor CloudService {
         query.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
 
         var allRecords: [CKRecord] = []
-        let (results, _) = try await database.records(matching: query)
 
-        for result in results {
+        // First page
+        let (firstResults, firstCursor) = try await database.records(matching: query, resultsLimit: 200)
+        for result in firstResults {
             if case .success(let record) = result.1 {
                 allRecords.append(record)
             }
         }
 
+        // Continue fetching with cursor if there are more pages
+        var cursor = firstCursor
+        while let currentCursor = cursor {
+            let (nextResults, nextCursor) = try await database.records(
+                continuingMatchFrom: currentCursor,
+                resultsLimit: 200
+            )
+            for result in nextResults {
+                if case .success(let record) = result.1 {
+                    allRecords.append(record)
+                }
+            }
+            cursor = nextCursor
+        }
+
         return allRecords
+    }
+
+    /// Returns just the count of backed-up records without downloading them.
+    func countCloudRecords() async throws -> Int {
+        let records = try await fetchAllCloudRecords()
+        return records.count
+    }
+
+    // MARK: - Key Backup
+
+    /// Well-known record ID for the single key backup record per user.
+    private static let keyBackupRecordID = CKRecord.ID(recordName: "MasterKeyBackup")
+
+    /// Uploads a PIN-wrapped master key to CloudKit for restore on new devices.
+    /// Uses a fixed record ID so repeated calls overwrite the previous backup.
+    func uploadKeyBackup(wrappedKey: Data, salt: Data) async throws {
+        let record = CKRecord(
+            recordType: Constants.cloudKeyBackupRecordType,
+            recordID: Self.keyBackupRecordID
+        )
+        record["wrappedMasterKey"] = wrappedKey as CKRecordValue
+        record["keySalt"] = salt as CKRecordValue
+        record["createdAt"] = Date() as CKRecordValue
+
+        // Use changedKeys save policy so re-uploads overwrite the existing record.
+        let (saveResults, _) = try await database.modifyRecords(
+            saving: [record],
+            deleting: [],
+            savePolicy: .changedKeys
+        )
+        // Surface any per-record error
+        for (_, result) in saveResults {
+            let _ = try result.get()
+        }
+    }
+
+    /// Fetches the PIN-wrapped master key from CloudKit.
+    func fetchKeyBackup() async throws -> (wrappedKey: Data, salt: Data)? {
+        guard let record = try? await database.record(for: Self.keyBackupRecordID) else {
+            return nil
+        }
+
+        guard let wrappedKey = record["wrappedMasterKey"] as? Data,
+              let salt = record["keySalt"] as? Data else {
+            return nil
+        }
+
+        return (wrappedKey: wrappedKey, salt: salt)
+    }
+
+    /// Checks whether a key backup exists in iCloud without downloading it.
+    func hasKeyBackup() async -> Bool {
+        (try? await database.record(for: Self.keyBackupRecordID)) != nil
     }
 
     // MARK: - Status
@@ -109,6 +180,18 @@ actor CloudService {
     func getUploadProgress() -> (completed: Int, total: Int) {
         uploadProgress
     }
+
+    func getDownloadProgress() -> (completed: Int, total: Int) {
+        downloadProgress
+    }
+
+    func setDownloadProgress(completed: Int, total: Int) {
+        downloadProgress = (completed, total)
+    }
+
+    func resetDownloadProgress() {
+        downloadProgress = (0, 0)
+    }
 }
 
 // MARK: - Errors
@@ -118,6 +201,8 @@ enum CloudError: LocalizedError {
     case downloadFailed
     case iCloudUnavailable
     case storageFull
+    case keyBackupNotFound
+    case keyDecryptionFailed
 
     var errorDescription: String? {
         switch self {
@@ -129,6 +214,10 @@ enum CloudError: LocalizedError {
             "iCloud is not available. Check your Apple ID in Settings."
         case .storageFull:
             "Your iCloud storage is full. Backup paused."
+        case .keyBackupNotFound:
+            "No encryption key backup found in iCloud. Back up your vault first."
+        case .keyDecryptionFailed:
+            "Incorrect PIN. Could not decrypt your backup encryption key."
         }
     }
 }

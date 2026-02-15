@@ -7,6 +7,7 @@
 ## Agent Workflow
 
 ### Session Startup
+
 1. Run `pwd` — confirm working directory is `/Users/VykesMac/repos/vault-box`
 2. Read `claude-progress.txt` for current state
 3. Read this file's feature checklist — find the next `"passes": false` feature
@@ -14,11 +15,13 @@
 5. Run `xcodebuild build` to confirm project compiles before making changes
 
 ### Session Work
+
 - **One feature per session.** Do not attempt multiple features.
 - Build the feature, then verify it passes its verification steps
 - If a feature depends on another that isn't passing, fix the dependency first
 
 ### Session Shutdown
+
 1. Run `xcodebuild build` — confirm project still compiles
 2. Run tests if applicable: `xcodebuild test -scheme VaultBox -destination 'platform=iOS Simulator,name=iPhone 16'`
 3. Git commit with descriptive message: `git add -A && git commit -m "feat: <feature description>"`
@@ -113,252 +116,409 @@ Verification = how the agent proves the feature works before committing.
     "id": "F0",
     "category": "Phase 1 — Setup",
     "description": "Create Xcode project, add SPM deps (RevenueCat, KeychainAccess), create folder structure per PRD Section 3, add Info.plist keys, create init.sh, init git repo",
-    "verification": ["Project opens in Xcode without errors", "SPM dependencies resolve", "Folder structure matches PRD Section 3", "init.sh runs without errors", "git log shows initial commit"],
+    "verification": [
+      "Project opens in Xcode without errors",
+      "SPM dependencies resolve",
+      "Folder structure matches PRD Section 3",
+      "init.sh runs without errors",
+      "git log shows initial commit"
+    ],
     "passes": false
   },
   {
     "id": "F1",
     "category": "Phase 1 — Setup",
     "description": "Create Constants.swift with all app-wide constants (colors, spacing, haptics, free tier limit, encryption params) per PRD Appendix A",
-    "verification": ["File exists at Utilities/Constants.swift", "Project compiles"],
+    "verification": [
+      "File exists at Utilities/Constants.swift",
+      "Project compiles"
+    ],
     "passes": false
   },
   {
     "id": "F2",
     "category": "Phase 1 — Models",
     "description": "Create AppSettings SwiftData model per PRD Section 4. Seed default settings on first launch in VaultBoxApp.swift",
-    "verification": ["AppSettings.swift exists with all fields from PRD", "Project compiles"],
+    "verification": [
+      "AppSettings.swift exists with all fields from PRD",
+      "Project compiles"
+    ],
     "passes": false
   },
   {
     "id": "F3",
     "category": "Phase 1 — Encryption",
     "description": "Implement EncryptionService actor per PRD Section 5.2 — AES-256-GCM encrypt/decrypt, key generation, HKDF derivation, Keychain storage via KeychainAccess, thumbnail encryption",
-    "verification": ["EncryptionService.swift compiles", "Unit test: encrypt then decrypt roundtrip returns identical data", "Unit test: different keys produce different ciphertext"],
+    "verification": [
+      "EncryptionService.swift compiles",
+      "Unit test: encrypt then decrypt roundtrip returns identical data",
+      "Unit test: different keys produce different ciphertext"
+    ],
     "passes": false
   },
   {
     "id": "F4",
     "category": "Phase 1 — Auth",
     "description": "Implement AuthService actor per PRD Section 5.1 — PIN create/verify/change, SHA-256 hashing with salt, lockout logic (3/5/8/10 thresholds), biometric auth via LocalAuthentication, auto-lock",
-    "verification": ["AuthService.swift compiles", "Unit test: correct PIN returns .success", "Unit test: wrong PIN returns .failure", "Unit test: 3 failures trigger 30s lockout", "Unit test: decoy PIN returns .decoy"],
+    "verification": [
+      "AuthService.swift compiles",
+      "Unit test: correct PIN returns .success",
+      "Unit test: wrong PIN returns .failure",
+      "Unit test: 3 failures trigger 30s lockout",
+      "Unit test: decoy PIN returns .decoy"
+    ],
     "passes": false
   },
   {
     "id": "F5",
     "category": "Phase 1 — UI",
     "description": "Create PINKeypadView component and PINSetupView per PRD Sections 6.1-6.2 — custom numeric keypad, 4-8 digit dots, confirm flow, biometric prompt after setup",
-    "verification": ["Views compile", "Preview renders in Xcode", "Keypad shows digits 0-9 + delete + biometric button"],
+    "verification": [
+      "Views compile",
+      "Preview renders in Xcode",
+      "Keypad shows digits 0-9 + delete + biometric button"
+    ],
     "passes": false
   },
   {
     "id": "F6",
     "category": "Phase 1 — UI",
     "description": "Create LockScreenView per PRD Section 6.1 — PIN entry with dot indicators, auto-verify on last digit, shake on wrong PIN, green on correct, lockout countdown, auto biometric prompt",
-    "verification": ["View compiles", "Preview renders", "Correct PIN triggers success animation", "Wrong PIN triggers shake animation"],
+    "verification": [
+      "View compiles",
+      "Preview renders",
+      "Correct PIN triggers success animation",
+      "Wrong PIN triggers shake animation"
+    ],
     "passes": false
   },
   {
     "id": "F7",
     "category": "Phase 1 — Models",
     "description": "Create VaultItem SwiftData model per PRD Section 4 with ItemType enum",
-    "verification": ["VaultItem.swift compiles with all fields from PRD", "ItemType enum has photo/video/document cases"],
+    "verification": [
+      "VaultItem.swift compiles with all fields from PRD",
+      "ItemType enum has photo/video/document cases"
+    ],
     "passes": false
   },
   {
     "id": "F8",
     "category": "Phase 1 — Core",
     "description": "Implement VaultService per PRD Section 5.3 — import from PHPicker (encrypt + store + thumbnail), decrypt thumbnail/full image/video, delete (file + model), free tier limit check. Create VaultData/files/ and VaultData/thumbnails/ directory structure",
-    "verification": ["VaultService.swift compiles", "Import flow: PHPickerResult → encrypted file at VaultData/files/{uuid}.enc", "Thumbnails are 300x300 max JPEG at 0.7 quality, encrypted"],
+    "verification": [
+      "VaultService.swift compiles",
+      "Import flow: PHPickerResult → encrypted file at VaultData/files/{uuid}.enc",
+      "Thumbnails are 300x300 max JPEG at 0.7 quality, encrypted"
+    ],
     "passes": false
   },
   {
     "id": "F9",
     "category": "Phase 1 — UI",
     "description": "Create VaultGridView per PRD Section 6.3 — 3-column grid, decrypted thumbnails, video duration badge, favorite heart, empty state, item count label, sorting (date imported/created/size), filtering (all/photos/videos/favorites)",
-    "verification": ["View compiles", "Grid displays 3 columns with 1pt spacing", "Empty state shows when no items"],
+    "verification": [
+      "View compiles",
+      "Grid displays 3 columns with 1pt spacing",
+      "Empty state shows when no items"
+    ],
     "passes": false
   },
   {
     "id": "F10",
     "category": "Phase 1 — UI",
     "description": "Create PhotoDetailView per PRD Section 6.5 — full-screen viewer, pinch zoom up to 5x, double-tap 1x/2x toggle, swipe left/right navigation, tap to toggle bars, share sheet, info panel",
-    "verification": ["View compiles", "Photo displays full-screen with aspect-fit", "Zoom gesture works"],
+    "verification": [
+      "View compiles",
+      "Photo displays full-screen with aspect-fit",
+      "Zoom gesture works"
+    ],
     "passes": true
   },
   {
     "id": "F11",
     "category": "Phase 1 — UI",
     "description": "Create VideoPlayerView per PRD Section 6.6 — decrypt to temp file, AVPlayerViewController, delete temp file on dismiss",
-    "verification": ["View compiles", "Video plays from decrypted temp URL", "Temp file deleted on dismiss"],
+    "verification": [
+      "View compiles",
+      "Video plays from decrypted temp URL",
+      "Temp file deleted on dismiss"
+    ],
     "passes": true
   },
   {
     "id": "F12",
     "category": "Phase 1 — Models & UI",
     "description": "Create Album SwiftData model per PRD Section 4. Create AlbumGridView per PRD Section 6.4 — 2-column album cards, create/rename/delete albums, 'All Items' album always first",
-    "verification": ["Album.swift compiles with all fields", "AlbumGridView displays 2-column grid", "Can create album via + button"],
+    "verification": [
+      "Album.swift compiles with all fields",
+      "AlbumGridView displays 2-column grid",
+      "Can create album via + button"
+    ],
     "passes": true
   },
   {
     "id": "F13",
     "category": "Phase 1 — Core",
     "description": "Implement delete flow — delete vault items (remove encrypted file + SwiftData model), optional Camera Roll deletion via PHAssetChangeRequest",
-    "verification": ["Delete removes .enc file from disk", "Delete removes VaultItem from SwiftData", "Camera Roll deletion prompt appears after import"],
+    "verification": [
+      "Delete removes .enc file from disk",
+      "Delete removes VaultItem from SwiftData",
+      "Camera Roll deletion prompt appears after import"
+    ],
     "passes": true
   },
   {
     "id": "F14",
     "category": "Phase 1 — UI",
     "description": "Implement selection mode — long-press or 'Select' button, checkmark overlay, bottom toolbar with Move to Album / Favorite / Delete actions",
-    "verification": ["Long-press enters selection mode", "Selected items show checkmark", "Batch delete works", "Batch move to album works"],
+    "verification": [
+      "Long-press enters selection mode",
+      "Selected items show checkmark",
+      "Batch delete works",
+      "Batch move to album works"
+    ],
     "passes": true
   },
   {
     "id": "F15",
     "category": "Phase 1 — Navigation",
     "description": "Create ContentView (auth gate: LockScreen → TabView with 4 tabs per PRD Section 6), ImportView with PHPicker + progress modal, VaultBoxApp.swift entry point with SwiftData container setup",
-    "verification": ["App launches to LockScreen on fresh install (PINSetupView)", "After PIN setup, shows TabView", "All 4 tabs navigate correctly", "Import flow shows progress bar"],
+    "verification": [
+      "App launches to LockScreen on fresh install (PINSetupView)",
+      "After PIN setup, shows TabView",
+      "All 4 tabs navigate correctly",
+      "Import flow shows progress bar"
+    ],
     "passes": true
   },
   {
     "id": "F16",
     "category": "Phase 1 — ViewModels",
     "description": "Create all ViewModels per PRD Section 3 — AuthViewModel, VaultViewModel, AlbumViewModel, ImportViewModel. Wire up to views",
-    "verification": ["All ViewModels compile", "Views bind to ViewModels correctly", "State updates propagate to UI"],
+    "verification": [
+      "All ViewModels compile",
+      "Views bind to ViewModels correctly",
+      "State updates propagate to UI"
+    ],
     "passes": true
   },
   {
     "id": "F17",
     "category": "Phase 2 — Monetization",
     "description": "Implement PurchaseService per PRD Section 5.6 — RevenueCat configure, fetch offerings, purchase, restore, premium status check",
-    "verification": ["PurchaseService.swift compiles", "RevenueCat SDK initializes on app launch", "isPremium property available"],
+    "verification": [
+      "PurchaseService.swift compiles",
+      "RevenueCat SDK initializes on app launch",
+      "isPremium property available"
+    ],
     "passes": true
   },
   {
     "id": "F18",
     "category": "Phase 2 — UI",
     "description": "Create PaywallView per PRD Section 6.9 — hero illustration, feature list, weekly/annual toggle (weekly default), CTA button, restore purchases link",
-    "verification": ["View compiles and renders in preview", "Weekly selected by default", "Both pricing options shown", "Restore button visible"],
+    "verification": [
+      "View compiles and renders in preview",
+      "Weekly selected by default",
+      "Both pricing options shown",
+      "Restore button visible"
+    ],
     "passes": true
   },
   {
     "id": "F19",
     "category": "Phase 2 — Gating",
     "description": "Implement PremiumFeature enum and gating per PRD Section 8 — gate all premium features, show paywall at all trigger points listed in PRD",
-    "verification": ["Free tier blocked at 50 items", "Tapping premium features shows paywall", "Premium users bypass all gates"],
+    "verification": [
+      "Free tier blocked at 50 items",
+      "Tapping premium features shows paywall",
+      "Premium users bypass all gates"
+    ],
     "passes": true
   },
   {
     "id": "F20",
     "category": "Phase 2 — UI",
     "description": "Create SettingsView per PRD Section 6.8 — all sections (Security, Appearance, Backup, Privacy, Storage, About)",
-    "verification": ["View compiles", "All sections from PRD visible", "Navigation to sub-settings works"],
+    "verification": [
+      "View compiles",
+      "All sections from PRD visible",
+      "Navigation to sub-settings works"
+    ],
     "passes": true
   },
   {
     "id": "F21",
     "category": "Phase 2 — UI",
     "description": "Create SecuritySettingsView — change PIN (requires current PIN), biometrics toggle, auto-lock picker, decoy vault entry (premium gated), panic gesture toggle (premium gated)",
-    "verification": ["View compiles", "Change PIN flow works", "Biometrics toggle persists", "Premium features show lock icon for free users"],
+    "verification": [
+      "View compiles",
+      "Change PIN flow works",
+      "Biometrics toggle persists",
+      "Premium features show lock icon for free users"
+    ],
     "passes": true
   },
   {
     "id": "F22",
     "category": "Phase 2 — ViewModels",
     "description": "Create SettingsViewModel and PaywallViewModel, wire to views",
-    "verification": ["ViewModels compile", "Settings state persists", "Paywall state reflects purchase status"],
+    "verification": [
+      "ViewModels compile",
+      "Settings state persists",
+      "Paywall state reflects purchase status"
+    ],
     "passes": true
   },
   {
     "id": "F23",
     "category": "Phase 3 — Premium",
     "description": "Create BreakInAttempt SwiftData model per PRD Section 4. Implement BreakInService per PRD Section 5.5 — front camera capture, GPS location, local notification, auto-purge at 20 entries",
-    "verification": ["Model compiles", "Service captures photo on 3rd failed attempt", "GPS coordinates recorded", "Max 20 entries retained"],
+    "verification": [
+      "Model compiles",
+      "Service captures photo on 3rd failed attempt",
+      "GPS coordinates recorded",
+      "Max 20 entries retained"
+    ],
     "passes": true
   },
   {
     "id": "F24",
     "category": "Phase 3 — UI",
     "description": "Create BreakInLogView per PRD Section 6.10 — list of attempts with intruder photo, timestamp, masked PIN, location. Detail view with full photo + map",
-    "verification": ["View compiles", "List shows attempts newest first", "Tap row shows detail with map pin"],
+    "verification": [
+      "View compiles",
+      "List shows attempts newest first",
+      "Tap row shows detail with map pin"
+    ],
     "passes": true
   },
   {
     "id": "F25",
     "category": "Phase 3 — Premium",
     "description": "Implement decoy vault per PRD Section 7.1 — decoy PIN setup, isDecoyMode filtering, limited settings in decoy mode, data isolation via album.isDecoy",
-    "verification": ["Decoy PIN can be set (different from real PIN)", "Entering decoy PIN shows only decoy items", "No visible indicator of decoy mode", "Settings limited in decoy mode"],
+    "verification": [
+      "Decoy PIN can be set (different from real PIN)",
+      "Entering decoy PIN shows only decoy items",
+      "No visible indicator of decoy mode",
+      "Settings limited in decoy mode"
+    ],
     "passes": true
   },
   {
     "id": "F26",
     "category": "Phase 3 — Premium",
     "description": "Implement AppIconService per PRD Section 5.7. Create AppIconPickerView per PRD Section 6.8. Add 8 alternate icon assets to Assets.xcassets",
-    "verification": ["8 alternate icons in asset catalog", "Icon picker shows all options", "setAlternateIconName changes app icon", "Premium gated"],
+    "verification": [
+      "8 alternate icons in asset catalog",
+      "Icon picker shows all options",
+      "setAlternateIconName changes app icon",
+      "Premium gated"
+    ],
     "passes": true
   },
   {
     "id": "F27",
     "category": "Phase 3 — Premium",
     "description": "Implement panic gesture per PRD Section 7.3 — face-down detection via CMMotionManager, three-finger swipe down, immediate lock + clear temp files",
-    "verification": ["Face-down triggers lock", "Three-finger swipe triggers lock", "Heavy haptic on trigger", "Works from any screen"],
+    "verification": [
+      "Face-down triggers lock",
+      "Three-finger swipe triggers lock",
+      "Heavy haptic on trigger",
+      "Works from any screen"
+    ],
     "passes": true
   },
   {
     "id": "F28",
     "category": "Phase 3 — Premium",
     "description": "Implement CloudService actor per PRD Section 5.4 — CloudKit private database, upload/download encrypted items, background sync via BGAppRefreshTask, Wi-Fi only default",
-    "verification": ["CloudService.swift compiles", "Upload sends encrypted data to CloudKit", "Download retrieves and stores locally", "Background task registered"],
+    "verification": [
+      "CloudService.swift compiles",
+      "Upload sends encrypted data to CloudKit",
+      "Download retrieves and stores locally",
+      "Background task registered"
+    ],
     "passes": true
   },
   {
     "id": "F29",
     "category": "Phase 3 — UI",
     "description": "Create BackupSettingsView per PRD Section 6.8 — iCloud toggle, sync status, manual backup button, iCloud account status check",
-    "verification": ["View compiles", "Toggle enables/disables backup", "Status shows upload progress", "Handles iCloud unavailable gracefully"],
+    "verification": [
+      "View compiles",
+      "Toggle enables/disables backup",
+      "Status shows upload progress",
+      "Handles iCloud unavailable gracefully"
+    ],
     "passes": true
   },
   {
     "id": "F30",
     "category": "Phase 3 — Feature",
     "description": "Implement built-in camera (Tab 3) — direct-to-vault capture via AVFoundation, encrypt on capture, no Camera Roll save",
-    "verification": ["Camera tab opens camera", "Captured photo encrypted and added to vault", "Photo does NOT appear in Camera Roll"],
+    "verification": [
+      "Camera tab opens camera",
+      "Captured photo encrypted and added to vault",
+      "Photo does NOT appear in Camera Roll"
+    ],
     "passes": true
   },
   {
     "id": "F31",
     "category": "Phase 4 — Polish",
     "description": "Add EmptyStateView component. Add empty states to all screens — vault, albums, break-in log per PRD Section 3",
-    "verification": ["Empty vault shows illustration + 'Tap + to add your first photo'", "Empty albums shows placeholder", "Empty break-in log shows message"],
+    "verification": [
+      "Empty vault shows illustration + 'Tap + to add your first photo'",
+      "Empty albums shows placeholder",
+      "Empty break-in log shows message"
+    ],
     "passes": true
   },
   {
     "id": "F32",
     "category": "Phase 4 — Polish",
     "description": "Add Haptics.swift utility. Wire haptic feedback to all events per PRD Appendix A haptics table",
-    "verification": ["PIN digit tap: light impact", "PIN correct: success notification", "PIN wrong: error notification", "Delete: medium impact", "All haptic events from PRD table implemented"],
+    "verification": [
+      "PIN digit tap: light impact",
+      "PIN correct: success notification",
+      "PIN wrong: error notification",
+      "Delete: medium impact",
+      "All haptic events from PRD table implemented"
+    ],
     "passes": true
   },
   {
     "id": "F33",
     "category": "Phase 4 — Polish",
     "description": "Animation polish — PIN dot shake on wrong entry (0.5s), PIN dots green on success (0.3s delay), thumbnail loading shimmer, smooth transitions between views",
-    "verification": ["Wrong PIN shake animation visible", "Correct PIN green animation visible", "View transitions are smooth"],
+    "verification": [
+      "Wrong PIN shake animation visible",
+      "Correct PIN green animation visible",
+      "View transitions are smooth"
+    ],
     "passes": true
   },
   {
     "id": "F34",
     "category": "Phase 4 — Polish",
     "description": "Add rate prompt — trigger after 10th import using SKStoreReviewController",
-    "verification": ["Counter tracks imports", "Review prompt requested after 10th import"],
+    "verification": [
+      "Counter tracks imports",
+      "Review prompt requested after 10th import"
+    ],
     "passes": true
   },
   {
     "id": "F35",
     "category": "Phase 4 — Polish",
     "description": "Create PremiumBadge component, VaultItemThumbnail component, AlbumCoverView component per PRD Section 3",
-    "verification": ["All components compile and render in preview", "Premium badge shows 'PRO' text", "Thumbnail shows video duration for videos"],
+    "verification": [
+      "All components compile and render in preview",
+      "Premium badge shows 'PRO' text",
+      "Thumbnail shows video duration for videos"
+    ],
     "passes": true
   },
   {
@@ -372,56 +532,146 @@ Verification = how the agent proves the feature works before committing.
     "id": "F37",
     "category": "Phase 4 — Polish",
     "description": "Error handling — implement all user-facing error messages per PRD Appendix B, never show raw errors",
-    "verification": ["All error cases from PRD Appendix B have user-facing messages", "No raw error strings shown to user"],
+    "verification": [
+      "All error cases from PRD Appendix B have user-facing messages",
+      "No raw error strings shown to user"
+    ],
     "passes": true
   },
   {
     "id": "F38",
     "category": "Phase 4 — Polish",
     "description": "Theme support — System/Light/Dark toggle in settings, named colors in Assets.xcassets per PRD Appendix A color tokens",
-    "verification": ["All color tokens from PRD exist in asset catalog", "Theme toggle in settings works", "App respects system/light/dark preference"],
+    "verification": [
+      "All color tokens from PRD exist in asset catalog",
+      "Theme toggle in settings works",
+      "App respects system/light/dark preference"
+    ],
     "passes": true
   },
   {
     "id": "F39",
     "category": "Phase 4 — Store",
     "description": "Add privacy policy and terms of service views (SafariView links), restore purchases in settings, version display",
-    "verification": ["Privacy policy link opens", "Terms link opens", "Restore purchases triggers RevenueCat restore", "Version shows in settings"],
+    "verification": [
+      "Privacy policy link opens",
+      "Terms link opens",
+      "Restore purchases triggers RevenueCat restore",
+      "Version shows in settings"
+    ],
     "passes": true
   },
   {
     "id": "F40",
     "category": "Phase 4 — Store",
     "description": "Final build validation — clean build, all tests pass, no warnings, portrait lock confirmed, all Info.plist keys present",
-    "verification": ["xcodebuild clean build succeeds with 0 warnings", "All unit tests pass", "All UI tests pass", "App locked to portrait", "All 4 Info.plist usage descriptions present"],
+    "verification": [
+      "xcodebuild clean build succeeds with 0 warnings",
+      "All unit tests pass",
+      "All UI tests pass",
+      "App locked to portrait",
+      "All 4 Info.plist usage descriptions present"
+    ],
     "passes": true
   },
   {
     "id": "F41",
     "category": "Phase 5 — Wi-Fi Transfer",
     "description": "Implement Wi-Fi Transfer (Premium) per PRD Section 7.4 — NWListener-based local HTTP server, PIN re-entry before start, browser UI for upload/download, encrypt on upload / decrypt on download, auto-stop after 10min inactivity, connected device count display. Use Network framework only (no third-party deps)",
-    "verification": ["WiFiTransferService.swift compiles using NWListener", "Settings entry navigates to WiFiTransferView", "Server starts after PIN re-entry", "Browser shows upload/download interface", "Uploaded files encrypted and added to vault", "Downloaded files decrypted and served", "Server auto-stops after 10min inactivity", "Premium gated"],
+    "verification": [
+      "WiFiTransferService.swift compiles using NWListener",
+      "Settings entry navigates to WiFiTransferView",
+      "Server starts after PIN re-entry",
+      "Browser shows upload/download interface",
+      "Uploaded files encrypted and added to vault",
+      "Downloaded files decrypted and served",
+      "Server auto-stops after 10min inactivity",
+      "Premium gated"
+    ],
     "passes": false
   },
   {
     "id": "F42",
     "category": "Phase 5 — Smart Albums",
     "description": "Add smartTags: [String] and extractedText: String? to VaultItem model. Create VisionAnalysisService actor — on-device Vision analysis with VNRecognizeTextRequest (document tag + OCR), VNDetectFaceRectanglesRequest (people tag), VNDetectBarcodesRequest (qrcode tag), screenshot detection via screen dimensions. 3s timeout per image, sequential processing, background thread. Integrate into VaultService import pipeline (queue analysis after import completes, don't block UI).",
-    "verification": ["VaultItem has smartTags and extractedText fields", "VisionAnalysisService.swift compiles", "Vision analysis runs after import without blocking UI", "Tags stored on VaultItem after analysis"],
+    "verification": [
+      "VaultItem has smartTags and extractedText fields",
+      "VisionAnalysisService.swift compiles",
+      "Vision analysis runs after import without blocking UI",
+      "Tags stored on VaultItem after analysis"
+    ],
     "passes": false
   },
   {
     "id": "F43",
     "category": "Phase 5 — Smart Albums",
     "description": "Add smart albums horizontal scroll row to top of Albums tab (AlbumGridView). Show People, Documents, Screenshots, QR Codes smart albums. Each is a filtered view querying VaultItems where smartTags contains the tag. Only show smart albums with 1+ items. Not deletable or renameable by user.",
-    "verification": ["Smart albums appear at top of Albums tab in horizontal scroll", "Only smart albums with items are shown", "Tapping smart album shows filtered grid of matching items", "Smart albums are not editable by user"],
+    "verification": [
+      "Smart albums appear at top of Albums tab in horizontal scroll",
+      "Only smart albums with items are shown",
+      "Tapping smart album shows filtered grid of matching items",
+      "Smart albums are not editable by user"
+    ],
     "passes": false
   },
   {
     "id": "F44",
     "category": "Phase 5 — Smart Albums",
     "description": "Add search bar at top of Vault tab (VaultGridView). Search matches: filename, smart tags, and OCR-extracted text. Display filtered results in the existing grid layout.",
-    "verification": ["Search bar visible at top of Vault tab", "Searching by filename finds matching items", "Searching by smart tag finds tagged items", "Searching by OCR text (e.g. 'passport') finds items with matching extractedText"],
+    "verification": [
+      "Search bar visible at top of Vault tab",
+      "Searching by filename finds matching items",
+      "Searching by smart tag finds tagged items",
+      "Searching by OCR text (e.g. 'passport') finds items with matching extractedText"
+    ],
+    "passes": false
+  },
+  {
+    "id": "F45",
+    "category": "Phase 6 — New Premium Features",
+    "description": "Custom Album Covers (Premium) — Add customCoverImageData: Data? to Album model. Create AlbumCoverPickerView with Camera Roll upload, vault item selection, and remove cover options. Add 'Set Cover' to album context menu (premium gated). Update cover loading priority: custom > explicit coverItem > first item.",
+    "verification": [
+      "Album model has customCoverImageData field",
+      "AlbumCoverPickerView compiles and presents 3 options",
+      "'Set Cover' appears in album context menu",
+      "Custom cover from Camera Roll displays on album card",
+      "Vault item cover displays on album card",
+      "Remove cover reverts to first-item fallback",
+      "Premium gated — free users see paywall"
+    ],
+    "passes": false
+  },
+  {
+    "id": "F46",
+    "category": "Phase 6 — New Premium Features",
+    "description": "Document Storage (Premium) — Create DocumentPickerView (UIDocumentPickerViewController wrapper for PDFs, images), DocumentDetailView (PDFKit viewer for PDFs, image viewer for scanned docs), DocumentThumbnailService (PDF first-page thumbnail). Update VaultService.importDocument to generate thumbnails. Add 'Import Documents' to VaultGridView '+' menu. Add 'Documents' filter. Add document icon overlay to thumbnail cells. Route document taps to DocumentDetailView.",
+    "verification": [
+      "DocumentPickerView presents system document picker",
+      "Imported PDF has first-page thumbnail in grid",
+      "Tapping document opens DocumentDetailView with PDF viewer",
+      "Image-based documents display in scrollable viewer",
+      "'Documents' filter shows only document items",
+      "Document icon badge appears on document thumbnails",
+      "Import Documents is premium gated"
+    ],
+    "passes": false
+  },
+  {
+    "id": "F47",
+    "category": "Phase 6 — New Premium Features",
+    "description": "Time-Limited Photo Sharing (Premium) — Create SharingService actor (CloudKit public DB, one-time AES-256-GCM key, upload/fetch/cleanup), SharedItem SwiftData model, ShareConfigView (duration picker: 1hr/24hr/7d), SharedPhotoViewer (deep link receiver), SharedItemsView (active shares with countdowns in Settings). Register vaultbox:// URL scheme. Handle onOpenURL for deep links. Cleanup expired shares on launch.",
+    "verification": [
+      "SharingService.swift compiles with CloudKit public DB",
+      "ShareConfigView presents duration options and creates share link",
+      "Share URL format: vaultbox://shared/{shareID}#{key}",
+      "Opening share URL shows SharedPhotoViewer with decrypted image",
+      "Expired shares show 'This share has expired' message",
+      "SharedItemsView shows active shares with countdown timers",
+      "Manual revoke deletes CloudKit record immediately",
+      "Expired share cleanup runs on app launch",
+      "vaultbox URL scheme registered in Info.plist",
+      "Premium gated — free users see paywall"
+    ],
     "passes": false
   }
 ]

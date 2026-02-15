@@ -2,7 +2,7 @@
 
 > **Purpose:** This document is the single source of truth for building VaultBox, a private photo vault iOS app. It is designed to be consumed by an AI coding agent (Claude Code) to implement the full application.
 
------
+---
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@
 1. [Testing Requirements](#10-testing-requirements)
 1. [Implementation Order](#11-implementation-order)
 
------
+---
 
 ## 1. Project Overview
 
@@ -36,47 +36,46 @@ VaultBox is a photo and video vault app for iOS. Users import photos/videos from
 
 Anyone who wants to hide private photos/videos behind a separate lock from their device passcode. Primary demographics: ages 18–35, privacy-conscious, global market.
 
------
+---
 
 ## 2. Technical Stack & Setup
 
 ### Requirements
 
-|Requirement |Value                                  |
-|------------|---------------------------------------|
-|Language    |Swift 6                                |
-|UI Framework|SwiftUI                                |
-|Minimum iOS |17.0                                   |
-|Xcode       |16.0+                                  |
-|Architecture|MVVM with Services layer               |
-|Concurrency |Swift Concurrency (async/await, actors)|
+| Requirement  | Value                                   |
+| ------------ | --------------------------------------- |
+| Language     | Swift 6                                 |
+| UI Framework | SwiftUI                                 |
+| Minimum iOS  | 17.0                                    |
+| Xcode        | 16.0+                                   |
+| Architecture | MVVM with Services layer                |
+| Concurrency  | Swift Concurrency (async/await, actors) |
 
 ### Dependencies (Swift Package Manager only)
 
-|Package       |Purpose                                   |URL                                                 |
-|--------------|------------------------------------------|----------------------------------------------------|
-|RevenueCat    |In-app purchases & subscription management|`https://github.com/RevenueCat/purchases-ios`       |
-|KeychainAccess|Secure keychain storage for master key    |`https://github.com/kishikawakatsumi/KeychainAccess`|
-
+| Package        | Purpose                                    | URL                                                  |
+| -------------- | ------------------------------------------ | ---------------------------------------------------- |
+| RevenueCat     | In-app purchases & subscription management | `https://github.com/RevenueCat/purchases-ios`        |
+| KeychainAccess | Secure keychain storage for master key     | `https://github.com/kishikawakatsumi/KeychainAccess` |
 
 > **No other third-party dependencies.** Use Apple frameworks for everything else. No Firebase, no analytics SDKs, no Alamofire, no Kingfisher.
 
 ### Apple Frameworks Used
 
-|Framework          |Purpose                                              |
-|-------------------|-----------------------------------------------------|
-|SwiftUI            |All UI                                               |
-|SwiftData          |Local persistent storage (metadata)                  |
-|CryptoKit          |AES-256-GCM encryption/decryption                    |
-|LocalAuthentication|Face ID / Touch ID                                   |
-|PhotosUI           |PHPickerViewController for photo import              |
-|AVFoundation       |Built-in camera, video playback                      |
-|CloudKit           |iCloud encrypted backup (private database)           |
-|CoreLocation       |Break-in GPS coordinates                             |
-|WidgetKit          |Home screen widget (quick-open, no sensitive content)|
-|BackgroundTasks    |Background iCloud sync                               |
-|UserNotifications  |Break-in alert push notifications                    |
-|Vision             |On-device image analysis (OCR, face detection, barcodes)|
+| Framework           | Purpose                                                  |
+| ------------------- | -------------------------------------------------------- |
+| SwiftUI             | All UI                                                   |
+| SwiftData           | Local persistent storage (metadata)                      |
+| CryptoKit           | AES-256-GCM encryption/decryption                        |
+| LocalAuthentication | Face ID / Touch ID                                       |
+| PhotosUI            | PHPickerViewController for photo import                  |
+| AVFoundation        | Built-in camera, video playback                          |
+| CloudKit            | iCloud encrypted backup (private database)               |
+| CoreLocation        | Break-in GPS coordinates                                 |
+| WidgetKit           | Home screen widget (quick-open, no sensitive content)    |
+| BackgroundTasks     | Background iCloud sync                                   |
+| UserNotifications   | Break-in alert push notifications                        |
+| Vision              | On-device image analysis (OCR, face detection, barcodes) |
 
 ### Xcode Project Setup
 
@@ -104,7 +103,7 @@ NSPhotoLibraryUsageDescription: "VaultBox needs access to import photos into you
 NSLocationWhenInUseUsageDescription: "VaultBox records location data when an unauthorized access attempt is detected."
 ```
 
------
+---
 
 ## 3. Project Structure
 
@@ -185,7 +184,7 @@ VaultBox/
     └── VaultBoxWidgetBundle.swift
 ```
 
------
+---
 
 ## 4. Data Models
 
@@ -200,7 +199,7 @@ import Foundation
 @Model
 final class VaultItem {
     #Unique<VaultItem>([\.id])
-    
+
     var id: UUID
     var type: ItemType            // .photo, .video, .document
     var originalFilename: String
@@ -222,7 +221,7 @@ final class VaultItem {
         case video
         case document
     }
-    
+
     init(type: ItemType, originalFilename: String, encryptedFileRelativePath: String, fileSize: Int64) {
         self.id = UUID()
         self.type = type
@@ -243,7 +242,7 @@ final class VaultItem {
 @Model
 final class Album {
     #Unique<Album>([\.id])
-    
+
     var id: UUID
     var name: String
     var coverItem: VaultItem?
@@ -323,7 +322,7 @@ final class AppSettings {
 }
 ```
 
------
+---
 
 ## 5. Core Services
 
@@ -336,22 +335,22 @@ actor AuthService {
     // State
     var isUnlocked: Bool
     var isDecoyMode: Bool  // true = user entered decoy PIN
-    
+
     // PIN Management
     func createPIN(_ pin: String) async throws
     func verifyPIN(_ pin: String) async -> AuthResult  // .success, .failure, .locked, .decoy
     func changePIN(old: String, new: String) async throws
     func setupDecoyPIN(_ pin: String) async throws
-    
+
     // Biometrics
     func authenticateWithBiometrics() async -> Bool
     func isBiometricsAvailable() -> Bool
-    
+
     // Lockout
     func handleFailedAttempt(_ pin: String) async  // increment counter, check lockout
     func getLockoutRemainingSeconds() -> Int?
     func resetFailedAttempts() async
-    
+
     // Auto-lock
     func recordUnlockTime() async
     func shouldAutoLock() -> Bool
@@ -402,13 +401,13 @@ actor EncryptionService {
     func storeMasterKey(_ key: SymmetricKey) async throws   // → Keychain
     func loadMasterKey() async throws -> SymmetricKey       // ← Keychain
     func rotateMasterKey(oldPIN: String, newPIN: String) async throws
-    
+
     // File Encryption
     func encryptFile(at sourceURL: URL) async throws -> URL       // returns encrypted file URL
     func decryptFile(at encryptedURL: URL) async throws -> Data   // returns decrypted data
     func encryptData(_ data: Data) async throws -> Data
     func decryptData(_ data: Data) async throws -> Data
-    
+
     // Thumbnail
     func generateEncryptedThumbnail(from imageData: Data, maxSize: CGSize) async throws -> Data
 }
@@ -445,26 +444,26 @@ Manages the vault contents — import, export, organize, delete.
 class VaultService {
     let encryptionService: EncryptionService
     let modelContext: ModelContext
-    
+
     // Import
     func importPhotos(from results: [PHPickerResult], album: Album?) async throws -> [VaultItem]
     func importFromCamera(_ image: UIImage, album: Album?) async throws -> VaultItem
     func importDocument(at url: URL, album: Album?) async throws -> VaultItem
-    
+
     // Read
     func decryptThumbnail(for item: VaultItem) async throws -> UIImage
     func decryptFullImage(for item: VaultItem) async throws -> UIImage
     func decryptVideoURL(for item: VaultItem) async throws -> URL  // temp decrypted file
-    
+
     // Organize
     func moveItems(_ items: [VaultItem], to album: Album) async throws
     func removeFromAlbum(_ items: [VaultItem]) async throws
     func toggleFavorite(_ item: VaultItem) async
-    
+
     // Delete
     func deleteItems(_ items: [VaultItem]) async throws  // removes encrypted file + model
     func deleteFromCameraRoll(localIdentifiers: [String]) async throws
-    
+
     // Stats
     func getTotalItemCount() -> Int
     func getTotalStorageUsed() -> Int64
@@ -486,8 +485,10 @@ class VaultService {
    g. Record original `localIdentifier` for Camera Roll deletion
 1. Show import progress (determinate progress bar per item)
 1. After all imports complete, show prompt: “Delete originals from Camera Roll?”
+
 - If yes, delete via PHAssetChangeRequest using stored localIdentifiers
 - If no, dismiss
+
 1. If user is on free tier and import would exceed 50 items, show paywall BEFORE starting import
 
 **Thumbnail Spec:**
@@ -508,12 +509,12 @@ actor CloudService {
     func uploadItem(_ item: VaultItem) async throws
     func downloadItem(recordID: String) async throws -> Data  // encrypted data
     func deleteItem(recordID: String) async throws
-    
+
     // Bulk
     func syncAllPendingUploads() async throws  // upload items where isUploaded == false
     func fetchAllCloudRecords() async throws -> [CKRecord]  // for restore
     func restoreFromCloud() async throws -> Int  // returns count of restored items
-    
+
     // Status
     func getICloudAccountStatus() async -> CKAccountStatus
     func getUploadProgress() -> (completed: Int, total: Int)
@@ -524,15 +525,15 @@ actor CloudService {
 
 Record Type: `EncryptedVaultItem`
 
-|Field               |Type  |Description                 |
-|--------------------|------|----------------------------|
-|`itemID`            |String|UUID of VaultItem           |
-|`encryptedFile`     |Asset |The encrypted file blob     |
-|`encryptedThumbnail`|Bytes |Encrypted thumbnail data    |
-|`itemType`          |String|“photo”, “video”, “document”|
-|`originalFilename`  |String|Original filename           |
-|`fileSize`          |Int64 |File size in bytes          |
-|`createdAt`         |Date  |Original creation date      |
+| Field                | Type   | Description                  |
+| -------------------- | ------ | ---------------------------- |
+| `itemID`             | String | UUID of VaultItem            |
+| `encryptedFile`      | Asset  | The encrypted file blob      |
+| `encryptedThumbnail` | Bytes  | Encrypted thumbnail data     |
+| `itemType`           | String | “photo”, “video”, “document” |
+| `originalFilename`   | String | Original filename            |
+| `fileSize`           | Int64  | File size in bytes           |
+| `createdAt`          | Date   | Original creation date       |
 
 **Rules:**
 
@@ -574,7 +575,7 @@ RevenueCat wrapper for subscription management.
 class PurchaseService {
     var isPremium: Bool
     var currentOffering: Offering?
-    
+
     func configure() async                    // call on app launch
     func fetchOfferings() async throws
     func purchase(_ package: Package) async throws -> Bool
@@ -607,7 +608,7 @@ class AppIconService {
         ("TranslateIcon", "Translate", "icon_translate"),
         ("MeasureIcon", "Measure", "icon_measure"),
     ]
-    
+
     func setIcon(_ iconName: String?) async throws  // nil = default
     func getCurrentIcon() -> String?
 }
@@ -620,7 +621,7 @@ class AppIconService {
 - Icons should closely resemble stock iOS app icons but NOT be identical (App Store rejection risk)
 - Premium feature only
 
------
+---
 
 ## 6. Screens & Navigation
 
@@ -921,7 +922,7 @@ ABOUT
 - Each row: intruder photo (small circle), timestamp, attempted PIN (masked as “••X•”), location text
 - Tap row → detail view with full photo + map pin
 
------
+---
 
 ## 7. Feature Specifications
 
@@ -1022,18 +1023,21 @@ On-device Vision analysis runs automatically during import. No user action requi
 4. Wipe decrypted image from memory immediately after analysis
 
 **Smart Albums display:**
+
 - Shown at the top of the Albums tab in a horizontal scroll row
 - Each smart album is a filtered view (query VaultItems where smartTags contains X)
 - Smart albums only appear if they contain 1+ items
 - Not deletable or renameable by user
 
 **Search:**
+
 - Search bar at top of Vault tab
 - Searches: filename, smart tags, and OCR-extracted text
 - OCR text stored as `var extractedText: String?` on VaultItem (encrypted in DB)
 - Example: user searches "passport" → finds photo of passport via OCR text match
 
 **Performance rules:**
+
 - Vision analysis must not block import progress UI
 - Process in background after import completes
 - If user imports 50 photos, queue all 50 and process sequentially
@@ -1047,12 +1051,104 @@ var extractedText: String?   // OCR text for search (encrypted)
 ```
 
 **Privacy:**
+
 - ALL processing is on-device via Apple Vision framework
 - No data leaves the device
 - No third-party AI APIs
 - Extracted text is encrypted at rest like all other vault data
 
------
+### 7.6 Time-Limited Photo Sharing (Premium)
+
+**How it works:**
+
+1. User opens a photo → taps "Share Securely" from the more menu
+2. ShareConfigView appears with duration options: 1 hour, 24 hours, 7 days
+3. On confirm:
+   a. Generate a one-time AES-256-GCM symmetric key (NOT the master key)
+   b. Re-encrypt the photo with this one-time key
+   c. Upload to CloudKit **public** database as a `SharedPhoto` record
+   d. Build URL: `vaultbox://shared/{shareID}#{base64url-encoded-key}`
+   e. Key is in the URL fragment (never sent to server)
+4. Share URL via standard share sheet or copy to clipboard
+5. Recipient opens URL → VaultBox app opens → fetches record → checks expiry → decrypts → displays
+
+**CloudKit Record Type (Public DB):** `SharedPhoto`
+
+| Field           | Type   | Description                       |
+| --------------- | ------ | --------------------------------- |
+| `shareID`       | String | UUID for lookup                   |
+| `encryptedData` | Asset  | Photo encrypted with one-time key |
+| `expiresAt`     | Date   | When the share expires            |
+| `createdAt`     | Date   | When the share was created        |
+| `mimeType`      | String | "image/jpeg", "image/png", etc.   |
+
+**Security:**
+
+- The decryption key is in the URL fragment — never transmitted to CloudKit
+- CloudKit record is encrypted noise without the key
+- Anyone with the URL + VaultBox installed can view (no extra auth)
+- After expiry, the app refuses to decrypt and deletes the record
+
+**Cleanup:**
+
+- **Access-time**: recipient's app checks `expiresAt` before decrypting; deletes expired records
+- **Sender cleanup**: on app launch + BGAppRefreshTask, query expired `SharedPhoto` records and delete
+- **Manual revoke**: sender can revoke from "Shared Items" in Settings, immediately deleting the record
+
+**Local tracking:** `SharedItem` SwiftData model tracks active shares with countdown timers
+
+**URL scheme:** `vaultbox://` registered in Info.plist via `CFBundleURLTypes`
+
+### 7.7 Custom Album Covers (Premium)
+
+**How it works:**
+
+1. User long-presses an album → "Set Cover" in context menu
+2. AlbumCoverPickerView presents three options:
+   - "Choose from Photos" — Camera Roll picker, image resized to 300×300, encrypted, stored on Album
+   - "Choose from Vault" — grid of vault photos, sets `album.coverItem`
+   - "Remove Custom Cover" — clears both custom and explicit cover
+3. Cover resolution priority: custom cover image > explicit vault item > first item in album
+
+**Data model addition to Album:**
+
+```swift
+var customCoverImageData: Data?  // Encrypted 300×300 JPEG
+```
+
+**Rules:**
+
+- Custom cover images are encrypted with the same master key
+- Resized to 300×300 JPEG at 0.7 quality before encryption (keeps model lightweight)
+- Cover cache is invalidated when cover changes
+
+### 7.8 Document Storage (Premium)
+
+**Supported document types:** PDF, PNG, JPEG (scanned IDs, passports, etc.)
+
+**Import flow:**
+
+1. User taps "+" → "Import Documents" in VaultGridView
+2. UIDocumentPickerViewController presented for PDFs and images
+3. Document encrypted and stored like other vault items
+4. Thumbnail generated: PDF first page via PDFKit, images via UIImage resize
+5. Thumbnail encrypted and stored on VaultItem.encryptedThumbnailData
+
+**Viewing:**
+
+- Tapping a document opens DocumentDetailView
+- PDFs rendered via PDFKit (PDFView, scrollable, zoomable)
+- Image-based documents shown in scrollable image viewer
+- Unsupported formats show filename + "Preview not available"
+- Temporary decrypted file created for viewing, deleted on dismiss
+
+**Grid display:**
+
+- Documents show a file type icon overlay (bottom-left corner)
+- Documents without thumbnails show a placeholder with icon + filename
+- "Documents" filter option added to VaultGridView and AlbumDetailView
+
+---
 
 ## 8. Paywall & Monetization
 
@@ -1065,10 +1161,10 @@ Purchases.configure(withAPIKey: "YOUR_REVENUECAT_API_KEY")
 
 **Products (configure in App Store Connect + RevenueCat):**
 
-|Product ID               |Type                       |Price      |Description                       |
-|-------------------------|---------------------------|-----------|----------------------------------|
-|`vaultbox_premium_weekly`|Auto-renewable subscription|$2.99/week |Weekly premium access             |
-|`vaultbox_premium_annual`|Auto-renewable subscription|$24.99/year|Annual premium access (best value)|
+| Product ID                | Type                        | Price       | Description                        |
+| ------------------------- | --------------------------- | ----------- | ---------------------------------- |
+| `vaultbox_premium_weekly` | Auto-renewable subscription | $2.99/week  | Weekly premium access              |
+| `vaultbox_premium_annual` | Auto-renewable subscription | $24.99/year | Annual premium access (best value) |
 
 **Subscription Group:** `vaultbox_premium`
 
@@ -1089,6 +1185,9 @@ func isPremiumRequired(for feature: PremiumFeature) -> Bool {
     case .albumLock: return true
     case .videoSpeedControl: return true
     case .breakInGPS: return true   // basic break-in photo is free, GPS is premium
+    case .timeLimitedSharing: return true
+    case .customAlbumCovers: return true
+    case .documentStorage: return true
     }
 }
 
@@ -1102,6 +1201,9 @@ enum PremiumFeature {
     case albumLock
     case videoSpeedControl
     case breakInGPS
+    case timeLimitedSharing
+    case customAlbumCovers
+    case documentStorage
 }
 ```
 
@@ -1113,7 +1215,7 @@ enum PremiumFeature {
 1. Settings: explicit “Upgrade to Premium” button
 1. Video player: tapping speed control button
 
------
+---
 
 ## 9. App Store Configuration
 
@@ -1163,7 +1265,7 @@ FEATURES:
 ### Review Notes for App Store Review
 
 ```
-This app allows users to securely store private photos and videos behind PIN/biometric protection with AES-256 encryption. 
+This app allows users to securely store private photos and videos behind PIN/biometric protection with AES-256 encryption.
 
 Demo credentials for review:
 - PIN: 1234
@@ -1174,29 +1276,29 @@ The "Decoy Vault" feature shows a separate, harmless photo collection when a dif
 The "Break-in Detection" feature captures a photo using the front camera when incorrect PINs are entered. This is clearly disclosed to the user during onboarding and in the app description. Users can disable this feature in Settings.
 ```
 
------
+---
 
 ## 10. Testing Requirements
 
 ### Unit Tests
 
-|Service            |What to Test                                                                                                                                                                          |
-|-------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|`EncryptionService`|Encrypt→decrypt roundtrip produces identical data; different keys produce different ciphertext; corrupted ciphertext throws error; key derivation from same PIN+salt produces same key|
-|`AuthService`      |Correct PIN unlocks; wrong PIN fails; lockout triggers at correct thresholds; lockout timer decrements; biometric fallback works; decoy PIN returns `.decoy`                          |
-|`VaultService`     |Import creates VaultItem with correct metadata; delete removes file from disk; free tier limit enforced at 50; favorite toggle persists                                               |
-|`PurchaseService`  |Premium check gates features correctly; restore surfaces existing entitlement                                                                                                         |
+| Service             | What to Test                                                                                                                                                                           |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `EncryptionService` | Encrypt→decrypt roundtrip produces identical data; different keys produce different ciphertext; corrupted ciphertext throws error; key derivation from same PIN+salt produces same key |
+| `AuthService`       | Correct PIN unlocks; wrong PIN fails; lockout triggers at correct thresholds; lockout timer decrements; biometric fallback works; decoy PIN returns `.decoy`                           |
+| `VaultService`      | Import creates VaultItem with correct metadata; delete removes file from disk; free tier limit enforced at 50; favorite toggle persists                                                |
+| `PurchaseService`   | Premium check gates features correctly; restore surfaces existing entitlement                                                                                                          |
 
 ### UI Tests
 
-|Flow        |Test                                                                      |
-|------------|--------------------------------------------------------------------------|
-|First launch|PIN setup → confirm → biometric prompt → empty vault shown                |
-|Import      |Tap + → select photo → progress → delete prompt → item appears in grid    |
-|Lock/unlock |Background app → foreground → lock screen shown → enter PIN → vault shown |
-|Decoy       |Enter decoy PIN → only decoy items shown → settings limited               |
-|Break-in    |Enter wrong PIN 3x → intruder photo captured → appears in break-in log    |
-|Paywall     |Free user at 50 items → tap + → paywall shown → purchase → import proceeds|
+| Flow         | Test                                                                       |
+| ------------ | -------------------------------------------------------------------------- |
+| First launch | PIN setup → confirm → biometric prompt → empty vault shown                 |
+| Import       | Tap + → select photo → progress → delete prompt → item appears in grid     |
+| Lock/unlock  | Background app → foreground → lock screen shown → enter PIN → vault shown  |
+| Decoy        | Enter decoy PIN → only decoy items shown → settings limited                |
+| Break-in     | Enter wrong PIN 3x → intruder photo captured → appears in break-in log     |
+| Paywall      | Free user at 50 items → tap + → paywall shown → purchase → import proceeds |
 
 ### Manual QA Checklist (before submission)
 
@@ -1222,7 +1324,7 @@ The "Break-in Detection" feature captures a photo using the front camera when in
 - [ ] Memory: import 100+ photos without crash
 - [ ] Orientation: portrait only (lock to portrait)
 
------
+---
 
 ## 11. Implementation Order
 
@@ -1290,36 +1392,36 @@ Build in this exact order. Each phase should be fully functional before starting
 40. Submit for review
 ```
 
------
+---
 
 ## Appendix A: Design Tokens
 
 ### Colors
 
-|Token             |Light    |Dark     |Usage                   |
-|------------------|---------|---------|------------------------|
-|`background`      |`#FFFFFF`|`#000000`|Primary background      |
-|`surface`         |`#F2F2F7`|`#1C1C1E`|Cards, cells            |
-|`surfaceSecondary`|`#E5E5EA`|`#2C2C2E`|Nested surfaces         |
-|`textPrimary`     |`#000000`|`#FFFFFF`|Headings, body          |
-|`textSecondary`   |`#8E8E93`|`#8E8E93`|Captions, metadata      |
-|`accent`          |`#007AFF`|`#0A84FF`|Buttons, links          |
-|`destructive`     |`#FF3B30`|`#FF453A`|Delete actions          |
-|`success`         |`#34C759`|`#30D158`|PIN correct, upload done|
-|`premium`         |`#FFD60A`|`#FFD60A`|Premium badges          |
+| Token              | Light     | Dark      | Usage                    |
+| ------------------ | --------- | --------- | ------------------------ |
+| `background`       | `#FFFFFF` | `#000000` | Primary background       |
+| `surface`          | `#F2F2F7` | `#1C1C1E` | Cards, cells             |
+| `surfaceSecondary` | `#E5E5EA` | `#2C2C2E` | Nested surfaces          |
+| `textPrimary`      | `#000000` | `#FFFFFF` | Headings, body           |
+| `textSecondary`    | `#8E8E93` | `#8E8E93` | Captions, metadata       |
+| `accent`           | `#007AFF` | `#0A84FF` | Buttons, links           |
+| `destructive`      | `#FF3B30` | `#FF453A` | Delete actions           |
+| `success`          | `#34C759` | `#30D158` | PIN correct, upload done |
+| `premium`          | `#FFD60A` | `#FFD60A` | Premium badges           |
 
 ### Typography
 
 Use system font (SF Pro) throughout. Never specify a custom font.
 
-|Style     |Weight  |Size|Usage               |
-|----------|--------|----|--------------------|
-|largeTitle|Bold    |34pt|Screen titles       |
-|title2    |Bold    |22pt|Section headers     |
-|headline  |Semibold|17pt|Cell titles         |
-|body      |Regular |17pt|Body text           |
-|callout   |Regular |16pt|Secondary info      |
-|caption1  |Regular |12pt|Metadata, timestamps|
+| Style      | Weight   | Size | Usage                |
+| ---------- | -------- | ---- | -------------------- |
+| largeTitle | Bold     | 34pt | Screen titles        |
+| title2     | Bold     | 22pt | Section headers      |
+| headline   | Semibold | 17pt | Cell titles          |
+| body       | Regular  | 17pt | Body text            |
+| callout    | Regular  | 16pt | Secondary info       |
+| caption1   | Regular  | 12pt | Metadata, timestamps |
 
 ### Spacing
 
@@ -1331,29 +1433,29 @@ Use system font (SF Pro) throughout. Never specify a custom font.
 
 ### Haptics
 
-|Event                  |Haptic                 |
-|-----------------------|-----------------------|
-|PIN digit tap          |`.light` impact        |
-|PIN correct            |`.success` notification|
-|PIN wrong              |`.error` notification  |
-|Item selected          |`.light` impact        |
-|Delete confirmed       |`.medium` impact       |
-|Purchase complete      |`.success` notification|
-|Panic gesture triggered|`.heavy` impact        |
+| Event                   | Haptic                  |
+| ----------------------- | ----------------------- |
+| PIN digit tap           | `.light` impact         |
+| PIN correct             | `.success` notification |
+| PIN wrong               | `.error` notification   |
+| Item selected           | `.light` impact         |
+| Delete confirmed        | `.medium` impact        |
+| Purchase complete       | `.success` notification |
+| Panic gesture triggered | `.heavy` impact         |
 
------
+---
 
 ## Appendix B: Error Handling
 
 All errors should be user-facing with clear messages. Never show raw error strings.
 
-|Error Case              |User Message                                               |Action                    |
-|------------------------|-----------------------------------------------------------|--------------------------|
-|Photo import fails      |“Couldn’t import this photo. Please try again.”            |Skip item, continue others|
-|Decryption fails        |“This item couldn’t be opened. It may be corrupted.”       |Offer to delete item      |
-|iCloud unavailable      |“iCloud is not available. Check your Apple ID in Settings.”|Link to iOS Settings      |
-|iCloud full             |“Your iCloud storage is full. Backup paused.”              |Link to manage storage    |
-|Camera permission denied|“VaultBox needs camera access for this feature.”           |Link to iOS Settings      |
-|Photos permission denied|“VaultBox needs photo access to import your photos.”       |Link to iOS Settings      |
-|Purchase failed         |“Purchase couldn’t be completed. Please try again.”        |Keep paywall open         |
-|Network error (cloud)   |“Backup paused — no internet connection.”                  |Auto-retry when connected |
+| Error Case               | User Message                                                | Action                     |
+| ------------------------ | ----------------------------------------------------------- | -------------------------- |
+| Photo import fails       | “Couldn’t import this photo. Please try again.”             | Skip item, continue others |
+| Decryption fails         | “This item couldn’t be opened. It may be corrupted.”        | Offer to delete item       |
+| iCloud unavailable       | “iCloud is not available. Check your Apple ID in Settings.” | Link to iOS Settings       |
+| iCloud full              | “Your iCloud storage is full. Backup paused.”               | Link to manage storage     |
+| Camera permission denied | “VaultBox needs camera access for this feature.”            | Link to iOS Settings       |
+| Photos permission denied | “VaultBox needs photo access to import your photos.”        | Link to iOS Settings       |
+| Purchase failed          | “Purchase couldn’t be completed. Please try again.”         | Keep paywall open          |
+| Network error (cloud)    | “Backup paused — no internet connection.”                   | Auto-retry when connected  |

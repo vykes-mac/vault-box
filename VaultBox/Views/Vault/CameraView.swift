@@ -9,6 +9,7 @@ struct CameraView: View {
     var isDecoyMode: Bool = false
 
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(\.scenePhase) private var scenePhase
     @Query private var allItems: [VaultItem]
 
     @State private var capturedPhoto: CapturedPhoto?
@@ -19,42 +20,58 @@ struct CameraView: View {
     @State private var showError = false
     @State private var showPaywall = false
     @State private var cameraPosition: AVCaptureDevice.Position = .back
+    @State private var cameraAuthStatus: AVAuthorizationStatus = AVCaptureDevice.authorizationStatus(for: .video)
 
     var body: some View {
         NavigationStack {
             ZStack {
-                CameraPreviewContainer(
-                    cameraPosition: $cameraPosition,
-                    onCapture: { image in
-                        capturedPhoto = CapturedPhoto(image: image)
-                    }
-                )
-                .ignoresSafeArea()
-
-                // Save banner
-                if showSavedBanner {
-                    VStack {
-                        HStack {
-                            Image(systemName: "checkmark.circle.fill")
-                                .foregroundStyle(Color.vaultSuccess)
-                            Text("Saved to vault")
-                                .font(.subheadline)
-                                .fontWeight(.medium)
+                if cameraAuthStatus == .authorized {
+                    CameraPreviewContainer(
+                        cameraPosition: $cameraPosition,
+                        onCapture: { image in
+                            capturedPhoto = CapturedPhoto(image: image)
                         }
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .background(.ultraThinMaterial)
-                        .clipShape(Capsule())
-                        .padding(.top, 60)
+                    )
+                    .ignoresSafeArea()
 
-                        Spacer()
+                    // Save banner
+                    if showSavedBanner {
+                        VStack {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color.vaultSuccess)
+                                Text("Saved to vault")
+                                    .font(.subheadline)
+                                    .fontWeight(.medium)
+                            }
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 10)
+                            .background(.ultraThinMaterial)
+                            .clipShape(Capsule())
+                            .padding(.top, 60)
+
+                            Spacer()
+                        }
+                        .transition(.move(edge: .top).combined(with: .opacity))
                     }
-                    .transition(.move(edge: .top).combined(with: .opacity))
+                } else if cameraAuthStatus == .denied || cameraAuthStatus == .restricted {
+                    cameraPermissionDeniedView
+                } else {
+                    // .notDetermined — waiting for permission request
+                    Color.black.ignoresSafeArea()
                 }
             }
             .navigationTitle("Camera")
             .navigationBarTitleDisplayMode(.inline)
             .toolbarBackground(.hidden, for: .navigationBar)
+            .task {
+                await checkAndRequestCameraPermission()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .active {
+                    cameraAuthStatus = AVCaptureDevice.authorizationStatus(for: .video)
+                }
+            }
             .sheet(item: $capturedPhoto) { photo in
                 CameraPreviewSheet(
                     image: photo.image,
@@ -74,6 +91,56 @@ struct CameraView: View {
         }
     }
 
+    // MARK: - Camera Permission
+
+    private var cameraPermissionDeniedView: some View {
+        VStack(spacing: 20) {
+            Spacer()
+
+            Image(systemName: "camera.fill")
+                .font(.system(size: 56))
+                .foregroundStyle(Color.vaultTextSecondary)
+
+            Text("Camera Access Required")
+                .font(.title2)
+                .fontWeight(.bold)
+                .foregroundStyle(Color.vaultTextPrimary)
+
+            Text("VaultBox needs camera access to capture photos into your vault. You can enable it in Settings.")
+                .font(.subheadline)
+                .foregroundStyle(Color.vaultTextSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, 40)
+
+            Button {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            } label: {
+                Text("Open Settings")
+                    .fontWeight(.semibold)
+                    .foregroundStyle(.white)
+                    .frame(width: 180, height: 44)
+                    .background(Color.vaultAccent)
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color.vaultBackground.ignoresSafeArea())
+    }
+
+    private func checkAndRequestCameraPermission() async {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status == .notDetermined {
+            let granted = await AVCaptureDevice.requestAccess(for: .video)
+            cameraAuthStatus = granted ? .authorized : .denied
+        } else {
+            cameraAuthStatus = status
+        }
+    }
+
     private func saveToVault(_ image: UIImage) {
         if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
             capturedPhoto = nil
@@ -90,6 +157,7 @@ struct CameraView: View {
                     isDecoyMode: isDecoyMode
                 )
                 vaultService.queueVisionAnalysis(for: [item])
+                vaultService.queueSearchIndexing(for: [item])
                 isSaving = false
                 capturedPhoto = nil
                 savedCount += 1

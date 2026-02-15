@@ -13,6 +13,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
     case plants = "Plants"
     case buildings = "Buildings"
     case landmarks = "Landmarks"
+    case food = "Food"
+    case vehicles = "Vehicles"
+    case nature = "Nature"
+    case beach = "Beach"
+    case sunset = "Sunset"
+    case sports = "Sports"
+    case night = "Night"
+    case water = "Water"
+    case celebration = "Celebration"
 
     var id: String { rawValue }
 
@@ -26,6 +35,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .plants: "plants"
         case .buildings: "buildings"
         case .landmarks: "landmarks"
+        case .food: "food"
+        case .vehicles: "vehicles"
+        case .nature: "nature"
+        case .beach: "beach"
+        case .sunset: "sunset"
+        case .sports: "sports"
+        case .night: "night"
+        case .water: "water"
+        case .celebration: "celebration"
         }
     }
 
@@ -39,6 +57,15 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
         case .plants: "leaf.fill"
         case .buildings: "building.2.fill"
         case .landmarks: "building.columns.fill"
+        case .food: "fork.knife"
+        case .vehicles: "car.fill"
+        case .nature: "mountain.2.fill"
+        case .beach: "sun.max.fill"
+        case .sunset: "sunset.fill"
+        case .sports: "figure.run"
+        case .night: "moon.stars.fill"
+        case .water: "drop.fill"
+        case .celebration: "sparkles"
         }
     }
 }
@@ -53,12 +80,17 @@ struct AlbumGridView: View {
     @Query private var allItems: [VaultItem]
     @Environment(\.modelContext) private var modelContext
 
+    @Environment(PurchaseService.self) private var purchaseService
+
     @State private var showCreateAlert = false
     @State private var newAlbumName = ""
     @State private var albumToRename: Album?
     @State private var renameText = ""
     @State private var albumToDelete: Album?
     @State private var coverCache: [UUID: UIImage] = [:]
+    @State private var albumForCoverPicker: Album?
+    @State private var showPaywall = false
+    @State private var coverRefreshToken = 0
 
     private var visibleAlbums: [Album] {
         if isDecoyMode {
@@ -149,6 +181,19 @@ struct AlbumGridView: View {
             } message: {
                 Text("Items in this album will be moved to All Items, or deleted permanently.")
             }
+            .sheet(item: $albumForCoverPicker) { album in
+                AlbumCoverPickerView(
+                    album: album,
+                    vaultService: vaultService
+                ) {
+                    // Invalidate cache and bump token to re-trigger .task(id:)
+                    coverCache[album.id] = nil
+                    coverRefreshToken += 1
+                }
+            }
+            .sheet(isPresented: $showPaywall) {
+                VaultBoxPaywallView()
+            }
         }
     }
 
@@ -237,6 +282,16 @@ struct AlbumGridView: View {
                         Label("Rename", systemImage: "pencil")
                     }
 
+                    Button {
+                        if purchaseService.isPremiumRequired(for: .customAlbumCovers) {
+                            showPaywall = true
+                        } else {
+                            albumForCoverPicker = album
+                        }
+                    } label: {
+                        Label("Set Cover", systemImage: "photo.on.rectangle")
+                    }
+
                     Divider()
 
                     Button(role: .destructive) {
@@ -296,7 +351,7 @@ struct AlbumGridView: View {
                 .font(.caption)
                 .foregroundStyle(Color.vaultTextSecondary)
         }
-        .task {
+        .task(id: coverRefreshToken) {
             if let albumID {
                 await loadCover(for: albumID)
             }
@@ -309,7 +364,13 @@ struct AlbumGridView: View {
         guard coverCache[albumID] == nil else { return }
         guard let album = albums.first(where: { $0.id == albumID }) else { return }
 
-        // Use explicit cover item, or first item in album
+        // Priority: custom cover image > explicit cover item > first item in album
+        if let customData = album.customCoverImageData,
+           let image = try? await vaultService.decryptAlbumCoverImage(customData) {
+            coverCache[albumID] = image
+            return
+        }
+
         let coverSource = album.coverItem ?? album.items?.first
         guard let source = coverSource else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: source) else { return }
@@ -381,11 +442,32 @@ struct AlbumDetailView: View {
     var isDecoyMode: Bool = false
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(sort: \Album.sortOrder) private var albums: [Album]
 
     @State private var sortOrder: VaultSortOrder = .dateImported
     @State private var filter: VaultFilter = .all
     @State private var thumbnailCache: [UUID: UIImage] = [:]
     @State private var detailItem: VaultItem?
+    @State private var documentDetailItem: VaultItem?
+
+    // Selection state
+    @State private var isSelectionMode = false
+    @State private var selectedItems: Set<UUID> = []
+    @State private var showDeleteConfirm = false
+    @State private var showAlbumPicker = false
+
+    // Drag-to-select state
+    @State private var cellFrames: [UUID: CGRect] = [:]
+    @State private var isDragSelecting = false
+    @State private var dragAdditive = true
+    @State private var dragStartIndex: Int?
+    @State private var dragCurrentIndex: Int?
+    @State private var preDragSelection: Set<UUID> = []
+
+    // Auto-scroll during drag-select
+    @State private var scrollViewHeight: CGFloat = 0
+    @State private var autoScrollTask: Task<Void, Never>?
+    @State private var autoScrollDirection: Int = 0
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -417,6 +499,7 @@ struct AlbumDetailView: View {
         case .all: break
         case .photos: items = items.filter { $0.type == .photo }
         case .videos: items = items.filter { $0.type == .video }
+        case .documents: items = items.filter { $0.type == .document }
         case .favorites: items = items.filter { $0.isFavorite }
         }
 
@@ -439,15 +522,48 @@ struct AlbumDetailView: View {
                 emptyState
                 Spacer()
             } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
-                        ForEach(displayedItems) { item in
-                            thumbnailCell(for: item)
-                                .onTapGesture {
-                                    detailItem = item
-                                }
+                ScrollViewReader { proxy in
+                    ScrollView {
+                        LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
+                            ForEach(displayedItems) { item in
+                                thumbnailCell(for: item)
+                                    .background(
+                                        GeometryReader { geo in
+                                            Color.clear.preference(
+                                                key: GridCellFramePreferenceKey.self,
+                                                value: [item.id: geo.frame(in: .named("albumGrid"))]
+                                            )
+                                        }
+                                    )
+                                    .onTapGesture { handleTap(item) }
+                                    .onLongPressGesture { enterSelectionMode(selecting: item) }
+                            }
+                        }
+                        .onPreferenceChange(GridCellFramePreferenceKey.self) { frames in
+                            cellFrames = frames
                         }
                     }
+                    .coordinateSpace(name: "albumGrid")
+                    .scrollDisabled(isDragSelecting)
+                    .background(
+                        GeometryReader { geo in
+                            Color.clear
+                                .onAppear { scrollViewHeight = geo.size.height }
+                                .onChange(of: geo.size.height) { _, newValue in
+                                    scrollViewHeight = newValue
+                                }
+                        }
+                    )
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 10, coordinateSpace: .named("albumGrid"))
+                            .onChanged { value in
+                                guard isSelectionMode else { return }
+                                handleDragSelection(value, scrollProxy: proxy)
+                            }
+                            .onEnded { _ in
+                                finishDragSelection()
+                            }
+                    )
                 }
 
                 Text("\(albumItems.count) \(albumItems.count == 1 ? "item" : "items")")
@@ -457,9 +573,27 @@ struct AlbumDetailView: View {
                     .padding(.vertical, 8)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            if isSelectionMode && !selectedItems.isEmpty {
+                selectionToolbar
+            }
+        }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button {
+                    withAnimation {
+                        isSelectionMode.toggle()
+                        if !isSelectionMode {
+                            selectedItems.removeAll()
+                        }
+                    }
+                } label: {
+                    Text(isSelectionMode ? "Cancel" : "Select")
+                }
+            }
+
             ToolbarItem(placement: .topBarTrailing) {
                 Menu {
                     Picker("Sort By", selection: $sortOrder) {
@@ -477,6 +611,18 @@ struct AlbumDetailView: View {
                 }
             }
         }
+        .confirmationDialog(
+            "Delete \(selectedItems.count) item\(selectedItems.count == 1 ? "" : "s")?",
+            isPresented: $showDeleteConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Delete", role: .destructive) { batchDelete() }
+        } message: {
+            Text("These items will be permanently deleted from your vault.")
+        }
+        .sheet(isPresented: $showAlbumPicker) {
+            albumPickerSheet
+        }
         .fullScreenCover(item: $detailItem) { item in
             let index = displayedItems.firstIndex(where: { $0.id == item.id }) ?? 0
             PhotoDetailView(
@@ -485,9 +631,81 @@ struct AlbumDetailView: View {
                 vaultService: vaultService
             )
         }
+        .fullScreenCover(item: $documentDetailItem) { item in
+            DocumentDetailView(item: item, vaultService: vaultService)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             detailItem = nil
+            documentDetailItem = nil
         }
+    }
+
+    // MARK: - Selection Toolbar
+
+    private var selectionToolbar: some View {
+        HStack {
+            Button {
+                showAlbumPicker = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "folder")
+                    Text("Move").font(.caption2)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                batchFavorite()
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "heart")
+                    Text("Favorite").font(.caption2)
+                }
+            }
+
+            Spacer()
+
+            Button {
+                showDeleteConfirm = true
+            } label: {
+                VStack(spacing: 4) {
+                    Image(systemName: "trash")
+                    Text("Delete").font(.caption2)
+                }
+                .foregroundStyle(Color.vaultDestructive)
+            }
+        }
+        .foregroundStyle(Color.vaultAccent)
+        .padding(.horizontal, 40)
+        .padding(.vertical, 12)
+        .background(.ultraThinMaterial)
+    }
+
+    // MARK: - Album Picker
+
+    private var albumPickerSheet: some View {
+        NavigationStack {
+            List {
+                ForEach(albums.filter { isDecoyMode ? $0.isDecoy : !$0.isDecoy }) { album in
+                    Button {
+                        batchMoveToAlbum(album)
+                        showAlbumPicker = false
+                    } label: {
+                        Label(album.name, systemImage: "folder")
+                    }
+                }
+            }
+            .navigationTitle("Move to Album")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { showAlbumPicker = false }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+        .presentationBackground(Color.vaultBackground)
     }
 
     // MARK: - Empty State
@@ -514,7 +732,7 @@ struct AlbumDetailView: View {
                 Color.vaultSurface
             }
 
-            if item.isFavorite {
+            if item.isFavorite && !isSelectionMode {
                 VStack {
                     HStack {
                         Spacer()
@@ -545,6 +763,33 @@ struct AlbumDetailView: View {
                     }
                 }
             }
+
+            // Selection overlay and checkmark
+            if isSelectionMode {
+                // Dark overlay on selected items
+                if selectedItems.contains(item.id) {
+                    Color.black.opacity(0.3)
+                }
+
+                // Checkmark (top-left)
+                VStack {
+                    HStack {
+                        if selectedItems.contains(item.id) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .foregroundStyle(.white, Color.vaultAccent)
+                                .font(.title3)
+                        } else {
+                            Circle()
+                                .strokeBorder(.white, lineWidth: 1.5)
+                                .frame(width: 24, height: 24)
+                                .shadow(color: .black.opacity(0.3), radius: 1)
+                        }
+                        Spacer()
+                    }
+                    .padding(6)
+                    Spacer()
+                }
+            }
         }
         .aspectRatio(1, contentMode: .fill)
         .clipShape(RoundedRectangle(cornerRadius: Constants.thumbnailCornerRadius))
@@ -553,10 +798,197 @@ struct AlbumDetailView: View {
         }
     }
 
+    // MARK: - Actions
+
     private func loadThumbnail(for item: VaultItem) async {
         guard thumbnailCache[item.id] == nil else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: item) else { return }
         thumbnailCache[item.id] = image
+    }
+
+    private func handleTap(_ item: VaultItem) {
+        if isSelectionMode {
+            if selectedItems.contains(item.id) {
+                selectedItems.remove(item.id)
+            } else {
+                Haptics.itemSelected()
+                selectedItems.insert(item.id)
+            }
+        } else if item.type == .document {
+            documentDetailItem = item
+        } else {
+            detailItem = item
+        }
+    }
+
+    private func enterSelectionMode(selecting item: VaultItem) {
+        if !isSelectionMode {
+            Haptics.itemSelected()
+            isSelectionMode = true
+            selectedItems.insert(item.id)
+        }
+    }
+
+    // MARK: - Drag-to-Select
+
+    private func itemIndex(at point: CGPoint) -> Int? {
+        let items = displayedItems
+        for (id, frame) in cellFrames {
+            if frame.contains(point),
+               let idx = items.firstIndex(where: { $0.id == id }) {
+                return idx
+            }
+        }
+        return nil
+    }
+
+    private func handleDragSelection(_ value: DragGesture.Value, scrollProxy: ScrollViewProxy) {
+        let items = displayedItems
+
+        if !isDragSelecting {
+            guard let startIdx = itemIndex(at: value.startLocation) else { return }
+            isDragSelecting = true
+            dragStartIndex = startIdx
+            preDragSelection = selectedItems
+
+            let startItemId = items[startIdx].id
+            dragAdditive = !preDragSelection.contains(startItemId)
+        }
+
+        // Auto-scroll when finger is near the top or bottom edge
+        updateAutoScroll(fingerY: value.location.y, proxy: scrollProxy)
+
+        guard let startIdx = dragStartIndex,
+              let currentIdx = itemIndex(at: value.location) else { return }
+
+        guard currentIdx != dragCurrentIndex else { return }
+        let previousIndex = dragCurrentIndex
+        dragCurrentIndex = currentIdx
+
+        applyDragSelection(startIdx: startIdx, endIdx: currentIdx)
+
+        if currentIdx != previousIndex {
+            Haptics.itemSelected()
+        }
+    }
+
+    private func applyDragSelection(startIdx: Int, endIdx: Int) {
+        let items = displayedItems
+        let rangeStart = min(startIdx, endIdx)
+        let rangeEnd = min(max(startIdx, endIdx), items.count - 1)
+
+        var updated = preDragSelection
+        for idx in rangeStart...rangeEnd {
+            let itemId = items[idx].id
+            if dragAdditive {
+                updated.insert(itemId)
+            } else {
+                updated.remove(itemId)
+            }
+        }
+        selectedItems = updated
+    }
+
+    private func finishDragSelection() {
+        guard isDragSelecting else { return }
+        stopAutoScroll()
+        autoScrollDirection = 0
+        isDragSelecting = false
+        dragStartIndex = nil
+        dragCurrentIndex = nil
+        preDragSelection = []
+    }
+
+    // MARK: - Auto-Scroll
+
+    private func updateAutoScroll(fingerY: CGFloat, proxy: ScrollViewProxy) {
+        let edgeThreshold: CGFloat = 60
+        let newDirection: Int
+
+        if fingerY < edgeThreshold && scrollViewHeight > 0 {
+            newDirection = -1
+        } else if fingerY > scrollViewHeight - edgeThreshold && scrollViewHeight > 0 {
+            newDirection = 1
+        } else {
+            newDirection = 0
+        }
+
+        guard newDirection != autoScrollDirection else { return }
+        stopAutoScroll()
+        autoScrollDirection = newDirection
+        if newDirection != 0 {
+            beginAutoScroll(direction: newDirection, proxy: proxy)
+        }
+    }
+
+    private func beginAutoScroll(direction: Int, proxy: ScrollViewProxy) {
+        autoScrollTask = Task { @MainActor in
+            let colCount = Constants.vaultGridColumns
+            while !Task.isCancelled && isDragSelecting {
+                let items = displayedItems
+                guard let currentIdx = dragCurrentIndex, let startIdx = dragStartIndex else { break }
+
+                let targetIdx: Int
+                if direction < 0 {
+                    targetIdx = max(0, currentIdx - colCount)
+                } else {
+                    targetIdx = min(items.count - 1, currentIdx + colCount)
+                }
+                guard targetIdx != currentIdx else { break }
+
+                withAnimation(.linear(duration: 0.12)) {
+                    proxy.scrollTo(items[targetIdx].id, anchor: direction < 0 ? .top : .bottom)
+                }
+
+                dragCurrentIndex = targetIdx
+                applyDragSelection(startIdx: startIdx, endIdx: targetIdx)
+                Haptics.itemSelected()
+
+                try? await Task.sleep(for: .milliseconds(200))
+            }
+        }
+    }
+
+    private func stopAutoScroll() {
+        autoScrollTask?.cancel()
+        autoScrollTask = nil
+    }
+
+    // MARK: - Batch Actions
+
+    private func selectedVaultItems() -> [VaultItem] {
+        allItems.filter { selectedItems.contains($0.id) }
+    }
+
+    private func batchDelete() {
+        Haptics.deleteConfirmed()
+        let items = selectedVaultItems()
+        Task {
+            try? await vaultService.deleteItems(items)
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
+    }
+
+    private func batchFavorite() {
+        let items = selectedVaultItems()
+        Task {
+            for item in items {
+                await vaultService.toggleFavorite(item)
+            }
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
+    }
+
+    private func batchMoveToAlbum(_ album: Album) {
+        guard album.isDecoy == isDecoyMode else { return }
+        let items = selectedVaultItems()
+        Task {
+            try? await vaultService.moveItems(items, to: album)
+            selectedItems.removeAll()
+            isSelectionMode = false
+        }
     }
 
     private func formatDuration(_ seconds: Double) -> String {
@@ -578,6 +1010,7 @@ struct SmartAlbumDetailView: View {
 
     @State private var thumbnailCache: [UUID: UIImage] = [:]
     @State private var detailItem: VaultItem?
+    @State private var documentDetailItem: VaultItem?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -611,7 +1044,11 @@ struct SmartAlbumDetailView: View {
                         ForEach(matchingItems) { item in
                             thumbnailCell(for: item)
                                 .onTapGesture {
-                                    detailItem = item
+                                    if item.type == .document {
+                                        documentDetailItem = item
+                                    } else {
+                                        detailItem = item
+                                    }
                                 }
                         }
                     }
@@ -627,15 +1064,20 @@ struct SmartAlbumDetailView: View {
         .navigationTitle(smartAlbumType.rawValue)
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(item: $detailItem) { item in
-            let index = matchingItems.firstIndex(where: { $0.id == item.id }) ?? 0
+            let nonDocumentItems = matchingItems.filter { $0.type != .document }
+            let index = nonDocumentItems.firstIndex(where: { $0.id == item.id }) ?? 0
             PhotoDetailView(
-                items: matchingItems,
+                items: nonDocumentItems,
                 initialIndex: index,
                 vaultService: vaultService
             )
         }
+        .fullScreenCover(item: $documentDetailItem) { item in
+            DocumentDetailView(item: item, vaultService: vaultService)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             detailItem = nil
+            documentDetailItem = nil
         }
     }
 
@@ -665,6 +1107,22 @@ struct SmartAlbumDetailView: View {
                             .background(.black.opacity(0.6))
                             .clipShape(RoundedRectangle(cornerRadius: 2))
                             .padding(4)
+                    }
+                }
+            }
+
+            if item.type == .document {
+                VStack {
+                    Spacer()
+                    HStack {
+                        Image(systemName: "doc.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.white)
+                            .padding(4)
+                            .background(.black.opacity(0.6))
+                            .clipShape(RoundedRectangle(cornerRadius: 2))
+                            .padding(4)
+                        Spacer()
                     }
                 }
             }

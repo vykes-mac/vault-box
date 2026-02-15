@@ -12,6 +12,8 @@ struct PhotoDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(AppPrivacyShield.self) private var privacyShield
 
+    @Environment(PurchaseService.self) private var purchaseService
+
     @State private var currentIndex: Int
     @State private var showBars = true
     @State private var showInfoPanel = false
@@ -20,6 +22,8 @@ struct PhotoDetailView: View {
     @State private var decryptedImages: [UUID: UIImage] = [:]
     @State private var shareImage: UIImage?
     @State private var showVideoPlayer = false
+    @State private var showSecureShare = false
+    @State private var showPaywall = false
 
     init(items: [VaultItem], initialIndex: Int, vaultService: VaultService) {
         self.items = items
@@ -107,6 +111,17 @@ struct PhotoDetailView: View {
         .fullScreenCover(isPresented: $showVideoPlayer) {
             VideoPlayerView(item: currentItem, vaultService: vaultService)
         }
+        .sheet(isPresented: $showSecureShare) {
+            ShareConfigView(
+                item: currentItem,
+                vaultService: vaultService,
+                sharingService: SharingService()
+            )
+            .presentationDetents([.large])
+        }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             closeForPrivacy()
         }
@@ -168,6 +183,18 @@ struct PhotoDetailView: View {
 
     private var moreMenu: some View {
         Menu {
+            if currentItem.type == .photo || currentItem.type == .document {
+                Button {
+                    if purchaseService.isPremiumRequired(for: .timeLimitedSharing) {
+                        showPaywall = true
+                    } else {
+                        showSecureShare = true
+                    }
+                } label: {
+                    Label("Share Securely", systemImage: "clock.badge.checkmark")
+                }
+            }
+
             Button {
                 // Move to Album — will be wired in F12
             } label: {

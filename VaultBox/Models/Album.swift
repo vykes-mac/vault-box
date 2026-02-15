@@ -14,6 +14,9 @@ final class Album {
     var albumPINHash: String?
     var isDecoy: Bool = false
     var createdAt: Date = Date()
+    /// Encrypted thumbnail-sized JPEG for a custom album cover (premium feature).
+    /// When set, takes priority over coverItem and first-item fallback.
+    var customCoverImageData: Data?
 
     init(name: String, sortOrder: Int = 0, isDecoy: Bool = false) {
         self.id = UUID()

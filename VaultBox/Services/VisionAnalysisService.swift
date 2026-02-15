@@ -4,6 +4,7 @@ import UIKit
 import ImageIO
 import CoreImage
 import CoreML
+import PDFKit
 
 // MARK: - Analysis Types
 
@@ -13,6 +14,7 @@ struct VisionAnalysisInput: Sendable {
     let pixelWidth: Int?
     let pixelHeight: Int?
     let itemType: String
+    let originalFilename: String?
 }
 
 struct VisionAnalysisResult: Sendable {
@@ -60,28 +62,51 @@ actor VisionAnalysisService {
     // MARK: - Single Item Analysis
 
     private func analyzeItem(_ input: VisionAnalysisInput) async -> VisionAnalysisResult? {
-        guard input.itemType == "photo" else { return nil }
+        let isDocument = input.itemType == "document"
+        guard input.itemType == "photo" || isDocument else { return nil }
 
-        // Decrypt the full image temporarily.
-        guard var imageData = await decryptItemData(input) else {
+        // Decrypt the full file temporarily.
+        guard var fileData = await decryptItemData(input) else {
             Self.debugLog("Decrypt failed for item \(input.itemID.uuidString)")
             return VisionAnalysisResult(itemID: input.itemID, smartTags: [], extractedText: nil)
         }
-        defer { wipeDecryptedBytes(&imageData) }
+        defer { wipeDecryptedBytes(&fileData) }
 
-        guard let context = Self.makeImageContext(from: imageData) else {
+        let context: ImageContext?
+        if isDocument {
+            context = Self.makeImageContextFromDocument(data: fileData, filename: input.originalFilename)
+        } else {
+            context = Self.makeImageContext(from: fileData)
+        }
+
+        guard let context else {
             Self.debugLog("Image decode failed for item \(input.itemID.uuidString)")
+            // Even if we can't render, documents still get the "document" tag
+            if isDocument {
+                return VisionAnalysisResult(itemID: input.itemID, smartTags: ["document"], extractedText: nil)
+            }
             return VisionAnalysisResult(itemID: input.itemID, smartTags: [], extractedText: nil)
         }
 
         let screenBounds = await MainActor.run { UIScreen.main.nativeBounds.size }
-        let result = await Self.runAnalysis(
+        var result = await Self.runAnalysis(
             on: context.cgImage,
             orientation: context.orientation,
             input: input,
             screenBounds: screenBounds,
             timeoutSeconds: Constants.visionAnalysisTimeout
         )
+
+        // Documents always get the "document" smart tag
+        if isDocument {
+            var tags = result.smartTags
+            if !tags.contains("document") {
+                tags.append("document")
+                tags.sort()
+            }
+            result = VisionAnalysisResult(itemID: result.itemID, smartTags: tags, extractedText: result.extractedText)
+        }
+
         Self.debugLog("Finished item \(input.itemID.uuidString). Tags: \(result.smartTags.joined(separator: ",")) OCR chars: \(result.extractedText?.count ?? 0)")
         return result
     }
@@ -233,6 +258,35 @@ actor VisionAnalysisService {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil),
               let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
         return ImageContext(cgImage: cgImage, orientation: imageOrientation(from: source))
+    }
+
+    /// Renders the first page of a PDF or an image-based document to a CGImage for vision analysis.
+    private nonisolated static func makeImageContextFromDocument(data: Data, filename: String?) -> ImageContext? {
+        let isPDF = filename?.lowercased().hasSuffix(".pdf") == true
+
+        if isPDF {
+            guard let document = PDFDocument(data: data),
+                  let page = document.page(at: 0) else { return nil }
+            let pageRect = page.bounds(for: .mediaBox)
+            // Render at 2x for better OCR / classification accuracy, capped at vision max dimension
+            let maxDim = max(pageRect.width, pageRect.height)
+            let scale = min(2.0, Constants.visionAnalysisMaxDimension / maxDim)
+            let renderSize = CGSize(width: pageRect.width * scale, height: pageRect.height * scale)
+
+            let renderer = UIGraphicsImageRenderer(size: renderSize)
+            let image = renderer.image { ctx in
+                UIColor.white.setFill()
+                ctx.fill(CGRect(origin: .zero, size: renderSize))
+                ctx.cgContext.translateBy(x: 0, y: renderSize.height)
+                ctx.cgContext.scaleBy(x: scale, y: -scale)
+                page.draw(with: .mediaBox, to: ctx.cgContext)
+            }
+            guard let cgImage = image.cgImage else { return nil }
+            return ImageContext(cgImage: cgImage, orientation: .up)
+        }
+
+        // Image-based documents (scanned JPEGs, PNGs, etc.)
+        return makeImageContext(from: data)
     }
 
     private nonisolated static func prepareImageForVision(
@@ -505,6 +559,33 @@ actor VisionAnalysisService {
             if containsAnyKeyword(identifier, keywords: landmarkKeywords) {
                 tags.insert("landmarks")
             }
+            if containsAnyKeyword(identifier, keywords: foodKeywords) {
+                tags.insert("food")
+            }
+            if containsAnyKeyword(identifier, keywords: vehicleKeywords) {
+                tags.insert("vehicles")
+            }
+            if containsAnyKeyword(identifier, keywords: natureKeywords) {
+                tags.insert("nature")
+            }
+            if containsAnyKeyword(identifier, keywords: beachKeywords) {
+                tags.insert("beach")
+            }
+            if containsAnyKeyword(identifier, keywords: sunsetKeywords) {
+                tags.insert("sunset")
+            }
+            if containsAnyKeyword(identifier, keywords: sportsKeywords) {
+                tags.insert("sports")
+            }
+            if containsAnyKeyword(identifier, keywords: nightKeywords) {
+                tags.insert("night")
+            }
+            if containsAnyKeyword(identifier, keywords: waterKeywords) {
+                tags.insert("water")
+            }
+            if containsAnyKeyword(identifier, keywords: celebrationKeywords) {
+                tags.insert("celebration")
+            }
         }
 
         return tags
@@ -634,4 +715,59 @@ private let buildingKeywords = [
 private let landmarkKeywords = [
     "landmark", "monument", "temple", "church", "mosque", "cathedral", "castle", "palace",
     "statue", "memorial", "museum", "stadium", "attraction"
+]
+
+private let foodKeywords = [
+    "food", "meal", "dish", "cooking", "baking", "fruit", "vegetable", "dessert", "cake",
+    "pizza", "burger", "salad", "pasta", "sushi", "bread", "rice", "soup", "coffee", "tea",
+    "drink", "beverage", "wine", "beer", "cocktail", "snack", "breakfast", "lunch", "dinner",
+    "restaurant", "plate", "ice cream", "chocolate", "cheese", "egg", "meat", "steak",
+    "sandwich", "taco", "noodle", "donut", "pie", "cookie", "grill", "barbecue"
+]
+
+private let vehicleKeywords = [
+    "vehicle", "car", "automobile", "truck", "motorcycle", "bicycle", "bike", "bus", "train",
+    "airplane", "aircraft", "boat", "ship", "yacht", "sailboat", "helicopter", "scooter",
+    "van", "taxi", "ambulance", "firetruck", "convertible", "sedan", "suv", "minivan",
+    "locomotive", "ferry", "canoe", "kayak", "jet"
+]
+
+private let natureKeywords = [
+    "mountain", "valley", "hill", "river", "lake", "waterfall", "cliff", "canyon", "island",
+    "meadow", "field", "countryside", "wilderness", "trail", "hiking", "landscape",
+    "volcano", "glacier", "desert", "prairie", "savanna", "jungle", "rainforest",
+    "creek", "stream", "pond", "marsh", "wetland"
+]
+
+private let beachKeywords = [
+    "beach", "sand", "seaside", "tropical", "coast", "shore", "surf", "wave", "palm",
+    "ocean", "seashore", "coastline", "reef", "lagoon", "pier", "boardwalk"
+]
+
+private let sunsetKeywords = [
+    "sunset", "sunrise", "dawn", "dusk", "twilight", "golden hour", "horizon",
+    "afterglow", "skyline"
+]
+
+private let sportsKeywords = [
+    "sport", "athlete", "basketball", "football", "soccer", "tennis", "golf", "baseball",
+    "swimming", "running", "cycling", "skiing", "snowboard", "surfing", "skateboard",
+    "climbing", "boxing", "martial", "volleyball", "cricket", "rugby", "yoga", "fitness",
+    "gym", "exercise", "workout", "stadium", "court", "field", "track", "rink", "arena"
+]
+
+private let nightKeywords = [
+    "night", "nighttime", "neon", "illuminated", "firework", "starry", "moonlight",
+    "city light", "nightscape", "dark sky"
+]
+
+private let waterKeywords = [
+    "water", "rain", "aquatic", "underwater", "pool", "fountain", "splash",
+    "swimming pool", "snorkel", "diving", "scuba"
+]
+
+private let celebrationKeywords = [
+    "celebration", "party", "birthday", "wedding", "festival", "holiday", "christmas",
+    "halloween", "thanksgiving", "valentine", "decoration", "gift", "candle", "balloon",
+    "firework", "confetti", "graduation", "anniversary", "ceremony", "toast", "champagne"
 ]

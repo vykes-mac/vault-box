@@ -50,6 +50,7 @@ class VaultService {
     private let modelContext: ModelContext
     private let hasPremiumAccess: () -> Bool
     private var visionService: VisionAnalysisService?
+    private(set) var ingestionService: IngestionService?
 
     init(
         encryptionService: EncryptionService,
@@ -60,6 +61,15 @@ class VaultService {
         self.modelContext = modelContext
         self.hasPremiumAccess = hasPremiumAccess
         self.visionService = VisionAnalysisService(encryptionService: encryptionService)
+    }
+
+    /// Indexing progress observable for the Ask My Vault UI.
+    private(set) var indexingProgress: IndexingProgress?
+
+    /// Attaches the search ingestion service for Ask My Vault indexing.
+    func configureSearchIndex(ingestionService: IngestionService, indexingProgress: IndexingProgress) {
+        self.ingestionService = ingestionService
+        self.indexingProgress = indexingProgress
     }
 
     // MARK: - Import Result
@@ -315,12 +325,20 @@ class VaultService {
         let encryptedData = try await encryptionService.encryptData(data)
         try encryptedData.write(to: fileURL)
 
+        // Generate thumbnail for documents (PDF first page, image-based docs)
+        var encryptedThumbnail: Data?
+        if let thumbnail = DocumentThumbnailService.generateThumbnail(from: data, filename: filename),
+           let jpegData = thumbnail.jpegData(compressionQuality: Constants.thumbnailJPEGQuality) {
+            encryptedThumbnail = try? await encryptionService.encryptData(jpegData)
+        }
+
         let item = VaultItem(
             type: .document,
             originalFilename: filename,
             encryptedFileRelativePath: relativePath,
             fileSize: Int64(data.count)
         )
+        item.encryptedThumbnailData = encryptedThumbnail
         item.album = targetAlbum
 
         modelContext.insert(item)
@@ -361,6 +379,17 @@ class VaultService {
         return image
     }
 
+    /// Returns raw decrypted file data for any VaultItem type (photo, video, document).
+    func decryptFileData(for item: VaultItem) async throws -> Data {
+        let fileURL = try await buildFileURL(for: item)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw VaultError.fileNotFound
+        }
+
+        return try await encryptionService.decryptFile(at: fileURL)
+    }
+
     func decryptVideoURL(for item: VaultItem) async throws -> URL {
         let fileURL = try await buildFileURL(for: item)
 
@@ -375,6 +404,56 @@ class VaultService {
         try decryptedData.write(to: tempURL)
 
         return tempURL
+    }
+
+    /// Decrypts a document to a temporary file URL for viewing.
+    /// Caller is responsible for deleting the temp file when done.
+    func decryptDocumentURL(for item: VaultItem) async throws -> URL {
+        let fileURL = try await buildFileURL(for: item)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else {
+            throw VaultError.fileNotFound
+        }
+
+        let decryptedData = try await encryptionService.decryptFile(at: fileURL)
+
+        let ext = (item.originalFilename as NSString).pathExtension
+        let tempURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("\(UUID()).\(ext.isEmpty ? "dat" : ext)")
+        try decryptedData.write(to: tempURL)
+
+        return tempURL
+    }
+
+    // MARK: - Custom Album Cover
+
+    /// Encrypts a cover image (resized to thumbnail size) for an album.
+    func encryptAlbumCoverImage(_ imageData: Data) async throws -> Data {
+        guard let image = UIImage(data: imageData) else {
+            throw VaultError.importFailed
+        }
+        let maxSize = Constants.thumbnailMaxSize
+        let thumbnail = image.preparingThumbnail(of: coverThumbnailSize(for: image.size, maxSize: maxSize)) ?? image
+        guard let jpegData = thumbnail.jpegData(compressionQuality: Constants.thumbnailJPEGQuality) else {
+            throw VaultError.importFailed
+        }
+        return try await encryptionService.encryptData(jpegData)
+    }
+
+    /// Decrypts a custom album cover image.
+    func decryptAlbumCoverImage(_ encryptedData: Data) async throws -> UIImage {
+        let decryptedData = try await encryptionService.decryptData(encryptedData)
+        guard let image = UIImage(data: decryptedData) else {
+            throw VaultError.thumbnailNotFound
+        }
+        return image
+    }
+
+    private func coverThumbnailSize(for originalSize: CGSize, maxSize: CGSize) -> CGSize {
+        let widthRatio = maxSize.width / originalSize.width
+        let heightRatio = maxSize.height / originalSize.height
+        let scale = max(widthRatio, heightRatio)
+        return CGSize(width: originalSize.width * scale, height: originalSize.height * scale)
     }
 
     // MARK: - Organize Methods
@@ -401,6 +480,7 @@ class VaultService {
     // MARK: - Delete Methods
 
     func deleteItems(_ items: [VaultItem]) async throws {
+        removeSearchIndex(for: items)
         for item in items {
             let fileURL = try await buildFileURL(for: item)
             try? FileManager.default.removeItem(at: fileURL)
@@ -415,6 +495,95 @@ class VaultService {
         try await PhotoLibraryDeleteHelper.deleteAssets(withLocalIdentifiers: localIdentifiers)
     }
 
+    // MARK: - iCloud Restore
+
+    /// Restores all backed-up items from iCloud that don't already exist locally.
+    /// Returns the restored `VaultItem` array.
+    func restoreFromiCloud(
+        cloudService: CloudService,
+        progress: @escaping (Int, Int) -> Void
+    ) async throws -> [VaultItem] {
+        let records = try await cloudService.fetchAllCloudRecords()
+        guard !records.isEmpty else { return [] }
+
+        // Build a set of existing item IDs to avoid duplicates
+        let allDescriptor = FetchDescriptor<VaultItem>()
+        let existingItems = (try? modelContext.fetch(allDescriptor)) ?? []
+        let existingIDs = Set(existingItems.map { $0.id.uuidString })
+
+        let vaultDir = try await encryptionService.vaultFilesDirectory()
+        var restoredItems: [VaultItem] = []
+        let total = records.count
+
+        await cloudService.setDownloadProgress(completed: 0, total: total)
+
+        for (index, record) in records.enumerated() {
+            guard let itemIDString = record["itemID"] as? String,
+                  let itemID = UUID(uuidString: itemIDString),
+                  let itemTypeRaw = record["itemType"] as? String,
+                  let itemType = VaultItem.ItemType(rawValue: itemTypeRaw),
+                  let originalFilename = record["originalFilename"] as? String,
+                  let fileSize = record["fileSize"] as? Int64 else {
+                progress(index + 1, total)
+                await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                continue
+            }
+
+            // Skip if this item already exists locally
+            if existingIDs.contains(itemIDString) {
+                progress(index + 1, total)
+                await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                continue
+            }
+
+            do {
+                // Download encrypted file data from iCloud
+                let encryptedData = try await cloudService.downloadItem(recordID: record.recordID.recordName)
+
+                // Save encrypted file to vault directory
+                let relativePath = "\(UUID()).\(Constants.encryptedFileExtension)"
+                let fileURL = vaultDir.appendingPathComponent(relativePath)
+                try encryptedData.write(to: fileURL)
+
+                // Create VaultItem with metadata from CloudKit record
+                let item = VaultItem(
+                    type: itemType,
+                    originalFilename: originalFilename,
+                    encryptedFileRelativePath: relativePath,
+                    fileSize: fileSize
+                )
+                // Preserve original ID and dates
+                item.id = itemID
+                if let createdAt = record["createdAt"] as? Date {
+                    item.createdAt = createdAt
+                }
+                item.importedAt = Date()
+                item.isUploaded = true
+                item.cloudRecordID = record.recordID.recordName
+
+                // Restore encrypted thumbnail if available
+                if let thumbnailData = record["encryptedThumbnail"] as? Data {
+                    item.encryptedThumbnailData = thumbnailData
+                }
+
+                modelContext.insert(item)
+                try modelContext.save()
+                restoredItems.append(item)
+            } catch {
+                // Skip failed items and continue with the rest
+                #if DEBUG
+                print("[VaultService] Failed to restore item \(itemIDString): \(error)")
+                #endif
+            }
+
+            progress(index + 1, total)
+            await cloudService.setDownloadProgress(completed: index + 1, total: total)
+        }
+
+        await cloudService.resetDownloadProgress()
+        return restoredItems
+    }
+
     // MARK: - Stats Methods
 
     func getTotalItemCount() -> Int {
@@ -422,10 +591,30 @@ class VaultService {
         return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
 
+    func getItemCount(isDecoyMode: Bool) -> Int {
+        let descriptor = FetchDescriptor<VaultItem>()
+        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
+        if isDecoyMode {
+            return items.filter { $0.album?.isDecoy == true }.count
+        } else {
+            return items.filter { $0.album?.isDecoy != true }.count
+        }
+    }
+
     func getTotalStorageUsed() -> Int64 {
         let descriptor = FetchDescriptor<VaultItem>()
         guard let items = try? modelContext.fetch(descriptor) else { return 0 }
         return items.reduce(0) { $0 + $1.fileSize }
+    }
+
+    func getStorageUsed(isDecoyMode: Bool) -> Int64 {
+        let descriptor = FetchDescriptor<VaultItem>()
+        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
+        if isDecoyMode {
+            return items.filter { $0.album?.isDecoy == true }.reduce(0) { $0 + $1.fileSize }
+        } else {
+            return items.filter { $0.album?.isDecoy != true }.reduce(0) { $0 + $1.fileSize }
+        }
     }
 
     func isAtFreeLimit() -> Bool {
@@ -447,13 +636,14 @@ class VaultService {
         guard let visionService else { return }
 
         let inputs = items.compactMap { item -> VisionAnalysisInput? in
-            guard item.type == .photo else { return nil }
+            guard item.type == .photo || item.type == .document else { return nil }
             return VisionAnalysisInput(
                 itemID: item.id,
                 encryptedFileRelativePath: item.encryptedFileRelativePath,
                 pixelWidth: item.pixelWidth,
                 pixelHeight: item.pixelHeight,
-                itemType: item.type.rawValue
+                itemType: item.type.rawValue,
+                originalFilename: item.originalFilename
             )
         }
 
@@ -482,6 +672,107 @@ class VaultService {
             #if DEBUG
             print("[VaultService] Failed to save vision result for \(targetID): \(error)")
             #endif
+        }
+    }
+
+    // MARK: - Search Indexing (Ask My Vault)
+
+    /// Queues search indexing for newly imported items.
+    func queueSearchIndexing(for items: [VaultItem]) {
+        guard let ingestionService else { return }
+
+        let inputs = items.compactMap { item -> IngestionInput? in
+            guard item.type != .video else { return nil }
+            return IngestionInput(
+                itemID: item.id,
+                encryptedFileRelativePath: item.encryptedFileRelativePath,
+                itemType: item.type.rawValue,
+                originalFilename: item.originalFilename
+            )
+        }
+
+        guard !inputs.isEmpty else { return }
+
+        // Update indexing progress for UI
+        if let indexingProgress {
+            indexingProgress.totalItems += inputs.count
+            indexingProgress.isIndexing = true
+            indexingProgress.currentItemName = inputs.first?.originalFilename
+        }
+
+        Task {
+            await ingestionService.indexBatch(inputs) { result in
+                Task { @MainActor in
+                    self.applyIngestionResult(result)
+
+                    if let progress = self.indexingProgress {
+                        progress.completedItems += 1
+                        if progress.completedItems >= progress.totalItems {
+                            progress.isIndexing = false
+                            progress.currentItemName = nil
+                            progress.totalItems = 0
+                            progress.completedItems = 0
+                        } else {
+                            // Update current item name for next item
+                            let nextIndex = progress.completedItems
+                            if nextIndex < inputs.count {
+                                progress.currentItemName = inputs[nextIndex].originalFilename
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Schedule background indexing for items that didn't finish
+        VaultBoxApp.scheduleBackgroundIndexing()
+    }
+
+    /// Applies the result of search indexing back to the VaultItem model.
+    private func applyIngestionResult(_ result: IngestionResult) {
+        let targetID = result.itemID
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.id == targetID }
+        )
+        guard let item = try? modelContext.fetch(descriptor).first else { return }
+
+        item.isIndexed = result.success
+        item.indexingFailed = !result.success
+        item.chunkCount = result.chunkCount
+        item.totalPages = result.totalPages
+        if let preview = result.extractedTextPreview {
+            item.extractedTextPreview = preview
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[VaultService] Failed to save ingestion result for \(targetID): \(error)")
+            #endif
+        }
+    }
+
+    /// Indexes all items that haven't been indexed yet. Called on app launch
+    /// and after background task wake-ups.
+    func indexUnindexedItems() {
+        guard ingestionService != nil else { return }
+
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate<VaultItem> { !$0.isIndexed && !$0.indexingFailed }
+        )
+        guard let unindexed = try? modelContext.fetch(descriptor), !unindexed.isEmpty else { return }
+        queueSearchIndexing(for: unindexed)
+    }
+
+    /// Removes search index data for the given items. Called before item deletion.
+    private func removeSearchIndex(for items: [VaultItem]) {
+        guard let ingestionService else { return }
+        for item in items {
+            let itemID = item.id
+            Task {
+                await ingestionService.removeItem(itemID: itemID)
+            }
         }
     }
 

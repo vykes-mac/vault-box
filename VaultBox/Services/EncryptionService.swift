@@ -182,6 +182,27 @@ actor EncryptionService {
         return hash.compactMap { String(format: "%02x", $0) }.joined()
     }
 
+    // MARK: - Key Wrapping (for iCloud Backup)
+
+    /// Exports the master key encrypted (wrapped) by a PIN-derived wrapping key.
+    /// The returned blob can be safely stored in CloudKit — it cannot be decrypted
+    /// without knowing the user's PIN.
+    func exportWrappedMasterKey(pin: String, salt: Data) throws -> Data {
+        let masterKey = try loadMasterKey()
+        let wrappingKey = deriveMasterKey(from: pin, salt: salt)
+        let masterKeyData = masterKey.withUnsafeBytes { Data($0) }
+        return try encryptData(masterKeyData, using: wrappingKey)
+    }
+
+    /// Imports a wrapped master key by decrypting it with the user's PIN-derived key
+    /// and storing the resulting master key in the Keychain.
+    func importWrappedMasterKey(_ wrappedData: Data, pin: String, salt: Data) throws {
+        let wrappingKey = deriveMasterKey(from: pin, salt: salt)
+        let masterKeyData = try decryptData(wrappedData, using: wrappingKey)
+        let masterKey = SymmetricKey(data: masterKeyData)
+        try storeMasterKey(masterKey)
+    }
+
     // MARK: - Key Rotation
 
     func rotateMasterKey(oldPIN: String, oldSalt: Data, newPIN: String, newSalt: Data) throws {

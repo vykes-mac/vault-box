@@ -19,6 +19,8 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     var serverURL = ""
     var timeoutSecondsRemaining = 0
     var showPINReEntry = false
+    var serverStartFailed = false
+    var serverStartErrorMessage = ""
 
     init(
         vaultService: VaultService,
@@ -53,8 +55,12 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
                 try await transferService.start()
                 await syncState()
                 startCountdown()
+                serverStartFailed = false
+                serverStartErrorMessage = ""
             } catch {
                 isRunning = false
+                serverStartFailed = true
+                serverStartErrorMessage = "Could not start the transfer server. Make sure Local Network access is allowed for VaultBox in Settings \u{203A} Privacy & Security \u{203A} Local Network."
             }
         }
     }
@@ -119,6 +125,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
         if lowerCT.hasPrefix("image/") {
             let item = try await vaultService.importPhotoData(data, filename: filename, album: nil)
             vaultService.queueVisionAnalysis(for: [item])
+            vaultService.queueSearchIndexing(for: [item])
         } else {
             let tempURL = FileManager.default.temporaryDirectory
                 .appendingPathComponent(filename)
@@ -136,7 +143,9 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
             if isVideoUpload {
                 _ = try await vaultService.importVideo(at: tempURL, filename: filename, album: nil)
             } else {
-                _ = try await vaultService.importDocument(at: tempURL, album: nil)
+                let item = try await vaultService.importDocument(at: tempURL, album: nil)
+                vaultService.queueVisionAnalysis(for: [item])
+                vaultService.queueSearchIndexing(for: [item])
             }
         }
     }

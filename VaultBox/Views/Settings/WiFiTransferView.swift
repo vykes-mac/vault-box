@@ -62,6 +62,19 @@ struct WiFiTransferView: View {
         .fullScreenCover(isPresented: $showPaywall) {
             VaultBoxPaywallView()
         }
+        .alert("Could Not Start Server", isPresented: Binding(
+            get: { viewModel?.serverStartFailed ?? false },
+            set: { viewModel?.serverStartFailed = $0 }
+        )) {
+            Button("Open Settings") {
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url)
+                }
+            }
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(viewModel?.serverStartErrorMessage ?? "The transfer server could not be started. Check that Local Network access is enabled for VaultBox.")
+        }
     }
 
     private var premiumRequiredSection: some View {
@@ -98,7 +111,7 @@ struct WiFiTransferView: View {
                 }
             }
         } footer: {
-            Text("Start a local server to transfer files between your device and a computer on the same Wi-Fi network.")
+            Text("Start a local server to transfer files between your device and a computer on the same Wi-Fi network. Make sure Local Network access is allowed for VaultBox in Settings \u{203A} Privacy & Security \u{203A} Local Network.")
         }
     }
 

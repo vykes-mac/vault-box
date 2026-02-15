@@ -56,9 +56,21 @@ class AlbumViewModel {
     func loadCover(for albumID: UUID, albums: [Album]) async {
         guard coverCache[albumID] == nil else { return }
         guard let album = albums.first(where: { $0.id == albumID }) else { return }
+
+        // Priority: custom cover image > explicit cover item > first item in album
+        if let customData = album.customCoverImageData,
+           let image = try? await vaultService.decryptAlbumCoverImage(customData) {
+            coverCache[albumID] = image
+            return
+        }
+
         let coverSource = album.coverItem ?? album.items?.first
         guard let source = coverSource else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: source) else { return }
         coverCache[albumID] = image
+    }
+
+    func invalidateCover(for albumID: UUID) {
+        coverCache[albumID] = nil
     }
 }

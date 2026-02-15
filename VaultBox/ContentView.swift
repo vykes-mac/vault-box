@@ -61,6 +61,12 @@ func shouldRenderMainShell(for route: AppRootRoute) -> Bool {
     route == .main || route == .lock
 }
 
+private struct ParsedShare: Identifiable {
+    let id = UUID()
+    let shareID: String
+    let keyBase64URL: String
+}
+
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.scenePhase) private var scenePhase
@@ -71,12 +77,17 @@ struct ContentView: View {
     @State private var vaultService: VaultService?
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
+    @State private var searchEngine: SearchEngine?
+    @State private var indexingProgress = IndexingProgress()
     @State private var showImporter = false
     @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
+    @State private var pendingShareURL: URL?
+    @State private var activeShare: ParsedShare?
+    @State private var isDismissingForLock = false
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -143,7 +154,17 @@ struct ContentView: View {
             if shouldDismissMainShellPresentations(oldRoute: oldRoute, newRoute: newRoute) {
                 dismissActivePresentationsForLock()
             }
+            // Present pending share link after authentication completes
+            if newRoute == .main {
+                presentPendingShareIfNeeded()
+            }
             attemptPrivacyShieldReveal()
+        }
+        .onChange(of: pendingShareURL) { _, newURL in
+            // If a new URL arrives while already authenticated, present immediately
+            if newURL != nil, currentRoute == .main {
+                presentPendingShareIfNeeded()
+            }
         }
         .onChange(of: purchaseService.hasResolvedCustomerInfo) { _, hasResolved in
             guard hasResolved else { return }
@@ -169,6 +190,24 @@ struct ContentView: View {
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
             VaultBoxPaywallView()
+        }
+        .fullScreenCover(item: $activeShare, onDismiss: {
+            // Only clear the pending URL when the user explicitly dismissed
+            // the viewer (not when the lock cycle killed it).
+            if isDismissingForLock {
+                isDismissingForLock = false
+            } else {
+                pendingShareURL = nil
+            }
+        }) { share in
+            SharedContentViewer(
+                shareID: share.shareID,
+                keyBase64URL: share.keyBase64URL,
+                sharingService: SharingService()
+            )
+        }
+        .onOpenURL { url in
+            pendingShareURL = url
         }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
@@ -213,7 +252,17 @@ struct ContentView: View {
                     Label("Camera", systemImage: "camera")
                 }
 
-            SettingsView(authService: authService, vaultService: vaultService)
+            AskVaultView(
+                vaultService: vaultService,
+                searchEngine: searchEngine,
+                indexingProgress: indexingProgress,
+                isDecoyMode: authService.isDecoyMode
+            )
+            .tabItem {
+                Label("Ask", systemImage: "sparkles")
+            }
+
+            SettingsView(authService: authService, vaultService: vaultService, panicGestureService: panicGestureService)
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
@@ -356,10 +405,26 @@ struct ContentView: View {
         deferPostSetupPaywallUntilSecuritySetupCompletes = paywallDecision.shouldDefer
     }
 
+    private func presentPendingShareIfNeeded() {
+        guard let url = pendingShareURL,
+              let parsed = SharingService.parseShareURL(url) else { return }
+        activeShare = ParsedShare(
+            shareID: parsed.shareID,
+            keyBase64URL: parsed.keyBase64URL
+        )
+    }
+
     private func dismissActivePresentationsForLock() {
         showImporter = false
         showPostOnboardingSecuritySetup = false
         showPostSetupPaywall = false
+
+        // Mark that any share viewer dismiss is caused by the lock cycle,
+        // so pendingShareURL survives and can be re-presented after unlock.
+        if activeShare != nil {
+            isDismissingForLock = true
+            activeShare = nil
+        }
 
         let candidateScenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
         let windowScene = candidateScenes.first {
@@ -397,5 +462,36 @@ struct ContentView: View {
         authService = auth
         vaultService = vault
         breakInService = breakIn
+
+        // Initialize Ask My Vault search services
+        initializeSearchServices(encryptionService: encryptionService, vault: vault)
+    }
+
+    private func initializeSearchServices(encryptionService: EncryptionService, vault: VaultService) {
+        Task { @MainActor in
+            do {
+                let searchIndexService = try await SearchIndexService.open()
+                let embeddingService = EmbeddingService()
+                let ingestion = IngestionService(
+                    encryptionService: encryptionService,
+                    searchIndexService: searchIndexService,
+                    embeddingService: embeddingService
+                )
+                let engine = SearchEngine(
+                    searchIndexService: searchIndexService,
+                    embeddingService: embeddingService
+                )
+
+                vault.configureSearchIndex(ingestionService: ingestion, indexingProgress: self.indexingProgress)
+                self.searchEngine = engine
+
+                // Index any items that haven't been indexed yet
+                vault.indexUnindexedItems()
+            } catch {
+                #if DEBUG
+                print("[ContentView] Failed to initialize search services: \(error)")
+                #endif
+            }
+        }
     }
 }

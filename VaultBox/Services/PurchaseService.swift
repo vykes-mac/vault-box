@@ -13,6 +13,10 @@ enum PremiumFeature {
     case albumLock
     case videoSpeedControl
     case breakInGPS
+    case timeLimitedSharing
+    case customAlbumCovers
+    case documentStorage
+    case askMyVault
 }
 
 // MARK: - PurchaseService
@@ -133,7 +137,9 @@ class PurchaseService: NSObject {
         case .unlimitedItems:
             return itemCount >= Constants.freeItemLimit
         case .iCloudBackup, .decoyVault, .fakeAppIcon, .panicGesture,
-             .wifiTransfer, .albumLock, .videoSpeedControl, .breakInGPS:
+             .wifiTransfer, .albumLock, .videoSpeedControl, .breakInGPS,
+             .timeLimitedSharing, .customAlbumCovers, .documentStorage,
+             .askMyVault:
             return true
         }
     }
