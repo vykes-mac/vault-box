@@ -104,8 +104,7 @@ enum Constants {
     // MARK: - Time-Limited Sharing
 
     static let sharedFileRecordType = "SharedFile"
-    static let shareURLScheme = "vaultbox"
-    static let shareURLHost = "shared"
+    static let shareBaseURL = "https://vaultbox.pacsix.com/s"
 
     /// Duration options for time-limited sharing (in seconds).
     static let shareDurations: [(label: String, seconds: TimeInterval)] = [

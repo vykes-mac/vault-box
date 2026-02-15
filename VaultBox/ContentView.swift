@@ -206,7 +206,8 @@ struct ContentView: View {
                 sharingService: SharingService()
             )
         }
-        .onOpenURL { url in
+        .onContinueUserActivity(NSUserActivityTypeBrowsingWeb) { userActivity in
+            guard let url = userActivity.webpageURL else { return }
             pendingShareURL = url
         }
         .onChange(of: scenePhase) { _, newPhase in

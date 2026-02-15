@@ -114,7 +114,7 @@ actor SharingService {
             .replacingOccurrences(of: "/", with: "_")
             .replacingOccurrences(of: "=", with: "")
 
-        let shareURL = "\(Constants.shareURLScheme)://\(Constants.shareURLHost)/\(shareID)#\(keyBase64)"
+        let shareURL = "\(Constants.shareBaseURL)/\(shareID)#\(keyBase64)"
 
         logger.info("Shared file with ID \(shareID), expires at \(expiresAt)")
 
@@ -223,16 +223,18 @@ actor SharingService {
 
     // MARK: - Parse Share URL
 
-    /// Parses a vaultbox://shared/{shareID}#{keyBase64URL} URL into components.
+    /// Parses a https://vaultbox.pacsix.com/s/{shareID}#{keyBase64URL} universal link into components.
     static func parseShareURL(_ url: URL) -> (shareID: String, keyBase64URL: String)? {
-        guard url.scheme == Constants.shareURLScheme,
-              url.host == Constants.shareURLHost else {
+        guard url.scheme == "https",
+              url.host == "vaultbox.pacsix.com" else {
             return nil
         }
 
-        // Path is /{shareID}
+        // Path is /s/{shareID}
         let pathComponents = url.pathComponents.filter { $0 != "/" }
-        guard let shareID = pathComponents.first, !shareID.isEmpty else {
+        guard pathComponents.count >= 2,
+              pathComponents[0] == "s",
+              !pathComponents[1].isEmpty else {
             return nil
         }
 
@@ -241,7 +243,7 @@ actor SharingService {
             return nil
         }
 
-        return (shareID: shareID, keyBase64URL: fragment)
+        return (shareID: pathComponents[1], keyBase64URL: fragment)
     }
 
     // MARK: - iCloud Account Check

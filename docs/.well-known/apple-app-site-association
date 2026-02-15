@@ -1,0 +1,15 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["4A7H788X5U.com.pack6.vaultbox"],
+        "components": [
+          {
+            "/": "/s/*",
+            "comment": "Time-limited share links"
+          }
+        ]
+      }
+    ]
+  }
+}
