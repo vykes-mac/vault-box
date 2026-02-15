@@ -31,10 +31,10 @@ class AskVaultViewModel {
     // MARK: - Suggestions
 
     static let suggestions: [String] = [
-        "What's my passport number?",
-        "Find the contract end date",
-        "Show receipts from January",
-        "When does my lease expire?"
+        "passport number",
+        "contract end date",
+        "receipts January",
+        "lease expiration date"
     ]
 
     // MARK: - Debounce

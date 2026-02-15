@@ -50,7 +50,7 @@ struct AskVaultView: View {
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     HStack(spacing: 6) {
-                        Text("Ask My Vault")
+                        Text("Smart Search")
                             .font(.headline)
                         if purchaseService.isPremiumRequired(for: .askMyVault) {
                             PremiumBadge()
@@ -59,7 +59,7 @@ struct AskVaultView: View {
                 }
             }
             .toolbarBackground(Color.vaultBackground, for: .navigationBar)
-            .searchable(text: $searchText, prompt: "Ask your vault...")
+            .searchable(text: $searchText, prompt: "Search your vault...")
             .onSubmit(of: .search) {
                 guard let viewModel else { return }
                 viewModel.searchText = searchText
@@ -168,7 +168,7 @@ struct AskVaultView: View {
                     .font(.headline)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text("Ask questions about your photos, documents, and screenshots with AI-powered search.")
+                Text("Find information across your photos, documents, and screenshots with AI-powered search.")
                     .font(.subheadline)
                     .foregroundStyle(Color.vaultTextSecondary)
             }
@@ -243,7 +243,7 @@ struct AskVaultView: View {
                     .fontWeight(.semibold)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text("Ask questions about your documents, photos, and screenshots. VaultBox searches the text in all your files.")
+                Text("Find information across your documents, photos, and screenshots. VaultBox searches the text in all your files.")
                     .font(.subheadline)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .multilineTextAlignment(.center)
@@ -255,7 +255,7 @@ struct AskVaultView: View {
                 askVaultUpsellCard
             } else {
                 VStack(spacing: 10) {
-                    Text("Try asking")
+                    Text("Try searching")
                         .font(.caption)
                         .fontWeight(.medium)
                         .foregroundStyle(Color.vaultTextSecondary)
@@ -299,7 +299,7 @@ struct AskVaultView: View {
                 .font(.headline)
                 .foregroundStyle(Color.vaultTextPrimary)
 
-            Text("Try different keywords or a more general question.")
+            Text("Try different keywords or a broader search term.")
                 .font(.subheadline)
                 .foregroundStyle(Color.vaultTextSecondary)
                 .multilineTextAlignment(.center)

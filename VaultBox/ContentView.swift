@@ -259,7 +259,7 @@ struct ContentView: View {
                 isDecoyMode: authService.isDecoyMode
             )
             .tabItem {
-                Label("Ask", systemImage: "sparkles")
+                Label("Smart Search", systemImage: "sparkles")
             }
 
             SettingsView(authService: authService, vaultService: vaultService, panicGestureService: panicGestureService)
