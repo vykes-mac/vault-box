@@ -3,6 +3,25 @@ import SwiftData
 import UserNotifications
 import BackgroundTasks
 
+final class AppDelegate: NSObject, UIApplicationDelegate {
+    func application(
+        _ application: UIApplication,
+        continue userActivity: NSUserActivity,
+        restorationHandler: @escaping ([any UIUserActivityRestoring]?) -> Void
+    ) -> Bool {
+        guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+              let url = userActivity.webpageURL else {
+            return false
+        }
+        NotificationCenter.default.post(
+            name: .universalLinkReceived,
+            object: nil,
+            userInfo: ["url": url]
+        )
+        return true
+    }
+}
+
 private final class NotificationPresentationDelegate: NSObject, UNUserNotificationCenterDelegate {
     nonisolated(unsafe) static let shared = NotificationPresentationDelegate()
 
@@ -15,8 +34,14 @@ private final class NotificationPresentationDelegate: NSObject, UNUserNotificati
     }
 }
 
+extension Notification.Name {
+    static let universalLinkReceived = Notification.Name("universalLinkReceived")
+}
+
 @main
 struct VaultBoxApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+
     let modelContainer: ModelContainer
     @State private var purchaseService = PurchaseService()
     @State private var privacyShield = AppPrivacyShield()
