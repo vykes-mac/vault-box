@@ -73,13 +73,13 @@ struct OnboardingView: View {
                 .frame(width: 120, height: 120)
 
             VStack(spacing: 12) {
-                Text("Your Hidden Album\nisn't private")
+                Text("Your photos.\nYour documents.\nYour rules.")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.vaultTextPrimary)
 
-                Text("Anyone with your passcode can open it.\nVaultBox encrypts every photo with AES-256\nso only you can see them.")
+                Text("Encrypted the moment they\nenter VaultBox.")
                     .font(.body)
                     .multilineTextAlignment(.center)
                     .foregroundStyle(Color.vaultTextSecondary)
