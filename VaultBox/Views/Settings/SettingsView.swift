@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import StoreKit
 import UIKit
 import LocalAuthentication
 
@@ -12,7 +11,6 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.requestReview) private var requestReview
 
     @State private var viewModel: SettingsViewModel?
     @State private var isBiometricsAvailable: Bool = false
@@ -551,9 +549,16 @@ struct SettingsView: View {
     private var aboutSection: some View {
         Section("About") {
             Button {
-                requestReview()
+                if let url = URL(string: "\(Constants.appStoreURL)?action=write-review") {
+                    UIApplication.shared.open(url)
+                }
             } label: {
                 Label("Rate VaultBox", systemImage: "star")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            ShareLink(item: URL(string: Constants.appStoreURL)!) {
+                Label("Share VaultBox", systemImage: "square.and.arrow.up")
                     .foregroundStyle(Color.vaultTextPrimary)
             }
 

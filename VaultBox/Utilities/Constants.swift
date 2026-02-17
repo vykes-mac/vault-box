@@ -89,6 +89,10 @@ enum Constants {
     static let weeklyProductID = "vaultbox_premium_weekly"
     static let annualProductID = "vaultbox_premium_annual"
 
+    // MARK: - App Store
+
+    static let appStoreURL = "https://apps.apple.com/app/id6758970966"
+
     // MARK: - Rate Prompt
 
     static let ratePromptImportThreshold = 10

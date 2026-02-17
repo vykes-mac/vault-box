@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 import Photos
 import AVKit
 
@@ -24,6 +25,9 @@ struct PhotoDetailView: View {
     @State private var showVideoPlayer = false
     @State private var showSecureShare = false
     @State private var showPaywall = false
+    @State private var showAlbumPicker = false
+
+    @Query(sort: \Album.sortOrder) private var albums: [Album]
 
     init(items: [VaultItem], initialIndex: Int, vaultService: VaultService) {
         self.items = items
@@ -122,6 +126,9 @@ struct PhotoDetailView: View {
         .fullScreenCover(isPresented: $showPaywall) {
             VaultBoxPaywallView()
         }
+        .sheet(isPresented: $showAlbumPicker) {
+            albumPickerSheet
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIApplication.willResignActiveNotification)) { _ in
             closeForPrivacy()
         }
@@ -196,7 +203,7 @@ struct PhotoDetailView: View {
             }
 
             Button {
-                // Move to Album — will be wired in F12
+                showAlbumPicker = true
             } label: {
                 Label("Move to Album", systemImage: "folder")
             }
@@ -223,6 +230,40 @@ struct PhotoDetailView: View {
         } label: {
             Image(systemName: "ellipsis.circle")
                 .font(.title3)
+        }
+    }
+
+    // MARK: - Album Picker
+
+    private var albumPickerSheet: some View {
+        let isDecoy = currentItem.album?.isDecoy ?? false
+        return NavigationStack {
+            List {
+                ForEach(albums.filter { isDecoy ? $0.isDecoy : !$0.isDecoy }) { album in
+                    Button {
+                        moveToAlbum(album)
+                        showAlbumPicker = false
+                    } label: {
+                        Label(album.name, systemImage: "folder")
+                    }
+                }
+            }
+            .navigationTitle("Move to Album")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Cancel") { showAlbumPicker = false }
+                }
+            }
+        }
+        .presentationDetents([.medium])
+        .presentationBackground(Color.vaultBackground)
+    }
+
+    private func moveToAlbum(_ album: Album) {
+        let item = currentItem
+        Task {
+            try? await vaultService.moveItems([item], to: album)
         }
     }
 
