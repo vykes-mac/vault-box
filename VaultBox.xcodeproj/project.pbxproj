@@ -68,11 +68,11 @@
 		AA11BB22CC33DD44EE55FF09 /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA11BB22CC33DD44EE55FF19 /* Data+Encryption.swift */; };
 		B188AD5A98AACC8E36AE6F6F /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0393F6655D2D2937C94CC92D /* SettingsView.swift */; };
 		B2C3D4E5F607182930415B6C /* VaultGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3D4E5F60718293041526B7D /* VaultGridView.swift */; };
+		B55E8713C1441B2339B667FB /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */; };
 		BB11CC22DD33EE44FF550B01 /* HTTPParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A01 /* HTTPParser.swift */; };
 		BB11CC22DD33EE44FF550B02 /* WiFiTransferHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A02 /* WiFiTransferHTML.swift */; };
 		BB11CC22DD33EE44FF550B03 /* WiFiTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A03 /* WiFiTransferService.swift */; };
 		BB11CC22DD33EE44FF550B04 /* WiFiTransferViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A04 /* WiFiTransferViewModel.swift */; };
-		B55E8713C1441B2339B667FB /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */; };
 		BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */; };
 		BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A06 /* WiFiTransferView.swift */; };
 		C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */; };
@@ -143,6 +143,7 @@
 		156426582F402C6A00760EAE /* AskVaultView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultView.swift; sourceTree = "<group>"; };
 		156426592F402C6A00760EAE /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 		1564265A2F402C6A00760EAE /* SuggestionChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionChipView.swift; sourceTree = "<group>"; };
+		171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		1829304116A1B2C3D4E5F607 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1B1461F89282E1F78BC7F052 /* AppIconPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconPickerView.swift; sourceTree = "<group>"; };
@@ -188,7 +189,6 @@
 		BB11CC22DD33EE44FF550A02 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A03 /* WiFiTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferService.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A04 /* WiFiTransferViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferViewModel.swift; sourceTree = "<group>"; };
-		171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINReEntryView.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A06 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
@@ -762,7 +762,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VaultBox;
@@ -920,7 +920,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 5;
+				CURRENT_PROJECT_VERSION = 6;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VaultBox;
