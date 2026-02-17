@@ -292,8 +292,20 @@ struct ContentView: View {
     private func setupPanicGesture(authService: AuthService) {
         guard panicGestureService == nil else { return }
         let service = PanicGestureService()
+        let context = modelContext
         service.onPanicTriggered = {
             authService.lock()
+
+            // Launch the configured app (if any)
+            let descriptor = FetchDescriptor<AppSettings>()
+            if let settings = try? context.fetch(descriptor).first,
+               let action = PanicAction(rawValue: settings.panicAction),
+               let url = action.appURL {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    UIApplication.shared.open(url)
+                }
+               
+            }
         }
         panicGestureService = service
 

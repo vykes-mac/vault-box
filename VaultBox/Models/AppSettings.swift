@@ -1,6 +1,44 @@
 import SwiftData
 import Foundation
 
+// MARK: - Panic Action
+
+enum PanicAction: String, CaseIterable, Identifiable {
+    case lockOnly = "lockOnly"
+    case launchMusic = "launchMusic"
+    case launchMessages = "launchMessages"
+    case launchSafari = "launchSafari"
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .lockOnly: "Lock Only"
+        case .launchMusic: "Open Music"
+        case .launchMessages: "Open Messages"
+        case .launchSafari: "Open Safari"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .lockOnly: "lock.fill"
+        case .launchMusic: "music.note"
+        case .launchMessages: "message.fill"
+        case .launchSafari: "safari"
+        }
+    }
+
+    var appURL: URL? {
+        switch self {
+        case .lockOnly: nil
+        case .launchMusic: URL(string: "music://")
+        case .launchMessages: URL(string: "sms://")
+        case .launchSafari: URL(string: "https://apple.com")
+        }
+    }
+}
+
 @Model
 final class AppSettings {
     var id: UUID = UUID()
@@ -18,6 +56,7 @@ final class AppSettings {
     var iCloudBackupEnabled: Bool = false
     var autoLockSeconds: Int = 0
     var panicGestureEnabled: Bool = false
+    var panicAction: String = "lockOnly"
     var breakInAlertsEnabled: Bool = true
     var lastUnlockedAt: Date?
     var pinLength: Int = Constants.pinMinLength
@@ -37,6 +76,7 @@ final class AppSettings {
         self.iCloudBackupEnabled = false
         self.autoLockSeconds = 0
         self.panicGestureEnabled = false
+        self.panicAction = "lockOnly"
         self.breakInAlertsEnabled = true
         self.pinLength = Constants.pinMinLength
         self.failedAttemptCount = 0

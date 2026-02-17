@@ -32,6 +32,7 @@ struct SettingsView: View {
     @State private var showRecoveryActionAlert = false
     @State private var recoveryActionMessage = ""
     @State private var showFeatureRequests = false
+    @State private var showPanicConfig = false
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -134,6 +135,14 @@ struct SettingsView: View {
             .sheet(isPresented: $showRecoveryCodeSheet) {
                 recoveryCodeSheet
             }
+            .sheet(isPresented: $showPanicConfig) {
+                PanicGestureConfigSheet(
+                    currentAction: PanicAction(rawValue: settings?.panicAction ?? "lockOnly") ?? .lockOnly,
+                    onSave: { action in
+                        viewModel?.setPanicAction(action, modelContext: modelContext)
+                    }
+                )
+            }
         }
     }
 
@@ -234,9 +243,28 @@ struct SettingsView: View {
                             .font(.caption)
                             .foregroundStyle(Color.vaultPremium)
                     } else {
+                        if settings.panicGestureEnabled {
+                            Button {
+                                showPanicConfig = true
+                            } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.body)
+                                    .foregroundStyle(Color.vaultTextSecondary)
+                            }
+                            .buttonStyle(.plain)
+                        }
                         Toggle("", isOn: Binding(
                             get: { settings.panicGestureEnabled },
-                            set: { viewModel?.togglePanicGesture(enabled: $0, modelContext: modelContext, panicGestureService: panicGestureService) }
+                            set: { newValue in
+                                viewModel?.togglePanicGesture(
+                                    enabled: newValue,
+                                    modelContext: modelContext,
+                                    panicGestureService: panicGestureService
+                                )
+                                if newValue {
+                                    showPanicConfig = true
+                                }
+                            }
                         ))
                         .labelsHidden()
                     }

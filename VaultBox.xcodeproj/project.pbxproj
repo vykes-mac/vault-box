@@ -72,6 +72,7 @@
 		BB11CC22DD33EE44FF550B02 /* WiFiTransferHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A02 /* WiFiTransferHTML.swift */; };
 		BB11CC22DD33EE44FF550B03 /* WiFiTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A03 /* WiFiTransferService.swift */; };
 		BB11CC22DD33EE44FF550B04 /* WiFiTransferViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A04 /* WiFiTransferViewModel.swift */; };
+		B55E8713C1441B2339B667FB /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */; };
 		BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */; };
 		BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB11CC22DD33EE44FF550A06 /* WiFiTransferView.swift */; };
 		C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */; };
@@ -187,6 +188,7 @@
 		BB11CC22DD33EE44FF550A02 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A03 /* WiFiTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferService.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A04 /* WiFiTransferViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferViewModel.swift; sourceTree = "<group>"; };
+		171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINReEntryView.swift; sourceTree = "<group>"; };
 		BB11CC22DD33EE44FF550A06 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
@@ -389,6 +391,7 @@
 				A1D0E7F2C3B4A59687766559 /* BreakInPermissionSetupView.swift */,
 				3FC3D21281CAA279B031A721 /* BreakInLogView.swift */,
 				FB01A1B2C3D4E5F600000005 /* FeatureRequestsView.swift */,
+				171F2F00C189E2B6BE92B2D6 /* PanicGestureConfigSheet.swift */,
 				BB11CC22DD33EE44FF550A05 /* PINReEntryView.swift */,
 				7930F7D01A3C2BBE27388328 /* SecuritySettingsView.swift */,
 				0393F6655D2D2937C94CC92D /* SettingsView.swift */,
@@ -695,6 +698,7 @@
 				BB11CC22DD33EE44FF550B04 /* WiFiTransferViewModel.swift in Sources */,
 				153B05792F40F3A6005CB1BB /* ScreenCaptureMonitor.swift in Sources */,
 				153B057A2F40F3A6005CB1BB /* ScreenshotProofView.swift in Sources */,
+				B55E8713C1441B2339B667FB /* PanicGestureConfigSheet.swift in Sources */,
 				BB11CC22DD33EE44FF550B05 /* PINReEntryView.swift in Sources */,
 				BB11CC22DD33EE44FF550B06 /* WiFiTransferView.swift in Sources */,
 				CC33DD44EE55FF66AA77BB01 /* OnboardingView.swift in Sources */,

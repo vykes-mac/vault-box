@@ -613,7 +613,12 @@ struct VaultGridView: View {
                         showDocumentPicker = true
                     }
                 } label: {
-                    Label("Import Documents", systemImage: "doc.badge.plus")
+                    if purchaseService.isPremiumRequired(for: .documentStorage) {
+                        Label("Import Documents (Premium)", systemImage: "lock.fill")
+                            .foregroundStyle(Color.vaultPremium)
+                    } else {
+                        Label("Import Documents", systemImage: "doc.badge.plus")
+                    }
                 }
             } label: {
                 Image(systemName: "plus")

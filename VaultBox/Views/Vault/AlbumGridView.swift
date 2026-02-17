@@ -289,7 +289,12 @@ struct AlbumGridView: View {
                             albumForCoverPicker = album
                         }
                     } label: {
-                        Label("Set Cover", systemImage: "photo.on.rectangle")
+                        if purchaseService.isPremiumRequired(for: .customAlbumCovers) {
+                            Label("Set Cover (Premium)", systemImage: "lock.fill")
+                                .foregroundStyle(Color.vaultPremium)
+                        } else {
+                            Label("Set Cover", systemImage: "photo.on.rectangle")
+                        }
                     }
 
                     Divider()

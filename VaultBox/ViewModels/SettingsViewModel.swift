@@ -59,6 +59,12 @@ class SettingsViewModel {
         }
     }
 
+    func setPanicAction(_ action: PanicAction, modelContext: ModelContext) {
+        guard let settings = loadSettings(modelContext: modelContext) else { return }
+        settings.panicAction = action.rawValue
+        try? modelContext.save()
+    }
+
     // MARK: - Theme
 
     func setThemeMode(_ mode: String, modelContext: ModelContext) {

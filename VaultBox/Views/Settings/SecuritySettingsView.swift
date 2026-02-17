@@ -31,21 +31,35 @@ struct SecuritySettingsView: View {
 
     private var title: String {
         switch mode {
-        case .changePIN: "Change PIN"
-        case .decoySetup: "Set Decoy PIN"
+        case .changePIN:
+            switch step {
+            case .enterCurrent: "Change PIN"
+            case .enterNew: "Change PIN"
+            case .confirmNew: "Confirm New PIN"
+            }
+        case .decoySetup:
+            switch step {
+            case .enterCurrent: "Verify Identity"
+            case .enterNew: "Set Decoy PIN"
+            case .confirmNew: "Confirm Decoy PIN"
+            }
         }
     }
 
     private var subtitle: String {
         switch step {
         case .enterCurrent:
-            "Enter your current PIN"
+            mode == .decoySetup
+                ? "Enter your real PIN to verify your identity"
+                : "Enter your current PIN"
         case .enterNew:
             mode == .decoySetup
                 ? "Choose a decoy PIN (must differ from real PIN)"
                 : "Enter your new PIN"
         case .confirmNew:
-            "Confirm your new PIN"
+            mode == .decoySetup
+                ? "Re-enter the decoy PIN to confirm"
+                : "Confirm your new PIN"
         }
     }
 
