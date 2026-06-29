@@ -214,8 +214,11 @@ actor VisionAnalysisService {
             }
         }
 
-        if let ocrText, Self.isSignificantDocumentText(ocrText) {
-            tags.insert("document")
+        if let ocrText {
+            if Self.isSignificantDocumentText(ocrText) {
+                tags.insert("document")
+            }
+            tags.formUnion(ImageSignalDetectors.smartDocumentTags(text: ocrText))
         }
 
         // Screenshot detection.

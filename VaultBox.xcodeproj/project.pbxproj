@@ -9,7 +9,9 @@
 /* Begin PBXBuildFile section */
 		03B43E70C62B200C3C520189 /* CloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E87BF05D8B2B0BF8E394AA /* CloudService.swift */; };
 		04CDEA67669113E658B9BF14 /* AlbumGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7A5C9C60BCF62D9ECA6D18 /* AlbumGridView.swift */; };
+		04D09B17B56817749CFE251D /* SmartAlbumType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0B4068F94995D2A0AB6AE4 /* SmartAlbumType.swift */; };
 		050BB4392E19DB0EB7B22155 /* Album.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7023E56BE3EEDDB5A4C1276 /* Album.swift */; };
+		058C8FF8C6558B67FA6F031E /* ImageSignalDetectors+SmartAlbums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299530F06087635DA52D7EEB /* ImageSignalDetectors+SmartAlbums.swift */; };
 		087BA3FF743E9B5DE630FFC9 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */; };
 		09038FC33880FA2DC40FD365 /* MiniLM.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */; };
 		0A7EA6B38FC691535F9237CC /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA85F89FEFBDE400F1CF534 /* VaultService.swift */; };
@@ -138,6 +140,7 @@
 		051F101CA6AB743598296D4E /* AlbumCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCoverView.swift; sourceTree = "<group>"; };
 		05FBF0C965DAC9D0064C1882 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		07758B234491483951865868 /* VisionAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionAnalysisService.swift; sourceTree = "<group>"; };
+		0B0B4068F94995D2A0AB6AE4 /* SmartAlbumType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartAlbumType.swift; sourceTree = "<group>"; };
 		0BF6063A8A07FB9B1BFC048A /* PDFTextExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFTextExtractor.swift; sourceTree = "<group>"; };
 		0E029816D05F010C2F99A076 /* EmbeddingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmbeddingService.swift; sourceTree = "<group>"; };
 		0FBA5A6298E35A72741C99B4 /* SensitiveImageLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveImageLayout.swift; sourceTree = "<group>"; };
@@ -152,6 +155,7 @@
 		267A2863E8999D81DA38827F /* VectorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorMath.swift; sourceTree = "<group>"; };
 		2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxTests.swift; sourceTree = "<group>"; };
 		282D5633FFCAB2A038B0F8D4 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		299530F06087635DA52D7EEB /* ImageSignalDetectors+SmartAlbums.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ImageSignalDetectors+SmartAlbums.swift"; sourceTree = "<group>"; };
 		2AAA1A67D0364639B2B88064 /* BreakInPermissionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionServiceTests.swift; sourceTree = "<group>"; };
 		2AFD7DF16DBE5B09901290AE /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 		2C3B88E140B5343818DAB7FD /* SharedItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItem.swift; sourceTree = "<group>"; };
@@ -345,17 +349,18 @@
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
 				CB0858F25C8A90F971F5B777 /* FeatureBoardService.swift */,
 				829A41F776AEDDA37E529199 /* HTTPParser.swift */,
-					74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */,
-					F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */,
-					4FFC381132D128AC133AAEE0 /* IngestionService.swift */,
-					2D4CF9AF2FE015650E109833 /* PanicGestureService.swift */,
-					0BF6063A8A07FB9B1BFC048A /* PDFTextExtractor.swift */,
-					160CA92C325924808131115B /* PurchaseService.swift */,
-					5DAAF6305764E8DEC418493E /* SearchEngine.swift */,
-					B8ECC627E1FBE31D7796640A /* SearchIndexService.swift */,
-					14F054860F9EB3473DAF90EC /* SensitiveContentScanService.swift */,
-					0FBA5A6298E35A72741C99B4 /* SensitiveImageLayout.swift */,
-					9DD38D29E22E45F46FC58CCC /* SharingService.swift */,
+				74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */,
+				F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */,
+				299530F06087635DA52D7EEB /* ImageSignalDetectors+SmartAlbums.swift */,
+				4FFC381132D128AC133AAEE0 /* IngestionService.swift */,
+				2D4CF9AF2FE015650E109833 /* PanicGestureService.swift */,
+				0BF6063A8A07FB9B1BFC048A /* PDFTextExtractor.swift */,
+				160CA92C325924808131115B /* PurchaseService.swift */,
+				5DAAF6305764E8DEC418493E /* SearchEngine.swift */,
+				B8ECC627E1FBE31D7796640A /* SearchIndexService.swift */,
+				14F054860F9EB3473DAF90EC /* SensitiveContentScanService.swift */,
+				0FBA5A6298E35A72741C99B4 /* SensitiveImageLayout.swift */,
+				9DD38D29E22E45F46FC58CCC /* SharingService.swift */,
 				FCA85F89FEFBDE400F1CF534 /* VaultService.swift */,
 				07758B234491483951865868 /* VisionAnalysisService.swift */,
 				97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */,
@@ -456,6 +461,7 @@
 				FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */,
 				37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */,
 				6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */,
+				0B0B4068F94995D2A0AB6AE4 /* SmartAlbumType.swift */,
 				25B4FD1E6E19689121223215 /* VaultGridView.swift */,
 				356340D6145AE34F3A76DEA8 /* VideoPlayerView.swift */,
 			);
@@ -676,6 +682,7 @@
 				7A684C7D83B4C2D71BF2E2E6 /* AlbumCoverPickerView.swift in Sources */,
 				CC8D5CC46B10F18324DD5496 /* AlbumCoverView.swift in Sources */,
 				04CDEA67669113E658B9BF14 /* AlbumGridView.swift in Sources */,
+				04D09B17B56817749CFE251D /* SmartAlbumType.swift in Sources */,
 				D77DB54A7825208A164F00E8 /* AlbumViewModel.swift in Sources */,
 				CD1C550098FF7141E0DED0D8 /* AppIconPickerView.swift in Sources */,
 				A85183F589F7552965B2D032 /* AppIconService.swift in Sources */,
@@ -710,11 +717,12 @@
 				6123B8D75B3CFB9DD8D67E83 /* FeatureBoardService.swift in Sources */,
 				96967C9C2DFDEB23E58DE5DA /* FeatureRequestsView.swift in Sources */,
 				9C94B522956252B618FF338A /* HTTPParser.swift in Sources */,
-					B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */,
-					8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */,
-					6E46BDA4E33CFBA49D775D9A /* ImageSignalDetectors.swift in Sources */,
-					6F2AB728C8B7E96E89E87F17 /* SensitiveImageLayout.swift in Sources */,
-					087BA3FF743E9B5DE630FFC9 /* ImportView.swift in Sources */,
+				B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */,
+				8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */,
+				6E46BDA4E33CFBA49D775D9A /* ImageSignalDetectors.swift in Sources */,
+				058C8FF8C6558B67FA6F031E /* ImageSignalDetectors+SmartAlbums.swift in Sources */,
+				6F2AB728C8B7E96E89E87F17 /* SensitiveImageLayout.swift in Sources */,
+				087BA3FF743E9B5DE630FFC9 /* ImportView.swift in Sources */,
 				386F77C9ECD547B14E9300EF /* ImportViewModel.swift in Sources */,
 				AEC28AE343B18B7C20428024 /* IngestionService.swift in Sources */,
 				A4A524960F15A869939A948B /* LockScreenView.swift in Sources */,
@@ -816,12 +824,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
 		};
@@ -962,12 +972,14 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.0;
+				MARKETING_VERSION = 1.0.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};

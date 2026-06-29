@@ -157,6 +157,39 @@ struct ImageSignalDetectorsTests {
         #expect(paidReceipt.contains(.financial))
     }
 
+    // MARK: - Smart album text classification
+
+    @Test("Classifies receipts for smart albums")
+    func classifiesReceiptSmartAlbumTag() {
+        let tags = ImageSignalDetectors.smartDocumentTags(
+            text: "Receipt subtotal $19.95 tax 8% total $21.55"
+        )
+
+        #expect(tags.contains("receipt"))
+    }
+
+    @Test("Classifies contracts for smart albums")
+    func classifiesContractSmartAlbumTag() {
+        let tags = ImageSignalDetectors.smartDocumentTags(
+            text: "Service Agreement effective date June 1. Signature of both parties required."
+        )
+
+        #expect(tags.contains("contract"))
+    }
+
+    @Test("Classifies IDs and cards for smart albums")
+    func classifiesIDCardSmartAlbumTag() {
+        let idTags = ImageSignalDetectors.smartDocumentTags(
+            text: "Driver License date of birth expiry date"
+        )
+        let cardTags = ImageSignalDetectors.smartDocumentTags(
+            text: "Card 4111 1111 1111 1111 valid thru"
+        )
+
+        #expect(idTags.contains("idcard"))
+        #expect(cardTags.contains("idcard"))
+    }
+
     @Test("Layout evidence can combine with barcode and text density")
     func layoutEvidenceCombinesWithOtherSignals() {
         let layout = SensitiveImageLayout(
