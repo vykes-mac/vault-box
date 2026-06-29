@@ -51,15 +51,18 @@ class VaultService {
     private let hasPremiumAccess: () -> Bool
     private var visionService: VisionAnalysisService?
     private(set) var ingestionService: IngestionService?
+    private let reminderService: DocumentReminderService
 
     init(
         encryptionService: EncryptionService,
         modelContext: ModelContext,
-        hasPremiumAccess: @escaping () -> Bool = { false }
+        hasPremiumAccess: @escaping () -> Bool = { false },
+        reminderService: DocumentReminderService = DocumentReminderService()
     ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
         self.hasPremiumAccess = hasPremiumAccess
+        self.reminderService = reminderService
         self.visionService = VisionAnalysisService(encryptionService: encryptionService)
     }
 
@@ -117,6 +120,58 @@ class VaultService {
         }
 
         return ImportResult(items: importedItems, assetIdentifiers: assetIdentifiers)
+    }
+
+    /// Imports photos directly from the camera roll by `PHAsset.localIdentifier`
+    /// (used by the sensitive-content scanner). Queues vision + search indexing
+    /// and returns the imported items plus the identifiers that succeeded (so the
+    /// caller can optionally delete the originals).
+    func importFromCameraRoll(
+        localIdentifiers: [String],
+        album: Album?,
+        isDecoyMode: Bool = false,
+        progress: ((Int, Int) -> Void)? = nil
+    ) async throws -> ImportResult {
+        let fetch = PHAsset.fetchAssets(withLocalIdentifiers: localIdentifiers, options: nil)
+        var importedItems: [VaultItem] = []
+        var importedIdentifiers: [String] = []
+        let total = fetch.count
+
+        for index in 0..<total {
+            let asset = fetch.object(at: index)
+            do {
+                guard let data = await loadFullImageData(for: asset) else { continue }
+                let item = try await importPhotoData(data, filename: nil, album: album, isDecoyMode: isDecoyMode)
+                importedItems.append(item)
+                importedIdentifiers.append(asset.localIdentifier)
+            } catch {
+                // Skip failures (e.g. free-limit reached) and continue.
+                if case VaultError.freeLimitReached = error { throw error }
+            }
+            progress?(index + 1, total)
+        }
+
+        if !importedItems.isEmpty {
+            queueVisionAnalysis(for: importedItems)
+            queueSearchIndexing(for: importedItems)
+        }
+
+        return ImportResult(items: importedItems, assetIdentifiers: importedIdentifiers)
+    }
+
+    /// Loads full-resolution image data for an asset, allowing iCloud download.
+    private func loadFullImageData(for asset: PHAsset) async -> Data? {
+        let options = PHImageRequestOptions()
+        options.isNetworkAccessAllowed = true
+        options.deliveryMode = .highQualityFormat
+        options.isSynchronous = false
+        options.version = .current
+
+        return await withCheckedContinuation { (continuation: CheckedContinuation<Data?, Never>) in
+            PHImageManager.default().requestImageDataAndOrientation(for: asset, options: options) { data, _, _, _ in
+                continuation.resume(returning: data)
+            }
+        }
     }
 
     private func importImage(from provider: NSItemProvider, album: Album?, isDecoyMode: Bool) async throws -> VaultItem {
@@ -482,6 +537,7 @@ class VaultService {
     func deleteItems(_ items: [VaultItem]) async throws {
         removeSearchIndex(for: items)
         for item in items {
+            deleteReminders(forItemID: item.id)
             let fileURL = try await buildFileURL(for: item)
             try? FileManager.default.removeItem(at: fileURL)
             modelContext.delete(item)
@@ -673,6 +729,132 @@ class VaultService {
             print("[VaultService] Failed to save vision result for \(targetID): \(error)")
             #endif
         }
+        detectExpiryReminder(for: item)
+    }
+
+    // MARK: - Document Expiry Reminders
+
+    /// Parses an item's OCR text for an expiry date and creates an *unconfirmed*
+    /// `DocumentReminder` when one is found. Idempotent: an existing reminder for
+    /// the item is updated (while unconfirmed) rather than duplicated, and a
+    /// reminder the user dismissed is left untouched. No notifications are
+    /// scheduled here — that happens only after the user confirms the date.
+    func detectExpiryReminder(for item: VaultItem) {
+        guard item.type == .document || item.type == .photo else { return }
+        guard let detected = DocumentExpiryParser.parse(text: item.extractedText, smartTags: item.smartTags) else {
+            return
+        }
+
+        let targetID = item.id
+        let descriptor = FetchDescriptor<DocumentReminder>(
+            predicate: #Predicate { $0.itemID == targetID }
+        )
+        let existing = try? modelContext.fetch(descriptor).first
+
+        if let existing {
+            // Respect user decisions: never overwrite a dismissed or confirmed reminder.
+            guard !existing.isDismissed, !existing.isConfirmed else { return }
+            existing.documentType = detected.documentType
+            existing.expiryDate = detected.expiryDate
+        } else {
+            let reminder = DocumentReminder(
+                itemID: item.id,
+                documentType: detected.documentType,
+                expiryDate: detected.expiryDate
+            )
+            modelContext.insert(reminder)
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[VaultService] Failed to save document reminder for \(targetID): \(error)")
+            #endif
+        }
+    }
+
+    /// Re-scans all documents/photos that already have OCR text and creates
+    /// reminders for any with a detectable expiry. Safe to call repeatedly.
+    func backfillDocumentReminders() {
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.extractedText != nil }
+        )
+        guard let items = try? modelContext.fetch(descriptor) else { return }
+        for item in items {
+            detectExpiryReminder(for: item)
+        }
+    }
+
+    /// Rebuilds pending local notifications for every active confirmed reminder.
+    /// Safe to call on launch/foreground; past lead days are dropped by the scheduler.
+    func repairConfirmedDocumentReminders() async {
+        let descriptor = FetchDescriptor<DocumentReminder>()
+        guard let reminders = try? modelContext.fetch(descriptor) else { return }
+
+        var didChange = false
+        for reminder in reminders where reminder.isConfirmed && !reminder.isDismissed && reminder.reminderEnabled {
+            let ids = await reminderService.reschedule(for: reminder)
+            if reminder.notificationIDs != ids {
+                reminder.notificationIDs = ids
+                didChange = true
+            }
+        }
+
+        if didChange {
+            saveContext(context: "repair document reminders")
+        }
+    }
+
+    /// Persists reminder edits and (re)schedules notifications to match. Pass the
+    /// already-mutated reminder; this reschedules from its current fields.
+    func applyReminderChanges(_ reminder: DocumentReminder) async {
+        let ids = await reminderService.reschedule(for: reminder)
+        reminder.notificationIDs = ids
+        saveContext(context: "reminder changes")
+    }
+
+    /// Marks a reminder confirmed with a (possibly user-corrected) date and lead
+    /// days, then schedules notifications.
+    func confirmReminder(_ reminder: DocumentReminder, expiryDate: Date, leadDays: [Int]) async {
+        reminder.expiryDate = Calendar.current.startOfDay(for: expiryDate)
+        reminder.leadDays = leadDays
+        reminder.isConfirmed = true
+        reminder.isDismissed = false
+        await applyReminderChanges(reminder)
+    }
+
+    /// Dismisses a reminder: cancels its notifications and hides it from the list
+    /// without deleting (so re-scan won't recreate it).
+    func dismissReminder(_ reminder: DocumentReminder) {
+        reminderService.cancel(notificationIDs: reminder.notificationIDs)
+        reminder.notificationIDs = []
+        reminder.reminderEnabled = false
+        reminder.isDismissed = true
+        saveContext(context: "dismiss reminder")
+    }
+
+    /// Removes a reminder when its underlying item is deleted.
+    func deleteReminders(forItemID itemID: UUID) {
+        let descriptor = FetchDescriptor<DocumentReminder>(
+            predicate: #Predicate { $0.itemID == itemID }
+        )
+        guard let reminders = try? modelContext.fetch(descriptor) else { return }
+        for reminder in reminders {
+            reminderService.cancel(notificationIDs: reminder.notificationIDs)
+            modelContext.delete(reminder)
+        }
+        saveContext(context: "delete reminders for item")
+    }
+
+    private func saveContext(context: String) {
+        do {
+            try modelContext.save()
+        } catch {
+            #if DEBUG
+            print("[VaultService] Failed to save (\(context)): \(error)")
+            #endif
+        }
     }
 
     // MARK: - Search Indexing (Ask My Vault)
@@ -740,12 +922,23 @@ class VaultService {
         item.indexingFailed = !result.success
         item.chunkCount = result.chunkCount
         item.totalPages = result.totalPages
+        var shouldDetectExpiry = false
+        if let text = result.extractedText?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty {
+            let existingCount = item.extractedText?.count ?? 0
+            if existingCount < text.count {
+                item.extractedText = text
+                shouldDetectExpiry = true
+            }
+        }
         if let preview = result.extractedTextPreview {
             item.extractedTextPreview = preview
         }
 
         do {
             try modelContext.save()
+            if shouldDetectExpiry {
+                detectExpiryReminder(for: item)
+            }
         } catch {
             #if DEBUG
             print("[VaultService] Failed to save ingestion result for \(targetID): \(error)")

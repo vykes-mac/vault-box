@@ -32,10 +32,27 @@ private final class NotificationPresentationDelegate: NSObject, UNUserNotificati
     ) {
         completionHandler([.banner, .list, .sound])
     }
+
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        let userInfo = response.notification.request.content.userInfo
+        if let reminderID = userInfo["reminderID"] as? String {
+            NotificationCenter.default.post(
+                name: .documentReminderNotificationReceived,
+                object: nil,
+                userInfo: ["reminderID": reminderID]
+            )
+        }
+        completionHandler()
+    }
 }
 
 extension Notification.Name {
     static let universalLinkReceived = Notification.Name("universalLinkReceived")
+    static let documentReminderNotificationReceived = Notification.Name("documentReminderNotificationReceived")
 }
 
 @main
@@ -54,7 +71,8 @@ struct VaultBoxApp: App {
                 Album.self,
                 BreakInAttempt.self,
                 AppSettings.self,
-                SharedItem.self
+                SharedItem.self,
+                DocumentReminder.self
             ])
             let modelConfiguration = ModelConfiguration(
                 schema: schema,
@@ -221,6 +239,11 @@ struct VaultBoxApp: App {
                     item.indexingFailed = !result.success
                     item.chunkCount = result.chunkCount
                     item.totalPages = result.totalPages
+                    if let text = result.extractedText?.trimmingCharacters(in: .whitespacesAndNewlines),
+                       !text.isEmpty,
+                       (item.extractedText?.count ?? 0) < text.count {
+                        item.extractedText = text
+                    }
                     if let preview = result.extractedTextPreview {
                         item.extractedTextPreview = preview
                     }

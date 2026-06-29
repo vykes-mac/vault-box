@@ -9,6 +9,14 @@ enum AppRootRoute: Equatable {
     case main
 }
 
+private enum MainTab: Hashable {
+    case vault
+    case albums
+    case camera
+    case smartSearch
+    case settings
+}
+
 @MainActor
 @Observable
 final class AppPrivacyShield {
@@ -88,6 +96,10 @@ struct ContentView: View {
     @State private var pendingShareURL: URL?
     @State private var activeShare: ParsedShare?
     @State private var isDismissingForLock = false
+    @State private var selectedMainTab: MainTab = .vault
+    @State private var hasPendingDocumentReminderNavigation = false
+    @State private var pendingDocumentReminderID: UUID?
+    @State private var documentReminderNavigationTrigger = 0
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -157,6 +169,7 @@ struct ContentView: View {
             // Present pending share link after authentication completes
             if newRoute == .main {
                 presentPendingShareIfNeeded()
+                routeToPendingDocumentReminderIfNeeded()
             }
             attemptPrivacyShieldReveal()
         }
@@ -218,6 +231,12 @@ struct ContentView: View {
                 pendingShareURL = url
             }
         }
+        .onReceive(NotificationCenter.default.publisher(for: .documentReminderNotificationReceived)) { notification in
+            let rawID = notification.userInfo?["reminderID"] as? String
+            pendingDocumentReminderID = rawID.flatMap(UUID.init(uuidString:))
+            hasPendingDocumentReminderNavigation = true
+            routeToPendingDocumentReminderIfNeeded()
+        }
         .onChange(of: scenePhase) { _, newPhase in
             switch newPhase {
             case .background:
@@ -244,22 +263,25 @@ struct ContentView: View {
     // MARK: - Tab View
 
     private func mainTabView(authService: AuthService, vaultService: VaultService) -> some View {
-        TabView {
+        TabView(selection: $selectedMainTab) {
             // swiftlint:disable:previous closure_body_length
             VaultGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Vault", systemImage: "lock.shield")
                 }
+                .tag(MainTab.vault)
 
             AlbumGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Albums", systemImage: "rectangle.stack")
                 }
+                .tag(MainTab.albums)
 
             CameraView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
                 .tabItem {
                     Label("Camera", systemImage: "camera")
                 }
+                .tag(MainTab.camera)
 
             AskVaultView(
                 vaultService: vaultService,
@@ -270,11 +292,19 @@ struct ContentView: View {
             .tabItem {
                 Label("Smart Search", systemImage: "sparkles")
             }
+            .tag(MainTab.smartSearch)
 
-            SettingsView(authService: authService, vaultService: vaultService, panicGestureService: panicGestureService)
+            SettingsView(
+                authService: authService,
+                vaultService: vaultService,
+                panicGestureService: panicGestureService,
+                reminderNavigationTrigger: documentReminderNavigationTrigger,
+                targetReminderID: pendingDocumentReminderID
+            )
                 .tabItem {
                     Label("Settings", systemImage: "gearshape")
                 }
+                .tag(MainTab.settings)
         }
         .onAppear {
             setupPanicGesture(authService: authService)
@@ -390,6 +420,11 @@ struct ContentView: View {
         }
         awaitingLockRouteAfterForeground = shouldAwaitLockRoute
 
+        if !shouldAwaitLockRoute {
+            Task {
+                await vaultService?.repairConfirmedDocumentReminders()
+            }
+        }
         attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
     }
 
@@ -433,6 +468,13 @@ struct ContentView: View {
             shareID: parsed.shareID,
             keyBase64URL: parsed.keyBase64URL
         )
+    }
+
+    private func routeToPendingDocumentReminderIfNeeded() {
+        guard hasPendingDocumentReminderNavigation, currentRoute == .main else { return }
+        selectedMainTab = .settings
+        documentReminderNavigationTrigger &+= 1
+        hasPendingDocumentReminderNavigation = false
     }
 
     private func dismissActivePresentationsForLock() {
@@ -483,6 +525,10 @@ struct ContentView: View {
         authService = auth
         vaultService = vault
         breakInService = breakIn
+
+        Task {
+            await vault.repairConfirmedDocumentReminders()
+        }
 
         // Initialize Ask My Vault search services
         initializeSearchServices(encryptionService: encryptionService, vault: vault)

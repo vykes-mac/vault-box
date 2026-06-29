@@ -72,6 +72,7 @@ actor VisionAnalysisService {
         }
         defer { wipeDecryptedBytes(&fileData) }
 
+        let nativeDocumentText = Self.nativeDocumentText(from: fileData, input: input)
         let context: ImageContext?
         if isDocument {
             context = Self.makeImageContextFromDocument(data: fileData, filename: input.originalFilename)
@@ -83,7 +84,7 @@ actor VisionAnalysisService {
             Self.debugLog("Image decode failed for item \(input.itemID.uuidString)")
             // Even if we can't render, documents still get the "document" tag
             if isDocument {
-                return VisionAnalysisResult(itemID: input.itemID, smartTags: ["document"], extractedText: nil)
+                return VisionAnalysisResult(itemID: input.itemID, smartTags: ["document"], extractedText: nativeDocumentText)
             }
             return VisionAnalysisResult(itemID: input.itemID, smartTags: [], extractedText: nil)
         }
@@ -104,7 +105,11 @@ actor VisionAnalysisService {
                 tags.append("document")
                 tags.sort()
             }
-            result = VisionAnalysisResult(itemID: result.itemID, smartTags: tags, extractedText: result.extractedText)
+            result = VisionAnalysisResult(
+                itemID: result.itemID,
+                smartTags: tags,
+                extractedText: Self.mergedDocumentText(nativeText: nativeDocumentText, ocrText: result.extractedText)
+            )
         }
 
         Self.debugLog("Finished item \(input.itemID.uuidString). Tags: \(result.smartTags.joined(separator: ",")) OCR chars: \(result.extractedText?.count ?? 0)")
@@ -254,6 +259,31 @@ actor VisionAnalysisService {
         data.removeAll(keepingCapacity: false)
     }
 
+    private nonisolated static func nativeDocumentText(from data: Data, input: VisionAnalysisInput) -> String? {
+        guard input.itemType == "document",
+              input.originalFilename?.lowercased().hasSuffix(".pdf") == true else {
+            return nil
+        }
+        let text = PDFTextExtractor.extract(from: data)
+            .pages
+            .map(\.text)
+            .joined(separator: "\n")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return text.isEmpty ? nil : text
+    }
+
+    private nonisolated static func mergedDocumentText(nativeText: String?, ocrText: String?) -> String? {
+        let parts = [nativeText, ocrText].compactMap { text -> String? in
+            guard let trimmed = text?.trimmingCharacters(in: .whitespacesAndNewlines),
+                  !trimmed.isEmpty else {
+                return nil
+            }
+            return trimmed
+        }
+        guard !parts.isEmpty else { return nil }
+        return parts.joined(separator: "\n")
+    }
+
     private nonisolated static func makeImageContext(from data: Data) -> ImageContext? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil),
               let cgImage = CGImageSourceCreateImageAtIndex(source, 0, nil) else { return nil }
@@ -386,17 +416,9 @@ actor VisionAnalysisService {
         on cgImage: CGImage,
         orientation: CGImagePropertyOrientation
     ) -> Bool {
-        let request = VNDetectBarcodesRequest()
-        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
-        do {
-            try handler.perform([request])
-            return !(request.results ?? []).isEmpty
-        } catch {
-            if Self.shouldLogVisionError(error) {
-                Self.debugLog("Barcode detector error (orientation=\(orientation.rawValue)): \(error)")
-            }
-            return false
-        }
+        // Delegates to the shared primitive so vault tagging and camera-roll
+        // scanning use one barcode implementation.
+        ImageSignalDetectors.detectBarcodes(on: cgImage, orientation: orientation)
     }
 
     private nonisolated static func classifySceneTags(
@@ -463,22 +485,9 @@ actor VisionAnalysisService {
         orientation: CGImagePropertyOrientation,
         level: VNRequestTextRecognitionLevel
     ) -> String? {
-        let request = VNRecognizeTextRequest()
-        request.recognitionLevel = level
-        request.usesLanguageCorrection = (level == .accurate)
-
-        let handler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
-        do {
-            try handler.perform([request])
-            let observations = request.results ?? []
-            let strings = observations.compactMap { $0.topCandidates(1).first?.string }
-            return strings.joined(separator: " ")
-        } catch {
-            if Self.shouldLogVisionError(error) {
-                Self.debugLog("OCR error (level=\(level == .accurate ? "accurate" : "fast"), orientation=\(orientation.rawValue)): \(error)")
-            }
-            return nil
-        }
+        // Delegates to the shared primitive so vault tagging and camera-roll
+        // scanning use one OCR implementation.
+        ImageSignalDetectors.recognizeText(on: cgImage, orientation: orientation, level: level)
     }
 
     private nonisolated static func runAccurateOCRWithTimeout(

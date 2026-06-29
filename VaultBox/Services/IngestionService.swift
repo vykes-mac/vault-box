@@ -15,6 +15,7 @@ struct IngestionResult: Sendable {
     let success: Bool
     let chunkCount: Int
     let totalPages: Int?
+    let extractedText: String?
     let extractedTextPreview: String?
 }
 
@@ -115,6 +116,7 @@ actor IngestionService {
                 success: true,
                 chunkCount: 0,
                 totalPages: nil,
+                extractedText: nil,
                 extractedTextPreview: nil
             )
         }
@@ -132,6 +134,7 @@ actor IngestionService {
                 success: false,
                 chunkCount: 0,
                 totalPages: nil,
+                extractedText: nil,
                 extractedTextPreview: nil
             )
         }
@@ -160,6 +163,7 @@ actor IngestionService {
                 success: false,
                 chunkCount: 0,
                 totalPages: totalPages,
+                extractedText: nil,
                 extractedTextPreview: nil
             )
         }
@@ -176,6 +180,7 @@ actor IngestionService {
                 success: true,
                 chunkCount: 0,
                 totalPages: totalPages,
+                extractedText: fullText,
                 extractedTextPreview: preview
             )
         }
@@ -191,6 +196,7 @@ actor IngestionService {
                 success: false,
                 chunkCount: 0,
                 totalPages: totalPages,
+                extractedText: fullText,
                 extractedTextPreview: preview
             )
         }
@@ -214,6 +220,7 @@ actor IngestionService {
             success: true,
             chunkCount: chunks.count,
             totalPages: totalPages,
+            extractedText: fullText,
             extractedTextPreview: preview
         )
     }

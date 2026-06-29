@@ -7,6 +7,8 @@ struct SettingsView: View {
     let authService: AuthService
     let vaultService: VaultService
     var panicGestureService: PanicGestureService?
+    var reminderNavigationTrigger = 0
+    var targetReminderID: UUID?
 
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
@@ -33,10 +35,22 @@ struct SettingsView: View {
     @State private var recoveryActionMessage = ""
     @State private var showFeatureRequests = false
     @State private var showPanicConfig = false
+    @State private var showSensitiveScan = false
+    @State private var showExpiringDocuments = false
+    @State private var handledReminderNavigationTrigger = 0
+    @State private var activeTargetReminderID: UUID?
 
     @Query private var settingsQuery: [AppSettings]
+    @Query private var reminderQuery: [DocumentReminder]
 
     private var settings: AppSettings? { settingsQuery.first }
+    private var activeReminders: [DocumentReminder] { reminderQuery.filter { !$0.isDismissed } }
+    private var documentAttentionCount: Int {
+        activeReminders.filter { reminder in
+            if !reminder.isConfirmed { return true }
+            return reminder.daysUntilExpiry <= 30
+        }.count
+    }
     private var hasConfiguredAlternateIcons: Bool {
         AppIconService().availableIcons().count > 1
     }
@@ -50,6 +64,7 @@ struct SettingsView: View {
                     backupSection
                     transferSection
                     sharingSection
+                    documentsSection
                     privacySection
                     feedbackSection
                 }
@@ -62,11 +77,15 @@ struct SettingsView: View {
                     viewModel = SettingsViewModel(authService: authService, vaultService: vaultService)
                 }
                 isBiometricsAvailable = authService.isBiometricsAvailable()
+                handleReminderNavigationTrigger()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
                     isBiometricsAvailable = authService.isBiometricsAvailable()
                 }
+            }
+            .onChange(of: reminderNavigationTrigger) { _, _ in
+                handleReminderNavigationTrigger()
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
@@ -113,6 +132,9 @@ struct SettingsView: View {
             .navigationDestination(isPresented: $showFeatureRequests) {
                 FeatureRequestsView()
             }
+            .navigationDestination(isPresented: $showExpiringDocuments) {
+                ExpiringDocumentsView(vaultService: vaultService, targetReminderID: activeTargetReminderID)
+            }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
                     Haptics.deleteConfirmed()
@@ -142,6 +164,11 @@ struct SettingsView: View {
                         viewModel?.setPanicAction(action, modelContext: modelContext)
                     }
                 )
+            }
+            .sheet(isPresented: $showSensitiveScan) {
+                SensitiveScanView(vaultService: vaultService) {
+                    showSensitiveScan = false
+                }
             }
         }
     }
@@ -499,6 +526,38 @@ struct SettingsView: View {
         }
     }
 
+    // MARK: - Documents Section
+
+    private var documentsSection: some View {
+        Section("Documents") {
+            Button {
+                activeTargetReminderID = nil
+                showExpiringDocuments = true
+            } label: {
+                HStack {
+                    Label("Expiring Documents", systemImage: "calendar.badge.exclamationmark")
+                    Spacer()
+                    if documentAttentionCount > 0 {
+                        Text("\(documentAttentionCount)")
+                            .font(.caption.weight(.semibold))
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 2)
+                            .background(Capsule().fill(Color.vaultDestructive))
+                    }
+                }
+                .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Button {
+                showSensitiveScan = true
+            } label: {
+                Label("Find Sensitive Photos", systemImage: "sparkle.magnifyingglass")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+        }
+    }
+
     // MARK: - Privacy Section
 
     private var privacySection: some View {
@@ -533,6 +592,16 @@ struct SettingsView: View {
         _ = viewModel.toggleBreakInAlerts(enabled: enabled, modelContext: modelContext)
         guard enabled else { return }
         showBreakInPermissionSetup = true
+    }
+
+    private func handleReminderNavigationTrigger() {
+        guard reminderNavigationTrigger > 0,
+              handledReminderNavigationTrigger != reminderNavigationTrigger else {
+            return
+        }
+        handledReminderNavigationTrigger = reminderNavigationTrigger
+        activeTargetReminderID = targetReminderID
+        showExpiringDocuments = true
     }
 
     // MARK: - Feedback Section
