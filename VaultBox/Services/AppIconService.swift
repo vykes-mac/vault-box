@@ -29,7 +29,7 @@ final class AppIconService {
         IconOption(id: "WeatherIcon", displayName: "Weather", systemImage: "cloud.sun.fill"),
         IconOption(id: "CompassIcon", displayName: "Compass", systemImage: "safari"),
         IconOption(id: "ClockIcon", displayName: "Clock", systemImage: "clock.fill"),
-        IconOption(id: "StocksIcon", displayName: "Stocks", systemImage: "chart.line.uptrend.xyaxis"),
+        IconOption(id: "StockIcon", displayName: "Stocks", systemImage: "chart.line.uptrend.xyaxis"),
         IconOption(id: "TranslateIcon", displayName: "Translate", systemImage: "bubble.left.and.text.bubble.right"),
         IconOption(id: "MeasureIcon", displayName: "Measure", systemImage: "ruler"),
     ]
