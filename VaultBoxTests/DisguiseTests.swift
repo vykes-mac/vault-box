@@ -42,6 +42,34 @@ struct AppDisguiseTests {
         ))
     }
 
+    @Test("Icon changes suppress only their inactive transition")
+    @MainActor
+    func iconChangePrivacyShieldSuppression() {
+        let shield = AppPrivacyShield()
+
+        #expect(!shield.shouldSuppressForIconChange())
+
+        shield.beginIconChange()
+        #expect(shield.shouldSuppressForIconChange())
+        #expect(shield.shouldSuppressForIconChange())
+
+        shield.completeIconChangeRequest()
+        #expect(shield.finishIconChangeOnActive())
+        #expect(!shield.shouldSuppressForIconChange())
+    }
+
+    @Test("Icon suppression clears when no inactive transition occurs")
+    @MainActor
+    func iconChangeWithoutInactiveTransition() {
+        let shield = AppPrivacyShield()
+
+        shield.beginIconChange()
+        shield.completeIconChangeRequest()
+
+        #expect(!shield.shouldSuppressForIconChange())
+        #expect(!shield.finishIconChangeOnActive())
+    }
+
     @Test("Level readings print rounded motion values")
     func levelReadingFormatting() {
         let reading = LevelReading(roll: 12.6, pitch: -4.4)

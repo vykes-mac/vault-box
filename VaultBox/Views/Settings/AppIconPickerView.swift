@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AppIconPickerView: View {
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(AppPrivacyShield.self) private var privacyShield
     @AppStorage("disguise.hasLearnedPrivateUnlock") private var hasLearnedPrivateUnlock = false
 
     private let iconService = AppIconService()
@@ -97,6 +98,9 @@ struct AppIconPickerView: View {
             return
         }
         Task {
+            privacyShield.beginIconChange()
+            defer { privacyShield.completeIconChangeRequest() }
+
             do {
                 try await iconService.setIcon(iconID)
                 currentIcon = iconID

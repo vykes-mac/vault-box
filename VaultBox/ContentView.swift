@@ -336,11 +336,15 @@ struct ContentView: View {
     }
 
     private func handleWillResignActive() {
+        guard !privacyShield.shouldSuppressForIconChange() else { return }
         privacyShieldRevealToken &+= 1
         privacyShield.isVisible = true
     }
 
     private func handleDidBecomeActive() {
+        if privacyShield.finishIconChangeOnActive() {
+            privacyShield.isVisible = false
+        }
         privacyShieldRevealToken &+= 1
 
         var shouldAwaitLockRoute = false

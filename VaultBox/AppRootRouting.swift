@@ -11,6 +11,39 @@ enum AppRootRoute: Equatable {
 @Observable
 final class AppPrivacyShield {
     var isVisible = true
+
+    private var isIconChangeRequestActive = false
+    private var didSuppressInactiveForIconChange = false
+
+    func beginIconChange() {
+        isIconChangeRequestActive = true
+        didSuppressInactiveForIconChange = false
+    }
+
+    func shouldSuppressForIconChange() -> Bool {
+        guard isIconChangeRequestActive else { return false }
+        didSuppressInactiveForIconChange = true
+        return true
+    }
+
+    func completeIconChangeRequest() {
+        guard !didSuppressInactiveForIconChange else { return }
+        resetIconChangeState()
+    }
+
+    @discardableResult
+    func finishIconChangeOnActive() -> Bool {
+        guard isIconChangeRequestActive, didSuppressInactiveForIconChange else {
+            return false
+        }
+        resetIconChangeState()
+        return true
+    }
+
+    private func resetIconChangeState() {
+        isIconChangeRequestActive = false
+        didSuppressInactiveForIconChange = false
+    }
 }
 
 func determineAppRootRoute(
