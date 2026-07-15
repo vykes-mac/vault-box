@@ -1,0 +1,96 @@
+import Testing
+@testable import VaultBox
+
+@Suite("App Disguise Tests")
+struct AppDisguiseTests {
+    @Test("Every configured alternate icon maps to a disguise")
+    @MainActor
+    func configuredIconsMapToDisguises() {
+        let configuredIDs = Set(AppIconService.iconCatalog.compactMap(\.id))
+        let disguiseIDs = Set(AppDisguise.allCases.map(\.rawValue))
+
+        #expect(configuredIDs == disguiseIDs)
+        #expect(AppDisguise(iconName: nil) == nil)
+        #expect(AppDisguise(iconName: "UnknownIcon") == nil)
+    }
+
+    @Test("Active disguises lock immediately in the background")
+    func activeDisguisesLockImmediately() {
+        #expect(shouldLockImmediatelyForDisguise(iconName: "CalculatorIcon"))
+        #expect(shouldLockImmediatelyForDisguise(iconName: "StockIcon"))
+        #expect(!shouldLockImmediatelyForDisguise(iconName: nil))
+        #expect(!shouldLockImmediatelyForDisguise(iconName: "UnknownIcon"))
+    }
+
+    @Test("Unlock rehearsal appears only until the gesture is learned")
+    func unlockGuidePresentation() {
+        #expect(shouldPresentDisguiseUnlockGuide(
+            iconName: "CalculatorIcon",
+            hasLearnedGesture: false
+        ))
+        #expect(!shouldPresentDisguiseUnlockGuide(
+            iconName: "CompassIcon",
+            hasLearnedGesture: true
+        ))
+        #expect(!shouldPresentDisguiseUnlockGuide(
+            iconName: nil,
+            hasLearnedGesture: false
+        ))
+        #expect(!shouldPresentDisguiseUnlockGuide(
+            iconName: "UnknownIcon",
+            hasLearnedGesture: false
+        ))
+    }
+
+    @Test("Level readings print rounded motion values")
+    func levelReadingFormatting() {
+        let reading = LevelReading(roll: 12.6, pitch: -4.4)
+
+        #expect(reading.displayText == "13°  -4°")
+        #expect(reading.accessibilityValue == "Roll 13 degrees, pitch -4 degrees")
+    }
+
+    @Test("Compass readings print rounded normalized headings")
+    func compassReadingFormatting() {
+        let southwest = CompassReading(heading: 224.6)
+        let north = CompassReading(heading: 359.6)
+
+        #expect(southwest.displayText == "225°")
+        #expect(southwest.accessibilityValue == "225 degrees magnetic")
+        #expect(north.displayText == "0°")
+        #expect(north.accessibilityValue == "0 degrees magnetic")
+    }
+
+    @Test("Calculator performs chained arithmetic")
+    func calculatorArithmetic() {
+        var calculator = CalculatorEngine()
+        calculator.inputDigit("1")
+        calculator.inputDigit("2")
+        calculator.select(.add)
+        calculator.inputDigit("3")
+        calculator.equals()
+
+        #expect(calculator.display == "15")
+    }
+
+    @Test("Calculator handles division by zero")
+    func calculatorDivisionByZero() {
+        var calculator = CalculatorEngine()
+        calculator.inputDigit("8")
+        calculator.select(.divide)
+        calculator.inputDigit("0")
+        calculator.equals()
+
+        #expect(calculator.display == "Error")
+    }
+
+    @Test("Calculator supports decimal percentages")
+    func calculatorPercent() {
+        var calculator = CalculatorEngine()
+        calculator.inputDigit("2")
+        calculator.inputDigit("5")
+        calculator.percent()
+
+        #expect(calculator.display == "0.25")
+    }
+}

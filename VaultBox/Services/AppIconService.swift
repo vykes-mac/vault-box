@@ -24,15 +24,13 @@ final class AppIconService {
 
     static let iconCatalog: [IconOption] = [
         IconOption(id: nil, displayName: "VaultBox (Default)", systemImage: "lock.shield.fill"),
-        IconOption(id: "CalculatorIcon", displayName: "Calculator", systemImage: "plus.forwardslash.minus"),
-        IconOption(id: "NotesIcon", displayName: "Notes", systemImage: "note.text"),
-        IconOption(id: "WeatherIcon", displayName: "Weather", systemImage: "cloud.sun.fill"),
-        IconOption(id: "CompassIcon", displayName: "Compass", systemImage: "safari"),
-        IconOption(id: "ClockIcon", displayName: "Clock", systemImage: "clock.fill"),
-        IconOption(id: "StockIcon", displayName: "Stocks", systemImage: "chart.line.uptrend.xyaxis"),
-        IconOption(id: "TranslateIcon", displayName: "Translate", systemImage: "bubble.left.and.text.bubble.right"),
-        IconOption(id: "MeasureIcon", displayName: "Measure", systemImage: "ruler"),
-    ]
+    ] + AppDisguise.allCases.map { disguise in
+        IconOption(
+            id: disguise.rawValue,
+            displayName: disguise.displayName,
+            systemImage: disguise.systemImage
+        )
+    }
 
     func availableIcons() -> [IconOption] {
         let configured = configuredAlternateIconIDs()

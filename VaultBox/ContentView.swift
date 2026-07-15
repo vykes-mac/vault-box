@@ -2,71 +2,8 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-enum AppRootRoute: Equatable {
-    case onboarding
-    case setupPIN
-    case lock
-    case main
-}
-
 private enum MainTab: Hashable {
-    case vault
-    case albums
-    case camera
-    case smartSearch
-    case settings
-}
-
-@MainActor
-@Observable
-final class AppPrivacyShield {
-    var isVisible = true
-}
-
-func determineAppRootRoute(hasCompletedOnboarding: Bool, isSetupComplete: Bool, isUnlocked: Bool) -> AppRootRoute {
-    if isUnlocked {
-        return .main
-    }
-    if !hasCompletedOnboarding && !isSetupComplete {
-        return .onboarding
-    }
-    if !isSetupComplete {
-        return .setupPIN
-    }
-    return .lock
-}
-
-struct PostSetupOverlayDecision: Equatable {
-    let showSecuritySetup: Bool
-    let deferPaywallUntilSecuritySetupCompletes: Bool
-
-    static let none = PostSetupOverlayDecision(
-        showSecuritySetup: false,
-        deferPaywallUntilSecuritySetupCompletes: false
-    )
-}
-
-func determinePostSetupOverlayDecision(oldRoute: AppRootRoute?, newRoute: AppRootRoute?) -> PostSetupOverlayDecision {
-    guard newRoute == .main else { return .none }
-    guard oldRoute == .onboarding || oldRoute == .setupPIN else { return .none }
-
-    return PostSetupOverlayDecision(
-        showSecuritySetup: true,
-        deferPaywallUntilSecuritySetupCompletes: true
-    )
-}
-
-func resolveDeferredPostSetupPaywall(shouldDefer: Bool) -> (showPaywall: Bool, shouldDefer: Bool) {
-    guard shouldDefer else { return (false, false) }
-    return (true, false)
-}
-
-func shouldDismissMainShellPresentations(oldRoute: AppRootRoute?, newRoute: AppRootRoute?) -> Bool {
-    oldRoute == .main && newRoute == .lock
-}
-
-func shouldRenderMainShell(for route: AppRootRoute) -> Bool {
-    route == .main || route == .lock
+    case vault, albums, camera, smartSearch, settings
 }
 
 private struct ParsedShare: Identifiable {
@@ -123,16 +60,10 @@ struct ContentView: View {
                         mainTabView(authService: authService, vaultService: vaultService)
                             .overlay {
                                 if currentRoute == .lock {
-                                    ZStack {
-                                        Color.vaultBackground
-                                            .ignoresSafeArea()
-                                        LockScreenView(
-                                            authService: authService,
-                                            onPresented: handleLockScreenPresented
-                                        )
-                                        .frame(maxWidth: .infinity, maxHeight: .infinity)
-                                    }
-                                    .ignoresSafeArea()
+                                    LockedAppOverlay(
+                                        authService: authService,
+                                        onPresented: handleLockScreenPresented
+                                    )
                                 }
                             }
                     } else if currentRoute == .onboarding {
@@ -147,13 +78,7 @@ struct ContentView: View {
             }
 
             if privacyShield.isVisible {
-                Color.black
-                    .ignoresSafeArea()
-                    .overlay {
-                        Image(systemName: "lock.fill")
-                            .font(.system(size: 36, weight: .semibold))
-                            .foregroundStyle(.white)
-                    }
+                AppPrivacyShieldView()
                     .zIndex(1)
             }
         }
@@ -334,7 +259,6 @@ struct ContentView: View {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     UIApplication.shared.open(url)
                 }
-               
             }
         }
         panicGestureService = service
@@ -402,6 +326,12 @@ struct ContentView: View {
         privacyShield.isVisible = true
         guard let authService else { return }
         guard authService.isSetupComplete else { return }
+
+        if shouldLockImmediatelyForDisguise(iconName: UIApplication.shared.alternateIconName) {
+            authService.lock()
+            return
+        }
+
         authService.recordBackgroundEntry()
     }
 

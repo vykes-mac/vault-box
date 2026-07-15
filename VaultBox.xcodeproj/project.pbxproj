@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D10000000000000000000001 /* AppRootRouting.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000001 /* AppRootRouting.swift */; };
+		D10000000000000000000002 /* AppDisguise.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000002 /* AppDisguise.swift */; };
+		D10000000000000000000003 /* DisguiseCoverView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000003 /* DisguiseCoverView.swift */; };
+		D10000000000000000000004 /* DisguiseMotionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000004 /* DisguiseMotionModel.swift */; };
+		D10000000000000000000005 /* CalculatorDisguiseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000005 /* CalculatorDisguiseView.swift */; };
+		D10000000000000000000006 /* ProductivityDisguiseViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000006 /* ProductivityDisguiseViews.swift */; };
+		D10000000000000000000007 /* DashboardDisguiseViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000007 /* DashboardDisguiseViews.swift */; };
+		D10000000000000000000008 /* DisguiseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E10000000000000000000008 /* DisguiseTests.swift */; };
 		03B43E70C62B200C3C520189 /* CloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E87BF05D8B2B0BF8E394AA /* CloudService.swift */; };
 		04CDEA67669113E658B9BF14 /* AlbumGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7A5C9C60BCF62D9ECA6D18 /* AlbumGridView.swift */; };
 		04D09B17B56817749CFE251D /* SmartAlbumType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B0B4068F94995D2A0AB6AE4 /* SmartAlbumType.swift */; };
@@ -137,6 +145,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E10000000000000000000001 /* AppRootRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootRouting.swift; sourceTree = "<group>"; };
+		E10000000000000000000002 /* AppDisguise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDisguise.swift; sourceTree = "<group>"; };
+		E10000000000000000000003 /* DisguiseCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseCoverView.swift; sourceTree = "<group>"; };
+		E10000000000000000000004 /* DisguiseMotionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseMotionModel.swift; sourceTree = "<group>"; };
+		E10000000000000000000005 /* CalculatorDisguiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDisguiseView.swift; sourceTree = "<group>"; };
+		E10000000000000000000006 /* ProductivityDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityDisguiseViews.swift; sourceTree = "<group>"; };
+		E10000000000000000000007 /* DashboardDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDisguiseViews.swift; sourceTree = "<group>"; };
+		E10000000000000000000008 /* DisguiseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseTests.swift; sourceTree = "<group>"; };
 		051F101CA6AB743598296D4E /* AlbumCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCoverView.swift; sourceTree = "<group>"; };
 		05FBF0C965DAC9D0064C1882 /* PaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallView.swift; sourceTree = "<group>"; };
 		07758B234491483951865868 /* VisionAnalysisService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionAnalysisService.swift; sourceTree = "<group>"; };
@@ -307,6 +323,7 @@
 				2AAA1A67D0364639B2B88064 /* BreakInPermissionServiceTests.swift */,
 				EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */,
 				E0C5C5ABCE3ACF4188B5831A /* DocumentExpiryParserTests.swift */,
+				E10000000000000000000008 /* DisguiseTests.swift */,
 				FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */,
 				BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */,
 				2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
@@ -387,6 +404,7 @@
 				F76D121D7B740CA06CEA06A3 /* Ask */,
 				0F9830AC2BFA45A7D6D1CAA2 /* Auth */,
 				1C67CB70A87A01D3BDDD2D9B /* Components */,
+				F10000000000000000000001 /* Disguise */,
 				04E556EF62C75DC58BE05D8E /* Paywall */,
 				939892434EAAB162892D3F7C /* Settings */,
 				FCC57BE8C6970F718450490D /* Sharing */,
@@ -399,6 +417,7 @@
 			isa = PBXGroup;
 			children = (
 				B7023E56BE3EEDDB5A4C1276 /* Album.swift */,
+				E10000000000000000000002 /* AppDisguise.swift */,
 				816F0C902D0934CACAF3E697 /* AppSettings.swift */,
 				D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */,
 				63205CE6AB8E5F2822603DCD /* DocumentReminder.swift */,
@@ -483,6 +502,7 @@
 		EF063D184B44030504E78953 /* VaultBox */ = {
 			isa = PBXGroup;
 			children = (
+				E10000000000000000000001 /* AppRootRouting.swift */,
 				D2939C27F07D011312BB7C89 /* ContentView.swift */,
 				64922A8504D6C69762B8C911 /* Info.plist */,
 				46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */,
@@ -509,6 +529,18 @@
 				A8A14BBC4299F74D4D76FFF5 /* vocab.txt */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		F10000000000000000000001 /* Disguise */ = {
+			isa = PBXGroup;
+			children = (
+				E10000000000000000000005 /* CalculatorDisguiseView.swift */,
+				E10000000000000000000007 /* DashboardDisguiseViews.swift */,
+				E10000000000000000000003 /* DisguiseCoverView.swift */,
+				E10000000000000000000004 /* DisguiseMotionModel.swift */,
+				E10000000000000000000006 /* ProductivityDisguiseViews.swift */,
+			);
+			path = Disguise;
 			sourceTree = "<group>";
 		};
 		F76D121D7B740CA06CEA06A3 /* Ask */ = {
@@ -660,6 +692,7 @@
 				9DF79CE7083844F67F6D0B5B /* BreakInPermissionServiceTests.swift in Sources */,
 				EEE30E0156A023F0F38F6FCE /* ContentViewRouteTests.swift in Sources */,
 				D153FF63CFD77DDF9F814AF1 /* DocumentExpiryParserTests.swift in Sources */,
+				D10000000000000000000008 /* DisguiseTests.swift in Sources */,
 				A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */,
 				1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */,
 				7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
@@ -678,6 +711,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D10000000000000000000001 /* AppRootRouting.swift in Sources */,
 				050BB4392E19DB0EB7B22155 /* Album.swift in Sources */,
 				7A684C7D83B4C2D71BF2E2E6 /* AlbumCoverPickerView.swift in Sources */,
 				CC8D5CC46B10F18324DD5496 /* AlbumCoverView.swift in Sources */,
@@ -687,6 +721,7 @@
 				CD1C550098FF7141E0DED0D8 /* AppIconPickerView.swift in Sources */,
 				A85183F589F7552965B2D032 /* AppIconService.swift in Sources */,
 				DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */,
+				D10000000000000000000002 /* AppDisguise.swift in Sources */,
 				7BE76D605C7DDCF65019B351 /* AskVaultView.swift in Sources */,
 				C7EC3D906E8838D125EAD0D5 /* AskVaultViewModel.swift in Sources */,
 				0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */,
@@ -700,6 +735,7 @@
 				5FAB8E4A9EB91C4839D3D8AB /* CameraView.swift in Sources */,
 				0C4E4F0ABB45C4E121C57A59 /* ChunkingEngine.swift in Sources */,
 				03B43E70C62B200C3C520189 /* CloudService.swift in Sources */,
+				D10000000000000000000005 /* CalculatorDisguiseView.swift in Sources */,
 				A93772B76AB866E19E383E7B /* Constants.swift in Sources */,
 				83F8A4B8940D72E6F7B41527 /* ContentView.swift in Sources */,
 				DF32EFCCA0872BFE3EC0A083 /* Data+Encryption.swift in Sources */,
@@ -727,6 +763,9 @@
 				AEC28AE343B18B7C20428024 /* IngestionService.swift in Sources */,
 				A4A524960F15A869939A948B /* LockScreenView.swift in Sources */,
 				D043C9244217D6F9C8F02D4C /* OnboardingView.swift in Sources */,
+				D10000000000000000000007 /* DashboardDisguiseViews.swift in Sources */,
+				D10000000000000000000003 /* DisguiseCoverView.swift in Sources */,
+				D10000000000000000000004 /* DisguiseMotionModel.swift in Sources */,
 				2F3E7F8FBCC1D8B3BADBC39B /* PDFTextExtractor.swift in Sources */,
 				822A4D69398B4376160E0A4E /* PINDotsView.swift in Sources */,
 				39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */,
@@ -737,6 +776,7 @@
 				8A3A407AC9B2EBD6E2490D72 /* PaywallView.swift in Sources */,
 				D9F93C85C607EC771DD9B5A3 /* PhotoDetailView.swift in Sources */,
 				25A4A66CB398F7894647D15F /* PostOnboardingSecuritySetupView.swift in Sources */,
+				D10000000000000000000006 /* ProductivityDisguiseViews.swift in Sources */,
 				EA564C14612D8F196C566C12 /* PremiumBadge.swift in Sources */,
 				605F801AE42F37A8AAAC7987 /* PurchaseService.swift in Sources */,
 				554AA0DF0BB7298B759E95CD /* ScreenCaptureMonitor.swift in Sources */,
