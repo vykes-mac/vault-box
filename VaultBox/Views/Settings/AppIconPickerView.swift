@@ -89,7 +89,7 @@ struct AppIconPickerView: View {
 
     private func selectIcon(_ iconID: String?) {
         if iconID != nil, !availableIcons.contains(where: { $0.id == iconID }) {
-            errorMessage = "This app icon is not available in the current build."
+            errorMessage = String(localized: "This app icon is not available in the current build.")
             showError = true
             return
         }
@@ -150,7 +150,11 @@ private struct DisguiseUnlockGuideView: View {
 
                 Spacer(minLength: 0)
 
-                Button(didPracticeGesture ? "Done" : "Press and hold the title above") {
+                Button(
+                    didPracticeGesture
+                        ? String(localized: "Done")
+                        : String(localized: "Press and hold the title above")
+                ) {
                     dismiss()
                 }
                 .buttonStyle(.borderedProminent)
@@ -207,7 +211,11 @@ private struct DisguiseUnlockGuideView: View {
                 }
             }
 
-            Text(didPracticeGesture ? "Gesture learned. Use the same hold on the utility title." : "Press and hold “\(disguise.coverTitle)” until you feel the confirmation.")
+            Text(
+                didPracticeGesture
+                    ? String(localized: "Gesture learned. Use the same hold on the utility title.")
+                    : String(localized: "Press and hold “\(disguise.coverTitle)” until you feel the confirmation.")
+            )
                 .font(.callout)
                 .foregroundStyle(didPracticeGesture ? .green : .secondary)
         }

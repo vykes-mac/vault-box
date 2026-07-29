@@ -48,7 +48,11 @@ struct SensitiveScanView: View {
         case .denied:
             deniedView
         case .error(let message):
-            messageView(systemImage: "exclamationmark.triangle", title: "Something went wrong", subtitle: message)
+            messageView(
+                systemImage: "exclamationmark.triangle",
+                title: String(localized: "Something went wrong"),
+                subtitle: message
+            )
         }
     }
 
@@ -112,8 +116,8 @@ struct SensitiveScanView: View {
             if viewModel.candidates.isEmpty {
                 messageView(
                     systemImage: "checkmark.shield",
-                    title: "Nothing Sensitive Found",
-                    subtitle: "We didn't spot any obviously sensitive photos in your recent camera roll."
+                    title: String(localized: "Nothing Sensitive Found"),
+                    subtitle: String(localized: "We didn't spot any obviously sensitive photos in your recent camera roll.")
                 )
             } else {
                 VStack(spacing: 0) {
@@ -131,7 +135,11 @@ struct SensitiveScanView: View {
         }
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button(viewModel.allSelected ? "Deselect All" : "Select All") {
+                Button(
+                    viewModel.allSelected
+                        ? String(localized: "Deselect All")
+                        : String(localized: "Select All")
+                ) {
                     viewModel.toggleSelectAll()
                 }
                 .disabled(viewModel.candidates.isEmpty)
@@ -194,9 +202,11 @@ struct SensitiveScanView: View {
             Button {
                 viewModel.moveSelectedToVault(deleteOriginals: deleteOriginals) {}
             } label: {
-                Text(viewModel.selectedIDs.isEmpty
-                     ? "Select Photos to Move"
-                     : "Move \(viewModel.selectedIDs.count) to Vault")
+                Text(
+                    viewModel.selectedIDs.isEmpty
+                        ? String(localized: "Select Photos to Move")
+                        : String(localized: "Move \(viewModel.selectedIDs.count) to Vault")
+                )
                     .font(.headline)
                     .frame(maxWidth: .infinity)
                     .padding()
@@ -218,7 +228,11 @@ struct SensitiveScanView: View {
             Image(systemName: "checkmark.circle.fill")
                 .font(.system(size: 64))
                 .foregroundStyle(Color.vaultSuccess)
-            Text(count == 1 ? "1 photo moved to your vault" : "\(count) photos moved to your vault")
+            Text(
+                count == 1
+                    ? String(localized: "1 photo moved to your vault")
+                    : String(localized: "\(count) photos moved to your vault")
+            )
                 .font(.title3.bold())
                 .foregroundStyle(Color.vaultTextPrimary)
                 .multilineTextAlignment(.center)

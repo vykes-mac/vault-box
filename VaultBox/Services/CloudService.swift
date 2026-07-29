@@ -207,17 +207,17 @@ enum CloudError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .fileNotFound:
-            "The encrypted file could not be found on disk."
+            String(localized: "The encrypted file could not be found on disk.")
         case .downloadFailed:
-            "Failed to download from iCloud. Please try again."
+            String(localized: "Failed to download from iCloud. Please try again.")
         case .iCloudUnavailable:
-            "iCloud is not available. Check your Apple ID in Settings."
+            String(localized: "iCloud is not available. Check your Apple ID in Settings.")
         case .storageFull:
-            "Your iCloud storage is full. Backup paused."
+            String(localized: "Your iCloud storage is full. Backup paused.")
         case .keyBackupNotFound:
-            "No encryption key backup found in iCloud. Back up your vault first."
+            String(localized: "No encryption key backup found in iCloud. Back up your vault first.")
         case .keyDecryptionFailed:
-            "Incorrect PIN. Could not decrypt your backup encryption key."
+            String(localized: "Incorrect PIN. Could not decrypt your backup encryption key.")
         }
     }
 }

@@ -17,27 +17,27 @@ enum AppDisguise: String, CaseIterable, Identifiable {
 
     var displayName: String {
         switch self {
-        case .calculator: "Calculator"
-        case .notes: "Notes"
-        case .weather: "Weather"
-        case .compass: "Compass"
-        case .clock: "Clock"
-        case .stocks: "Stocks"
-        case .translate: "Translate"
-        case .measure: "Measure"
+        case .calculator: String(localized: "Calculator")
+        case .notes: String(localized: "Notes")
+        case .weather: String(localized: "Weather")
+        case .compass: String(localized: "Compass")
+        case .clock: String(localized: "Clock")
+        case .stocks: String(localized: "Stocks")
+        case .translate: String(localized: "Translate")
+        case .measure: String(localized: "Measure")
         }
     }
 
     var coverTitle: String {
         switch self {
-        case .calculator: "Quick Calc"
-        case .notes: "Scratchpad"
-        case .weather: "Local Outlook"
-        case .compass: "Direction"
-        case .clock: "World Time"
-        case .stocks: "Market Watch"
-        case .translate: "Phrasebook"
-        case .measure: "Level"
+        case .calculator: String(localized: "Quick Calc")
+        case .notes: String(localized: "Scratchpad")
+        case .weather: String(localized: "Local Outlook")
+        case .compass: String(localized: "Direction")
+        case .clock: String(localized: "World Time")
+        case .stocks: String(localized: "Market Watch")
+        case .translate: String(localized: "Phrasebook")
+        case .measure: String(localized: "Level")
         }
     }
 

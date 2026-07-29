@@ -1,184 +1,276 @@
 import SwiftData
 import SwiftUI
 
+// MARK: - Step
+
+/// Ordered funnel. The three question steps sit between the emotional hook and the
+/// trust/authority payoff on purpose: commitment is cheapest to collect right after
+/// the problem lands and before we ask for anything real (a PIN, then money).
+enum OnboardingStep: Int, CaseIterable, Equatable {
+    case hook
+    case proof
+    case targets
+    case risks
+    case history
+    case trust
+    case building
+    case plan
+
+    var next: OnboardingStep? { OnboardingStep(rawValue: rawValue + 1) }
+    var previous: OnboardingStep? { OnboardingStep(rawValue: rawValue - 1) }
+
+    /// Steps the user can walk back into. The build animation is not one of them.
+    var allowsBack: Bool {
+        switch self {
+        case .hook, .building: false
+        default: true
+        }
+    }
+
+    /// Fraction of the funnel complete. Never reaches 1.0 — leaving the bar visibly
+    /// short of the end is what makes finishing feel unfinished (Zeigarnik).
+    var progress: Double {
+        Double(rawValue + 1) / Double(OnboardingStep.allCases.count + 1)
+    }
+}
+
+// MARK: - Onboarding View
+
 struct OnboardingView: View {
     let authService: AuthService
 
-    @State private var currentPage = 0
+    @Environment(AnalyticsService.self) private var analytics
+    @Environment(\.scenePhase) private var scenePhase
+
+    @State private var step: OnboardingStep = .hook
+    @State private var answers = OnboardingAnswers()
     @State private var showPINSetup = false
 
     var body: some View {
         VStack(spacing: 0) {
-            TabView(selection: $currentPage) {
-                valueHookPage
-                    .tag(0)
-                permissionsPrimerPage
-                    .tag(1)
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            .animation(.easeInOut, value: currentPage)
+            header
 
-            // Page indicator dots
-            HStack(spacing: 8) {
-                ForEach(0..<2, id: \.self) { index in
-                    Circle()
-                        .fill(index == currentPage ? Color.accentColor : Color.accentColor.opacity(0.25))
-                        .frame(width: 8, height: 8)
-                }
-            }
-            .padding(.bottom, 16)
+            stepContent
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .id(step)
+                .transition(.asymmetric(
+                    insertion: .move(edge: .trailing).combined(with: .opacity),
+                    removal: .move(edge: .leading).combined(with: .opacity)
+                ))
 
-            // CTA Button
-            Button {
-                if currentPage == 0 {
-                    withAnimation {
-                        currentPage = 1
-                    }
-                } else {
-                    showPINSetup = true
-                }
-            } label: {
-                Text(currentPage == 0 ? "Get Started" : "Create PIN")
-                    .font(.headline)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.accentColor)
-                    .clipShape(Capsule())
-            }
-            .padding(.horizontal, Constants.standardPadding)
-            .padding(.bottom, 32)
+            footer
         }
         .background {
-            ZStack {
-                Color.vaultBackground
-                concentricArcs
-            }
-            .ignoresSafeArea()
+            OnboardingBackground()
+                .ignoresSafeArea()
         }
         .fullScreenCover(isPresented: $showPINSetup) {
-            PINSetupView(authService: authService)
+            PINSetupView(
+                authService: authService,
+                createTitle: String(localized: "Lock your vault"),
+                createSubtitle: String(localized: "This PIN is the only way in. Nobody can reset it for you."),
+                confirmTitle: String(localized: "Confirm your PIN"),
+                confirmSubtitle: String(localized: "Enter it once more so it's locked in."),
+                onSuccess: { analytics.record(.pinCreated) }
+            )
+        }
+        .onAppear {
+            answers = OnboardingAnswersStore.load()
+            analytics.beginFunnelSession()
+            analytics.markFunnelStart()
+            analytics.record(.onboardingStarted)
+            enterStep(step)
+        }
+        .onChange(of: scenePhase) { _, phase in
+            // Leaving mid-funnel is the drop-off we'd otherwise never see: these users
+            // don't reach another screen we control.
+            guard phase == .background, !showPINSetup else { return }
+            analytics.record(
+                .onboardingBackgrounded(step: step, secondsOnStep: analytics.secondsOnStep())
+            )
         }
     }
 
-    // MARK: - Value Hook (Screen 1)
+    // MARK: - Header
 
-    private var valueHookPage: some View {
-        VStack(spacing: 24) {
-            Spacer()
-
-            Image("shield")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 120, height: 120)
-
-            VStack(spacing: 12) {
-                Text("Your photos.\nYour documents.\nYour rules.")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.vaultTextPrimary)
-
-                Text("Encrypted the moment they\nenter VaultBox.")
-                    .font(.body)
-                    .multilineTextAlignment(.center)
+    private var header: some View {
+        HStack(spacing: 12) {
+            Button {
+                goBack()
+            } label: {
+                Image(systemName: "chevron.left")
+                    .font(.headline)
                     .foregroundStyle(Color.vaultTextSecondary)
+                    .frame(width: 32, height: 32)
             }
+            .opacity(step.allowsBack ? 1 : 0)
+            .disabled(!step.allowsBack)
+            .accessibilityLabel("Back")
 
-            Spacer()
-            Spacer()
+            OnboardingProgressBar(progress: step.progress)
+
+            // Balances the leading chevron so the bar stays centred.
+            Color.clear.frame(width: 32, height: 32)
         }
         .padding(.horizontal, Constants.standardPadding)
+        .padding(.top, 8)
+        .padding(.bottom, 20)
     }
 
-    // MARK: - Permissions Primer (Screen 2)
+    // MARK: - Content
 
-    private var permissionsPrimerPage: some View {
-        VStack(spacing: 24) {
-            Spacer()
+    @ViewBuilder
+    private var stepContent: some View {
+        switch step {
+        case .hook:
+            OnboardingHookStep()
+        case .proof:
+            OnboardingProofStep()
+        case .targets:
+            OnboardingTargetsStep(selection: $answers.targets)
+        case .risks:
+            OnboardingRisksStep(selection: $answers.risks)
+        case .history:
+            OnboardingHistoryStep(selection: $answers.snoopingHistory)
+        case .trust:
+            OnboardingTrustStep()
+        case .building:
+            OnboardingBuildingStep(answers: answers, onComplete: { advance() })
+        case .plan:
+            OnboardingPlanStep(answers: answers)
+        }
+    }
 
-            VStack(spacing: 8) {
-                Text("Break-in protection needs\na few permissions")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(Color.vaultTextPrimary)
+    // MARK: - Footer
 
-                Text("After you create your PIN, we'll guide you through security permissions with clear context.")
-                    .font(.callout)
-                    .multilineTextAlignment(.center)
+    @ViewBuilder
+    private var footer: some View {
+        if step == .building {
+            // No escape hatch while the plan "builds" — the wait is the payoff.
+            Color.clear.frame(height: 84)
+        } else {
+            VStack(spacing: 10) {
+                Button {
+                    handlePrimaryAction()
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(primaryButtonTitle)
+                            .font(.headline)
+                        Image(systemName: "arrow.right")
+                            .font(.subheadline.weight(.bold))
+                    }
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .frame(height: 54)
+                    .background(
+                        canAdvance ? Color.vaultAccent : Color.vaultAccent.opacity(0.3),
+                        in: Capsule()
+                    )
+                }
+                .disabled(!canAdvance)
+                .animation(.easeInOut(duration: 0.2), value: canAdvance)
+
+                Text(footnote)
+                    .font(.caption2)
                     .foregroundStyle(Color.vaultTextSecondary)
+                    .frame(height: 14)
             }
-
-            VStack(spacing: 20) {
-                permissionRow(
-                    icon: "bell.badge",
-                    title: "Notifications",
-                    subtitle: "Get instant break-in alerts"
-                )
-                permissionRow(
-                    icon: "camera.fill",
-                    title: "Camera",
-                    subtitle: "Capture intruder photos on failed PIN attempts"
-                )
-                permissionRow(
-                    icon: "location.fill",
-                    title: "Location (Premium)",
-                    subtitle: "Record GPS evidence when available"
-                )
-            }
-            .padding(.top, 8)
-
-            Spacer()
-            Spacer()
+            .padding(.horizontal, Constants.standardPadding)
+            .padding(.bottom, 12)
         }
-        .padding(.horizontal, Constants.standardPadding)
     }
 
-    // MARK: - Background Pattern
-
-    private var concentricArcs: some View {
-        let arcColor = Color.accentColor.opacity(0.07)
-        let lineWidth: CGFloat = 2.5
-        return ZStack {
-            // Top-left arcs
-            ForEach(0..<4, id: \.self) { i in
-                Circle()
-                    .stroke(arcColor, lineWidth: lineWidth)
-                    .frame(width: 120 + CGFloat(i) * 80, height: 120 + CGFloat(i) * 80)
-                    .offset(x: -80, y: -120)
-            }
-            // Bottom-right arcs
-            ForEach(0..<4, id: \.self) { i in
-                Circle()
-                    .stroke(arcColor, lineWidth: lineWidth)
-                    .frame(width: 120 + CGFloat(i) * 80, height: 120 + CGFloat(i) * 80)
-                    .offset(x: 80, y: 120)
-            }
+    private var primaryButtonTitle: String {
+        switch step {
+        case .hook: String(localized: "Lock My Photos Down")
+        case .plan: String(localized: "Create My PIN")
+        case .targets, .risks: String(localized: "Continue")
+        default: String(localized: "Continue")
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .clipped()
     }
 
-    private func permissionRow(icon: String, title: String, subtitle: String) -> some View {
-        HStack(spacing: 16) {
-            Image(systemName: icon)
-                .font(.title2)
-                .foregroundStyle(Color.accentColor)
-                .frame(width: 40)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(Color.vaultTextPrimary)
-                Text(subtitle)
-                    .font(.caption)
-                    .foregroundStyle(Color.vaultTextSecondary)
-            }
-
-            Spacer()
+    private var footnote: String {
+        switch step {
+        case .hook: String(localized: "Takes about 60 seconds")
+        case .targets, .risks: String(localized: "Select all that apply")
+        case .plan: String(localized: "Your PIN never leaves this device")
+        default: ""
         }
+    }
+
+    /// Selection-gated steps refuse to advance until the user has committed to an
+    /// answer. The friction is the point: an answer given is an answer defended.
+    private var canAdvance: Bool {
+        switch step {
+        case .targets: !answers.targets.isEmpty
+        case .risks: !answers.risks.isEmpty
+        case .history: answers.snoopingHistory != nil
+        default: true
+        }
+    }
+
+    // MARK: - Navigation
+
+    private func handlePrimaryAction() {
+        guard canAdvance else { return }
+        if step == .plan {
+            OnboardingAnswersStore.save(answers)
+            // Everyone who completes the new funnel is an ad-acquired user: gate them.
+            PaywallGate.markRequired()
+            Haptics.pinCorrect()
+            recordAnswerIfNeeded(for: step)
+            analytics.record(
+                .onboardingStepAdvanced(step: step, secondsOnStep: analytics.secondsOnStep())
+            )
+            analytics.record(
+                .onboardingCompleted(secondsTotal: analytics.secondsSinceFunnelStart())
+            )
+            analytics.record(.pinSetupStarted)
+            showPINSetup = true
+            return
+        }
+        advance()
+    }
+
+    private func advance() {
+        guard let next = step.next else { return }
+        Haptics.itemSelected()
+        OnboardingAnswersStore.save(answers)
+        recordAnswerIfNeeded(for: step)
+        analytics.record(
+            .onboardingStepAdvanced(step: step, secondsOnStep: analytics.secondsOnStep())
+        )
+        withAnimation(.snappy(duration: 0.32)) {
+            step = next
+        }
+        enterStep(next)
+    }
+
+    private func goBack() {
+        guard let previous = step.previous, step.allowsBack else { return }
+        analytics.record(.onboardingStepBack(from: step, to: previous))
+        withAnimation(.snappy(duration: 0.32)) {
+            step = previous
+        }
+        enterStep(previous)
+    }
+
+    private func enterStep(_ step: OnboardingStep) {
+        analytics.markStepEntered()
+        analytics.record(.onboardingStepViewed(step: step))
+    }
+
+    /// Records *how many* options the user picked — never which ones. The risks screen
+    /// promises the answers never leave the phone, and that promise outranks the metric.
+    private func recordAnswerIfNeeded(for step: OnboardingStep) {
+        let count: Int
+        switch step {
+        case .targets: count = answers.targets.count
+        case .risks: count = answers.risks.count
+        case .history: count = answers.snoopingHistory == nil ? 0 : 1
+        default: return
+        }
+        analytics.record(.onboardingAnswered(step: step, selectedCount: count))
     }
 }
 

@@ -175,7 +175,7 @@ struct CameraView: View {
                     capturedPhoto = nil
                     showPaywall = true
                 } else {
-                    errorMessage = "Couldn't import this photo. Please try again."
+                    errorMessage = String(localized: "Couldn't import this photo. Please try again.")
                     showError = true
                 }
             }

@@ -25,8 +25,16 @@ struct WeatherDisguiseView: View {
                     .padding(.vertical, 18)
 
                     HStack(spacing: 12) {
-                        outlookCard(title: "Now", value: daylightLabel(for: context.date), symbol: "sun.max")
-                        outlookCard(title: "Forecast", value: "Offline", symbol: "wifi.slash")
+                        outlookCard(
+                            title: String(localized: "Now"),
+                            value: daylightLabel(for: context.date),
+                            symbol: "sun.max"
+                        )
+                        outlookCard(
+                            title: String(localized: "Forecast"),
+                            value: String(localized: "Offline"),
+                            symbol: "wifi.slash"
+                        )
                     }
 
                     Text("This lightweight outlook keeps a location and local daylight status without requesting location access.")
@@ -60,7 +68,9 @@ struct WeatherDisguiseView: View {
 
     private func daylightLabel(for date: Date) -> String {
         let hour = Calendar.current.component(.hour, from: date)
-        return (6..<18).contains(hour) ? "Daylight" : "Night"
+        return (6..<18).contains(hour)
+            ? String(localized: "Daylight")
+            : String(localized: "Night")
     }
 }
 
@@ -110,7 +120,11 @@ struct CompassDisguiseView: View {
             .accessibilityLabel("Compass")
             .accessibilityValue(reading.accessibilityValue)
 
-            Text(motion.headingDegrees == nil ? "Heading unavailable" : reading.displayText)
+            Text(
+                motion.headingDegrees == nil
+                    ? String(localized: "Heading unavailable")
+                    : reading.displayText
+            )
                 .font(.system(.largeTitle, design: .rounded, weight: .semibold))
 
             Text("Magnetic heading may be approximate indoors.")
@@ -138,7 +152,7 @@ struct CompassReading: Equatable {
     }
 
     var accessibilityValue: String {
-        "\(roundedHeading) degrees magnetic"
+        String(localized: "\(roundedHeading) degrees magnetic")
     }
 }
 
@@ -172,7 +186,11 @@ struct ClockDisguiseView: View {
                     .accessibilityValue(elapsed)
 
                 HStack(spacing: 20) {
-                    Button(startedAt == nil ? "Start" : "Stop") {
+                    Button(
+                        startedAt == nil
+                            ? String(localized: "Start")
+                            : String(localized: "Stop")
+                    ) {
                         toggleStopwatch(at: context.date)
                     }
                     .buttonStyle(ClockControlButtonStyle(tint: startedAt == nil ? .green : .orange))

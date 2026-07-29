@@ -78,7 +78,7 @@ struct CalculatorEngine {
         case .multiply: result = left * right
         case .divide:
             guard right != 0 else {
-                display = "Error"
+                display = String(localized: "Error")
                 accumulator = nil
                 startsNewEntry = true
                 return
@@ -91,7 +91,7 @@ struct CalculatorEngine {
     }
 
     private func formatted(_ value: Double) -> String {
-        guard value.isFinite else { return "Error" }
+        guard value.isFinite else { return String(localized: "Error") }
         if value.rounded() == value, abs(value) < 1_000_000_000_000 {
             return String(Int64(value))
         }
@@ -193,15 +193,15 @@ struct CalculatorDisguiseView: View {
 
     private func accessibilityLabel(_ label: String) -> String {
         switch label {
-        case "AC": "Clear"
-        case "+/−": "Toggle sign"
-        case "%": "Percent"
-        case "÷": "Divide"
-        case "×": "Multiply"
-        case "−": "Subtract"
-        case "+": "Add"
-        case "=": "Equals"
-        case ".": "Decimal"
+        case "AC": String(localized: "Clear")
+        case "+/−": String(localized: "Toggle sign")
+        case "%": String(localized: "Percent")
+        case "÷": String(localized: "Divide")
+        case "×": String(localized: "Multiply")
+        case "−": String(localized: "Subtract")
+        case "+": String(localized: "Add")
+        case "=": String(localized: "Equals")
+        case ".": String(localized: "Decimal")
         default: label
         }
     }

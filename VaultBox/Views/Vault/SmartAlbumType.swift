@@ -24,6 +24,35 @@ enum SmartAlbumType: String, CaseIterable, Identifiable {
 
     var id: String { rawValue }
 
+    var displayName: String {
+        switch self {
+        case .people: String(localized: "People")
+        case .documents: String(localized: "Documents")
+        case .receipts: String(localized: "Receipts")
+        case .idsAndCards: String(localized: "IDs & Cards")
+        case .contracts: String(localized: "Contracts")
+        case .screenshots: String(localized: "Screenshots")
+        case .qrCodes: String(localized: "QR Codes")
+        case .animals: String(localized: "Animals")
+        case .plants: String(localized: "Plants")
+        case .buildings: String(localized: "Buildings")
+        case .landmarks: String(localized: "Landmarks")
+        case .food: String(localized: "Food")
+        case .vehicles: String(localized: "Vehicles")
+        case .nature: String(localized: "Nature")
+        case .beach: String(localized: "Beach")
+        case .sunset: String(localized: "Sunset")
+        case .sports: String(localized: "Sports")
+        case .night: String(localized: "Night")
+        case .water: String(localized: "Water")
+        case .celebration: String(localized: "Celebration")
+        }
+    }
+
+    static func localizedDisplayName(forTag tag: String) -> String {
+        allCases.first(where: { $0.tag == tag })?.displayName ?? tag.capitalized
+    }
+
     var tag: String {
         switch self {
         case .people: "people"

@@ -15,15 +15,19 @@ final class AppIconService {
         var errorDescription: String? {
             switch self {
             case .alternateIconsUnavailable:
-                return "Alternate app icons are not available in this build."
+                return String(localized: "Alternate app icons are not available in this build.")
             case let .iconNotConfigured(iconName):
-                return "The icon '\(iconName)' is not configured in this build."
+                return String(localized: "The icon '\(iconName)' is not configured in this build.")
             }
         }
     }
 
     static let iconCatalog: [IconOption] = [
-        IconOption(id: nil, displayName: "VaultBox (Default)", systemImage: "lock.shield.fill"),
+        IconOption(
+            id: nil,
+            displayName: String(localized: "VaultBox (Default)"),
+            systemImage: "lock.shield.fill"
+        ),
     ] + AppDisguise.allCases.map { disguise in
         IconOption(
             id: disguise.rawValue,
@@ -55,11 +59,29 @@ final class AppIconService {
         if UIApplication.shared.alternateIconName == iconName {
             return
         }
-        try await UIApplication.shared.setAlternateIconName(iconName)
+        do {
+            try await UIApplication.shared.setAlternateIconName(iconName)
+        } catch {
+            // iOS can apply the icon while still returning a transient system error.
+            // Trust the resulting icon state so successful changes can continue normally.
+            guard Self.didApplyIcon(
+                requestedIconName: iconName,
+                actualIconName: UIApplication.shared.alternateIconName
+            ) else {
+                throw error
+            }
+        }
     }
 
     func getCurrentIcon() -> String? {
         UIApplication.shared.alternateIconName
+    }
+
+    static func didApplyIcon(
+        requestedIconName: String?,
+        actualIconName: String?
+    ) -> Bool {
+        requestedIconName == actualIconName
     }
 
     private func configuredAlternateIconIDs() -> Set<String> {

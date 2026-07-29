@@ -25,8 +25,8 @@ struct ExpiringDocumentsView: View {
             if activeReminders.isEmpty {
                 EmptyStateView(
                     systemImage: "calendar.badge.checkmark",
-                    title: "No Expiring Documents",
-                    subtitle: "When you add IDs, cards, or other documents with an expiry date, they'll show up here so you never miss a renewal."
+                    title: String(localized: "No Expiring Documents"),
+                    subtitle: String(localized: "When you add IDs, cards, or other documents with an expiry date, they'll show up here so you never miss a renewal.")
                 )
                 .padding()
             } else {
@@ -80,7 +80,7 @@ struct ExpiringDocumentsView: View {
                     .frame(width: 28)
 
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(reminder.documentType)
+                    Text(DocumentExpiryParser.localizedDisplayName(for: reminder.documentType))
                         .font(.body)
                         .foregroundStyle(Color.vaultTextPrimary)
                     Text(reminder.expiryDate, format: .dateTime.day().month(.wide).year())
@@ -106,10 +106,10 @@ struct ExpiringDocumentsView: View {
     private func statusBadge(_ reminder: DocumentReminder) -> some View {
         let days = reminder.daysUntilExpiry
         let (text, color): (String, Color) = {
-            if days < 0 { return ("Expired", Color.vaultDestructive) }
-            if days == 0 { return ("Today", Color.vaultDestructive) }
-            if days <= 30 { return ("\(days)d", Color.vaultPremium) }
-            return ("\(days)d", Color.vaultTextSecondary)
+            if days < 0 { return (String(localized: "Expired"), Color.vaultDestructive) }
+            if days == 0 { return (String(localized: "Today"), Color.vaultDestructive) }
+            if days <= 30 { return (String(localized: "\(days)d"), Color.vaultPremium) }
+            return (String(localized: "\(days)d"), Color.vaultTextSecondary)
         }()
 
         Text(text)
@@ -166,7 +166,10 @@ private struct ReminderEditSheet: View {
         NavigationStack {
             Form {
                 Section("Document") {
-                    LabeledContent("Type", value: reminder.documentType)
+                    LabeledContent(
+                        "Type",
+                        value: DocumentExpiryParser.localizedDisplayName(for: reminder.documentType)
+                    )
                 }
 
                 Section("Expiry Date") {
@@ -199,14 +202,22 @@ private struct ReminderEditSheet: View {
                     Text("Notifications are private — they never reveal the document type or its contents.")
                 }
             }
-            .navigationTitle(reminder.isConfirmed ? "Edit Reminder" : "Confirm Reminder")
+            .navigationTitle(
+                reminder.isConfirmed
+                    ? String(localized: "Edit Reminder")
+                    : String(localized: "Confirm Reminder")
+            )
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Cancel") { dismiss() }
                 }
                 ToolbarItem(placement: .confirmationAction) {
-                    Button(reminder.isConfirmed ? "Save" : "Confirm") {
+                    Button(
+                        reminder.isConfirmed
+                            ? String(localized: "Save")
+                            : String(localized: "Confirm")
+                    ) {
                         save()
                     }
                     .disabled(isSaving || leadSelections.isEmpty)
@@ -225,12 +236,12 @@ private struct ReminderEditSheet: View {
 
     private func leadLabel(_ days: Int) -> String {
         switch days {
-        case 1: "1 day before"
-        case 7: "1 week before"
-        case 30: "1 month before"
-        case 60: "2 months before"
-        case 90: "3 months before"
-        default: "\(days) days before"
+        case 1: String(localized: "1 day before")
+        case 7: String(localized: "1 week before")
+        case 30: String(localized: "1 month before")
+        case 60: String(localized: "2 months before")
+        case 90: String(localized: "3 months before")
+        default: String(localized: "\(days) days before")
         }
     }
 

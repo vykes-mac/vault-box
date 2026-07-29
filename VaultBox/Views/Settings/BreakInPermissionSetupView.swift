@@ -117,11 +117,11 @@ struct BreakInPermissionSetupView: View {
     private func description(for permission: BreakInPermissionKind) -> String {
         switch permission {
         case .notifications:
-            return "Get instant break-in alerts."
+            return String(localized: "Get instant break-in alerts.")
         case .camera:
-            return "Capture intruder photos at lockout thresholds."
+            return String(localized: "Capture intruder photos at lockout thresholds.")
         case .location:
-            return "Record GPS evidence when premium is active."
+            return String(localized: "Record GPS evidence when premium is active.")
         }
     }
 
@@ -153,15 +153,15 @@ struct BreakInPermissionSetupView: View {
         isRequesting: Bool
     ) -> String {
         if isRequesting {
-            return "Requesting..."
+            return String(localized: "Requesting...")
         }
         switch state {
         case .enabled:
-            return "Enabled"
+            return String(localized: "Enabled")
         case .notSet:
-            return "Allow \(permission.displayName)"
+            return String(localized: "Allow \(permission.displayName)")
         case .denied:
-            return "Open Settings"
+            return String(localized: "Open Settings")
         }
     }
 

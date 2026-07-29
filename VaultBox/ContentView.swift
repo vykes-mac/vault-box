@@ -2,10 +2,6 @@ import SwiftUI
 import SwiftData
 import UIKit
 
-private enum MainTab: Hashable {
-    case vault, albums, camera, smartSearch, settings
-}
-
 private struct ParsedShare: Identifiable {
     let id = UUID()
     let shareID: String
@@ -17,6 +13,7 @@ struct ContentView: View {
     @Environment(\.scenePhase) private var scenePhase
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(AppPrivacyShield.self) private var privacyShield
+    @Environment(AnalyticsService.self) private var analytics
 
     @State private var authService: AuthService?
     @State private var vaultService: VaultService?
@@ -28,6 +25,10 @@ struct ContentView: View {
     @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
+    @State private var isPostSetupPaywallWaitingForConfiguration = false
+    /// Set when a hard-gated user was let through anyway (App Store unreachable), so the
+    /// paywall doesn't immediately re-present and trap them in a loop.
+    @State private var hasWaivedHardPaywallThisSession = false
     @State private var awaitingLockRouteAfterForeground = false
     @State private var privacyShieldRevealToken = 0
     @State private var pendingShareURL: URL?
@@ -52,12 +53,30 @@ struct ContentView: View {
         )
     }
 
+    private var isHardPaywallRequired: Bool {
+        guard purchaseService.hasResolvedPaywallConfiguration else { return false }
+        return PaywallGate.isRequired(
+            isHardPaywallEnabled: purchaseService.isHardPaywallEnabled
+        )
+    }
+
     var body: some View {
         ZStack {
             Group {
                 if let authService, let vaultService, let currentRoute {
                     if shouldRenderMainShell(for: currentRoute) {
-                        mainTabView(authService: authService, vaultService: vaultService)
+                        VaultBoxMainTabView(
+                            authService: authService,
+                            vaultService: vaultService,
+                            searchEngine: searchEngine,
+                            indexingProgress: indexingProgress,
+                            panicGestureService: panicGestureService,
+                            reminderNavigationTrigger: documentReminderNavigationTrigger,
+                            targetReminderID: pendingDocumentReminderID,
+                            onAppear: { setupPanicGesture(authService: authService) },
+                            selection: $selectedMainTab,
+                            showImporter: $showImporter
+                        )
                             .overlay {
                                 if currentRoute == .lock {
                                     LockedAppOverlay(
@@ -95,6 +114,7 @@ struct ContentView: View {
             if newRoute == .main {
                 presentPendingShareIfNeeded()
                 routeToPendingDocumentReminderIfNeeded()
+                presentHardPaywallIfNeeded()
             }
             attemptPrivacyShieldReveal()
         }
@@ -107,10 +127,31 @@ struct ContentView: View {
         .onChange(of: purchaseService.hasResolvedCustomerInfo) { _, hasResolved in
             guard hasResolved else { return }
             handlePremiumStatusChange(isPremium: purchaseService.isPremium)
+            presentHardPaywallIfNeeded()
+        }
+        .onChange(of: purchaseService.hasResolvedPaywallConfiguration) { _, hasResolved in
+            guard hasResolved else { return }
+            if isPostSetupPaywallWaitingForConfiguration {
+                isPostSetupPaywallWaitingForConfiguration = false
+                showPostSetupPaywall = true
+            }
+            presentHardPaywallIfNeeded()
+        }
+        .onChange(of: purchaseService.isHardPaywallEnabled) { _, isEnabled in
+            if !isEnabled {
+                hasWaivedHardPaywallThisSession = true
+            }
+            presentHardPaywallIfNeeded()
         }
         .onChange(of: purchaseService.isPremium) { _, isPremium in
             guard purchaseService.hasResolvedCustomerInfo else { return }
             handlePremiumStatusChange(isPremium: isPremium)
+            if isPremium {
+                PaywallGate.markSatisfied()
+                showPostSetupPaywall = false
+            } else {
+                presentHardPaywallIfNeeded()
+            }
         }
         .fullScreenCover(
             isPresented: $showPostOnboardingSecuritySetup,
@@ -120,14 +161,26 @@ struct ContentView: View {
                 PostOnboardingSecuritySetupView(
                     authService: authService,
                     includeLocation: purchaseService.isPremium,
-                    onContinue: {
+                    onContinue: { snapshot in
+                        analytics.record(.securitySetupCompleted(
+                            cameraGranted: snapshot?.cameraState == .enabled,
+                            notificationsGranted: snapshot?.notificationState == .enabled
+                        ))
                         showPostOnboardingSecuritySetup = false
                     }
                 )
+                .task { analytics.record(.securitySetupViewed) }
             }
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
-            VaultBoxPaywallView()
+            VaultBoxPaywallView(
+                isHard: isHardPaywallRequired,
+                onStoreUnavailableContinue: {
+                    guard isHardPaywallRequired, !purchaseService.isPremium else { return }
+                    hasWaivedHardPaywallThisSession = true
+                }
+            )
+                .interactiveDismissDisabled(isHardPaywallRequired)
         }
         .fullScreenCover(item: $activeShare, onDismiss: {
             // Only clear the pending URL when the user explicitly dismissed
@@ -185,91 +238,13 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Tab View
-
-    private func mainTabView(authService: AuthService, vaultService: VaultService) -> some View {
-        TabView(selection: $selectedMainTab) {
-            // swiftlint:disable:previous closure_body_length
-            VaultGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
-                .tabItem {
-                    Label("Vault", systemImage: "lock.shield")
-                }
-                .tag(MainTab.vault)
-
-            AlbumGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
-                .tabItem {
-                    Label("Albums", systemImage: "rectangle.stack")
-                }
-                .tag(MainTab.albums)
-
-            CameraView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
-                .tabItem {
-                    Label("Camera", systemImage: "camera")
-                }
-                .tag(MainTab.camera)
-
-            AskVaultView(
-                vaultService: vaultService,
-                searchEngine: searchEngine,
-                indexingProgress: indexingProgress,
-                isDecoyMode: authService.isDecoyMode
-            )
-            .tabItem {
-                Label("Smart Search", systemImage: "sparkles")
-            }
-            .tag(MainTab.smartSearch)
-
-            SettingsView(
-                authService: authService,
-                vaultService: vaultService,
-                panicGestureService: panicGestureService,
-                reminderNavigationTrigger: documentReminderNavigationTrigger,
-                targetReminderID: pendingDocumentReminderID
-            )
-                .tabItem {
-                    Label("Settings", systemImage: "gearshape")
-                }
-                .tag(MainTab.settings)
-        }
-        .onAppear {
-            setupPanicGesture(authService: authService)
-        }
-        .fullScreenCover(isPresented: $showImporter) {
-            ImportView(
-                vaultService: vaultService,
-                album: nil,
-                isDecoyMode: authService.isDecoyMode,
-                onDismiss: { showImporter = false }
-            )
-        }
-    }
-
     private func setupPanicGesture(authService: AuthService) {
-        guard panicGestureService == nil else { return }
-        let service = PanicGestureService()
-        let context = modelContext
-        service.onPanicTriggered = {
-            authService.lock()
-
-            // Launch the configured app (if any)
-            let descriptor = FetchDescriptor<AppSettings>()
-            if let settings = try? context.fetch(descriptor).first,
-               let action = PanicAction(rawValue: settings.panicAction),
-               let url = action.appURL {
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                    UIApplication.shared.open(url)
-                }
-            }
-        }
-        panicGestureService = service
-
-        // Check if panic gesture is enabled
-        let descriptor = FetchDescriptor<AppSettings>()
-        if let settings = try? modelContext.fetch(descriptor).first,
-           settings.panicGestureEnabled,
-           purchaseService.isPremium {
-            service.startMonitoring()
-        }
+        panicGestureService = makePanicGestureService(
+            existingService: panicGestureService,
+            authService: authService,
+            modelContext: modelContext,
+            isPremium: purchaseService.isPremium
+        )
     }
 
     private func handlePremiumStatusChange(isPremium: Bool) {
@@ -391,8 +366,33 @@ struct ContentView: View {
         let paywallDecision = resolveDeferredPostSetupPaywall(
             shouldDefer: deferPostSetupPaywallUntilSecuritySetupCompletes
         )
-        showPostSetupPaywall = paywallDecision.showPaywall
         deferPostSetupPaywallUntilSecuritySetupCompletes = paywallDecision.shouldDefer
+
+        guard paywallDecision.showPaywall else {
+            showPostSetupPaywall = false
+            return
+        }
+
+        if purchaseService.hasResolvedPaywallConfiguration {
+            showPostSetupPaywall = true
+        } else {
+            isPostSetupPaywallWaitingForConfiguration = true
+        }
+    }
+
+    /// Re-presents the hard paywall for a gated, non-subscribed user — including on a
+    /// cold launch after they force-quit rather than choose a plan.
+    private func presentHardPaywallIfNeeded() {
+        guard !showPostSetupPaywall else { return }
+        guard shouldPresentHardPaywall(
+            route: currentRoute,
+            isGateRequired: isHardPaywallRequired,
+            isPremium: purchaseService.isPremium,
+            hasResolvedCustomerInfo: purchaseService.hasResolvedCustomerInfo,
+            hasResolvedPaywallConfiguration: purchaseService.hasResolvedPaywallConfiguration,
+            hasWaivedThisSession: hasWaivedHardPaywallThisSession
+        ) else { return }
+        showPostSetupPaywall = true
     }
 
     private func presentPendingShareIfNeeded() {
@@ -415,6 +415,7 @@ struct ContentView: View {
         showImporter = false
         showPostOnboardingSecuritySetup = false
         showPostSetupPaywall = false
+        isPostSetupPaywallWaitingForConfiguration = false
 
         // Mark that any share viewer dismiss is caused by the lock cycle,
         // so pendingShareURL survives and can be re-presented after unlock.

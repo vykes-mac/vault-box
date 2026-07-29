@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "VaultBox usa la cámara para capturar fotos directamente en tu bóveda.";
+"NSFaceIDUsageDescription" = "VaultBox usa Face ID para desbloquear tu bóveda de forma segura.";
+"NSLocalNetworkUsageDescription" = "VaultBox usa tu red local para transferir archivos entre tu dispositivo y tu computadora por Wi-Fi.";
+"NSLocationWhenInUseUsageDescription" = "VaultBox registra datos de ubicación cuando detecta un intento de acceso no autorizado.";
+"NSPhotoLibraryUsageDescription" = "VaultBox necesita acceso para importar fotos a tu bóveda cifrada.";

@@ -30,12 +30,26 @@ class AskVaultViewModel {
 
     // MARK: - Suggestions
 
-    static let suggestions: [String] = [
-        "passport number",
-        "contract end date",
-        "receipts January",
-        "lease expiration date"
-    ]
+    static var suggestions: [String] {
+        [
+            String(
+                localized: "search.suggestion.passport_number",
+                defaultValue: "passport number"
+            ),
+            String(
+                localized: "search.suggestion.contract_end_date",
+                defaultValue: "contract end date"
+            ),
+            String(
+                localized: "search.suggestion.receipts_january",
+                defaultValue: "receipts January"
+            ),
+            String(
+                localized: "search.suggestion.lease_expiration_date",
+                defaultValue: "lease expiration date"
+            ),
+        ]
+    }
 
     // MARK: - Debounce
 

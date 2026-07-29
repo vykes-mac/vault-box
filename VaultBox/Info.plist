@@ -8,6 +8,8 @@
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -38,6 +40,8 @@
 	<string>VaultBox needs access to import photos into your encrypted vault.</string>
 	<key>RevenueCatAPIKey</key>
 	<string>$(REVENUECAT_API_KEY)</string>
+	<key>TelemetryDeckAppID</key>
+	<string>$(TELEMETRYDECK_APP_ID)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

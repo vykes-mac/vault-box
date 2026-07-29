@@ -95,7 +95,11 @@ struct SharedItemsView: View {
                         .foregroundStyle(item.remainingTime < 300 ? Color.vaultDestructive : Color.vaultAccent)
                         .monospacedDigit()
                 } else {
-                    Text(item.isRevoked ? "Revoked" : "Expired")
+                    Text(
+                        item.isRevoked
+                            ? String(localized: "Revoked")
+                            : String(localized: "Expired")
+                    )
                         .font(.caption)
                         .foregroundStyle(Color.vaultTextSecondary)
                 }
@@ -181,20 +185,20 @@ struct SharedItemsView: View {
 
     private func formatRemainingTime(_ interval: TimeInterval) -> String {
         let total = Int(interval)
-        if total <= 0 { return "Expired" }
+        if total <= 0 { return String(localized: "Expired") }
         let days = total / 86400
         let hours = (total % 86400) / 3600
         let minutes = (total % 3600) / 60
         let seconds = total % 60
 
         if days > 0 {
-            return "\(days)d \(hours)h"
+            return String(localized: "\(days)d \(hours)h")
         } else if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return String(localized: "\(hours)h \(minutes)m")
         } else if minutes > 0 {
-            return "\(minutes)m \(seconds)s"
+            return String(localized: "\(minutes)m \(seconds)s")
         } else {
-            return "\(seconds)s"
+            return String(localized: "\(seconds)s")
         }
     }
 }

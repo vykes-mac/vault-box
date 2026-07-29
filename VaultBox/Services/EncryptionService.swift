@@ -249,13 +249,13 @@ enum EncryptionError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .masterKeyNotFound:
-            "Encryption key not found. Please re-enter your PIN."
+            String(localized: "Encryption key not found. Please re-enter your PIN.")
         case .encryptionFailed:
-            "Failed to encrypt data. Please try again."
+            String(localized: "Failed to encrypt data. Please try again.")
         case .decryptionFailed:
-            "This item couldn't be opened. It may be corrupted."
+            String(localized: "This item couldn't be opened. It may be corrupted.")
         case .thumbnailGenerationFailed:
-            "Couldn't generate thumbnail for this item."
+            String(localized: "Couldn't generate thumbnail for this item.")
         }
     }
 }

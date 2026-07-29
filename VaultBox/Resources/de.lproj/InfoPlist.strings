@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "VaultBox verwendet die Kamera, um Fotos direkt in Ihrem Tresor aufzunehmen.";
+"NSFaceIDUsageDescription" = "VaultBox verwendet Face ID, um Ihren Tresor sicher zu entsperren.";
+"NSLocalNetworkUsageDescription" = "VaultBox verwendet Ihr lokales Netzwerk, um Dateien über WLAN zwischen Ihrem Gerät und Computer zu übertragen.";
+"NSLocationWhenInUseUsageDescription" = "VaultBox zeichnet Standortdaten auf, wenn ein unbefugter Zugriffsversuch erkannt wird.";
+"NSPhotoLibraryUsageDescription" = "VaultBox benötigt Zugriff, um Fotos in Ihren verschlüsselten Tresor zu importieren.";

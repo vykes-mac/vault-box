@@ -60,7 +60,9 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
             } catch {
                 isRunning = false
                 serverStartFailed = true
-                serverStartErrorMessage = "Could not start the transfer server. Make sure Local Network access is allowed for VaultBox in Settings \u{203A} Privacy & Security \u{203A} Local Network."
+                serverStartErrorMessage = String(
+                    localized: "Could not start the transfer server. Make sure Local Network access is allowed for VaultBox in Settings › Privacy & Security › Local Network."
+                )
             }
         }
     }

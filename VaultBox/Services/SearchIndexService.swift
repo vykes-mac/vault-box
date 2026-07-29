@@ -385,11 +385,16 @@ enum SearchIndexError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .notOpen: return "Search index database is not open"
-        case .openFailed(let msg): return "Failed to open search index: \(msg)"
-        case .prepareFailed(let msg): return "Failed to prepare statement: \(msg)"
-        case .insertFailed(let msg): return "Failed to insert data: \(msg)"
-        case .execFailed(let msg): return "SQL execution failed: \(msg)"
+        case .notOpen:
+            return String(localized: "Search index database is not open")
+        case .openFailed(let message):
+            return String(localized: "Failed to open search index: \(message)")
+        case .prepareFailed(let message):
+            return String(localized: "Failed to prepare statement: \(message)")
+        case .insertFailed(let message):
+            return String(localized: "Failed to insert data: \(message)")
+        case .execFailed(let message):
+            return String(localized: "SQL execution failed: \(message)")
         }
     }
 }

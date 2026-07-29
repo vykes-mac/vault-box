@@ -93,7 +93,10 @@ struct DisguiseCoverView: View {
                 .foregroundStyle(disguise.primaryTextColor)
                 .contentShape(Rectangle())
                 .onLongPressGesture(minimumDuration: 0.8, perform: revealAuthentication)
-                .accessibilityAction(named: "Show details", revealAuthentication)
+                .accessibilityAction(
+                    named: String(localized: "Show details"),
+                    revealAuthentication
+                )
 
             Spacer()
         }

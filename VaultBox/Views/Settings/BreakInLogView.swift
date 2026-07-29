@@ -65,8 +65,8 @@ struct BreakInLogView: View {
             Spacer()
             EmptyStateView(
                 systemImage: "shield.checkmark",
-                title: "No Break-in Attempts",
-                subtitle: "If someone tries to access your vault with the wrong PIN, it will be logged here."
+                title: String(localized: "No Break-in Attempts"),
+                subtitle: String(localized: "If someone tries to access your vault with the wrong PIN, it will be logged here.")
             )
             .padding(.horizontal, 32)
             Spacer()

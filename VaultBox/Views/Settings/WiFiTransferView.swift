@@ -180,10 +180,22 @@ struct WiFiTransferView: View {
 
     private var howItWorksSection: some View {
         Section("How It Works") {
-            instructionRow(number: "1", text: "Make sure your iPhone and computer are on the same Wi-Fi network")
-            instructionRow(number: "2", text: "Tap \"Start Transfer Server\" and enter your PIN")
-            instructionRow(number: "3", text: "Open the URL shown on your computer's browser")
-            instructionRow(number: "4", text: "Upload or download files through the browser")
+            instructionRow(
+                number: "1",
+                text: String(localized: "Make sure your iPhone and computer are on the same Wi-Fi network")
+            )
+            instructionRow(
+                number: "2",
+                text: String(localized: "Tap \"Start Transfer Server\" and enter your PIN")
+            )
+            instructionRow(
+                number: "3",
+                text: String(localized: "Open the URL shown on your computer's browser")
+            )
+            instructionRow(
+                number: "4",
+                text: String(localized: "Upload or download files through the browser")
+            )
         }
     }
 

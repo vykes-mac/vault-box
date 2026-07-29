@@ -111,9 +111,9 @@ struct SettingsView: View {
             .sheet(isPresented: $showBreakInPermissionSetup) {
                 BreakInPermissionSetupView(
                     includeLocation: purchaseService.isPremium,
-                    title: "Complete Break-in Setup",
-                    subtitle: "Choose which break-in protections to enable. We only show each permission prompt after you tap that step.",
-                    continueButtonTitle: "Done",
+                    title: String(localized: "Complete Break-in Setup"),
+                    subtitle: String(localized: "Choose which break-in protections to enable. We only show each permission prompt after you tap that step."),
+                    continueButtonTitle: String(localized: "Done"),
                     onContinue: { showBreakInPermissionSetup = false }
                 )
             }
@@ -348,7 +348,9 @@ struct SettingsView: View {
                 copyRecoveryCodeToClipboard()
             } label: {
                 Label(
-                    hasCopiedRecoveryCode ? "Copied" : "Copy Code",
+                    hasCopiedRecoveryCode
+                        ? String(localized: "Copied")
+                        : String(localized: "Copy Code"),
                     systemImage: hasCopiedRecoveryCode ? "checkmark.circle.fill" : "doc.on.doc"
                 )
             }
@@ -382,7 +384,7 @@ struct SettingsView: View {
     private func revokeRecoveryCode() {
         do {
             try authService.revokeRecoveryCode()
-            recoveryActionMessage = "Recovery code revoked."
+            recoveryActionMessage = String(localized: "Recovery code revoked.")
             showRecoveryActionAlert = true
         } catch {
             recoveryActionMessage = error.localizedDescription
@@ -674,11 +676,11 @@ struct SettingsView: View {
                     do {
                         let restored = try await purchaseService.restorePurchases()
                         restoreMessage = restored
-                            ? "Your premium subscription has been restored."
-                            : "No active subscription found."
+                            ? String(localized: "Your premium subscription has been restored.")
+                            : String(localized: "No active subscription found.")
                         showRestoreAlert = true
                     } catch {
-                        restoreMessage = "Couldn't restore purchases. Please try again."
+                        restoreMessage = String(localized: "Couldn't restore purchases. Please try again.")
                         showRestoreAlert = true
                     }
                 }
@@ -704,11 +706,11 @@ struct SettingsView: View {
         _ = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
         switch context.biometryType {
         case .faceID:
-            return "Face ID"
+            return String(localized: "Face ID")
         case .touchID:
-            return "Touch ID"
+            return String(localized: "Touch ID")
         default:
-            return "Face ID"
+            return String(localized: "Face ID")
         }
     }
 

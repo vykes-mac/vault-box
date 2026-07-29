@@ -1,13 +1,24 @@
 import Foundation
 
 enum WiFiTransferHTML {
-    static let mainPage: String = """
+    static var mainPage: String {
+        let languageCode = Locale.current.language.languageCode?.identifier ?? "en"
+        let maxUploadMB = Constants.wifiTransferMaxRequestBytes / (1024 * 1024)
+        let uploading = javascriptLiteral(String(localized: "Uploading..."))
+        let done = javascriptLiteral(String(localized: "Done!"))
+        let uploadFailed = javascriptLiteral(String(localized: "Upload failed."))
+        let videoTooLarge = javascriptLiteral(
+            String(localized: "Video too large. Max upload is \(maxUploadMB) MB.")
+        )
+        let download = javascriptLiteral(String(localized: "Download"))
+
+        return """
     <!DOCTYPE html>
-    <html lang="en">
+    <html lang="\(languageCode)">
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VaultBox Wi-Fi Transfer</title>
+    <title>\(String(localized: "VaultBox Wi-Fi Transfer"))</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -136,22 +147,22 @@ enum WiFiTransferHTML {
     <body>
     <div class="header">
         <h1>VaultBox</h1>
-        <p>Wi-Fi Transfer</p>
+        <p>\(String(localized: "Wi-Fi Transfer"))</p>
     </div>
 
     <div class="upload-zone" id="dropZone">
         <div class="icon">&#128228;</div>
-        <div class="label">Drop files here or click to upload</div>
+        <div class="label">\(String(localized: "Drop files here or click to upload"))</div>
         <input type="file" id="fileInput" multiple>
     </div>
 
     <div class="progress-bar" id="progressBar">
         <div class="track"><div class="fill" id="progressFill"></div></div>
-        <div class="text" id="progressText">Uploading...</div>
+        <div class="text" id="progressText">\(String(localized: "Uploading..."))</div>
     </div>
 
     <div id="grid" class="grid"></div>
-    <div id="empty" class="empty" style="display:none;">No files in vault yet.</div>
+    <div id="empty" class="empty" style="display:none;">\(String(localized: "No files in vault yet."))</div>
 
     <script>
     const dropZone = document.getElementById('dropZone');
@@ -177,10 +188,9 @@ enum WiFiTransferHTML {
         for (let f of files) fd.append('files', f, f.name);
 
         const xhr = new XMLHttpRequest();
-        const maxUploadMB = \(Constants.wifiTransferMaxRequestBytes / (1024 * 1024));
         progressBar.style.display = 'block';
         progressFill.style.width = '0%';
-        progressText.textContent = 'Uploading...';
+        progressText.textContent = \(uploading);
 
         xhr.upload.addEventListener('progress', e => {
             if (e.lengthComputable) {
@@ -192,7 +202,7 @@ enum WiFiTransferHTML {
 
         xhr.addEventListener('load', () => {
             if (xhr.status >= 200 && xhr.status < 300) {
-                progressText.textContent = 'Done!';
+                progressText.textContent = \(done);
                 setTimeout(() => { progressBar.style.display = 'none'; }, 1500);
                 fileInput.value = '';
                 loadItems();
@@ -200,15 +210,15 @@ enum WiFiTransferHTML {
             }
 
             if (xhr.status === 413) {
-                progressText.textContent = 'Video too large. Max upload is ' + maxUploadMB + ' MB.';
+                progressText.textContent = \(videoTooLarge);
             } else {
                 const message = (xhr.responseText || '').trim();
-                progressText.textContent = message || 'Upload failed.';
+                progressText.textContent = message || \(uploadFailed);
             }
         });
 
         xhr.addEventListener('error', () => {
-            progressText.textContent = 'Upload failed.';
+            progressText.textContent = \(uploadFailed);
         });
 
         xhr.open('POST', '/upload');
@@ -278,7 +288,7 @@ enum WiFiTransferHTML {
 
                     const link = document.createElement('a');
                     link.href = '/download/' + item.id;
-                    link.textContent = 'Download';
+                    link.textContent = \(download);
 
                     info.appendChild(name);
                     info.appendChild(meta);
@@ -307,4 +317,10 @@ enum WiFiTransferHTML {
     </body>
     </html>
     """
+    }
+
+    private static func javascriptLiteral(_ value: String) -> String {
+        guard let data = try? JSONEncoder().encode(value) else { return "\"\"" }
+        return String(decoding: data, as: UTF8.self)
+    }
 }

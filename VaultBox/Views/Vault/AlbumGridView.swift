@@ -169,7 +169,7 @@ struct AlbumGridView: View {
                     .foregroundStyle(Color.vaultAccent)
             }
 
-            Text(type.rawValue)
+            Text(type.displayName)
                 .font(.caption)
                 .fontWeight(.medium)
                 .foregroundStyle(Color.vaultTextPrimary)
@@ -190,7 +190,11 @@ struct AlbumGridView: View {
             NavigationLink {
                 AlbumDetailView(album: nil, vaultService: vaultService, isDecoyMode: isDecoyMode)
             } label: {
-                albumCard(name: "All Items", itemCount: visibleItems.count, albumID: nil)
+                albumCard(
+                    name: String(localized: "All Items"),
+                    itemCount: visibleItems.count,
+                    albumID: nil
+                )
             }
             .buttonStyle(.plain)
 
@@ -247,8 +251,8 @@ struct AlbumGridView: View {
     private var emptyState: some View {
         EmptyStateView(
             systemImage: "rectangle.stack",
-            title: "No Albums",
-            subtitle: "Tap + to create your first album"
+            title: String(localized: "No Albums"),
+            subtitle: String(localized: "Tap + to create your first album")
         )
     }
 
@@ -284,7 +288,7 @@ struct AlbumGridView: View {
                 .foregroundStyle(Color.vaultTextPrimary)
                 .lineLimit(1)
 
-            Text("\(itemCount) \(itemCount == 1 ? "item" : "items")")
+            Text(localizedVaultItemCount(itemCount))
                 .font(.caption)
                 .foregroundStyle(Color.vaultTextSecondary)
         }
@@ -365,7 +369,11 @@ struct AlbumGridView: View {
         if let existing = albums.first(where: { $0.isDecoy && $0.id != album.id }) {
             return existing
         }
-        let created = Album(name: "Personal", sortOrder: albums.count, isDecoy: true)
+        let created = Album(
+            name: String(localized: "Personal"),
+            sortOrder: albums.count,
+            isDecoy: true
+        )
         modelContext.insert(created)
         return created
     }
@@ -412,7 +420,7 @@ struct AlbumDetailView: View {
     )
 
     private var title: String {
-        album?.name ?? "All Items"
+        album?.name ?? String(localized: "All Items")
     }
 
     private var albumItems: [VaultItem] {
@@ -503,7 +511,7 @@ struct AlbumDetailView: View {
                     )
                 }
 
-                Text("\(albumItems.count) \(albumItems.count == 1 ? "item" : "items")")
+                Text(localizedVaultItemCount(albumItems.count))
                     .font(.caption)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .frame(maxWidth: .infinity)
@@ -527,7 +535,11 @@ struct AlbumDetailView: View {
                         }
                     }
                 } label: {
-                    Text(isSelectionMode ? "Cancel" : "Select")
+                    Text(
+                        isSelectionMode
+                            ? String(localized: "Cancel")
+                            : String(localized: "Select")
+                    )
                 }
             }
 
@@ -535,12 +547,12 @@ struct AlbumDetailView: View {
                 Menu {
                     Picker("Sort By", selection: $sortOrder) {
                         ForEach(VaultSortOrder.allCases, id: \.self) { order in
-                            Text(order.rawValue).tag(order)
+                            Text(order.displayName).tag(order)
                         }
                     }
                     Picker("Filter", selection: $filter) {
                         ForEach(VaultFilter.allCases, id: \.self) { f in
-                            Text(f.rawValue).tag(f)
+                            Text(f.displayName).tag(f)
                         }
                     }
                 } label: {
@@ -549,7 +561,7 @@ struct AlbumDetailView: View {
             }
         }
         .confirmationDialog(
-            "Delete \(selectedItems.count) item\(selectedItems.count == 1 ? "" : "s")?",
+            localizedDeleteVaultItemsTitle(selectedItems.count),
             isPresented: $showDeleteConfirm,
             titleVisibility: .visible
         ) {
@@ -650,8 +662,8 @@ struct AlbumDetailView: View {
     private var emptyState: some View {
         EmptyStateView(
             systemImage: "photo.on.rectangle.angled",
-            title: "No Items",
-            subtitle: "Items added to this album will appear here"
+            title: String(localized: "No Items"),
+            subtitle: String(localized: "Items added to this album will appear here")
         )
     }
 
@@ -971,8 +983,8 @@ struct SmartAlbumDetailView: View {
                 Spacer()
                 EmptyStateView(
                     systemImage: smartAlbumType.systemImage,
-                    title: "No Items",
-                    subtitle: "Items matching this category will appear here"
+                    title: String(localized: "No Items"),
+                    subtitle: String(localized: "Items matching this category will appear here")
                 )
                 Spacer()
             } else {
@@ -991,14 +1003,14 @@ struct SmartAlbumDetailView: View {
                     }
                 }
 
-                Text("\(matchingItems.count) \(matchingItems.count == 1 ? "item" : "items")")
+                Text(localizedVaultItemCount(matchingItems.count))
                     .font(.caption)
                     .foregroundStyle(Color.vaultTextSecondary)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 8)
             }
         }
-        .navigationTitle(smartAlbumType.rawValue)
+        .navigationTitle(smartAlbumType.displayName)
         .navigationBarTitleDisplayMode(.inline)
         .fullScreenCover(item: $detailItem) { item in
             let nonDocumentItems = matchingItems.filter { $0.type != .document }

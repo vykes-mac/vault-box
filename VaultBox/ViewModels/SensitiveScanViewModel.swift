@@ -70,7 +70,7 @@ class SensitiveScanViewModel {
             } catch SensitiveContentScanService.ScanError.notAuthorized {
                 phase = .denied
             } catch {
-                phase = .error("Scan failed. Please try again.")
+                phase = .error(String(localized: "Scan failed. Please try again."))
             }
         }
     }
@@ -122,7 +122,8 @@ class SensitiveScanViewModel {
                 phase = .finished(imported: result.items.count)
                 onComplete()
             } catch {
-                phase = .error("Couldn't move items to the vault. \( (error as? LocalizedError)?.errorDescription ?? "")")
+                let reason = (error as? LocalizedError)?.errorDescription ?? ""
+                phase = .error(String(localized: "Couldn't move items to the vault. \(reason)"))
             }
         }
     }

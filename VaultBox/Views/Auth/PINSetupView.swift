@@ -41,12 +41,12 @@ struct PINSetupView: View {
 
     private var setupHintText: String {
         if isConfirming {
-            return "Re-enter your \(pin.count)-digit PIN"
+            return String(localized: "Re-enter your \(pin.count)-digit PIN")
         }
         if pin.count < Constants.pinMinLength {
-            return "Enter \(Constants.pinMinLength)-\(Constants.pinMaxLength) digits"
+            return String(localized: "Enter \(Constants.pinMinLength)-\(Constants.pinMaxLength) digits")
         }
-        return "Minimum met. Continue now or add up to \(Constants.pinMaxLength) digits."
+        return String(localized: "Minimum met. Continue now or add up to \(Constants.pinMaxLength) digits.")
     }
 
     init(
@@ -70,15 +70,15 @@ struct PINSetupView: View {
 
         switch mode {
         case .initialSetup:
-            self.createTitle = createTitle ?? "Create a PIN"
-            self.createSubtitle = createSubtitle ?? "Choose a PIN to protect your vault"
-            self.confirmTitle = confirmTitle ?? "Confirm your PIN"
-            self.confirmSubtitle = confirmSubtitle ?? "Enter your PIN again"
+            self.createTitle = createTitle ?? String(localized: "Create a PIN")
+            self.createSubtitle = createSubtitle ?? String(localized: "Choose a PIN to protect your vault")
+            self.confirmTitle = confirmTitle ?? String(localized: "Confirm your PIN")
+            self.confirmSubtitle = confirmSubtitle ?? String(localized: "Enter your PIN again")
         case .recoveryReset:
-            self.createTitle = createTitle ?? "Reset your PIN"
-            self.createSubtitle = createSubtitle ?? "Set a new PIN to unlock your vault"
-            self.confirmTitle = confirmTitle ?? "Confirm New PIN"
-            self.confirmSubtitle = confirmSubtitle ?? "Enter your new PIN again"
+            self.createTitle = createTitle ?? String(localized: "Reset your PIN")
+            self.createSubtitle = createSubtitle ?? String(localized: "Set a new PIN to unlock your vault")
+            self.confirmTitle = confirmTitle ?? String(localized: "Confirm New PIN")
+            self.confirmSubtitle = confirmSubtitle ?? String(localized: "Enter your new PIN again")
         }
     }
 
@@ -199,7 +199,9 @@ struct PINSetupView: View {
                 copyRecoveryCodeToClipboard()
             } label: {
                 Label(
-                    hasCopiedRecoveryCode ? "Copied" : "Copy Code",
+                    hasCopiedRecoveryCode
+                        ? String(localized: "Copied")
+                        : String(localized: "Copy Code"),
                     systemImage: hasCopiedRecoveryCode ? "checkmark.circle.fill" : "doc.on.doc"
                 )
             }
@@ -280,7 +282,7 @@ struct PINSetupView: View {
         } else {
             Haptics.pinWrong()
             dotState = .error
-            errorMessage = "PINs don't match. Try again."
+            errorMessage = String(localized: "PINs don't match. Try again.")
             shakeAnimation()
             Task {
                 try? await Task.sleep(for: .seconds(Constants.pinShakeDuration))

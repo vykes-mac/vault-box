@@ -13,10 +13,10 @@ enum PanicAction: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .lockOnly: "Lock Only"
-        case .launchMusic: "Open Music"
-        case .launchMessages: "Open Messages"
-        case .launchSafari: "Open Safari"
+        case .lockOnly: String(localized: "Lock Only")
+        case .launchMusic: String(localized: "Open Music")
+        case .launchMessages: String(localized: "Open Messages")
+        case .launchSafari: String(localized: "Open Safari")
         }
     }
 

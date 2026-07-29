@@ -25,10 +25,19 @@ struct ImportView: View {
     @State private var pendingAssetIdentifiers: [String] = []
     @State private var showDeletePermissionAlert = false
     @State private var showErrorAlert = false
-    @State private var errorAlertTitle = "Couldn't Delete Originals"
-    @State private var errorAlertMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    @State private var errorAlertTitle = String(localized: "Couldn't Delete Originals")
+    @State private var errorAlertMessage = String(
+        localized: "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    )
     @State private var pendingDeletePromptAfterError = false
     @State private var showPaywall = false
+
+    private var deletePromptTitle: String {
+        if pendingAssetIdentifiers.count == 1 {
+            return String(localized: "Delete 1 original from Camera Roll?")
+        }
+        return String(localized: "Delete \(pendingAssetIdentifiers.count) originals from Camera Roll?")
+    }
 
     var body: some View {
         ZStack {
@@ -75,10 +84,7 @@ struct ImportView: View {
             }
         }
         .background(Color.vaultBackground.ignoresSafeArea())
-        .alert(
-            "Delete \(pendingAssetIdentifiers.count) original\(pendingAssetIdentifiers.count == 1 ? "" : "s") from Camera Roll?",
-            isPresented: $showDeletePrompt
-        ) {
+        .alert(deletePromptTitle, isPresented: $showDeletePrompt) {
             Button("Delete", role: .destructive) {
                 deleteCameraRollOriginals()
             }
@@ -124,9 +130,15 @@ struct ImportView: View {
         VStack(spacing: 20) {
             Spacer()
 
-            Text("Importing \(importTotal) item\(importTotal == 1 ? "" : "s")…")
-                .font(.headline)
-                .foregroundStyle(Color.vaultTextPrimary)
+            Group {
+                if importTotal == 1 {
+                    Text("Importing 1 item…")
+                } else {
+                    Text("Importing \(importTotal) items…")
+                }
+            }
+            .font(.headline)
+            .foregroundStyle(Color.vaultTextPrimary)
 
             ProgressView(value: Double(importProgress), total: Double(max(importTotal, 1)))
                 .tint(Color.vaultAccent)
@@ -238,7 +250,7 @@ struct ImportView: View {
             }
 
             if let tooLargeMessage {
-                errorAlertTitle = "Video Too Large"
+                errorAlertTitle = String(localized: "Video Too Large")
                 errorAlertMessage = tooLargeMessage
                 pendingDeletePromptAfterError = !identifiers.isEmpty
                 pendingAssetIdentifiers = identifiers
@@ -269,7 +281,7 @@ struct ImportView: View {
                 if let vaultError = error as? VaultError, case .photosPermissionDenied = vaultError {
                     showDeletePermissionAlert = true
                 } else {
-                    errorAlertTitle = "Couldn't Delete Originals"
+                    errorAlertTitle = String(localized: "Couldn't Delete Originals")
                     errorAlertMessage = (error as? LocalizedError)?.errorDescription ??
                         "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
                     showErrorAlert = true

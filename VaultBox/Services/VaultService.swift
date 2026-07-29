@@ -22,21 +22,21 @@ enum VaultError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .importFailed:
-            "Failed to import the selected item. Please try again."
+            String(localized: "Failed to import the selected item. Please try again.")
         case .itemNotFound:
-            "The requested item could not be found."
+            String(localized: "The requested item could not be found.")
         case .thumbnailNotFound:
-            "No thumbnail available for this item."
+            String(localized: "No thumbnail available for this item.")
         case .freeLimitReached:
-            "You've reached the free item limit. Upgrade to Premium for unlimited storage."
+            String(localized: "You've reached the free item limit. Upgrade to Premium for unlimited storage.")
         case .premiumRequired:
-            "This feature requires a Premium subscription."
+            String(localized: "This feature requires a Premium subscription.")
         case .fileNotFound:
-            "The encrypted file could not be found on disk."
+            String(localized: "The encrypted file could not be found on disk.")
         case .photosPermissionDenied:
-            "VaultBox needs Photos access to delete originals. Allow Photos access in Settings."
+            String(localized: "VaultBox needs Photos access to delete originals. Allow Photos access in Settings.")
         case .videoTooLarge(let maxMB):
-            "This video is too large to import. The current limit is \(maxMB) MB."
+            String(localized: "This video is too large to import. The current limit is \(maxMB) MB.")
         }
     }
 }
@@ -205,7 +205,7 @@ class VaultService {
         if let trimmed = filename?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty {
             resolvedName = trimmed
         } else {
-            resolvedName = "Photo"
+            resolvedName = String(localized: "Photo")
         }
         let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
 
@@ -270,7 +270,7 @@ class VaultService {
 
         let item = VaultItem(
             type: .photo,
-            originalFilename: "Camera Photo",
+            originalFilename: String(localized: "Camera Photo"),
             encryptedFileRelativePath: relativePath,
             fileSize: Int64(jpegData.count)
         )
@@ -298,7 +298,7 @@ class VaultService {
         if let trimmed = filename?.trimmingCharacters(in: .whitespacesAndNewlines), !trimmed.isEmpty {
             resolvedName = trimmed
         } else {
-            resolvedName = "Video"
+            resolvedName = String(localized: "Video")
         }
 
         let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
@@ -1001,7 +1001,11 @@ class VaultService {
         }
 
         let count = (try? modelContext.fetchCount(FetchDescriptor<Album>())) ?? 0
-        let album = Album(name: "Personal", sortOrder: count, isDecoy: true)
+        let album = Album(
+            name: String(localized: "Personal"),
+            sortOrder: count,
+            isDecoy: true
+        )
         modelContext.insert(album)
         return album
     }

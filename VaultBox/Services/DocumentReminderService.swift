@@ -112,7 +112,7 @@ final class DocumentReminderService {
 
             let id = "\(Self.notificationIDPrefix)-\(reminder.id.uuidString)-\(lead)"
             let content = UNMutableNotificationContent()
-            content.title = "Document expiring soon"
+            content.title = String(localized: "Document expiring soon")
             content.body = bodyText(forLeadDays: lead)
             content.sound = .default
             content.userInfo = ["reminderID": reminder.id.uuidString]
@@ -145,9 +145,9 @@ final class DocumentReminderService {
 
     private func bodyText(forLeadDays lead: Int) -> String {
         switch lead {
-        case 0: "A document in your vault expires today. Tap to review."
-        case 1: "A document in your vault expires tomorrow. Tap to review."
-        default: "A document in your vault expires in \(lead) days. Tap to review."
+        case 0: String(localized: "A document in your vault expires today. Tap to review.")
+        case 1: String(localized: "A document in your vault expires tomorrow. Tap to review.")
+        default: String(localized: "A document in your vault expires in \(lead) days. Tap to review.")
         }
     }
 }

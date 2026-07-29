@@ -59,7 +59,7 @@ struct AskVaultView: View {
                 }
             }
             .toolbarBackground(Color.vaultBackground, for: .navigationBar)
-            .searchable(text: $searchText, prompt: "Search your vault...")
+            .searchable(text: $searchText, prompt: Text("Search your vault..."))
             .onSubmit(of: .search) {
                 guard let viewModel else { return }
                 viewModel.searchText = searchText
@@ -334,7 +334,7 @@ struct AskVaultView: View {
                 let info = viewModel.itemLookup[result.itemID]
                 SearchResultCard(
                     result: result,
-                    itemName: info?.name ?? "Unknown",
+                    itemName: info?.name ?? String(localized: "Unknown"),
                     itemType: info?.type ?? .document,
                     queryTerms: viewModel.queryTerms
                 )

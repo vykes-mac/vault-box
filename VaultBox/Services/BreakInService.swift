@@ -116,8 +116,8 @@ class BreakInService: NSObject {
         guard BreakInPermissionService.isNotificationAuthorized(notificationSettings.authorizationStatus) else { return }
 
         let content = UNMutableNotificationContent()
-        content.title = "Security Alert"
-        content.body = "Someone tried to access VaultBox"
+        content.title = String(localized: "Security Alert")
+        content.body = String(localized: "Someone tried to access VaultBox")
         content.sound = .default
 
         let request = UNNotificationRequest(

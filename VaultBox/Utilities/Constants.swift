@@ -37,10 +37,10 @@ enum Constants {
     // MARK: - Auto-Lock Options (seconds)
 
     static let autoLockOptions: [(label: String, seconds: Int)] = [
-        ("Immediately", 0),
-        ("30 seconds", 30),
-        ("1 minute", 60),
-        ("5 minutes", 300)
+        (String(localized: "Immediately"), 0),
+        (String(localized: "30 seconds"), 30),
+        (String(localized: "1 minute"), 60),
+        (String(localized: "5 minutes"), 300)
     ]
 
     // MARK: - Grid Layout
@@ -84,6 +84,15 @@ enum Constants {
     // MARK: - RevenueCat
 
     static let revenueCatAPIKey: String = Bundle.main.infoDictionary?["RevenueCatAPIKey"] as? String ?? ""
+
+    // MARK: - TelemetryDeck
+
+    /// Empty until an app ID is set in the Secrets xcconfigs, in which case analytics
+    /// stay local-only rather than failing loudly.
+    static let telemetryDeckAppID: String = {
+        let value = Bundle.main.infoDictionary?["TelemetryDeckAppID"] as? String ?? ""
+        return value.trimmingCharacters(in: .whitespacesAndNewlines)
+    }()
     static let primaryOfferingID = "default"
     static let premiumEntitlementID = "VaultBox Premium"
     static let weeklyProductID = "vaultbox_premium_weekly"

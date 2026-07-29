@@ -60,3 +60,7 @@ Previews/
 .agent
 .agents
 .claude
+
+# Python
+__pycache__/
+*.pyc

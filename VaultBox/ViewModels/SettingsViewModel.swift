@@ -97,9 +97,12 @@ class SettingsViewModel {
     func itemCountText(purchaseService: PurchaseService, isDecoyMode: Bool) -> String {
         let count = vaultService.getItemCount(isDecoyMode: isDecoyMode)
         if purchaseService.isPremium {
-            return "\(count) item\(count == 1 ? "" : "s")"
+            if count == 1 {
+                return String(localized: "1 item")
+            }
+            return String(localized: "\(count) items")
         }
-        return "\(count) of \(Constants.freeItemLimit) items"
+        return String(localized: "\(count) of \(Constants.freeItemLimit) items")
     }
 
     func storageUsedText(isDecoyMode: Bool) -> String {

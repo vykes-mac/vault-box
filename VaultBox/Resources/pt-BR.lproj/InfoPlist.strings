@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "O VaultBox usa a câmera para capturar fotos diretamente no seu cofre.";
+"NSFaceIDUsageDescription" = "O VaultBox usa o Face ID para desbloquear seu cofre com segurança.";
+"NSLocalNetworkUsageDescription" = "O VaultBox usa sua rede local para transferir arquivos entre o dispositivo e o computador por Wi-Fi.";
+"NSLocationWhenInUseUsageDescription" = "O VaultBox registra dados de localização quando detecta uma tentativa de acesso não autorizado.";
+"NSPhotoLibraryUsageDescription" = "O VaultBox precisa de acesso para importar fotos para o seu cofre criptografado.";

@@ -21,6 +21,21 @@ struct DocumentExpiryResult: Sendable, Equatable {
 /// card) and the year is plausible.
 enum DocumentExpiryParser {
 
+    static func localizedDisplayName(for documentType: String) -> String {
+        switch documentType {
+        case "Passport": String(localized: "Passport")
+        case "Driver's License": String(localized: "Driver's License")
+        case "Residence Permit": String(localized: "Residence Permit")
+        case "Payment Card": String(localized: "Payment Card")
+        case "Visa": String(localized: "Visa")
+        case "Insurance": String(localized: "Insurance")
+        case "Vehicle Registration": String(localized: "Vehicle Registration")
+        case "ID Card": String(localized: "ID Card")
+        case "Membership Card": String(localized: "Membership Card")
+        default: documentType
+        }
+    }
+
     /// Characters of look-ahead from an expiry keyword within which a date must
     /// appear to be considered "associated" with that keyword.
     private static let associationWindow = 40

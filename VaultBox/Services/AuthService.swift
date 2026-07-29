@@ -290,12 +290,12 @@ class AuthService {
     }
 
     func authenticateWithBiometrics(
-        localizedReason: String = "Unlock your vault",
+        localizedReason: String = String(localized: "Unlock your vault"),
         unlockSession: Bool = true,
         enableForFutureUnlocks: Bool = true
     ) async -> Bool {
         let context = LAContext()
-        context.localizedFallbackTitle = "Enter PIN"
+        context.localizedFallbackTitle = String(localized: "Enter PIN")
 
         do {
             let success = try await context.evaluatePolicy(
@@ -325,7 +325,7 @@ class AuthService {
 
     func beginBiometricRecoveryReset() async -> Bool {
         let success = await authenticateWithBiometrics(
-            localizedReason: "Verify your identity to reset your PIN",
+            localizedReason: String(localized: "Verify your identity to reset your PIN"),
             unlockSession: false,
             enableForFutureUnlocks: false
         )
@@ -456,17 +456,17 @@ enum AuthError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .settingsNotFound:
-            "App settings not found. Please reinstall VaultBox."
+            String(localized: "App settings not found. Please reinstall VaultBox.")
         case .invalidPIN:
-            "PIN must be 4-8 digits."
+            String(localized: "PIN must be 4-8 digits.")
         case .incorrectPIN:
-            "Incorrect PIN. Please try again."
+            String(localized: "Incorrect PIN. Please try again.")
         case .decoyMatchesReal:
-            "Decoy PIN must be different from your real PIN."
+            String(localized: "Decoy PIN must be different from your real PIN.")
         case .invalidRecoveryCode:
-            "Recovery code is invalid, missing, or already used."
+            String(localized: "Recovery code is invalid, missing, or already used.")
         case .biometricVerificationRequired:
-            "Biometric verification is required before resetting PIN."
+            String(localized: "Biometric verification is required before resetting PIN.")
         }
     }
 }

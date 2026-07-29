@@ -93,12 +93,12 @@ enum ImageSignalDetectors {
 
         var displayLabel: String {
             switch self {
-            case .identityDocument: "Looks like an ID"
-            case .paymentCard: "Possible card number"
-            case .financial: "Financial info"
-            case .credentials: "Passwords / login"
-            case .barcode: "Code / pass"
-            case .screenshotWithText: "Screenshot with text"
+            case .identityDocument: String(localized: "Looks like an ID")
+            case .paymentCard: String(localized: "Possible card number")
+            case .financial: String(localized: "Financial info")
+            case .credentials: String(localized: "Passwords / login")
+            case .barcode: String(localized: "Code / pass")
+            case .screenshotWithText: String(localized: "Screenshot with text")
             }
         }
     }

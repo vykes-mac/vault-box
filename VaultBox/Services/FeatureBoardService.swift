@@ -538,11 +538,11 @@ enum FeatureBoardError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .emptyTitle:
-            return "Enter a feature title."
+            return String(localized: "Enter a feature title.")
         case .invalidFeatureID:
-            return "This feature could not be found."
+            return String(localized: "This feature could not be found.")
         case .invalidRecord:
-            return "Cloud data is missing required fields."
+            return String(localized: "Cloud data is missing required fields.")
         }
     }
 }

@@ -79,7 +79,7 @@ struct HTTPResponse: Sendable {
         HTTPResponse(
             statusCode: 404,
             headers: ["Content-Type": "text/plain"],
-            body: Data("Not Found".utf8)
+            body: Data(String(localized: "Not Found").utf8)
         )
     }
 

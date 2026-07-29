@@ -106,7 +106,7 @@ struct AlbumCoverPickerView: View {
 
         do {
             guard let imageData = try await pickerItem.loadTransferable(type: Data.self) else {
-                errorMessage = "Couldn't load the selected photo."
+                errorMessage = String(localized: "Couldn't load the selected photo.")
                 return
             }
             let encryptedData = try await vaultService.encryptAlbumCoverImage(imageData)
@@ -116,7 +116,7 @@ struct AlbumCoverPickerView: View {
             onCoverChanged?()
             dismiss()
         } catch {
-            errorMessage = "Failed to set cover. Please try again."
+            errorMessage = String(localized: "Failed to set cover. Please try again.")
         }
     }
 
@@ -158,8 +158,8 @@ struct VaultItemPickerView: View {
                 if items.isEmpty {
                     EmptyStateView(
                         systemImage: "photo.on.rectangle.angled",
-                        title: "No Photos",
-                        subtitle: "Import photos to use as album covers"
+                        title: String(localized: "No Photos"),
+                        subtitle: String(localized: "Import photos to use as album covers")
                     )
                 } else {
                     ScrollView {

@@ -14,6 +14,27 @@ struct AppDisguiseTests {
         #expect(AppDisguise(iconName: "UnknownIcon") == nil)
     }
 
+    @Test("The resulting icon state resolves system icon-change errors")
+    @MainActor
+    func resultingIconStateResolvesChange() {
+        #expect(AppIconService.didApplyIcon(
+            requestedIconName: "CalculatorIcon",
+            actualIconName: "CalculatorIcon"
+        ))
+        #expect(AppIconService.didApplyIcon(
+            requestedIconName: nil,
+            actualIconName: nil
+        ))
+        #expect(!AppIconService.didApplyIcon(
+            requestedIconName: "CalculatorIcon",
+            actualIconName: "NotesIcon"
+        ))
+        #expect(!AppIconService.didApplyIcon(
+            requestedIconName: nil,
+            actualIconName: "CalculatorIcon"
+        ))
+    }
+
     @Test("Active disguises lock immediately in the background")
     func activeDisguisesLockImmediately() {
         #expect(shouldLockImmediatelyForDisguise(iconName: "CalculatorIcon"))
@@ -109,7 +130,7 @@ struct AppDisguiseTests {
         calculator.inputDigit("0")
         calculator.equals()
 
-        #expect(calculator.display == "Error")
+        #expect(calculator.display == String(localized: "Error"))
     }
 
     @Test("Calculator supports decimal percentages")

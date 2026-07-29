@@ -56,20 +56,24 @@ struct TranslateDisguiseView: View {
     private var translation: String {
         let normalized = sourceText.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
         guard !normalized.isEmpty else { return "Traducción" }
-        return translations[normalized] ?? "Phrase not in offline dictionary"
+        return translations[normalized] ?? String(localized: "Phrase not in offline dictionary")
     }
 
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
-                languageCard(title: "English", text: $sourceText, isEditable: true)
+                languageCard(
+                    title: String(localized: "English"),
+                    text: $sourceText,
+                    isEditable: true
+                )
 
                 Image(systemName: "arrow.down")
                     .font(.headline)
                     .foregroundStyle(AppDisguise.translate.accentColor)
 
                 languageCard(
-                    title: "Spanish",
+                    title: String(localized: "Spanish"),
                     text: .constant(translation),
                     isEditable: false
                 )
@@ -144,7 +148,7 @@ struct MeasureDisguiseView: View {
                 Text("Motion data is unavailable")
                     .font(.headline)
             } else {
-                Text(isLevel ? "Level" : reading.displayText)
+                Text(isLevel ? String(localized: "Level") : reading.displayText)
                     .font(.system(.title, design: .rounded, weight: .semibold))
             }
 
@@ -173,6 +177,6 @@ struct LevelReading: Equatable {
     }
 
     var accessibilityValue: String {
-        "Roll \(roundedRoll) degrees, pitch \(roundedPitch) degrees"
+        String(localized: "Roll \(roundedRoll) degrees, pitch \(roundedPitch) degrees")
     }
 }

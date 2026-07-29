@@ -124,7 +124,7 @@ struct DocumentDetailView: View {
             let url = try await vaultService.decryptDocumentURL(for: item)
             tempFileURL = url
         } catch {
-            errorMessage = "This document couldn't be opened. It may be corrupted."
+            errorMessage = String(localized: "This document couldn't be opened. It may be corrupted.")
         }
     }
 

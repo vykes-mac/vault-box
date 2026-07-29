@@ -80,7 +80,7 @@ struct VideoPlayerView: View {
             player = avPlayer
             isLoading = false
         } catch {
-            errorMessage = "Unable to play this video."
+            errorMessage = String(localized: "Unable to play this video.")
             isLoading = false
         }
     }

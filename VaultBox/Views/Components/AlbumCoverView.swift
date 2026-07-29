@@ -43,7 +43,7 @@ struct AlbumCoverView: View {
                 .foregroundStyle(Color.vaultTextPrimary)
                 .lineLimit(1)
 
-            Text("\(itemCount) \(itemCount == 1 ? "item" : "items")")
+            Text(localizedVaultItemCount(itemCount))
                 .font(.caption)
                 .foregroundStyle(Color.vaultTextSecondary)
         }

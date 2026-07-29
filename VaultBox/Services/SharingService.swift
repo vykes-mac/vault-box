@@ -13,16 +13,25 @@ enum ShareDuration: CaseIterable, Identifiable {
     case twentyFourHours
     case sevenDays
 
-    var id: String { label }
+    var id: String {
+        switch self {
+        case .oneMinute: "oneMinute"
+        case .fiveMinutes: "fiveMinutes"
+        case .thirtyMinutes: "thirtyMinutes"
+        case .oneHour: "oneHour"
+        case .twentyFourHours: "twentyFourHours"
+        case .sevenDays: "sevenDays"
+        }
+    }
 
     var label: String {
         switch self {
-        case .oneMinute: "1 Minute"
-        case .fiveMinutes: "5 Minutes"
-        case .thirtyMinutes: "30 Minutes"
-        case .oneHour: "1 Hour"
-        case .twentyFourHours: "24 Hours"
-        case .sevenDays: "7 Days"
+        case .oneMinute: String(localized: "1 Minute")
+        case .fiveMinutes: String(localized: "5 Minutes")
+        case .thirtyMinutes: String(localized: "30 Minutes")
+        case .oneHour: String(localized: "1 Hour")
+        case .twentyFourHours: String(localized: "24 Hours")
+        case .sevenDays: String(localized: "7 Days")
         }
     }
 
@@ -271,17 +280,17 @@ enum SharingError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .encryptionFailed:
-            "Failed to encrypt the file for sharing."
+            String(localized: "Failed to encrypt the file for sharing.")
         case .invalidShareURL:
-            "This share link is invalid or corrupted."
+            String(localized: "This share link is invalid or corrupted.")
         case .shareNotFound:
-            "This shared file could not be found. It may have been revoked."
+            String(localized: "This shared file could not be found. It may have been revoked.")
         case .shareExpired:
-            "This share has expired and is no longer available."
+            String(localized: "This share has expired and is no longer available.")
         case .downloadFailed:
-            "Failed to download the shared file. Please check your connection."
+            String(localized: "Failed to download the shared file. Please check your connection.")
         case .iCloudUnavailable:
-            "iCloud is not available. Sign in to iCloud to share files."
+            String(localized: "iCloud is not available. Sign in to iCloud to share files.")
         }
     }
 }

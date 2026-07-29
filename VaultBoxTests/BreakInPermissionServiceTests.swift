@@ -159,8 +159,8 @@ struct BreakInPermissionServiceTests {
 
         #expect(snapshot.hasMissingPermissions)
         #expect(snapshot.missingPermissions == Set([.camera]))
-        #expect(snapshot.guidanceMessage.contains("Camera"))
-        #expect(!snapshot.guidanceMessage.contains("Location"))
-        #expect(!snapshot.guidanceMessage.contains("Notifications"))
+        #expect(snapshot.guidanceMessage.contains(BreakInPermissionKind.camera.displayName))
+        #expect(!snapshot.guidanceMessage.contains(BreakInPermissionKind.location.displayName))
+        #expect(!snapshot.guidanceMessage.contains(BreakInPermissionKind.notifications.displayName))
     }
 }

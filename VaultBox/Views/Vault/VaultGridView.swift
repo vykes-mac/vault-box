@@ -2,12 +2,34 @@ import SwiftUI
 import SwiftData
 import UIKit
 
+func localizedVaultItemCount(_ count: Int) -> String {
+    if count == 1 {
+        return String(localized: "1 item")
+    }
+    return String(localized: "\(count) items")
+}
+
+func localizedDeleteVaultItemsTitle(_ count: Int) -> String {
+    if count == 1 {
+        return String(localized: "Delete 1 item?")
+    }
+    return String(localized: "Delete \(count) items?")
+}
+
 // MARK: - Sort & Filter
 
 enum VaultSortOrder: String, CaseIterable {
     case dateImported = "Date Imported"
     case dateCreated = "Date Created"
     case fileSize = "File Size"
+
+    var displayName: String {
+        switch self {
+        case .dateImported: String(localized: "Date Imported")
+        case .dateCreated: String(localized: "Date Created")
+        case .fileSize: String(localized: "File Size")
+        }
+    }
 }
 
 enum VaultFilter: String, CaseIterable {
@@ -16,6 +38,16 @@ enum VaultFilter: String, CaseIterable {
     case videos = "Videos"
     case documents = "Documents"
     case favorites = "Favorites"
+
+    var displayName: String {
+        switch self {
+        case .all: String(localized: "All")
+        case .photos: String(localized: "Photos")
+        case .videos: String(localized: "Videos")
+        case .documents: String(localized: "Documents")
+        case .favorites: String(localized: "Favorites")
+        }
+    }
 }
 
 // MARK: - Grid Cell Frame Tracking
@@ -139,12 +171,18 @@ struct VaultGridView: View {
         let total = filteredItems.count
         let displayed = displayedItems.count
         if isSearchActive || filter != .all {
-            return "\(displayed) of \(total) item\(total == 1 ? "" : "s")"
+            if total == 1 {
+                return String(localized: "\(displayed) of 1 item")
+            }
+            return String(localized: "\(displayed) of \(total) items")
         }
         if purchaseService.isPremium {
-            return "\(total) item\(total == 1 ? "" : "s")"
+            if total == 1 {
+                return String(localized: "1 item")
+            }
+            return String(localized: "\(total) items")
         }
-        return "\(total) of \(Constants.freeItemLimit) items"
+        return String(localized: "\(total) of \(Constants.freeItemLimit) items")
     }
 
     // MARK: - Body
@@ -153,7 +191,7 @@ struct VaultGridView: View {
         NavigationStack {
             mainContent
                 .navigationTitle("Vault")
-                .searchable(text: $searchText, prompt: "Search tags, albums, dates…")
+                .searchable(text: $searchText, prompt: Text("Search tags, albums, dates…"))
                 .searchSuggestions { searchSuggestionsContent }
                 .toolbar { toolbarContent }
                 .overlay { sheetAndAlertModifiers }
@@ -198,7 +236,7 @@ struct VaultGridView: View {
                 )
             }
             .confirmationDialog(
-                "Delete \(selectedItems.count) item\(selectedItems.count == 1 ? "" : "s")?",
+                localizedDeleteVaultItemsTitle(selectedItems.count),
                 isPresented: $showDeleteConfirm,
                 titleVisibility: .visible
             ) {
@@ -235,7 +273,11 @@ struct VaultGridView: View {
                 Button("Delete", role: .destructive) { deleteOriginalDocuments() }
                 Button("Keep", role: .cancel) { pendingDocumentURLs = [] }
             } message: {
-                Text("Delete \(pendingDocumentURLs.count) original\(pendingDocumentURLs.count == 1 ? "" : "s")? The imported documents are safely encrypted in your vault.")
+                if pendingDocumentURLs.count == 1 {
+                    Text("Delete 1 original? The imported document is safely encrypted in your vault.")
+                } else {
+                    Text("Delete \(pendingDocumentURLs.count) originals? The imported documents are safely encrypted in your vault.")
+                }
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
@@ -319,8 +361,8 @@ struct VaultGridView: View {
     private var emptyState: some View {
         EmptyStateView(
             systemImage: "photo.on.rectangle.angled",
-            title: "No Items Yet",
-            subtitle: "Tap + to add your first photo"
+            title: String(localized: "No Items Yet"),
+            subtitle: String(localized: "Tap + to add your first photo")
         )
     }
 
@@ -340,7 +382,14 @@ struct VaultGridView: View {
                 if tags.isEmpty {
                     Text("Try searching by type, album name, or date")
                 } else {
-                    Text("Try \"\(tags.prefix(3).joined(separator: "\", \""))\" or search by album name or date")
+                    let localizedTags = tags.prefix(3).map {
+                        SmartAlbumType.localizedDisplayName(forTag: $0)
+                    }
+                    Text(
+                        String(
+                            localized: "Try \"\(localizedTags.joined(separator: "\", \""))\" or search by album name or date"
+                        )
+                    )
                 }
             }
             .font(.subheadline)
@@ -570,7 +619,11 @@ struct VaultGridView: View {
                     }
                 }
             } label: {
-                Text(isSelectionMode ? "Cancel" : "Select")
+                Text(
+                    isSelectionMode
+                        ? String(localized: "Cancel")
+                        : String(localized: "Select")
+                )
             }
         }
 
@@ -578,13 +631,13 @@ struct VaultGridView: View {
             Menu {
                 Picker("Sort By", selection: $sortOrder) {
                     ForEach(VaultSortOrder.allCases, id: \.self) { order in
-                        Text(order.rawValue).tag(order)
+                        Text(order.displayName).tag(order)
                     }
                 }
 
                 Picker("Filter", selection: $filter) {
                     ForEach(VaultFilter.allCases, id: \.self) { f in
-                        Text(f.rawValue).tag(f)
+                        Text(f.displayName).tag(f)
                     }
                 }
             } label: {
@@ -872,7 +925,11 @@ struct VaultGridView: View {
 
         return matched.map { tag in
             let completion = prefix.isEmpty ? tag : "\(prefix) \(tag)"
-            return (label: tag.capitalized, icon: iconForTag(tag), completion: completion)
+            return (
+                label: SmartAlbumType.localizedDisplayName(forTag: tag),
+                icon: iconForTag(tag),
+                completion: completion
+            )
         }
     }
 

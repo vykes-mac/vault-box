@@ -162,7 +162,9 @@ enum TokenizerError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingSpecialTokens:
-            return "Vocabulary file is missing required special tokens ([CLS], [SEP], [UNK], [PAD])"
+            return String(
+                localized: "Vocabulary file is missing required special tokens ([CLS], [SEP], [UNK], [PAD])"
+            )
         }
     }
 }

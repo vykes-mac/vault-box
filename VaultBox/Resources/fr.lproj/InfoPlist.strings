@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "VaultBox utilise l’appareil photo pour enregistrer des photos directement dans votre coffre-fort.";
+"NSFaceIDUsageDescription" = "VaultBox utilise Face ID pour déverrouiller votre coffre-fort en toute sécurité.";
+"NSLocalNetworkUsageDescription" = "VaultBox utilise votre réseau local pour transférer des fichiers entre votre appareil et votre ordinateur en Wi-Fi.";
+"NSLocationWhenInUseUsageDescription" = "VaultBox enregistre les données de localisation lorsqu’une tentative d’accès non autorisé est détectée.";
+"NSPhotoLibraryUsageDescription" = "VaultBox a besoin de cet accès pour importer des photos dans votre coffre-fort chiffré.";

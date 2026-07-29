@@ -177,7 +177,7 @@ struct SharedContentViewer: View {
 
             if result.mimeType.hasPrefix("image/") {
                 guard let image = UIImage(data: result.fileData) else {
-                    errorMessage = "The shared data is not a valid image."
+                    errorMessage = String(localized: "The shared data is not a valid image.")
                     return
                 }
                 decryptedImage = image
@@ -192,7 +192,7 @@ struct SharedContentViewer: View {
         } catch let error as SharingError {
             errorMessage = error.errorDescription
         } catch {
-            errorMessage = "Failed to load the shared file. Please try again."
+            errorMessage = String(localized: "Failed to load the shared file. Please try again.")
         }
     }
 
@@ -211,7 +211,7 @@ struct SharedContentViewer: View {
             if let image = decryptedImage {
                 // Save as photo
                 guard let imageData = image.jpegData(compressionQuality: 1.0) else {
-                    errorMessage = "Failed to prepare the image for saving."
+                    errorMessage = String(localized: "Failed to prepare the image for saving.")
                     return
                 }
                 let item = try await vaultService.importPhotoData(
@@ -251,14 +251,14 @@ struct SharedContentViewer: View {
                     vaultService.queueSearchIndexing(for: [item])
                 }
             } else {
-                errorMessage = "No content to save."
+                errorMessage = String(localized: "No content to save.")
                 return
             }
 
             savedToVault = true
             Haptics.purchaseComplete()
         } catch {
-            errorMessage = "Failed to save to vault. Please try again."
+            errorMessage = String(localized: "Failed to save to vault. Please try again.")
         }
     }
 

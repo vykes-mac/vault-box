@@ -14,7 +14,9 @@ class ImportViewModel {
     var showDeletePrompt = false
     var pendingAssetIdentifiers: [String] = []
     var showDeleteError = false
-    var deleteErrorMessage = "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    var deleteErrorMessage = String(
+        localized: "VaultBox couldn't delete one or more originals. Your imported items are still safe in the vault."
+    )
 
     init(vaultService: VaultService) {
         self.vaultService = vaultService
@@ -87,7 +89,7 @@ class ImportViewModel {
                 onComplete()
             } catch {
                 deleteErrorMessage = (error as? LocalizedError)?.errorDescription ??
-                    "VaultBox couldn't delete one or more originals. You can remove them manually in Photos."
+                    String(localized: "VaultBox couldn't delete one or more originals. You can remove them manually in Photos.")
                 showDeleteError = true
             }
         }

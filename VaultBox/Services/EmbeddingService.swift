@@ -131,10 +131,14 @@ enum EmbeddingError: Error, LocalizedError {
 
     var errorDescription: String? {
         switch self {
-        case .modelNotFound: return "MiniLM.mlmodelc not found in app bundle"
-        case .vocabNotFound: return "vocab.txt not found in app bundle"
-        case .modelNotLoaded: return "Embedding model not loaded. Call loadModel() first."
-        case .unexpectedOutput: return "Unexpected model output format"
+        case .modelNotFound:
+            return String(localized: "MiniLM.mlmodelc not found in app bundle")
+        case .vocabNotFound:
+            return String(localized: "vocab.txt not found in app bundle")
+        case .modelNotLoaded:
+            return String(localized: "Embedding model not loaded. Call loadModel() first.")
+        case .unexpectedOutput:
+            return String(localized: "Unexpected model output format")
         }
     }
 }

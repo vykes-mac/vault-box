@@ -11,22 +11,22 @@ enum BreakInPermissionKind: String, CaseIterable, Hashable, Sendable {
     var displayName: String {
         switch self {
         case .notifications:
-            "Notifications"
+            String(localized: "Notifications")
         case .camera:
-            "Camera"
+            String(localized: "Camera")
         case .location:
-            "Location"
+            String(localized: "Location")
         }
     }
 
     var usageDescription: String {
         switch self {
         case .notifications:
-            "security alerts"
+            String(localized: "security alerts")
         case .camera:
-            "intruder photos"
+            String(localized: "intruder photos")
         case .location:
-            "GPS evidence"
+            String(localized: "GPS evidence")
         }
     }
 }
@@ -39,11 +39,11 @@ enum BreakInPermissionState: String, Sendable, Equatable {
     var displayLabel: String {
         switch self {
         case .enabled:
-            "Enabled"
+            String(localized: "Enabled")
         case .notSet:
-            "Not Set"
+            String(localized: "Not Set")
         case .denied:
-            "Denied"
+            String(localized: "Denied")
         }
     }
 }
@@ -95,7 +95,9 @@ struct BreakInPermissionSnapshot: Sendable, Equatable {
             .map { "\($0.displayName) (\($0.usageDescription))" }
             .joined(separator: ", ")
 
-        return "Break-in Alerts are enabled, but some protections are limited. Missing permissions: \(permissionList). You can enable them in iOS Settings."
+        return String(
+            localized: "Break-in Alerts are enabled, but some protections are limited. Missing permissions: \(permissionList). You can enable them in iOS Settings."
+        )
     }
 }
 

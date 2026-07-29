@@ -211,7 +211,7 @@ struct VaultServiceTests {
 
         let item = try await service.importPhotoData(imageData, filename: "   ", album: nil)
 
-        #expect(item.originalFilename == "Photo")
+        #expect(item.originalFilename == String(localized: "Photo"))
     }
 
     @Test("smartTags persist after save")

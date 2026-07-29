@@ -31,6 +31,14 @@ final class VaultItem {
         case photo
         case video
         case document
+
+        var displayName: String {
+            switch self {
+            case .photo: String(localized: "Photo")
+            case .video: String(localized: "Video")
+            case .document: String(localized: "Document")
+            }
+        }
     }
 
     init(type: ItemType, originalFilename: String, encryptedFileRelativePath: String, fileSize: Int64) {

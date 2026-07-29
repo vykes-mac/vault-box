@@ -307,7 +307,7 @@ struct PhotoDetailView: View {
                         LabeledContent("Dimensions", value: "\(w) × \(h)")
                     }
                     LabeledContent("File Size", value: formatFileSize(currentItem.fileSize))
-                    LabeledContent("Type", value: currentItem.type.rawValue.capitalized)
+                    LabeledContent("Type", value: currentItem.type.displayName)
                 }
             }
             .navigationTitle("Info")

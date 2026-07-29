@@ -5,7 +5,9 @@ import UIKit
 struct PostOnboardingSecuritySetupView: View {
     let authService: AuthService
     let includeLocation: Bool
-    let onContinue: () -> Void
+    /// Receives the permission state as the user actually left it. Only fires when they
+    /// finish the screen — being force-dismissed by an app lock is not a completion.
+    let onContinue: (BreakInPermissionSnapshot?) -> Void
 
     @State private var biometricsEnabled = false
     @State private var biometricRequestInFlight = false
@@ -54,7 +56,7 @@ struct PostOnboardingSecuritySetupView: View {
             }
 
             Button("Continue to Vault") {
-                onContinue()
+                onContinue(snapshot)
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.vaultAccent)
@@ -87,7 +89,11 @@ struct PostOnboardingSecuritySetupView: View {
 
                 Spacer(minLength: 8)
 
-                Text(biometricsEnabled ? "Enabled" : "Not Set")
+                Text(
+                    biometricsEnabled
+                        ? String(localized: "Enabled")
+                        : String(localized: "Not Set")
+                )
                     .font(.caption)
                     .fontWeight(.semibold)
                     .foregroundStyle(biometricsEnabled ? Color.green : Color.orange)
@@ -96,7 +102,13 @@ struct PostOnboardingSecuritySetupView: View {
                     .background((biometricsEnabled ? Color.green : Color.orange).opacity(0.12), in: Capsule())
             }
 
-            Button(biometricRequestInFlight ? "Requesting..." : (biometricsEnabled ? "Enabled" : "Enable Face ID")) {
+            Button(
+                biometricRequestInFlight
+                    ? String(localized: "Requesting...")
+                    : (biometricsEnabled
+                        ? String(localized: "Enabled")
+                        : String(localized: "Enable Face ID"))
+            ) {
                 enableBiometrics()
             }
             .buttonStyle(.bordered)
@@ -177,11 +189,11 @@ struct PostOnboardingSecuritySetupView: View {
     private func description(for permission: BreakInPermissionKind) -> String {
         switch permission {
         case .notifications:
-            return "Get instant break-in alerts."
+            return String(localized: "Get instant break-in alerts.")
         case .camera:
-            return "Capture intruder photos at lockout thresholds."
+            return String(localized: "Capture intruder photos at lockout thresholds.")
         case .location:
-            return "Record GPS evidence when premium is active."
+            return String(localized: "Record GPS evidence when premium is active.")
         }
     }
 
@@ -213,15 +225,15 @@ struct PostOnboardingSecuritySetupView: View {
         isRequesting: Bool
     ) -> String {
         if isRequesting {
-            return "Requesting..."
+            return String(localized: "Requesting...")
         }
         switch state {
         case .enabled:
-            return "Enabled"
+            return String(localized: "Enabled")
         case .notSet:
-            return "Allow \(permission.displayName)"
+            return String(localized: "Allow \(permission.displayName)")
         case .denied:
-            return "Open Settings"
+            return String(localized: "Open Settings")
         }
     }
 
@@ -243,13 +255,15 @@ struct PostOnboardingSecuritySetupView: View {
 
         Task { @MainActor in
             let success = await authService.authenticateWithBiometrics(
-                localizedReason: "Enable Face ID to quickly unlock your vault.",
+                localizedReason: String(localized: "Enable Face ID to quickly unlock your vault."),
                 unlockSession: false,
                 enableForFutureUnlocks: true
             )
             biometricsEnabled = authService.isBiometricsEnabled()
             if !success && !biometricsEnabled {
-                biometricMessage = "Face ID was not enabled. You can try again or enable it in Settings."
+                biometricMessage = String(
+                    localized: "Face ID was not enabled. You can try again or enable it in Settings."
+                )
             }
             biometricRequestInFlight = false
         }

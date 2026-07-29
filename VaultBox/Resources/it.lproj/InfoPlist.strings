@@ -1,0 +1,5 @@
+"NSCameraUsageDescription" = "VaultBox usa la fotocamera per acquisire foto direttamente nella tua cassaforte.";
+"NSFaceIDUsageDescription" = "VaultBox usa Face ID per sbloccare la tua cassaforte in modo sicuro.";
+"NSLocalNetworkUsageDescription" = "VaultBox usa la rete locale per trasferire file tra il dispositivo e il computer tramite Wi-Fi.";
+"NSLocationWhenInUseUsageDescription" = "VaultBox registra i dati sulla posizione quando rileva un tentativo di accesso non autorizzato.";
+"NSPhotoLibraryUsageDescription" = "VaultBox richiede l'accesso per importare foto nella tua cassaforte crittografata.";

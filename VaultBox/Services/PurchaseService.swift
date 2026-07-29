@@ -31,6 +31,9 @@ class PurchaseService: NSObject {
     var offeringsLoadError: String?
     var isOfferingsReady = false
     var isUsingExplicitOffering = false
+    private(set) var isHardPaywallEnabled = PaywallConfiguration.defaultIsHardPaywallEnabled
+    private(set) var hasResolvedPaywallConfiguration = false
+    private let trialReminderService = TrialReminderService()
 
     // MARK: - Configure
 
@@ -69,10 +72,12 @@ class PurchaseService: NSObject {
             currentOffering = resolvedOffering
             isUsingExplicitOffering = explicitOffering != nil
             isOfferingsReady = resolvedOffering != nil
+            applyPaywallConfiguration(from: resolvedOffering)
 
             if let resolvedOffering {
                 debugLog(
-                    "Resolved offering '\(resolvedOffering.identifier)' (explicit=\(isUsingExplicitOffering))"
+                    "Resolved offering '\(resolvedOffering.identifier)' " +
+                    "(explicit=\(isUsingExplicitOffering), isHard=\(isHardPaywallEnabled))"
                 )
             } else {
                 offeringsLoadError =
@@ -83,6 +88,7 @@ class PurchaseService: NSObject {
         } catch {
             offeringsLoadError = error.localizedDescription
             isOfferingsReady = currentOffering != nil
+            applyPaywallConfiguration(from: currentOffering)
             debugLog("Offerings fetch failed: \(error.localizedDescription)")
             throw error
         }
@@ -95,10 +101,7 @@ class PurchaseService: NSObject {
         defer { isLoading = false }
 
         let result = try await Purchases.shared.purchase(package: package)
-        let hasPremium = result.customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
-        isPremium = hasPremium
-        hasResolvedCustomerInfo = true
-        return hasPremium
+        return await apply(result.customerInfo)
     }
 
     // MARK: - Restore
@@ -108,10 +111,7 @@ class PurchaseService: NSObject {
         defer { isLoading = false }
 
         let customerInfo = try await Purchases.shared.restorePurchases()
-        let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
-        isPremium = hasPremium
-        hasResolvedCustomerInfo = true
-        return hasPremium
+        return await apply(customerInfo)
     }
 
     // MARK: - Check Status
@@ -120,10 +120,7 @@ class PurchaseService: NSObject {
     func checkPremiumStatus() async -> Bool {
         do {
             let customerInfo = try await Purchases.shared.customerInfo()
-            let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
-            isPremium = hasPremium
-            hasResolvedCustomerInfo = true
-            return hasPremium
+            return await apply(customerInfo)
         } catch {
             return isPremium
         }
@@ -152,6 +149,34 @@ class PurchaseService: NSObject {
         currentOffering?.availablePackages.first { $0.storeProduct.productIdentifier == Constants.annualProductID }
     }
 
+    private func applyPaywallConfiguration(from offering: Offering?) {
+        isHardPaywallEnabled = PaywallConfiguration.isHardPaywallEnabled(
+            in: offering?.metadata ?? [:]
+        )
+        hasResolvedPaywallConfiguration = true
+    }
+
+    @discardableResult
+    private func apply(_ customerInfo: CustomerInfo) async -> Bool {
+        let entitlement = customerInfo.entitlements[Constants.premiumEntitlementID]
+        let hasPremium = entitlement?.isActive == true
+
+        isPremium = hasPremium
+        hasResolvedCustomerInfo = true
+
+        await trialReminderService.reconcile(
+            with: TrialReminderState(
+                isActive: hasPremium,
+                isTrial: entitlement?.periodType == .trial,
+                willRenew: entitlement?.willRenew == true
+                    && entitlement?.unsubscribeDetectedAt == nil,
+                expirationDate: entitlement?.expirationDate
+            )
+        )
+
+        return hasPremium
+    }
+
     private func debugLog(_ message: String) {
         #if DEBUG
         print("[RevenueCat] \(message)")
@@ -163,10 +188,8 @@ class PurchaseService: NSObject {
 
 extension PurchaseService: PurchasesDelegate {
     nonisolated func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-        let hasPremium = customerInfo.entitlements[Constants.premiumEntitlementID]?.isActive == true
         Task { @MainActor in
-            self.isPremium = hasPremium
-            self.hasResolvedCustomerInfo = true
+            await self.apply(customerInfo)
         }
     }
 }

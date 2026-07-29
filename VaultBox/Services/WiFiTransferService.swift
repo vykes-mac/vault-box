@@ -178,7 +178,7 @@ actor WiFiTransferService {
 
         if buffers[id]!.count > Constants.wifiTransferMaxRequestBytes {
             buffers.removeValue(forKey: id)
-            let response = HTTPResponse.error("Upload too large", code: 413)
+            let response = HTTPResponse.error(String(localized: "Upload too large"), code: 413)
             sendResponse(response, on: connection, id: id)
             return true
         }
@@ -192,7 +192,7 @@ actor WiFiTransferService {
         markClientSeen(forConnectionID: id)
 
         guard let request = HTTPParser.parseRequest(from: requestData) else {
-            let response = HTTPResponse.error("Bad Request", code: 400)
+            let response = HTTPResponse.error(String(localized: "Bad Request"), code: 400)
             sendResponse(response, on: connection, id: id)
             return true
         }
@@ -261,7 +261,9 @@ actor WiFiTransferService {
     }
 
     private func handleGetItems() async -> HTTPResponse {
-        guard let delegate else { return .error("Service unavailable", code: 500) }
+        guard let delegate else {
+            return .error(String(localized: "Service unavailable"), code: 500)
+        }
 
         do {
             let items = try await delegate.transferServiceNeedsItems()
@@ -270,12 +272,14 @@ actor WiFiTransferService {
             let json = try encoder.encode(items)
             return .ok(json: json)
         } catch {
-            return .error("Failed to fetch items", code: 500)
+            return .error(String(localized: "Failed to fetch items"), code: 500)
         }
     }
 
     private func handleDownload(itemID: String) async -> HTTPResponse {
-        guard let delegate else { return .error("Service unavailable", code: 500) }
+        guard let delegate else {
+            return .error(String(localized: "Service unavailable"), code: 500)
+        }
 
         do {
             let (data, contentType, filename) = try await delegate.transferServiceNeedsDecryptedFile(itemID: itemID)
@@ -286,7 +290,9 @@ actor WiFiTransferService {
     }
 
     private func handleThumbnail(itemID: String) async -> HTTPResponse {
-        guard let delegate else { return .error("Service unavailable", code: 500) }
+        guard let delegate else {
+            return .error(String(localized: "Service unavailable"), code: 500)
+        }
 
         do {
             let data = try await delegate.transferServiceNeedsThumbnail(itemID: itemID)
@@ -301,15 +307,17 @@ actor WiFiTransferService {
     }
 
     private func handleUpload(_ request: HTTPRequest) async -> HTTPResponse {
-        guard let delegate else { return .error("Service unavailable", code: 500) }
+        guard let delegate else {
+            return .error(String(localized: "Service unavailable"), code: 500)
+        }
         guard let contentType = request.headers["Content-Type"] ?? request.headers["content-type"],
               let boundary = HTTPParser.extractBoundary(from: contentType) else {
-            return .error("Missing multipart boundary", code: 400)
+            return .error(String(localized: "Missing multipart boundary"), code: 400)
         }
 
         let files = HTTPParser.parseMultipartBody(request.body, boundary: boundary)
         guard !files.isEmpty else {
-            return .error("No files in upload", code: 400)
+            return .error(String(localized: "No files in upload"), code: 400)
         }
 
         var uploadedCount = 0

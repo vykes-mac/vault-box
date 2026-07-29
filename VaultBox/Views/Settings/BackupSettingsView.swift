@@ -14,7 +14,7 @@ struct BackupSettingsView: View {
 
     @State private var iCloudStatus: CKAccountStatus = .couldNotDetermine
     @State private var isSyncing = false
-    @State private var syncStatusText = "Ready"
+    @State private var syncStatusText = String(localized: "Ready")
     @State private var showError = false
     @State private var errorMessage = ""
     @State private var showPaywall = false
@@ -114,7 +114,11 @@ struct BackupSettingsView: View {
         .alert("Restore Complete", isPresented: $showRestoreSuccess) {
             Button("OK") {}
         } message: {
-            Text("\(restoredItemCount) item\(restoredItemCount == 1 ? "" : "s") restored from iCloud.")
+            if restoredItemCount == 1 {
+                Text("1 item restored from iCloud.")
+            } else {
+                Text("\(restoredItemCount) items restored from iCloud.")
+            }
         }
         .sheet(isPresented: $showPINEntry) {
             restorePINEntrySheet
@@ -312,12 +316,12 @@ struct BackupSettingsView: View {
 
     private var iCloudStatusText: String {
         switch iCloudStatus {
-        case .available: "Available"
-        case .noAccount: "No Account"
-        case .restricted: "Restricted"
-        case .couldNotDetermine: "Checking..."
-        case .temporarilyUnavailable: "Temporarily Unavailable"
-        @unknown default: "Unknown"
+        case .available: String(localized: "Available")
+        case .noAccount: String(localized: "No Account")
+        case .restricted: String(localized: "Restricted")
+        case .couldNotDetermine: String(localized: "Checking...")
+        case .temporarilyUnavailable: String(localized: "Temporarily Unavailable")
+        @unknown default: String(localized: "Unknown")
         }
     }
 
@@ -334,7 +338,7 @@ struct BackupSettingsView: View {
             return
         }
         isSyncing = true
-        syncStatusText = "Syncing..."
+        syncStatusText = String(localized: "Syncing...")
 
         // Capture item data on MainActor before crossing actor boundary
         let pendingItems = allItems.filter { !$0.isUploaded }
@@ -376,11 +380,11 @@ struct BackupSettingsView: View {
                     }
                 }
                 try? modelContext.save()
-                syncStatusText = "Up to date"
+                syncStatusText = String(localized: "Up to date")
             } catch {
-                errorMessage = "Backup paused — \(error.localizedDescription)"
+                errorMessage = String(localized: "Backup paused — \(error.localizedDescription)")
                 showError = true
-                syncStatusText = "Error"
+                syncStatusText = String(localized: "Error")
             }
             isSyncing = false
         }
@@ -444,7 +448,7 @@ struct BackupSettingsView: View {
                 showPINEntry = false
                 performRestore(encryptionService: encryptionService)
             } catch let error as CryptoKit.CryptoKitError {
-                pinError = "Incorrect PIN. Please try again."
+                pinError = String(localized: "Incorrect PIN. Please try again.")
                 #if DEBUG
                 print("[BackupSettings] PIN decryption failed: \(error)")
                 #endif
@@ -479,7 +483,7 @@ struct BackupSettingsView: View {
 
                 showRestoreSuccess = true
             } catch {
-                errorMessage = "Restore failed — \(error.localizedDescription)"
+                errorMessage = String(localized: "Restore failed — \(error.localizedDescription)")
                 showError = true
             }
             isRestoring = false
@@ -498,16 +502,16 @@ struct BackupSettingsView: View {
 
                 // Verify the PIN is correct by checking against stored hash
                 guard let settings else {
-                    keyBackupPINError = "Settings not found."
+                    keyBackupPINError = String(localized: "Settings not found.")
                     return
                 }
                 guard let saltData = Data(base64Encoded: settings.pinSalt) else {
-                    keyBackupPINError = "PIN data missing."
+                    keyBackupPINError = String(localized: "PIN data missing.")
                     return
                 }
                 let computedHash = await encryptionService.hashPIN(pin, salt: saltData)
                 guard computedHash == settings.pinHash else {
-                    keyBackupPINError = "Incorrect PIN. Please try again."
+                    keyBackupPINError = String(localized: "Incorrect PIN. Please try again.")
                     return
                 }
 
@@ -527,14 +531,14 @@ struct BackupSettingsView: View {
                 keyBackupConfirmed = true
                 triggerManualSync()
             } catch {
-                keyBackupPINError = "Failed to back up key: \(error.localizedDescription)"
+                keyBackupPINError = String(localized: "Failed to back up key: \(error.localizedDescription)")
             }
         }
     }
 
     private func disablePremiumBackupState() {
         isSyncing = false
-        syncStatusText = "Premium required"
+        syncStatusText = String(localized: "Premium required")
         if let settings, settings.iCloudBackupEnabled {
             settings.iCloudBackupEnabled = false
             try? modelContext.save()

@@ -61,6 +61,7 @@ struct VaultBoxApp: App {
 
     let modelContainer: ModelContainer
     @State private var purchaseService = PurchaseService()
+    @State private var analytics = AnalyticsService.makeDefault()
     @State private var privacyShield = AppPrivacyShield()
     @State private var themeColorScheme: ColorScheme?
 
@@ -96,6 +97,7 @@ struct VaultBoxApp: App {
             ContentView()
                 .environment(purchaseService)
                 .environment(privacyShield)
+                .environment(analytics)
                 .preferredColorScheme(themeColorScheme)
                 .onAppear {
                     purchaseService.configure()

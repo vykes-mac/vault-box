@@ -47,9 +47,13 @@ struct LockScreenView: View {
         if let remaining = lockoutRemaining {
             let minutes = remaining / 60
             let seconds = remaining % 60
-            return String(format: "Try again in %d:%02d", minutes, seconds)
+            return String(
+                format: String(localized: "Try again in %d:%02d"),
+                minutes,
+                seconds
+            )
         }
-        return "Enter your PIN"
+        return String(localized: "Enter your PIN")
     }
 
     init(authService: AuthService, onPresented: (() -> Void)? = nil) {
@@ -151,7 +155,10 @@ struct LockScreenView: View {
         }
         .confirmationDialog("Reset PIN", isPresented: $showForgotPINOptions, titleVisibility: .visible) {
             if biometricType != .none {
-                Button("Use \(biometricType == .faceID ? "Face ID" : "Touch ID")") {
+                let biometricName = biometricType == .faceID
+                    ? String(localized: "Face ID")
+                    : String(localized: "Touch ID")
+                Button(String(localized: "Use \(biometricName)")) {
                     handleForgotPIN()
                 }
             }
@@ -194,10 +201,10 @@ struct LockScreenView: View {
             NavigationStack {
                 PINSetupView(
                     authService: authService,
-                    createTitle: "Reset your PIN",
-                    createSubtitle: "Use a new PIN to secure your vault",
-                    confirmTitle: "Confirm new PIN",
-                    confirmSubtitle: "Re-enter your new PIN",
+                    createTitle: String(localized: "Reset your PIN"),
+                    createSubtitle: String(localized: "Use a new PIN to secure your vault"),
+                    confirmTitle: String(localized: "Confirm new PIN"),
+                    confirmSubtitle: String(localized: "Re-enter your new PIN"),
                     onPINConfirmed: { newPIN in
                         try await authService.completeBiometricRecoveryReset(newPIN: newPIN)
                     },
@@ -245,7 +252,7 @@ struct LockScreenView: View {
     private func handleForgotPIN() {
         guard !isVerifying else { return }
         guard biometricType != .none else {
-            forgotPINErrorMessage = "Biometric authentication is not available on this device."
+            forgotPINErrorMessage = String(localized: "Biometric authentication is not available on this device.")
             return
         }
 
@@ -255,7 +262,7 @@ struct LockScreenView: View {
             if success {
                 isShowingForgotPINSheet = true
             } else {
-                forgotPINErrorMessage = "Biometric verification failed."
+                forgotPINErrorMessage = String(localized: "Biometric verification failed.")
             }
         }
     }
@@ -306,7 +313,7 @@ struct LockScreenView: View {
     private func verifyRecoveryCode() {
         let trimmedCode = recoveryCodeInput.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedCode.isEmpty else {
-            recoveryErrorMessage = "Please enter a recovery code."
+            recoveryErrorMessage = String(localized: "Please enter a recovery code.")
             showRecoveryError = true
             return
         }
@@ -317,7 +324,7 @@ struct LockScreenView: View {
             if isValid {
                 showRecoveryPINReset = true
             } else {
-                recoveryErrorMessage = "Invalid, missing, or already-used recovery code."
+                recoveryErrorMessage = String(localized: "Invalid, missing, or already-used recovery code.")
                 showRecoveryError = true
             }
         }

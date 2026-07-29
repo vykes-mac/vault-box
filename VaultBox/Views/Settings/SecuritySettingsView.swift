@@ -33,15 +33,15 @@ struct SecuritySettingsView: View {
         switch mode {
         case .changePIN:
             switch step {
-            case .enterCurrent: "Change PIN"
-            case .enterNew: "Change PIN"
-            case .confirmNew: "Confirm New PIN"
+            case .enterCurrent: String(localized: "Change PIN")
+            case .enterNew: String(localized: "Change PIN")
+            case .confirmNew: String(localized: "Confirm New PIN")
             }
         case .decoySetup:
             switch step {
-            case .enterCurrent: "Verify Identity"
-            case .enterNew: "Set Decoy PIN"
-            case .confirmNew: "Confirm Decoy PIN"
+            case .enterCurrent: String(localized: "Verify Identity")
+            case .enterNew: String(localized: "Set Decoy PIN")
+            case .confirmNew: String(localized: "Confirm Decoy PIN")
             }
         }
     }
@@ -50,16 +50,16 @@ struct SecuritySettingsView: View {
         switch step {
         case .enterCurrent:
             mode == .decoySetup
-                ? "Enter your real PIN to verify your identity"
-                : "Enter your current PIN"
+                ? String(localized: "Enter your real PIN to verify your identity")
+                : String(localized: "Enter your current PIN")
         case .enterNew:
             mode == .decoySetup
-                ? "Choose a decoy PIN (must differ from real PIN)"
-                : "Enter your new PIN"
+                ? String(localized: "Choose a decoy PIN (must differ from real PIN)")
+                : String(localized: "Enter your new PIN")
         case .confirmNew:
             mode == .decoySetup
-                ? "Re-enter the decoy PIN to confirm"
-                : "Confirm your new PIN"
+                ? String(localized: "Re-enter the decoy PIN to confirm")
+                : String(localized: "Confirm your new PIN")
         }
     }
 
@@ -185,12 +185,12 @@ struct SecuritySettingsView: View {
                 step = .enterNew
             case .failure:
                 Haptics.pinWrong()
-                errorMessage = "Incorrect PIN. Please try again."
+                errorMessage = String(localized: "Incorrect PIN. Please try again.")
                 showError = true
                 currentPIN = ""
             case .locked:
                 Haptics.pinWrong()
-                errorMessage = "Too many attempts. Please wait."
+                errorMessage = String(localized: "Too many attempts. Please wait.")
                 showError = true
                 currentPIN = ""
             }
@@ -205,7 +205,7 @@ struct SecuritySettingsView: View {
 
         guard newPIN == confirmPIN else {
             Haptics.pinWrong()
-            errorMessage = "PINs don't match. Try again."
+            errorMessage = String(localized: "PINs don't match. Try again.")
             showError = true
             confirmPIN = ""
             step = .enterNew

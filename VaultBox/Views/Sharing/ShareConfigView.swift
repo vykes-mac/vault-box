@@ -92,7 +92,11 @@ struct ShareConfigView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Allow recipient to save")
                                         .font(.body)
-                                    Text(allowSave ? "Recipient can save to their vault" : "View only — screenshots are blocked")
+                                    Text(
+                                        allowSave
+                                            ? String(localized: "Recipient can save to their vault")
+                                            : String(localized: "View only — screenshots are blocked")
+                                    )
                                         .font(.caption)
                                         .foregroundStyle(Color.vaultTextSecondary)
                                 }
@@ -130,7 +134,11 @@ struct ShareConfigView: View {
                                     ProgressView()
                                         .tint(.white)
                                 }
-                                Text(isSharing ? "Encrypting & Uploading..." : "Create Share Link")
+                                Text(
+                                    isSharing
+                                        ? String(localized: "Encrypting & Uploading...")
+                                        : String(localized: "Create Share Link")
+                                )
                                     .fontWeight(.semibold)
                             }
                             .frame(maxWidth: .infinity)
@@ -166,7 +174,7 @@ struct ShareConfigView: View {
             Text("Link created!")
                 .font(.headline)
 
-            Text("Expires in \(selectedDuration.label.lowercased())")
+            Text(String(localized: "Expires in \(selectedDuration.label)"))
                 .font(.caption)
                 .foregroundStyle(Color.vaultTextSecondary)
 
@@ -218,7 +226,7 @@ struct ShareConfigView: View {
                 let rawData = try await vaultService.decryptFileData(for: item)
                 guard let image = UIImage(data: rawData),
                       let jpeg = image.jpegData(compressionQuality: 0.9) else {
-                    errorMessage = "Failed to prepare the photo for sharing."
+                    errorMessage = String(localized: "Failed to prepare the photo for sharing.")
                     return
                 }
                 fileData = jpeg
@@ -227,7 +235,7 @@ struct ShareConfigView: View {
                 fileData = try await vaultService.decryptFileData(for: item)
                 mimeType = mimeTypeForFilename(item.originalFilename)
             case .video:
-                errorMessage = "Video sharing is not yet supported."
+                errorMessage = String(localized: "Video sharing is not yet supported.")
                 return
             }
 
@@ -254,7 +262,8 @@ struct ShareConfigView: View {
             shareURL = result.shareURL
             Haptics.purchaseComplete()
         } catch {
-            errorMessage = (error as? LocalizedError)?.errorDescription ?? "Sharing failed. Please try again."
+            errorMessage = (error as? LocalizedError)?.errorDescription ??
+                String(localized: "Sharing failed. Please try again.")
         }
     }
 
