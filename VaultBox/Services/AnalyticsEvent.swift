@@ -50,6 +50,22 @@ enum AnalyticsEvent {
     /// "couldn't pay", which are opposite problems with opposite fixes.
     case paywallUnavailable(message: String?)
 
+    // MARK: Activation
+    //
+    // Everything above measures whether people *buy*. This block measures whether they
+    // ever reach the point of getting value, which is what decides refunds and renewals.
+
+    case activationChecklistViewed(completedCount: Int)
+    case activationStepTapped(step: ActivationStep)
+    /// Which disguise, deliberately. This is a configuration choice about the app, not an
+    /// answer to the onboarding questionnaire, so the privacy contract above doesn't
+    /// cover it — and knowing that most people pick one or two icons says which artwork
+    /// is worth the effort.
+    case disguiseApplied(disguise: String)
+    /// The user practised the gesture that reopens the vault from behind a cover. A gap
+    /// between ``disguiseApplied`` and this event is a population who can't get back in.
+    case disguiseUnlockGuideCompleted
+
     // MARK: - Wire format
 
     var name: String {
@@ -76,13 +92,18 @@ enum AnalyticsEvent {
         case .paywallRestoreFailed: "paywall_restore_failed"
         case .paywallDismissed: "paywall_dismissed"
         case .paywallUnavailable: "paywall_unavailable"
+        case .activationChecklistViewed: "activation_checklist_viewed"
+        case .activationStepTapped: "activation_step_tapped"
+        case .disguiseApplied: "disguise_applied"
+        case .disguiseUnlockGuideCompleted: "disguise_unlock_guide_completed"
         }
     }
 
     var parameters: [String: String] {
         switch self {
         case .onboardingStarted, .pinSetupStarted, .pinCreated,
-             .securitySetupViewed, .paywallRestoreTapped, .paywallRestoreSucceeded:
+             .securitySetupViewed, .paywallRestoreTapped, .paywallRestoreSucceeded,
+             .disguiseUnlockGuideCompleted:
             return [:]
 
         case .onboardingStepViewed(let step):
@@ -144,6 +165,15 @@ enum AnalyticsEvent {
 
         case .paywallUnavailable(let message):
             return message.map { ["message": $0] } ?? [:]
+
+        case .activationChecklistViewed(let completedCount):
+            return ["completed_count": String(completedCount)]
+
+        case .activationStepTapped(let step):
+            return ["step": step.analyticsName]
+
+        case .disguiseApplied(let disguise):
+            return ["disguise": disguise]
         }
     }
 

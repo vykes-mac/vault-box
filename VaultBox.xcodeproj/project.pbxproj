@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -34,6 +34,7 @@
 		3179AC62412D7B5689112107 /* WiFiTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF9EE5DB13C024FE004E722 /* WiFiTransferView.swift */; };
 		32CC73915FA601669783EE4F /* PaywallComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C901CE9C7BA4F20741F7BB /* PaywallComponents.swift */; };
 		337D9B7F809D6E5526D3CD8C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6779848ECA0F6D6607E02102 /* InfoPlist.strings */; };
+		3859AF46A545529F4C4FF783 /* ActivationChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */; };
 		386F77C9ECD547B14E9300EF /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02C8C3B43208F63546E6630 /* ImportViewModel.swift */; };
 		39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EC25525A796155921B2DB4 /* PINKeypadView.swift */; };
 		3D5F91416828E30DA38904EF /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
@@ -42,6 +43,7 @@
 		3F0CF2412BE0A0EEB4636048 /* PaywallGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D14DA424B3748D4AD21D55 /* PaywallGate.swift */; };
 		408C7A7EDCE1DB1B2F76273B /* View+ConditionalModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F02EB4950DDFCA8FF4AE109 /* View+ConditionalModifier.swift */; };
 		42EDD9B343383E39355D31A0 /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C4A92AF7EA29E82840486 /* BreakInService.swift */; };
+		44BB35D3F179A03282DD9589 /* DisguiseUnlockGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */; };
 		4B02EDB5205A6258E6F87081 /* VaultGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B4FD1E6E19689121223215 /* VaultGridView.swift */; };
 		4DB1A0385917DD0F1A6CD57D /* VaultBoxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316366EF8B35CE7EC217D70B /* VaultBoxError.swift */; };
 		51B48A11C8064D7A88EE2D40 /* VaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A46DAFB2B54EC1C29F0A840 /* VaultViewModel.swift */; };
@@ -90,6 +92,7 @@
 		95F5D76C5740F92B00A67EF5 /* WiFiTransferHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */; };
 		96967C9C2DFDEB23E58DE5DA /* FeatureRequestsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8D252275FD840944006E6B9 /* FeatureRequestsView.swift */; };
 		96A41D0233E76E2E72B739CB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BADE5E1C90AC5304992FC1ED /* Assets.xcassets */; };
+		99A146AC9D02A657C3518081 /* ActivationChecklistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F3305A3B3B1DA6F73FB8773 /* ActivationChecklistTests.swift */; };
 		9C94B522956252B618FF338A /* HTTPParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 829A41F776AEDDA37E529199 /* HTTPParser.swift */; };
 		9DF79CE7083844F67F6D0B5B /* BreakInPermissionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAA1A67D0364639B2B88064 /* BreakInPermissionServiceTests.swift */; };
 		9EAFE2205008E849E62E93F4 /* WiFiTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BB9FEE8DF272A2283CAA33 /* WiFiTransferService.swift */; };
@@ -126,6 +129,7 @@
 		D043C9244217D6F9C8F02D4C /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AFD7DF16DBE5B09901290AE /* OnboardingView.swift */; };
 		D13B03070E4E432D6232C0A1 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = ED35A2F291354845F61EBF43 /* Launch Screen.storyboard */; };
 		D153FF63CFD77DDF9F814AF1 /* DocumentExpiryParserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0C5C5ABCE3ACF4188B5831A /* DocumentExpiryParserTests.swift */; };
+		D303932DAA5E5C6CC3525109 /* DisguiseQuickSetupSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243ACC7DC619851EF4ADBA07 /* DisguiseQuickSetupSheet.swift */; };
 		D3AB351A4A6DB6968A493A6C /* AppDisguise.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED9F06E38D0C9FF75489CB1D /* AppDisguise.swift */; };
 		D3BDDCA052950B690DCD602E /* BreakInPermissionSetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */; };
 		D536F32D6EBA30BF6FE4642A /* EncryptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BED3E42B8DBCF2065727C874 /* EncryptionService.swift */; };
@@ -139,6 +143,7 @@
 		DF32EFCCA0872BFE3EC0A083 /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815B6196E1DAC89853BA30A8 /* Data+Encryption.swift */; };
 		EA564C14612D8F196C566C12 /* PremiumBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97902116F3003BBD32528411 /* PremiumBadge.swift */; };
 		EC84A7185FB8A2BC8B6916D6 /* SensitiveScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AB63DDDEC699C71E1D303A /* SensitiveScanViewModel.swift */; };
+		ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */; };
 		EEE30E0156A023F0F38F6FCE /* ContentViewRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */; };
 		F0FC9E9914D93B48A6F67E61 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD38D29E22E45F46FC58CCC /* SharingService.swift */; };
 		F30DF55655A76D81D0281813 /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */; };
@@ -181,6 +186,7 @@
 		18BA8F9F454BBB1E8534B527 /* WiFiTransferViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferViewModel.swift; sourceTree = "<group>"; };
 		19E87BF05D8B2B0BF8E394AA /* CloudService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudService.swift; sourceTree = "<group>"; };
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		243ACC7DC619851EF4ADBA07 /* DisguiseQuickSetupSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseQuickSetupSheet.swift; sourceTree = "<group>"; };
 		25B4FD1E6E19689121223215 /* VaultGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGridView.swift; sourceTree = "<group>"; };
 		267A2863E8999D81DA38827F /* VectorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorMath.swift; sourceTree = "<group>"; };
 		2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxTests.swift; sourceTree = "<group>"; };
@@ -205,18 +211,20 @@
 		373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailView.swift; sourceTree = "<group>"; };
 		3899CF794C6ECAE372D27AAC /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		428944AA034335296F7F42BB /* CalculatorDisguiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDisguiseView.swift; sourceTree = "<group>"; };
 		42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingQuestionSteps.swift; sourceTree = "<group>"; };
 		43396DBCCF52D58867207CEB /* OnboardingAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnswers.swift; sourceTree = "<group>"; };
 		46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Debug.xcconfig; sourceTree = "<group>"; };
 		484EDCBD57525A5175F36832 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
+		4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstRunActivationView.swift; sourceTree = "<group>"; };
 		4A46DAFB2B54EC1C29F0A840 /* VaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultViewModel.swift; sourceTree = "<group>"; };
 		4AE598F59409632C23CF56CB /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4AF9EE5DB13C024FE004E722 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxMainTabView.swift; sourceTree = "<group>"; };
-		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7396D5E7E80513DBD3BDE8 /* DocumentReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReminderService.swift; sourceTree = "<group>"; };
+		4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseUnlockGuideView.swift; sourceTree = "<group>"; };
 		4FFC381132D128AC133AAEE0 /* IngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngestionService.swift; sourceTree = "<group>"; };
 		53EE030F169434A471BB0B95 /* OnboardingPlanSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPlanSteps.swift; sourceTree = "<group>"; };
 		54444CBE438F2B4912228B82 /* AskVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultViewModel.swift; sourceTree = "<group>"; };
@@ -236,7 +244,7 @@
 		74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
 		758EDDB57C2D63B26C0E14FC /* DashboardDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDisguiseViews.swift; sourceTree = "<group>"; };
 		76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPaywallTests.swift; sourceTree = "<group>"; };
-		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		792B5111919FC2FDFBF53902 /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
 		796E271CEED2372A036F31BE /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		79F852E51EB969C130EA1CFA /* OnboardingNarrativeSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNarrativeSteps.swift; sourceTree = "<group>"; };
@@ -254,12 +262,13 @@
 		882F7D30EC474FB1D61B2E9E /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
 		88913094FD06F657E844CD72 /* BreakInLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInLogView.swift; sourceTree = "<group>"; };
 		8BB33E1813ED90914054EE04 /* TrialReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrialReminderService.swift; sourceTree = "<group>"; };
+		8F3305A3B3B1DA6F73FB8773 /* ActivationChecklistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationChecklistTests.swift; sourceTree = "<group>"; };
 		8FA0D72411BA86681250B77C /* OnboardingComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingComponents.swift; sourceTree = "<group>"; };
 		93E4EA586D0496C1760E3E45 /* AppIconService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppIconService.swift; sourceTree = "<group>"; };
 		97902116F3003BBD32528411 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
 		97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		99D487ED26681F007F4BB1CE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
 		9DD38D29E22E45F46FC58CCC /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
 		A2218977F1460A0977E0C6ED /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -292,13 +301,14 @@
 		D4642AF6434C37F54BCDF308 /* BreakInAttempt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInAttempt.swift; sourceTree = "<group>"; };
 		D537753271809D1690863D85 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D604B675E73CAE586A9EB0E1 /* VaultBox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultBox.entitlements; sourceTree = "<group>"; };
+		D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationChecklist.swift; sourceTree = "<group>"; };
 		D8D252275FD840944006E6B9 /* FeatureRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsView.swift; sourceTree = "<group>"; };
 		DA4EDBC45088713F67C4FE6B /* FeatureBoardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardModels.swift; sourceTree = "<group>"; };
 		E0C5C5ABCE3ACF4188B5831A /* DocumentExpiryParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParserTests.swift; sourceTree = "<group>"; };
 		E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallConfiguration.swift; sourceTree = "<group>"; };
-		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
+		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		ECA4D39B39B1EA8D1D872E74 /* DocumentExpiryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParser.swift; sourceTree = "<group>"; };
 		ED35A2F291354845F61EBF43 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
@@ -372,6 +382,7 @@
 		235789091AB060360248372C /* VaultBoxTests */ = {
 			isa = PBXGroup;
 			children = (
+				8F3305A3B3B1DA6F73FB8773 /* ActivationChecklistTests.swift */,
 				32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */,
 				2AAA1A67D0364639B2B88064 /* BreakInPermissionServiceTests.swift */,
 				EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */,
@@ -452,6 +463,8 @@
 				758EDDB57C2D63B26C0E14FC /* DashboardDisguiseViews.swift */,
 				FEC0D0313FD7D6D30F66A15C /* DisguiseCoverView.swift */,
 				819E61A0114BED3A6CBAEE49 /* DisguiseMotionModel.swift */,
+				243ACC7DC619851EF4ADBA07 /* DisguiseQuickSetupSheet.swift */,
+				4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */,
 				BBF26CB196E0B218F97D0403 /* ProductivityDisguiseViews.swift */,
 			);
 			path = Disguise;
@@ -486,6 +499,7 @@
 		90940B6A470BDAF89BA024AF /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */,
 				B7023E56BE3EEDDB5A4C1276 /* Album.swift */,
 				ED9F06E38D0C9FF75489CB1D /* AppDisguise.swift */,
 				816F0C902D0934CACAF3E697 /* AppSettings.swift */,
@@ -550,6 +564,7 @@
 				A2218977F1460A0977E0C6ED /* CameraView.swift */,
 				796E271CEED2372A036F31BE /* DocumentDetailView.swift */,
 				F270DA063AF932FACC74EF72 /* DocumentPickerView.swift */,
+				4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */,
 				FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */,
 				37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */,
 				6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */,
@@ -705,7 +720,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2660;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					529AC2156C00832676CF94B9 = {
 						DevelopmentTeam = 4A7H788X5U;
@@ -738,6 +753,7 @@
 				D06E306C7D69684641073C52 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				72FECDEB44800901DE211467 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -776,6 +792,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				99A146AC9D02A657C3518081 /* ActivationChecklistTests.swift in Sources */,
 				C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */,
 				9DF79CE7083844F67F6D0B5B /* BreakInPermissionServiceTests.swift in Sources */,
 				EEE30E0156A023F0F38F6FCE /* ContentViewRouteTests.swift in Sources */,
@@ -800,6 +817,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3859AF46A545529F4C4FF783 /* ActivationChecklist.swift in Sources */,
 				050BB4392E19DB0EB7B22155 /* Album.swift in Sources */,
 				7A684C7D83B4C2D71BF2E2E6 /* AlbumCoverPickerView.swift in Sources */,
 				CC8D5CC46B10F18324DD5496 /* AlbumCoverView.swift in Sources */,
@@ -832,6 +850,8 @@
 				DF32EFCCA0872BFE3EC0A083 /* Data+Encryption.swift in Sources */,
 				80D562E42A2C33C361A84EEF /* DisguiseCoverView.swift in Sources */,
 				221DB924130E87796C6A5BF0 /* DisguiseMotionModel.swift in Sources */,
+				D303932DAA5E5C6CC3525109 /* DisguiseQuickSetupSheet.swift in Sources */,
+				44BB35D3F179A03282DD9589 /* DisguiseUnlockGuideView.swift in Sources */,
 				570DEB36D7DA766C27883ED4 /* DocumentDetailView.swift in Sources */,
 				85565C08A7C6AFBC94CC1ED1 /* DocumentExpiryParser.swift in Sources */,
 				26B4A465077FE8B1F760B7D9 /* DocumentPickerView.swift in Sources */,
@@ -845,6 +865,7 @@
 				861A2AF93B44D3A9E8F0143B /* FeatureBoardModels.swift in Sources */,
 				6123B8D75B3CFB9DD8D67E83 /* FeatureBoardService.swift in Sources */,
 				96967C9C2DFDEB23E58DE5DA /* FeatureRequestsView.swift in Sources */,
+				ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */,
 				9C94B522956252B618FF338A /* HTTPParser.swift in Sources */,
 				B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */,
 				8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */,
@@ -955,7 +976,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -963,14 +993,14 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
@@ -986,7 +1016,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1020,7 +1049,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1034,7 +1062,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -1046,7 +1073,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1080,7 +1106,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1101,7 +1126,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -1112,7 +1136,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1120,14 +1153,14 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;

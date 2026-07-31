@@ -84,6 +84,19 @@ struct VaultGridView: View {
     @State private var showDocumentDeletePrompt = false
     @State private var pendingDocumentURLs: [URL] = []
 
+    // First-run activation
+    @AppStorage("activation.hasDismissedChecklist") private var hasDismissedActivationChecklist = false
+    @State private var showDisguiseSetup = false
+    /// Mirrors `UIApplication.alternateIconName`, refreshed on appear and after the
+    /// disguise sheet closes. Read once into state so the checklist doesn't hit UIKit
+    /// during every `body` evaluation.
+    @State private var activeIconName: String?
+    /// Guards the one-shot `activation_checklist_viewed` event. Lives here rather than in
+    /// ``FirstRunActivationView`` because this view's identity survives the empty-state
+    /// branch swaps that recreate the checklist — a guard down there resets with it and
+    /// double-counts, halving every rate computed against this denominator.
+    @State private var hasRecordedActivationView = false
+
     // Drag-to-select state
     @State private var cellFrames: [UUID: CGRect] = [:]
     @State private var isDragSelecting = false
@@ -100,6 +113,7 @@ struct VaultGridView: View {
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(AnalyticsService.self) private var analytics
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -111,6 +125,48 @@ struct VaultGridView: View {
 
     private var isSearchActive: Bool {
         !searchText.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    // MARK: - First-Run Activation
+
+    private var activationChecklist: ActivationChecklist {
+        ActivationChecklist(
+            isDisguised: AppDisguise(iconName: activeIconName) != nil,
+            hasItems: !allItems.isEmpty
+        )
+    }
+
+    private var showsActivationChecklist: Bool {
+        shouldShowActivationChecklist(
+            isVaultEmpty: allItems.isEmpty,
+            isSearching: isSearchActive,
+            isDecoyMode: isDecoyMode,
+            hasDismissed: hasDismissedActivationChecklist
+        )
+    }
+
+    private func recordActivationViewIfNeeded() {
+        guard showsActivationChecklist, !hasRecordedActivationView else { return }
+        hasRecordedActivationView = true
+        analytics.record(
+            .activationChecklistViewed(completedCount: activationChecklist.completedCount)
+        )
+    }
+
+    private func handleActivationStep(_ step: ActivationStep) {
+        analytics.record(.activationStepTapped(step: step))
+        switch step {
+        case .secured:
+            break
+        case .disguise:
+            showDisguiseSetup = true
+        case .firstImport:
+            if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
+                showPaywall = true
+            } else {
+                showImporter = true
+            }
+        }
     }
 
     /// All unique smart tags present across visible vault items (for search suggestions).
@@ -190,6 +246,18 @@ struct VaultGridView: View {
     var body: some View {
         NavigationStack {
             mainContent
+                .onAppear {
+                    activeIconName = UIApplication.shared.alternateIconName
+                    recordActivationViewIfNeeded()
+                }
+                .onChange(of: showsActivationChecklist) { _, _ in
+                    recordActivationViewIfNeeded()
+                }
+                .sheet(isPresented: $showDisguiseSetup, onDismiss: {
+                    activeIconName = UIApplication.shared.alternateIconName
+                }) {
+                    DisguiseQuickSetupSheet()
+                }
                 .navigationTitle("Vault")
                 .searchable(text: $searchText, prompt: Text("Search tags, albums, dates…"))
                 .searchSuggestions { searchSuggestionsContent }
@@ -205,9 +273,17 @@ struct VaultGridView: View {
             }
 
             if filteredItems.isEmpty {
-                Spacer()
-                emptyState
-                Spacer()
+                if showsActivationChecklist {
+                    FirstRunActivationView(
+                        checklist: activationChecklist,
+                        onSelect: handleActivationStep,
+                        onDismiss: { hasDismissedActivationChecklist = true }
+                    )
+                } else {
+                    Spacer()
+                    emptyState
+                    Spacer()
+                }
             } else if displayedItems.isEmpty {
                 Spacer()
                 noResultsState
