@@ -61,3 +61,25 @@ func shouldPresentDisguiseUnlockGuide(
 ) -> Bool {
     !hasLearnedGesture && AppDisguise(iconName: iconName) != nil
 }
+
+/// Whether to tell a lapsed subscriber which protections just stopped.
+///
+/// Their disguise survives the lapse, so without this they would reasonably assume the
+/// rest of it survived too — and quietly rely on break-in photos or the decoy vault that
+/// are no longer running. Saying so plainly is both the honest move and the most natural
+/// place to offer resubscribing.
+///
+/// Only shown on the main screen: a notice fired behind the lock screen would be missed,
+/// and one fired mid-onboarding would make no sense.
+func shouldPresentDisguiseLapseNotice(
+    isMainRoute: Bool,
+    isPremium: Bool,
+    hasResolvedCustomerInfo: Bool,
+    iconName: String?,
+    hasShownNotice: Bool
+) -> Bool {
+    guard isMainRoute, hasResolvedCustomerInfo, !isPremium, !hasShownNotice else {
+        return false
+    }
+    return AppDisguise(iconName: iconName) != nil
+}

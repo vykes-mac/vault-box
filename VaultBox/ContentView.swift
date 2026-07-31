@@ -38,6 +38,10 @@ struct ContentView: View {
     @State private var hasPendingDocumentReminderNavigation = false
     @State private var pendingDocumentReminderID: UUID?
     @State private var documentReminderNavigationTrigger = 0
+    /// Reset when premium comes back, so a second lapse is announced again rather than
+    /// being swallowed by a flag set months earlier.
+    @AppStorage("disguise.hasShownLapseNotice") private var hasShownDisguiseLapseNotice = false
+    @State private var lapsedDisguise: AppDisguise?
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -115,6 +119,10 @@ struct ContentView: View {
                 presentPendingShareIfNeeded()
                 routeToPendingDocumentReminderIfNeeded()
                 presentHardPaywallIfNeeded()
+                // The store almost always answers while the user is still on the lock
+                // screen, so the lapse check has to run again once they are actually
+                // somewhere they can read it.
+                presentDisguiseLapseNoticeIfNeeded()
             }
             attemptPrivacyShieldReveal()
         }
@@ -149,6 +157,7 @@ struct ContentView: View {
             if isPremium {
                 PaywallGate.markSatisfied()
                 showPostSetupPaywall = false
+                hasShownDisguiseLapseNotice = false
             } else {
                 presentHardPaywallIfNeeded()
             }
@@ -181,6 +190,31 @@ struct ContentView: View {
                 }
             )
                 .interactiveDismissDisabled(isHardPaywallRequired)
+        }
+        .alert(
+            "Your subscription ended",
+            isPresented: Binding(
+                get: { lapsedDisguise != nil },
+                set: { if !$0 { lapsedDisguise = nil } }
+            ),
+            presenting: lapsedDisguise
+        ) { _ in
+            Button("Resubscribe") {
+                lapsedDisguise = nil
+                showPostSetupPaywall = true
+            }
+            Button("Not now", role: .cancel) { lapsedDisguise = nil }
+        } message: { disguise in
+            Text(
+                String(
+                    format: String(
+                        localized: "Your %@ disguise stays on. Break-in photos, the decoy vault, and encrypted backup have stopped, and your vault is limited to %lld items again."
+                    ),
+                    locale: Locale.current,
+                    disguise.displayName,
+                    Int64(Constants.freeItemLimit)
+                )
+            )
         }
         .fullScreenCover(item: $activeShare, onDismiss: {
             // Only clear the pending URL when the user explicitly dismissed
@@ -288,12 +322,20 @@ struct ContentView: View {
             try? modelContext.save()
         }
 
-        Task { @MainActor in
-            let iconService = AppIconService()
-            if iconService.getCurrentIcon() != nil {
-                try? await iconService.setIcon(nil)
-            }
-        }
+        // The disguised app icon is deliberately *not* reverted here.
+        //
+        // Everything else revoked above is invisible to anyone but the user. The icon is
+        // the one setting whose revocation is visible to a third party standing next to
+        // them: onboarding asks who they are hiding from and offers "a partner or ex", so
+        // an icon that flips from Calculator back to a vault shield because a card was
+        // declined is the exact exposure they subscribed to prevent. Worse, iOS shows an
+        // unsuppressible "You have changed the icon for VaultBox" alert, which announces
+        // the app by name at a moment nobody chose.
+        //
+        // Premium gates *changing* a disguise, not *keeping* one already applied — the
+        // check in `AppIconPickerView.selectIcon` still stops a lapsed user picking a new
+        // one, and returning to the default icon is always free.
+        presentDisguiseLapseNoticeIfNeeded()
     }
 
     private func handleDidEnterBackground() {
@@ -393,6 +435,19 @@ struct ContentView: View {
             hasWaivedThisSession: hasWaivedHardPaywallThisSession
         ) else { return }
         showPostSetupPaywall = true
+    }
+
+    private func presentDisguiseLapseNoticeIfNeeded() {
+        guard shouldPresentDisguiseLapseNotice(
+            isMainRoute: currentRoute == .main,
+            isPremium: purchaseService.isPremium,
+            hasResolvedCustomerInfo: purchaseService.hasResolvedCustomerInfo,
+            iconName: UIApplication.shared.alternateIconName,
+            hasShownNotice: hasShownDisguiseLapseNotice
+        ) else { return }
+
+        hasShownDisguiseLapseNotice = true
+        lapsedDisguise = AppDisguise(iconName: UIApplication.shared.alternateIconName)
     }
 
     private func presentPendingShareIfNeeded() {

@@ -93,7 +93,10 @@ struct AppIconPickerView: View {
             showError = true
             return
         }
-        if purchaseService.isPremiumRequired(for: .fakeAppIcon) {
+        // Returning to the default icon is always free. Premium buys a disguise; it must
+        // never be what stands between a lapsed user and taking one off their own Home
+        // Screen — that would trap them in the opposite of the problem they paid to fix.
+        if iconID != nil, purchaseService.isPremiumRequired(for: .fakeAppIcon) {
             showPaywall = true
             return
         }

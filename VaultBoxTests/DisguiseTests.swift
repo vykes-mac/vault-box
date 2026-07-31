@@ -142,4 +142,88 @@ struct AppDisguiseTests {
 
         #expect(calculator.display == "0.25")
     }
+
+    // MARK: - Lapse Notice
+
+    @Test("A lapsed subscriber still wearing a disguise is told what stopped")
+    func lapseNoticeShownWhileDisguised() {
+        #expect(
+            shouldPresentDisguiseLapseNotice(
+                isMainRoute: true,
+                isPremium: false,
+                hasResolvedCustomerInfo: true,
+                iconName: AppDisguise.calculator.rawValue,
+                hasShownNotice: false
+            )
+        )
+    }
+
+    @Test("Paying subscribers are never shown the lapse notice")
+    func lapseNoticeHiddenWhilePremium() {
+        #expect(
+            !shouldPresentDisguiseLapseNotice(
+                isMainRoute: true,
+                isPremium: true,
+                hasResolvedCustomerInfo: true,
+                iconName: AppDisguise.calculator.rawValue,
+                hasShownNotice: false
+            )
+        )
+    }
+
+    /// A cold launch reads `isPremium == false` before RevenueCat answers. Announcing a
+    /// lapse there would accuse paying users of churning every time they open the app.
+    @Test("Nothing is announced before the store has answered")
+    func lapseNoticeWaitsForCustomerInfo() {
+        #expect(
+            !shouldPresentDisguiseLapseNotice(
+                isMainRoute: true,
+                isPremium: false,
+                hasResolvedCustomerInfo: false,
+                iconName: AppDisguise.calculator.rawValue,
+                hasShownNotice: false
+            )
+        )
+    }
+
+    @Test("Users on the default icon have nothing to be told")
+    func lapseNoticeSkippedWithoutDisguise() {
+        #expect(
+            !shouldPresentDisguiseLapseNotice(
+                isMainRoute: true,
+                isPremium: false,
+                hasResolvedCustomerInfo: true,
+                iconName: nil,
+                hasShownNotice: false
+            )
+        )
+    }
+
+    @Test("The notice is not repeated within one lapse")
+    func lapseNoticeShownOnce() {
+        #expect(
+            !shouldPresentDisguiseLapseNotice(
+                isMainRoute: true,
+                isPremium: false,
+                hasResolvedCustomerInfo: true,
+                iconName: AppDisguise.calculator.rawValue,
+                hasShownNotice: true
+            )
+        )
+    }
+
+    /// Behind the lock screen the alert would be dismissed unseen, and during onboarding
+    /// there is no subscription to have lapsed.
+    @Test("The notice waits for the main screen")
+    func lapseNoticeWaitsForMainRoute() {
+        #expect(
+            !shouldPresentDisguiseLapseNotice(
+                isMainRoute: false,
+                isPremium: false,
+                hasResolvedCustomerInfo: true,
+                iconName: AppDisguise.calculator.rawValue,
+                hasShownNotice: false
+            )
+        )
+    }
 }
