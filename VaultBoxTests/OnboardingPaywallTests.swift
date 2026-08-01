@@ -246,6 +246,34 @@ struct PaywallPricingTests {
     }
 }
 
+@Suite("Paywall purchase outcomes")
+struct PaywallPurchaseOutcomeTests {
+
+    @Test("RevenueCat cancellation is not reported as a failed purchase")
+    func cancellation() {
+        #expect(PurchaseService.classifyPurchase(
+            userCancelled: true,
+            hasPremium: false
+        ) == .cancelled)
+    }
+
+    @Test("An active premium entitlement marks the purchase as successful")
+    func premiumGranted() {
+        #expect(PurchaseService.classifyPurchase(
+            userCancelled: false,
+            hasPremium: true
+        ) == .premiumGranted)
+    }
+
+    @Test("A completed purchase without premium remains a genuine failure")
+    func premiumNotGranted() {
+        #expect(PurchaseService.classifyPurchase(
+            userCancelled: false,
+            hasPremium: false
+        ) == .premiumNotGranted)
+    }
+}
+
 @Suite("TelemetryDeck analytics identity")
 struct TelemetryDeckAnalyticsIdentityTests {
 

@@ -170,10 +170,16 @@ final class PaywallViewModel {
         defer { isPurchasing = false }
 
         do {
-            let purchased = try await purchaseService.purchase(plan.package)
-            return purchased ? .purchased : .failed(
-                String(localized: "The purchase completed but premium wasn't granted.")
-            )
+            switch try await purchaseService.purchase(plan.package) {
+            case .premiumGranted:
+                return .purchased
+            case .cancelled:
+                return .cancelled
+            case .premiumNotGranted:
+                return .failed(
+                    String(localized: "The purchase completed but premium wasn't granted.")
+                )
+            }
         } catch {
             if Self.isUserCancelled(error) {
                 return .cancelled

@@ -24,6 +24,12 @@ enum PremiumFeature {
 @MainActor
 @Observable
 class PurchaseService: NSObject {
+    enum PurchaseResult: Equatable, Sendable {
+        case premiumGranted
+        case cancelled
+        case premiumNotGranted
+    }
+
     var isPremium = false
     var hasResolvedCustomerInfo = false
     var currentOffering: Offering?
@@ -96,12 +102,16 @@ class PurchaseService: NSObject {
 
     // MARK: - Purchase
 
-    func purchase(_ package: Package) async throws -> Bool {
+    func purchase(_ package: Package) async throws -> PurchaseResult {
         isLoading = true
         defer { isLoading = false }
 
         let result = try await Purchases.shared.purchase(package: package)
-        return await apply(result.customerInfo)
+        let hasPremium = await apply(result.customerInfo)
+        return Self.classifyPurchase(
+            userCancelled: result.userCancelled,
+            hasPremium: hasPremium
+        )
     }
 
     // MARK: - Restore
@@ -127,6 +137,14 @@ class PurchaseService: NSObject {
     }
 
     // MARK: - Helpers
+
+    nonisolated static func classifyPurchase(
+        userCancelled: Bool,
+        hasPremium: Bool
+    ) -> PurchaseResult {
+        if userCancelled { return .cancelled }
+        return hasPremium ? .premiumGranted : .premiumNotGranted
+    }
 
     func isPremiumRequired(for feature: PremiumFeature, itemCount: Int = 0) -> Bool {
         if isPremium { return false }
