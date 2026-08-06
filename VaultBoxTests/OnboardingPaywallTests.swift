@@ -395,7 +395,12 @@ struct TrialReminderServiceTests {
         #expect(trigger.dateComponents.hour == 14)
         #expect(trigger.dateComponents.minute == 37)
         #expect(trigger.dateComponents.second == 12)
-        #expect(client.removedIdentifiers == [[TrialReminderService.notificationID]])
+        #expect(
+            client.removedIdentifiers == [[
+                TrialReminderService.notificationID,
+                TrialReminderService.billingIssueNotificationID
+            ]]
+        )
     }
 
     @Test("Cancellation or non-trial state removes the reminder")
@@ -436,6 +441,143 @@ struct TrialReminderServiceTests {
                 isTrial: false,
                 willRenew: true,
                 expirationDate: expiration
+            )
+        )
+        #expect(client.pendingRequests.isEmpty)
+    }
+
+    @Test("Lead time scales with trial length")
+    @MainActor
+    func leadTimeScalesWithTrialLength() {
+        #expect(TrialReminderService.leadDays(forTrialDays: 3) == 1)
+        #expect(TrialReminderService.leadDays(forTrialDays: 7) == 2)
+        #expect(TrialReminderService.leadDays(forTrialDays: 30) == 3)
+    }
+
+    @Test("A three-day trial is warned one day out, not two")
+    @MainActor
+    func threeDayTrialUsesOneDayLead() async throws {
+        let client = MockTrialReminderNotificationClient()
+        let purchase = date(year: 2026, month: 1, day: 1, hour: 22, minute: 28)
+        let expiration = date(year: 2026, month: 1, day: 4, hour: 22, minute: 28)
+        let service = TrialReminderService(
+            notificationClient: client,
+            calendar: calendar,
+            now: { purchase }
+        )
+
+        await service.reconcile(
+            with: TrialReminderState(
+                isActive: true,
+                isTrial: true,
+                willRenew: true,
+                expirationDate: expiration,
+                purchaseDate: purchase
+            )
+        )
+
+        let request = try #require(
+            client.pendingRequests[TrialReminderService.notificationID]
+        )
+        let trigger = try #require(request.trigger as? UNCalendarNotificationTrigger)
+        // One day before expiry (Jan 3), not two (Jan 2).
+        #expect(trigger.dateComponents.day == 3)
+        #expect(trigger.dateComponents.hour == 22)
+        #expect(request.content.title == "Your VaultBox trial ends tomorrow")
+    }
+
+    @Test("Missing purchase date falls back to the default lead")
+    @MainActor
+    func unknownTrialLengthUsesDefaultLead() {
+        let expiration = date(year: 2026, month: 1, day: 8)
+        #expect(
+            TrialReminderService.resolvedLeadDays(
+                purchaseDate: nil,
+                expirationDate: expiration,
+                calendar: calendar
+            ) == TrialReminderService.defaultLeadDays
+        )
+    }
+
+    @Test("A billing issue replaces the trial reminder with a recovery nudge")
+    @MainActor
+    func billingIssueSchedulesRecoveryNudge() async throws {
+        let client = MockTrialReminderNotificationClient()
+        let now = date(year: 2026, month: 1, day: 1, hour: 9)
+        let detectedAt = date(year: 2026, month: 1, day: 1, hour: 8, minute: 45)
+        let expiration = date(year: 2026, month: 1, day: 4, hour: 8, minute: 45)
+        let service = TrialReminderService(
+            notificationClient: client,
+            calendar: calendar,
+            now: { now }
+        )
+
+        await service.reconcile(
+            with: TrialReminderState(
+                isActive: true,
+                isTrial: true,
+                willRenew: true,
+                expirationDate: expiration,
+                billingIssueDetectedAt: detectedAt
+            )
+        )
+
+        #expect(client.pendingRequests[TrialReminderService.notificationID] == nil)
+        let request = try #require(
+            client.pendingRequests[TrialReminderService.billingIssueNotificationID]
+        )
+        let trigger = try #require(request.trigger as? UNCalendarNotificationTrigger)
+        // detectedAt + 60min = 09:45, which is later than now + 5min, so it wins.
+        #expect(trigger.dateComponents.hour == 9)
+        #expect(trigger.dateComponents.minute == 45)
+    }
+
+    @Test("Recovery nudge is clamped forward when the failure is already stale")
+    @MainActor
+    func staleBillingIssueUsesMinimumDelay() {
+        let now = date(year: 2026, month: 1, day: 2, hour: 12)
+        let detectedAt = date(year: 2026, month: 1, day: 1, hour: 8)
+        let expiration = date(year: 2026, month: 1, day: 4, hour: 8)
+
+        let fireDate = TrialReminderService.billingIssueReminderDate(
+            detectedAt: detectedAt,
+            expirationDate: expiration,
+            now: now,
+            calendar: calendar
+        )
+
+        #expect(fireDate == date(year: 2026, month: 1, day: 2, hour: 12, minute: 5))
+    }
+
+    @Test("No recovery nudge once the grace period has closed")
+    @MainActor
+    func expiredGracePeriodSchedulesNothing() async {
+        let now = date(year: 2026, month: 1, day: 5)
+        let detectedAt = date(year: 2026, month: 1, day: 1)
+        let expiration = date(year: 2026, month: 1, day: 4)
+
+        #expect(
+            TrialReminderService.billingIssueReminderDate(
+                detectedAt: detectedAt,
+                expirationDate: expiration,
+                now: now,
+                calendar: calendar
+            ) == nil
+        )
+
+        let client = MockTrialReminderNotificationClient()
+        let service = TrialReminderService(
+            notificationClient: client,
+            calendar: calendar,
+            now: { now }
+        )
+        await service.reconcile(
+            with: TrialReminderState(
+                isActive: true,
+                isTrial: true,
+                willRenew: true,
+                expirationDate: expiration,
+                billingIssueDetectedAt: detectedAt
             )
         )
         #expect(client.pendingRequests.isEmpty)

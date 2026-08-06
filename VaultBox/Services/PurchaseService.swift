@@ -32,6 +32,11 @@ class PurchaseService: NSObject {
 
     var isPremium = false
     var hasResolvedCustomerInfo = false
+    /// Non-nil while Apple is retrying a failed charge. The entitlement stays active
+    /// during this window, so premium access continues but will be revoked at
+    /// `entitlementExpirationDate` unless the customer fixes their payment method.
+    private(set) var billingIssueDetectedAt: Date?
+    private(set) var entitlementExpirationDate: Date?
     var currentOffering: Offering?
     var isLoading = false
     var offeringsLoadError: String?
@@ -55,6 +60,12 @@ class PurchaseService: NSObject {
 
         Purchases.configure(withAPIKey: Constants.revenueCatAPIKey)
         Purchases.shared.delegate = self
+
+        // Forwards Apple's AdServices attribution token to RevenueCat so Apple Search Ads
+        // keywords can be tied to subscription revenue. No ATT prompt required: the token
+        // is campaign-level and carries no device identifier.
+        Purchases.shared.attribution.enableAdServicesAttributionTokenCollection()
+
         debugLog("Configured Purchases. API key prefix: \(String(Constants.revenueCatAPIKey.prefix(5)))")
 
         Task {
@@ -146,6 +157,13 @@ class PurchaseService: NSObject {
         return hasPremium ? .premiumGranted : .premiumNotGranted
     }
 
+    /// True when premium is still granted but Apple has failed to collect payment.
+    /// This is the only window in which the customer can recover the subscription
+    /// themselves, so it is what the recovery banner keys off.
+    var hasBillingIssue: Bool {
+        isPremium && billingIssueDetectedAt != nil
+    }
+
     func isPremiumRequired(for feature: PremiumFeature, itemCount: Int = 0) -> Bool {
         if isPremium { return false }
         switch feature {
@@ -181,6 +199,8 @@ class PurchaseService: NSObject {
 
         isPremium = hasPremium
         hasResolvedCustomerInfo = true
+        billingIssueDetectedAt = entitlement?.billingIssueDetectedAt
+        entitlementExpirationDate = entitlement?.expirationDate
 
         await trialReminderService.reconcile(
             with: TrialReminderState(
@@ -188,7 +208,9 @@ class PurchaseService: NSObject {
                 isTrial: entitlement?.periodType == .trial,
                 willRenew: entitlement?.willRenew == true
                     && entitlement?.unsubscribeDetectedAt == nil,
-                expirationDate: entitlement?.expirationDate
+                expirationDate: entitlement?.expirationDate,
+                purchaseDate: entitlement?.latestPurchaseDate,
+                billingIssueDetectedAt: entitlement?.billingIssueDetectedAt
             )
         )
 
