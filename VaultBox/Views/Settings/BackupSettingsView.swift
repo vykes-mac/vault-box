@@ -372,6 +372,7 @@ struct BackupSettingsView: View {
                 }
 
                 for (index, payload) in payloads.enumerated() {
+                    guard purchaseService.isPremium else { throw VaultError.premiumRequired }
                     let recordName = try await service.uploadItem(payload)
                     // Update local item on MainActor
                     if index < pendingItems.count {
@@ -393,6 +394,7 @@ struct BackupSettingsView: View {
     // MARK: - Restore Flow
 
     private func startRestore() {
+        guard requirePremiumAccess() else { return }
         let encryptionService = EncryptionService()
 
         Task {
@@ -422,6 +424,7 @@ struct BackupSettingsView: View {
     }
 
     private func verifyPINAndRestore() {
+        guard requirePremiumAccess() else { return }
         let pin = restorePIN
         pinError = ""
 
@@ -462,6 +465,7 @@ struct BackupSettingsView: View {
     }
 
     private func performRestore(encryptionService: EncryptionService) {
+        guard requirePremiumAccess() else { return }
         isRestoring = true
         restoreProgress = (0, 0)
 
@@ -493,6 +497,7 @@ struct BackupSettingsView: View {
     // MARK: - Key Backup Flow
 
     private func verifyPINAndBackupKey() {
+        guard requirePremiumAccess() else { return }
         let pin = keyBackupPIN
         keyBackupPINError = ""
 
@@ -538,10 +543,22 @@ struct BackupSettingsView: View {
 
     private func disablePremiumBackupState() {
         isSyncing = false
+        isRestoring = false
+        showPINEntry = false
+        showKeyBackupPINEntry = false
         syncStatusText = String(localized: "Premium required")
         if let settings, settings.iCloudBackupEnabled {
             settings.iCloudBackupEnabled = false
             try? modelContext.save()
         }
+    }
+
+    private func requirePremiumAccess() -> Bool {
+        guard purchaseService.isPremium else {
+            disablePremiumBackupState()
+            showPaywall = true
+            return false
+        }
+        return true
     }
 }

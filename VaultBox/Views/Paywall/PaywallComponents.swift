@@ -104,7 +104,7 @@ struct PaywallTrialTimeline: View {
     let priceString: String
 
     private var reminderDay: Int {
-        max(1, trialDays - TrialReminderService.leadDays)
+        max(1, trialDays - TrialReminderService.leadDays(forTrialDays: trialDays))
     }
 
     var body: some View {

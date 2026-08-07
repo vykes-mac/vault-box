@@ -15,36 +15,59 @@ enum PaywallGate {
         defaults.set(true, forKey: requiresKey)
     }
 
-    /// Called when the user becomes premium. Once they've paid, they are never gated
-    /// again — including after a lapse, where a soft upsell is the right tool.
+    /// Called when RevenueCat grants trial or paid premium access. Once admitted, the
+    /// user is not hard-gated again after expiry; they continue on the limited free tier.
     static func markSatisfied(defaults: UserDefaults = .standard) {
         defaults.set(false, forKey: requiresKey)
+    }
+
+    static func isMarkedRequired(defaults: UserDefaults = .standard) -> Bool {
+        defaults.bool(forKey: requiresKey)
     }
 
     static func isRequired(
         isHardPaywallEnabled: Bool,
         defaults: UserDefaults = .standard
     ) -> Bool {
-        isHardPaywallEnabled && defaults.bool(forKey: requiresKey)
+        isHardPaywallEnabled && isMarkedRequired(defaults: defaults)
     }
 }
 
-/// Whether the hard paywall should be on screen right now.
+enum HardPaywallAccessState: Equatable {
+    case allowed
+    case resolving
+    case requiresPaywall
+
+    var blocksMainContent: Bool {
+        self != .allowed
+    }
+}
+
+/// Resolves access before the main vault UI is mounted.
 ///
-/// `hasWaivedThisSession` is the escape valve: if the paywall let the user through
-/// (App Store unreachable), we must not immediately shove it back in their face.
-func shouldPresentHardPaywall(
-    route: AppRootRoute?,
-    isGateRequired: Bool,
+/// A marked install fails closed while RevenueCat and offering metadata load. The only
+/// non-premium escape is an explicit, in-memory waiver after the store has failed; a
+/// process restart intentionally loses that waiver and evaluates the persisted gate again.
+func resolveHardPaywallAccess(
+    isGateMarkedRequired: Bool,
     isPremium: Bool,
     hasResolvedCustomerInfo: Bool,
+    isHardPaywallEnabled: Bool,
     hasResolvedPaywallConfiguration: Bool,
     hasWaivedThisSession: Bool
+) -> HardPaywallAccessState {
+    guard hasResolvedCustomerInfo else { return .resolving }
+    guard isGateMarkedRequired else { return .allowed }
+    guard !isPremium else { return .allowed }
+    guard !hasWaivedThisSession else { return .allowed }
+    guard hasResolvedPaywallConfiguration else { return .resolving }
+    guard isHardPaywallEnabled else { return .allowed }
+    return .requiresPaywall
+}
+
+func shouldPresentHardPaywall(
+    route: AppRootRoute?,
+    accessState: HardPaywallAccessState
 ) -> Bool {
-    guard route == .main else { return false }
-    guard isGateRequired else { return false }
-    guard hasResolvedCustomerInfo else { return false }
-    guard hasResolvedPaywallConfiguration else { return false }
-    guard !isPremium else { return false }
-    return !hasWaivedThisSession
+    route == .main && accessState == .requiresPaywall
 }

@@ -2,6 +2,7 @@ import SwiftUI
 import SwiftData
 import UIKit
 import LocalAuthentication
+import RevenueCatUI
 
 struct SettingsView: View {
     let authService: AuthService
@@ -17,6 +18,7 @@ struct SettingsView: View {
     @State private var viewModel: SettingsViewModel?
     @State private var isBiometricsAvailable: Bool = false
     @State private var showPaywall = false
+    @State private var showCustomerCenter = false
     @State private var showChangePIN = false
     @State private var showDecoySetup = false
     @State private var showDecoyInfo = false
@@ -58,6 +60,14 @@ struct SettingsView: View {
     var body: some View {
         NavigationStack {
             List {
+                if purchaseService.hasBillingIssue {
+                    Section {
+                        BillingIssueBanner(
+                            expirationDate: purchaseService.entitlementExpirationDate,
+                            onManageSubscription: { showCustomerCenter = true }
+                        )
+                    }
+                }
                 if !authService.isDecoyMode {
                     securitySection
                     appearanceSection
@@ -89,6 +99,9 @@ struct SettingsView: View {
             }
             .fullScreenCover(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
+            }
+            .sheet(isPresented: $showCustomerCenter) {
+                CustomerCenterView()
             }
             .sheet(isPresented: $showChangePIN) {
                 NavigationStack {
@@ -669,6 +682,24 @@ struct SettingsView: View {
             Link(destination: URL(string: "https://vaultbox.pacsix.com/terms/")!) {
                 Label("Terms of Service", systemImage: "doc.text")
                     .foregroundStyle(Color.vaultTextPrimary)
+            }
+
+            Button {
+                showCustomerCenter = true
+            } label: {
+                HStack {
+                    Label("Manage Subscription", systemImage: "creditcard")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    if purchaseService.hasBillingIssue {
+                        Image(systemName: "exclamationmark.circle.fill")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultDestructive)
+                    }
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                }
             }
 
             Button {

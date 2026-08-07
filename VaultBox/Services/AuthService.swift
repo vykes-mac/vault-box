@@ -246,6 +246,7 @@ class AuthService {
     }
 
     func setupDecoyPIN(_ pin: String) async throws {
+        guard hasPremiumAccess() else { throw AuthError.premiumRequired }
         guard pin.count >= Constants.pinMinLength,
               pin.count <= Constants.pinMaxLength,
               pin.allSatisfy(\.isNumber) else {
@@ -445,13 +446,14 @@ class AuthService {
 
 // MARK: - Errors
 
-enum AuthError: LocalizedError {
+enum AuthError: LocalizedError, Equatable {
     case settingsNotFound
     case invalidPIN
     case incorrectPIN
     case decoyMatchesReal
     case invalidRecoveryCode
     case biometricVerificationRequired
+    case premiumRequired
 
     var errorDescription: String? {
         switch self {
@@ -467,6 +469,8 @@ enum AuthError: LocalizedError {
             String(localized: "Recovery code is invalid, missing, or already used.")
         case .biometricVerificationRequired:
             String(localized: "Biometric verification is required before resetting PIN.")
+        case .premiumRequired:
+            String(localized: "This feature requires a Premium subscription.")
         }
     }
 }

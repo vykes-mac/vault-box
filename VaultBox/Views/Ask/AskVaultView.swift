@@ -9,6 +9,7 @@ struct AskVaultView: View {
 
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismissSearch) private var dismissSearch
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
@@ -93,7 +94,8 @@ struct AskVaultView: View {
         viewModel = AskVaultViewModel(
             vaultService: vaultService,
             searchEngine: searchEngine,
-            indexingProgress: indexingProgress
+            indexingProgress: indexingProgress,
+            hasPremiumAccess: { purchaseService.isPremium }
         )
     }
 
@@ -141,6 +143,12 @@ struct AskVaultView: View {
         }
         .onAppear {
             viewModel.updateItemLookup(from: filteredItems)
+        }
+        .onChange(of: purchaseService.isPremium) { _, isPremium in
+            if !isPremium {
+                dismissSearch()
+                viewModel.revokePremiumAccess()
+            }
         }
         // Premium gate: dismisses search and shows paywall when free user taps search bar
         .background {

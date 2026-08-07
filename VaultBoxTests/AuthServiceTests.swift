@@ -310,17 +310,15 @@ struct AuthServiceTests {
         #expect(auth.isDecoyMode == true)
     }
 
-    @Test("Decoy PIN is ignored when premium is inactive")
+    @Test("Decoy PIN cannot be created when premium is inactive")
     @MainActor
-    func decoyPINIgnoredWithoutPremium() async throws {
+    func decoyPINRequiresPremium() async throws {
         let (auth, _, _) = try makeServices(hasPremiumAccess: false)
         try await auth.createPIN("1234")
-        try await auth.setupDecoyPIN("5678")
-        auth.lock()
 
-        let result = await auth.verifyPIN("5678")
-        #expect(result == .failure)
-        #expect(auth.isDecoyMode == false)
+        await #expect(throws: AuthError.premiumRequired) {
+            try await auth.setupDecoyPIN("5678")
+        }
     }
 
     @Test("Decoy PIN cannot match real PIN")

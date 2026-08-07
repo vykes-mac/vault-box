@@ -145,7 +145,8 @@ struct VaultServiceTests {
 
     @MainActor
     private func makeService(
-        reminderService: DocumentReminderService = DocumentReminderService()
+        reminderService: DocumentReminderService = DocumentReminderService(),
+        hasPremiumAccess: Bool = true
     ) async throws -> (VaultService, ModelContext, ModelContainer) {
         let schema = Schema([AppSettings.self, VaultItem.self, Album.self, BreakInAttempt.self, DocumentReminder.self])
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
@@ -163,11 +164,25 @@ struct VaultServiceTests {
         let service = VaultService(
             encryptionService: encryption,
             modelContext: context,
-            hasPremiumAccess: { true },
+            hasPremiumAccess: { hasPremiumAccess },
             reminderService: reminderService
         )
 
         return (service, context, container)
+    }
+
+    @Test("Document import is rejected at the service boundary without premium")
+    @MainActor
+    func documentImportRequiresPremium() async throws {
+        let (service, _, _) = try await makeService(hasPremiumAccess: false)
+        let documentURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent("premium-gate-\(UUID().uuidString).txt")
+        try Data("private document".utf8).write(to: documentURL)
+        defer { try? FileManager.default.removeItem(at: documentURL) }
+
+        await #expect(throws: VaultError.premiumRequired) {
+            _ = try await service.importDocument(at: documentURL, album: nil)
+        }
     }
 
     private func makeImageData(width: CGFloat, height: CGFloat) throws -> Data {
