@@ -6,6 +6,7 @@ import SwiftData
 class AskVaultViewModel {
     let vaultService: VaultService
     private let searchEngine: SearchEngine
+    private let hasPremiumAccess: () -> Bool
 
     // MARK: - Search State
 
@@ -60,11 +61,13 @@ class AskVaultViewModel {
     init(
         vaultService: VaultService,
         searchEngine: SearchEngine,
-        indexingProgress: IndexingProgress
+        indexingProgress: IndexingProgress,
+        hasPremiumAccess: @escaping () -> Bool = { false }
     ) {
         self.vaultService = vaultService
         self.searchEngine = searchEngine
         self.indexingProgress = indexingProgress
+        self.hasPremiumAccess = hasPremiumAccess
     }
 
     // MARK: - Search
@@ -73,6 +76,11 @@ class AskVaultViewModel {
     /// starts a new one after the debounce interval.
     func onSearchTextChanged() {
         searchTask?.cancel()
+
+        guard hasPremiumAccess() else {
+            revokePremiumAccess()
+            return
+        }
 
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else {
@@ -117,6 +125,11 @@ class AskVaultViewModel {
     func performSearch() {
         searchTask?.cancel()
 
+        guard hasPremiumAccess() else {
+            revokePremiumAccess()
+            return
+        }
+
         let query = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !query.isEmpty else { return }
 
@@ -138,6 +151,15 @@ class AskVaultViewModel {
 
             isSearching = false
         }
+    }
+
+    func revokePremiumAccess() {
+        searchTask?.cancel()
+        searchTask = nil
+        results = []
+        hasSearched = false
+        isSearching = false
+        errorMessage = nil
     }
 
     // MARK: - Item Lookup

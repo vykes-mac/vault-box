@@ -9,7 +9,7 @@ import ImageIO
 
 // MARK: - Errors
 
-enum VaultError: LocalizedError {
+enum VaultError: LocalizedError, Equatable {
     case importFailed
     case itemNotFound
     case thumbnailNotFound
@@ -364,6 +364,7 @@ class VaultService {
     // MARK: - Import Document
 
     func importDocument(at url: URL, album: Album?, isDecoyMode: Bool = false) async throws -> VaultItem {
+        guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         try enforceImportLimit()
         let targetAlbum = try resolveAlbum(requested: album, isDecoyMode: isDecoyMode)
         let accessing = url.startAccessingSecurityScopedResource()
@@ -484,6 +485,7 @@ class VaultService {
 
     /// Encrypts a cover image (resized to thumbnail size) for an album.
     func encryptAlbumCoverImage(_ imageData: Data) async throws -> Data {
+        guard hasPremiumAccess() else { throw VaultError.premiumRequired }
         guard let image = UIImage(data: imageData) else {
             throw VaultError.importFailed
         }

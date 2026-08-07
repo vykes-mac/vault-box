@@ -10,12 +10,14 @@ struct ShareConfigView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(PurchaseService.self) private var purchaseService
 
     @State private var selectedDuration: ShareDuration = .twentyFourHours
     @State private var allowSave = false
     @State private var isSharing = false
     @State private var shareURL: String?
     @State private var errorMessage: String?
+    @State private var showPaywall = false
 
     var body: some View {
         NavigationStack {
@@ -161,6 +163,9 @@ struct ShareConfigView: View {
                 }
             }
         }
+        .fullScreenCover(isPresented: $showPaywall) {
+            VaultBoxPaywallView()
+        }
     }
 
     // MARK: - Share Success View
@@ -208,6 +213,12 @@ struct ShareConfigView: View {
 
     @MainActor
     private func createShare() async {
+        guard purchaseService.isPremium else {
+            errorMessage = String(localized: "This feature requires a Premium subscription.")
+            showPaywall = true
+            return
+        }
+
         isSharing = true
         errorMessage = nil
         defer { isSharing = false }
@@ -237,6 +248,10 @@ struct ShareConfigView: View {
             case .video:
                 errorMessage = String(localized: "Video sharing is not yet supported.")
                 return
+            }
+
+            guard purchaseService.isPremium else {
+                throw VaultError.premiumRequired
             }
 
             // Create the share

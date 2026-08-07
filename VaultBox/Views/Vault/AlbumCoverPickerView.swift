@@ -11,6 +11,7 @@ struct AlbumCoverPickerView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(PurchaseService.self) private var purchaseService
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
     @State private var showVaultItemPicker = false
@@ -97,6 +98,11 @@ struct AlbumCoverPickerView: View {
     // MARK: - Actions
 
     private func setCoverFromPhotos(_ pickerItem: PhotosPickerItem) async {
+        guard purchaseService.isPremium else {
+            errorMessage = String(localized: "This feature requires a Premium subscription.")
+            return
+        }
+
         isProcessing = true
         errorMessage = nil
         defer {
@@ -121,6 +127,10 @@ struct AlbumCoverPickerView: View {
     }
 
     private func setCoverFromVaultItem(_ item: VaultItem) {
+        guard purchaseService.isPremium else {
+            errorMessage = String(localized: "This feature requires a Premium subscription.")
+            return
+        }
         album.coverItem = item
         album.customCoverImageData = nil
         try? modelContext.save()

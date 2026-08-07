@@ -127,3 +127,88 @@ func makePanicGestureService(
 
     return service
 }
+
+/// Applies entitlement changes to premium-only services and settings.
+///
+/// Returns `true` when premium lapsed so the caller can present its UI notice. The
+/// disguised icon is intentionally preserved: reverting it would expose the vault and
+/// trigger an unavoidable system alert naming VaultBox.
+@MainActor
+@discardableResult
+func applyPremiumStatusChange(
+    isPremium: Bool,
+    modelContext: ModelContext,
+    panicGestureService: PanicGestureService?,
+    authService: AuthService?
+) -> Bool {
+    let descriptor = FetchDescriptor<AppSettings>()
+    guard let settings = try? modelContext.fetch(descriptor).first else {
+        if isPremium {
+            panicGestureService?.startMonitoring()
+        } else {
+            panicGestureService?.stopMonitoring()
+        }
+        return false
+    }
+
+    if isPremium {
+        if settings.panicGestureEnabled {
+            panicGestureService?.startMonitoring()
+        } else {
+            panicGestureService?.stopMonitoring()
+        }
+        return false
+    }
+
+    panicGestureService?.stopMonitoring()
+    var hasSettingsChanges = false
+
+    if settings.panicGestureEnabled {
+        settings.panicGestureEnabled = false
+        hasSettingsChanges = true
+    }
+    if settings.iCloudBackupEnabled {
+        settings.iCloudBackupEnabled = false
+        hasSettingsChanges = true
+    }
+    if authService?.isDecoyMode == true {
+        authService?.lock()
+    }
+    if hasSettingsChanges {
+        try? modelContext.save()
+    }
+    return true
+}
+
+@MainActor
+func makeVaultSearchEngine(
+    encryptionService: EncryptionService,
+    vaultService: VaultService,
+    indexingProgress: IndexingProgress
+) async -> SearchEngine? {
+    do {
+        let searchIndexService = try await SearchIndexService.open()
+        let embeddingService = EmbeddingService()
+        let ingestion = IngestionService(
+            encryptionService: encryptionService,
+            searchIndexService: searchIndexService,
+            embeddingService: embeddingService
+        )
+        let engine = SearchEngine(
+            searchIndexService: searchIndexService,
+            embeddingService: embeddingService
+        )
+
+        vaultService.configureSearchIndex(
+            ingestionService: ingestion,
+            indexingProgress: indexingProgress
+        )
+        vaultService.indexUnindexedItems()
+        return engine
+    } catch {
+        #if DEBUG
+        print("[ContentView] Failed to initialize search services: \(error)")
+        #endif
+        return nil
+    }
+}

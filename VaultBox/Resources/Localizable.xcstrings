@@ -16723,6 +16723,7 @@
       }
     },
     "Manage Subscription" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -29657,6 +29658,7 @@
       }
     },
     "There's a problem with your payment" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -33724,6 +33726,7 @@
       }
     },
     "We couldn't renew your VaultBox subscription. Update your payment method by %@ to keep premium features." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -33770,6 +33773,7 @@
       }
     },
     "We couldn't renew your VaultBox subscription. Update your payment method to keep premium features." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -35781,6 +35785,7 @@
       }
     },
     "Your VaultBox trial ends tomorrow" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {

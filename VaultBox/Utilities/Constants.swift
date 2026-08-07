@@ -166,6 +166,7 @@ enum Constants {
     // MARK: - Keychain Keys
 
     static let keychainMasterKeyID = "com.vaultbox.masterKey"
+    static let keychainRevenueCatAppUserID = "com.vaultbox.revenueCatAppUserID"
     static let keychainServiceID = "com.vaultbox.app"
 }
 

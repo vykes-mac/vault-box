@@ -25,7 +25,6 @@ struct ContentView: View {
     @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
-    @State private var isPostSetupPaywallWaitingForConfiguration = false
     /// Set when a hard-gated user was let through anyway (App Store unreachable), so the
     /// paywall doesn't immediately re-present and trap them in a loop.
     @State private var hasWaivedHardPaywallThisSession = false
@@ -57,11 +56,19 @@ struct ContentView: View {
         )
     }
 
-    private var isHardPaywallRequired: Bool {
-        guard purchaseService.hasResolvedPaywallConfiguration else { return false }
-        return PaywallGate.isRequired(
-            isHardPaywallEnabled: purchaseService.isHardPaywallEnabled
+    private var hardPaywallAccessState: HardPaywallAccessState {
+        resolveHardPaywallAccess(
+            isGateMarkedRequired: PaywallGate.isMarkedRequired(),
+            isPremium: purchaseService.isPremium,
+            hasResolvedCustomerInfo: purchaseService.hasResolvedCustomerInfo,
+            isHardPaywallEnabled: purchaseService.isHardPaywallEnabled,
+            hasResolvedPaywallConfiguration: purchaseService.hasResolvedPaywallConfiguration,
+            hasWaivedThisSession: hasWaivedHardPaywallThisSession
         )
+    }
+
+    private var isHardPaywallRequired: Bool {
+        hardPaywallAccessState == .requiresPaywall
     }
 
     var body: some View {
@@ -69,26 +76,33 @@ struct ContentView: View {
             Group {
                 if let authService, let vaultService, let currentRoute {
                     if shouldRenderMainShell(for: currentRoute) {
-                        VaultBoxMainTabView(
-                            authService: authService,
-                            vaultService: vaultService,
-                            searchEngine: searchEngine,
-                            indexingProgress: indexingProgress,
-                            panicGestureService: panicGestureService,
-                            reminderNavigationTrigger: documentReminderNavigationTrigger,
-                            targetReminderID: pendingDocumentReminderID,
-                            onAppear: { setupPanicGesture(authService: authService) },
-                            selection: $selectedMainTab,
-                            showImporter: $showImporter
-                        )
-                            .overlay {
-                                if currentRoute == .lock {
-                                    LockedAppOverlay(
-                                        authService: authService,
-                                        onPresented: handleLockScreenPresented
-                                    )
-                                }
+                        if currentRoute == .main, hardPaywallAccessState.blocksMainContent {
+                            ZStack {
+                                Color.vaultBackground.ignoresSafeArea()
+                                ProgressView()
                             }
+                        } else {
+                            VaultBoxMainTabView(
+                                authService: authService,
+                                vaultService: vaultService,
+                                searchEngine: searchEngine,
+                                indexingProgress: indexingProgress,
+                                panicGestureService: panicGestureService,
+                                reminderNavigationTrigger: documentReminderNavigationTrigger,
+                                targetReminderID: pendingDocumentReminderID,
+                                onAppear: { setupPanicGesture(authService: authService) },
+                                selection: $selectedMainTab,
+                                showImporter: $showImporter
+                            )
+                                .overlay {
+                                    if currentRoute == .lock {
+                                        LockedAppOverlay(
+                                            authService: authService,
+                                            onPresented: handleLockScreenPresented
+                                        )
+                                    }
+                                }
+                        }
                     } else if currentRoute == .onboarding {
                         OnboardingView(authService: authService)
                     } else {
@@ -139,17 +153,14 @@ struct ContentView: View {
         }
         .onChange(of: purchaseService.hasResolvedPaywallConfiguration) { _, hasResolved in
             guard hasResolved else { return }
-            if isPostSetupPaywallWaitingForConfiguration {
-                isPostSetupPaywallWaitingForConfiguration = false
-                showPostSetupPaywall = true
-            }
             presentHardPaywallIfNeeded()
         }
         .onChange(of: purchaseService.isHardPaywallEnabled) { _, isEnabled in
             if !isEnabled {
-                hasWaivedHardPaywallThisSession = true
+                showPostSetupPaywall = false
+            } else {
+                presentHardPaywallIfNeeded()
             }
-            presentHardPaywallIfNeeded()
         }
         .onChange(of: purchaseService.isPremium) { _, isPremium in
             guard purchaseService.hasResolvedCustomerInfo else { return }
@@ -282,60 +293,15 @@ struct ContentView: View {
     }
 
     private func handlePremiumStatusChange(isPremium: Bool) {
-        let descriptor = FetchDescriptor<AppSettings>()
-        guard let settings = try? modelContext.fetch(descriptor).first else {
-            if isPremium {
-                panicGestureService?.startMonitoring()
-            } else {
-                panicGestureService?.stopMonitoring()
-            }
-            return
+        let didLapse = applyPremiumStatusChange(
+            isPremium: isPremium,
+            modelContext: modelContext,
+            panicGestureService: panicGestureService,
+            authService: authService
+        )
+        if didLapse {
+            presentDisguiseLapseNoticeIfNeeded()
         }
-
-        if isPremium {
-            if settings.panicGestureEnabled {
-                panicGestureService?.startMonitoring()
-            } else {
-                panicGestureService?.stopMonitoring()
-            }
-            return
-        }
-
-        panicGestureService?.stopMonitoring()
-        var hasSettingsChanges = false
-
-        if settings.panicGestureEnabled {
-            settings.panicGestureEnabled = false
-            hasSettingsChanges = true
-        }
-
-        if settings.iCloudBackupEnabled {
-            settings.iCloudBackupEnabled = false
-            hasSettingsChanges = true
-        }
-
-        if authService?.isDecoyMode == true {
-            authService?.lock()
-        }
-
-        if hasSettingsChanges {
-            try? modelContext.save()
-        }
-
-        // The disguised app icon is deliberately *not* reverted here.
-        //
-        // Everything else revoked above is invisible to anyone but the user. The icon is
-        // the one setting whose revocation is visible to a third party standing next to
-        // them: onboarding asks who they are hiding from and offers "a partner or ex", so
-        // an icon that flips from Calculator back to a vault shield because a card was
-        // declined is the exact exposure they subscribed to prevent. Worse, iOS shows an
-        // unsuppressible "You have changed the icon for VaultBox" alert, which announces
-        // the app by name at a moment nobody chose.
-        //
-        // Premium gates *changing* a disguise, not *keeping* one already applied — the
-        // check in `AppIconPickerView.selectIcon` still stops a lapsed user picking a new
-        // one, and returning to the default icon is always free.
-        presentDisguiseLapseNoticeIfNeeded()
     }
 
     private func handleDidEnterBackground() {
@@ -359,6 +325,9 @@ struct ContentView: View {
     }
 
     private func handleDidBecomeActive() {
+        Task {
+            await purchaseService.refreshPremiumStatus()
+        }
         if privacyShield.finishIconChangeOnActive() {
             privacyShield.isVisible = false
         }
@@ -415,11 +384,7 @@ struct ContentView: View {
             return
         }
 
-        if purchaseService.hasResolvedPaywallConfiguration {
-            showPostSetupPaywall = true
-        } else {
-            isPostSetupPaywallWaitingForConfiguration = true
-        }
+        presentHardPaywallIfNeeded()
     }
 
     /// Re-presents the hard paywall for a gated, non-subscribed user — including on a
@@ -428,11 +393,7 @@ struct ContentView: View {
         guard !showPostSetupPaywall else { return }
         guard shouldPresentHardPaywall(
             route: currentRoute,
-            isGateRequired: isHardPaywallRequired,
-            isPremium: purchaseService.isPremium,
-            hasResolvedCustomerInfo: purchaseService.hasResolvedCustomerInfo,
-            hasResolvedPaywallConfiguration: purchaseService.hasResolvedPaywallConfiguration,
-            hasWaivedThisSession: hasWaivedHardPaywallThisSession
+            accessState: hardPaywallAccessState
         ) else { return }
         showPostSetupPaywall = true
     }
@@ -470,7 +431,6 @@ struct ContentView: View {
         showImporter = false
         showPostOnboardingSecuritySetup = false
         showPostSetupPaywall = false
-        isPostSetupPaywallWaitingForConfiguration = false
 
         // Mark that any share viewer dismiss is caused by the lock cycle,
         // so pendingShareURL survives and can be re-presented after unlock.
@@ -526,29 +486,11 @@ struct ContentView: View {
 
     private func initializeSearchServices(encryptionService: EncryptionService, vault: VaultService) {
         Task { @MainActor in
-            do {
-                let searchIndexService = try await SearchIndexService.open()
-                let embeddingService = EmbeddingService()
-                let ingestion = IngestionService(
-                    encryptionService: encryptionService,
-                    searchIndexService: searchIndexService,
-                    embeddingService: embeddingService
-                )
-                let engine = SearchEngine(
-                    searchIndexService: searchIndexService,
-                    embeddingService: embeddingService
-                )
-
-                vault.configureSearchIndex(ingestionService: ingestion, indexingProgress: self.indexingProgress)
-                self.searchEngine = engine
-
-                // Index any items that haven't been indexed yet
-                vault.indexUnindexedItems()
-            } catch {
-                #if DEBUG
-                print("[ContentView] Failed to initialize search services: \(error)")
-                #endif
-            }
+            searchEngine = await makeVaultSearchEngine(
+                encryptionService: encryptionService,
+                vaultService: vault,
+                indexingProgress: indexingProgress
+            )
         }
     }
 }
