@@ -1,5 +1,27 @@
 import Foundation
 
+struct PaywallAnalyticsContext: Sendable {
+    let placement: PaywallPlacement
+    let offeringID: String?
+    let layout: PaywallConfiguration.Layout
+    let isHard: Bool
+
+    var parameters: [String: String] {
+        var values = [
+            "placement": placement.rawValue,
+            "layout": layout.rawValue,
+            "is_hard": String(isHard)
+        ]
+        values["offering_id"] = offeringID
+        return values
+    }
+}
+
+enum PaywallDismissalReason: String, Sendable {
+    case closed
+    case storeUnavailable = "store_unavailable"
+}
+
 /// Every measurable moment in the acquisition funnel, from first launch to purchase.
 ///
 /// ## Privacy contract
@@ -36,19 +58,23 @@ enum AnalyticsEvent {
 
     // MARK: Paywall
 
-    case paywallViewed(isHard: Bool, offeringID: String?, trialDays: Int?)
-    case paywallPlanSelected(planKind: String)
-    case paywallPurchaseStarted(productID: String, isTrial: Bool)
-    case paywallPurchaseSucceeded(productID: String, isTrial: Bool)
-    case paywallPurchaseCancelled(productID: String)
-    case paywallPurchaseFailed(productID: String, message: String)
-    case paywallRestoreTapped
-    case paywallRestoreSucceeded
-    case paywallRestoreFailed(message: String)
-    case paywallDismissed(isHard: Bool, secondsOnScreen: Double)
+    case paywallViewed(context: PaywallAnalyticsContext, selectedProductID: String?, trialDays: Int?)
+    case paywallPlanSelected(context: PaywallAnalyticsContext, planKind: String, productID: String)
+    case paywallPurchaseStarted(context: PaywallAnalyticsContext, productID: String, isTrial: Bool)
+    case paywallPurchaseSucceeded(context: PaywallAnalyticsContext, productID: String, isTrial: Bool)
+    case paywallPurchaseCancelled(context: PaywallAnalyticsContext, productID: String)
+    case paywallPurchaseFailed(context: PaywallAnalyticsContext, productID: String, message: String)
+    case paywallRestoreTapped(context: PaywallAnalyticsContext)
+    case paywallRestoreSucceeded(context: PaywallAnalyticsContext)
+    case paywallRestoreFailed(context: PaywallAnalyticsContext, message: String)
+    case paywallDismissed(
+        context: PaywallAnalyticsContext,
+        secondsOnScreen: Double,
+        reason: PaywallDismissalReason
+    )
     /// The App Store never returned products. Distinguishes "wouldn't pay" from
     /// "couldn't pay", which are opposite problems with opposite fixes.
-    case paywallUnavailable(message: String?)
+    case paywallUnavailable(context: PaywallAnalyticsContext, message: String?)
 
     // MARK: Activation
     //
@@ -102,7 +128,7 @@ enum AnalyticsEvent {
     var parameters: [String: String] {
         switch self {
         case .onboardingStarted, .pinSetupStarted, .pinCreated,
-             .securitySetupViewed, .paywallRestoreTapped, .paywallRestoreSucceeded,
+             .securitySetupViewed,
              .disguiseUnlockGuideCompleted:
             return [:]
 
@@ -138,33 +164,51 @@ enum AnalyticsEvent {
                 "notifications_granted": String(notifications)
             ]
 
-        case .paywallViewed(let isHard, let offeringID, let trialDays):
-            var params = ["is_hard": String(isHard)]
-            params["offering_id"] = offeringID
+        case .paywallViewed(let context, let selectedProductID, let trialDays):
+            var params = context.parameters
+            params["selected_product_id"] = selectedProductID
             params["trial_days"] = trialDays.map(String.init)
             return params
 
-        case .paywallPlanSelected(let planKind):
-            return ["plan": planKind]
+        case .paywallPlanSelected(let context, let planKind, let productID):
+            return context.parameters.merging([
+                "plan": planKind,
+                "product_id": productID
+            ]) { _, new in new }
 
-        case .paywallPurchaseStarted(let productID, let isTrial),
-             .paywallPurchaseSucceeded(let productID, let isTrial):
-            return ["product_id": productID, "is_trial": String(isTrial)]
+        case .paywallPurchaseStarted(let context, let productID, let isTrial),
+             .paywallPurchaseSucceeded(let context, let productID, let isTrial):
+            return context.parameters.merging([
+                "product_id": productID,
+                "is_trial": String(isTrial)
+            ]) { _, new in new }
 
-        case .paywallPurchaseCancelled(let productID):
-            return ["product_id": productID]
+        case .paywallPurchaseCancelled(let context, let productID):
+            return context.parameters.merging(["product_id": productID]) { _, new in new }
 
-        case .paywallPurchaseFailed(let productID, let message):
-            return ["product_id": productID, "message": message]
+        case .paywallPurchaseFailed(let context, let productID, let message):
+            return context.parameters.merging([
+                "product_id": productID,
+                "message": message
+            ]) { _, new in new }
 
-        case .paywallRestoreFailed(let message):
-            return ["message": message]
+        case .paywallRestoreTapped(let context),
+             .paywallRestoreSucceeded(let context):
+            return context.parameters
 
-        case .paywallDismissed(let isHard, let seconds):
-            return ["is_hard": String(isHard), "seconds_on_screen": Self.format(seconds)]
+        case .paywallRestoreFailed(let context, let message):
+            return context.parameters.merging(["message": message]) { _, new in new }
 
-        case .paywallUnavailable(let message):
-            return message.map { ["message": $0] } ?? [:]
+        case .paywallDismissed(let context, let seconds, let reason):
+            return context.parameters.merging([
+                "seconds_on_screen": Self.format(seconds),
+                "reason": reason.rawValue
+            ]) { _, new in new }
+
+        case .paywallUnavailable(let context, let message):
+            return context.parameters.merging(
+                message.map { ["message": $0] } ?? [:]
+            ) { _, new in new }
 
         case .activationChecklistViewed(let completedCount):
             return ["completed_count": String(completedCount)]

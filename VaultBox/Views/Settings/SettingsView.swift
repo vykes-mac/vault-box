@@ -98,7 +98,7 @@ struct SettingsView: View {
                 handleReminderNavigationTrigger()
             }
             .fullScreenCover(isPresented: $showPaywall) {
-                VaultBoxPaywallView()
+                VaultBoxPaywallView(placement: .settings)
             }
             .sheet(isPresented: $showCustomerCenter) {
                 CustomerCenterView()

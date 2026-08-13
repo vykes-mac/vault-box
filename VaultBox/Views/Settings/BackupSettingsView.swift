@@ -127,7 +127,7 @@ struct BackupSettingsView: View {
             keyBackupPINEntrySheet
         }
         .fullScreenCover(isPresented: $showPaywall) {
-            VaultBoxPaywallView()
+            VaultBoxPaywallView(placement: .settings)
         }
     }
 

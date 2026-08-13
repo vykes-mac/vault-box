@@ -372,6 +372,52 @@
         }
       }
     },
+    "*With relationship experience" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Mit Beziehungserfahrung"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Con experiencia en relaciones"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Ayant déjà été en couple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Con esperienze di relazione"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*交際経験がある人"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*연애 경험이 있는 사람"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "*Com experiência em relacionamentos"
+          }
+        }
+      }
+    },
     "%@" : {
       "localizations" : {
         "de" : {
@@ -11290,6 +11336,52 @@
         }
       }
     },
+    "Everything included" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alles inklusive"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Todo incluido"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout est inclus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tutto incluso"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて込み"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모든 기능 포함"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tudo incluído"
+          }
+        }
+      }
+    },
     "everything private" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -13351,6 +13443,53 @@
         }
       }
     },
+    "German adults*" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erwachsene in Deutschland*"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultos alemanes*"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultes allemands*"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adulti tedeschi*"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ドイツの成人*"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "독일 성인*"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultos alemães*"
+          }
+        }
+      }
+    },
     "Gesture learned. Use the same hold on the utility title." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -13535,6 +13674,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alguém já mexeu no seu celular sem permissão?"
+          }
+        }
+      }
+    },
+    "have secretly checked a partner’s phone" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "haben heimlich das Handy ihres Partners durchsucht"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "han revisado en secreto el teléfono de su pareja"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ont consulté en secret le téléphone de leur partenaire"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "hanno controllato di nascosto il telefono del partner"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "パートナーのスマートフォンをこっそり確認したことがあります"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "파트너의 휴대폰을 몰래 확인한 적이 있습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "já verificaram secretamente o celular do parceiro"
           }
         }
       }
@@ -27374,6 +27559,52 @@
         }
       }
     },
+    "Sources: Pew Research Center · Bitkom Research" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quellen: Pew Research Center · Bitkom Research"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fuentes: Pew Research Center · Bitkom Research"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sources : Pew Research Center · Bitkom Research"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fonti: Pew Research Center · Bitkom Research"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "出典：Pew Research Center・Bitkom Research"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "출처: Pew Research Center · Bitkom Research"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Fontes: Pew Research Center · Bitkom Research"
+          }
+        }
+      }
+    },
     "Spanish" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -28026,6 +28257,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Armazenamento Usado"
+          }
+        }
+      }
+    },
+    "Storage, disguise, break-in alerts, backup & more" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Speicher, Tarnung, Einbruchwarnungen, Backup und mehr"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Almacenamiento, disfraz, alertas de intrusión, respaldo y más"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stockage, camouflage, alertes d’intrusion, sauvegarde et plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spazio, camuffamento, avvisi di intrusione, backup e altro"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ストレージ、偽装、不正侵入アラート、バックアップなど"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "저장 공간, 위장, 침입 알림, 백업 등"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Armazenamento, disfarce, alertas de invasão, backup e mais"
           }
         }
       }
@@ -31243,6 +31520,53 @@
         }
       }
     },
+    "U.S. partnered adults" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Erwachsene in US-Partnerschaften"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultos de EE. UU. con pareja"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultes américains en couple"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adulti statunitensi in coppia"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "米国のパートナーがいる成人"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "미국의 연인이 있는 성인"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adultos dos EUA com parceiro"
+          }
+        }
+      }
+    },
     "Unable to play this video." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -32834,7 +33158,6 @@
       }
     },
     "VaultBox Premium" : {
-      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -35405,6 +35728,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seu armazenamento iCloud está cheio. Backup pausado."
+          }
+        }
+      }
+    },
+    "Your phone gets **shared**. Your **private files** don’t have to." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Handy wird **geteilt**. Deine **privaten Dateien** müssen es nicht werden."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu teléfono se **comparte**. Tus **archivos privados** no tienen por qué compartirse."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre téléphone peut être **partagé**. Pas vos **fichiers privés**."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il tuo telefono viene **condiviso**. I tuoi **file privati** non devono esserlo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "スマートフォンを**共有**しても、**プライベートなファイル**まで共有する必要はありません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "휴대폰은 **공유**해도, **개인 파일**까지 공유할 필요는 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu celular é **compartilhado**. Seus **arquivos privados** não precisam ser."
           }
         }
       }

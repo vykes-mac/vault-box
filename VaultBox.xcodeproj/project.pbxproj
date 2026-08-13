@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 63;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -35,6 +35,7 @@
 		32CC73915FA601669783EE4F /* PaywallComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C901CE9C7BA4F20741F7BB /* PaywallComponents.swift */; };
 		330A1B65C182CB2190DB0B3E /* BillingIssueBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C861DB920DDF29DE522A851 /* BillingIssueBanner.swift */; };
 		337D9B7F809D6E5526D3CD8C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6779848ECA0F6D6607E02102 /* InfoPlist.strings */; };
+		34B943AA0A9C4A9F9D850001 /* PaywallPlacement.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34B943AA0A9C4A9F9D850011 /* PaywallPlacement.swift */; };
 		3859AF46A545529F4C4FF783 /* ActivationChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */; };
 		386F77C9ECD547B14E9300EF /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02C8C3B43208F63546E6630 /* ImportViewModel.swift */; };
 		39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EC25525A796155921B2DB4 /* PINKeypadView.swift */; };
@@ -86,6 +87,7 @@
 		861A2AF93B44D3A9E8F0143B /* FeatureBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4EDBC45088713F67C4FE6B /* FeatureBoardModels.swift */; };
 		886725697AFAC77C31A2EB27 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 97A6A02470F29DF5DBC0EF82 /* RevenueCatUI */; };
 		8A3A407AC9B2EBD6E2490D72 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FBF0C965DAC9D0064C1882 /* PaywallView.swift */; };
+		8B57A60B9B2144CD92B50001 /* PrivacyStatPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B57A60B9B2144CD92B50011 /* PrivacyStatPaywallView.swift */; };
 		8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */; };
 		8F4F7DD6CDE7205622B6DCD7 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */; };
 		917AE18DCEFA0EB698BB7604 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D537753271809D1690863D85 /* InfoPlist.strings */; };
@@ -152,6 +154,7 @@
 		FA439FFB9D21DE6B622CD57B /* OnboardingQuestionSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */; };
 		FACDC7F1BC3527DC09DD47EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 307D7EEC4053DBFC3DC933D7 /* InfoPlist.strings */; };
 		FB2789D8FF4272AD50186EBC /* PanicGestureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4CF9AF2FE015650E109833 /* PanicGestureService.swift */; };
+		FB6EA9DDFDCA49F3912E0001 /* PaywallExperimentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB6EA9DDFDCA49F3912E0011 /* PaywallExperimentTests.swift */; };
 		FB73233FB3185654AC85817B /* SearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5DAAF6305764E8DEC418493E /* SearchEngine.swift */; };
 		FEECDAD87216426872F4C1F1 /* VisionAnalysisService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07758B234491483951865868 /* VisionAnalysisService.swift */; };
 		FF2EF16DB46E7196FCCAD11A /* SuggestionChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62C52C942568D443FC617D06 /* SuggestionChipView.swift */; };
@@ -209,11 +212,12 @@
 		32D21E90ABE03FB45980F0A1 /* ExpiringDocumentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiringDocumentsView.swift; sourceTree = "<group>"; };
 		33AB63DDDEC699C71E1D303A /* SensitiveScanViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveScanViewModel.swift; sourceTree = "<group>"; };
 		34702C72F8A36861926F0D3C /* VaultBoxApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxApp.swift; sourceTree = "<group>"; };
+		34B943AA0A9C4A9F9D850011 /* PaywallPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallPlacement.swift; sourceTree = "<group>"; };
 		356340D6145AE34F3A76DEA8 /* VideoPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoPlayerView.swift; sourceTree = "<group>"; };
 		373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailView.swift; sourceTree = "<group>"; };
 		3899CF794C6ECAE372D27AAC /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		428944AA034335296F7F42BB /* CalculatorDisguiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDisguiseView.swift; sourceTree = "<group>"; };
 		42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingQuestionSteps.swift; sourceTree = "<group>"; };
 		43396DBCCF52D58867207CEB /* OnboardingAnswers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingAnswers.swift; sourceTree = "<group>"; };
@@ -224,7 +228,7 @@
 		4AE598F59409632C23CF56CB /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4AF9EE5DB13C024FE004E722 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxMainTabView.swift; sourceTree = "<group>"; };
-		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7396D5E7E80513DBD3BDE8 /* DocumentReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReminderService.swift; sourceTree = "<group>"; };
 		4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseUnlockGuideView.swift; sourceTree = "<group>"; };
 		4FFC381132D128AC133AAEE0 /* IngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngestionService.swift; sourceTree = "<group>"; };
@@ -246,7 +250,7 @@
 		74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
 		758EDDB57C2D63B26C0E14FC /* DashboardDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDisguiseViews.swift; sourceTree = "<group>"; };
 		76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPaywallTests.swift; sourceTree = "<group>"; };
-		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		792B5111919FC2FDFBF53902 /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
 		796E271CEED2372A036F31BE /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		79F852E51EB969C130EA1CFA /* OnboardingNarrativeSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNarrativeSteps.swift; sourceTree = "<group>"; };
@@ -263,6 +267,7 @@
 		86E90DA87E8218485FEEB15C /* ShareConfigView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareConfigView.swift; sourceTree = "<group>"; };
 		882F7D30EC474FB1D61B2E9E /* AlbumViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewModel.swift; sourceTree = "<group>"; };
 		88913094FD06F657E844CD72 /* BreakInLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInLogView.swift; sourceTree = "<group>"; };
+		8B57A60B9B2144CD92B50011 /* PrivacyStatPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatPaywallView.swift; sourceTree = "<group>"; };
 		8BB33E1813ED90914054EE04 /* TrialReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrialReminderService.swift; sourceTree = "<group>"; };
 		8F3305A3B3B1DA6F73FB8773 /* ActivationChecklistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationChecklistTests.swift; sourceTree = "<group>"; };
 		8FA0D72411BA86681250B77C /* OnboardingComponents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingComponents.swift; sourceTree = "<group>"; };
@@ -270,7 +275,7 @@
 		97902116F3003BBD32528411 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
 		97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		99D487ED26681F007F4BB1CE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
 		9DD38D29E22E45F46FC58CCC /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
 		A2218977F1460A0977E0C6ED /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -310,7 +315,7 @@
 		E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallConfiguration.swift; sourceTree = "<group>"; };
-		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
+		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		ECA4D39B39B1EA8D1D872E74 /* DocumentExpiryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParser.swift; sourceTree = "<group>"; };
 		ED35A2F291354845F61EBF43 /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
@@ -323,6 +328,7 @@
 		F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSignalDetectors.swift; sourceTree = "<group>"; };
 		F4E01373AC984A41342BA198 /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 		FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
+		FB6EA9DDFDCA49F3912E0011 /* PaywallExperimentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallExperimentTests.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FCA85F89FEFBDE400F1CF534 /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
 		FEC0D0313FD7D6D30F66A15C /* DisguiseCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseCoverView.swift; sourceTree = "<group>"; };
@@ -349,6 +355,7 @@
 			children = (
 				83C901CE9C7BA4F20741F7BB /* PaywallComponents.swift */,
 				05FBF0C965DAC9D0064C1882 /* PaywallView.swift */,
+				8B57A60B9B2144CD92B50011 /* PrivacyStatPaywallView.swift */,
 			);
 			path = Paywall;
 			sourceTree = "<group>";
@@ -393,6 +400,7 @@
 				FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */,
 				BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */,
 				76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */,
+				FB6EA9DDFDCA49F3912E0011 /* PaywallExperimentTests.swift */,
 				2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
 			);
 			path = VaultBoxTests;
@@ -510,6 +518,7 @@
 				DA4EDBC45088713F67C4FE6B /* FeatureBoardModels.swift */,
 				43396DBCCF52D58867207CEB /* OnboardingAnswers.swift */,
 				E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */,
+				34B943AA0A9C4A9F9D850011 /* PaywallPlacement.swift */,
 				2C3B88E140B5343818DAB7FD /* SharedItem.swift */,
 				E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */,
 			);
@@ -723,7 +732,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 1600;
+				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					529AC2156C00832676CF94B9 = {
 						DevelopmentTeam = 4A7H788X5U;
@@ -756,7 +765,6 @@
 				D06E306C7D69684641073C52 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				72FECDEB44800901DE211467 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
-			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -804,6 +812,7 @@
 				A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */,
 				1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */,
 				FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */,
+				FB6EA9DDFDCA49F3912E0001 /* PaywallExperimentTests.swift in Sources */,
 				7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -894,9 +903,11 @@
 				FB2789D8FF4272AD50186EBC /* PanicGestureService.swift in Sources */,
 				32CC73915FA601669783EE4F /* PaywallComponents.swift in Sources */,
 				7E34D12DEC86A88D99C51014 /* PaywallConfiguration.swift in Sources */,
+				34B943AA0A9C4A9F9D850001 /* PaywallPlacement.swift in Sources */,
 				3F0CF2412BE0A0EEB4636048 /* PaywallGate.swift in Sources */,
 				8A3A407AC9B2EBD6E2490D72 /* PaywallView.swift in Sources */,
 				81522FB66C12E68AD0D93FC4 /* PaywallViewModel.swift in Sources */,
+				8B57A60B9B2144CD92B50001 /* PrivacyStatPaywallView.swift in Sources */,
 				D9F93C85C607EC771DD9B5A3 /* PhotoDetailView.swift in Sources */,
 				25A4A66CB398F7894647D15F /* PostOnboardingSecuritySetupView.swift in Sources */,
 				EA564C14612D8F196C566C12 /* PremiumBadge.swift in Sources */,
@@ -980,16 +991,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
-					CalculatorIcon,
-					NotesIcon,
-					WeatherIcon,
-					CompassIcon,
-					ClockIcon,
-					StockIcon,
-					TranslateIcon,
-					MeasureIcon,
-				);
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1004,7 +1006,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
@@ -1020,6 +1022,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1053,6 +1056,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1066,6 +1070,7 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -1077,6 +1082,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1110,6 +1116,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1130,6 +1137,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -1140,16 +1148,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
-					CalculatorIcon,
-					NotesIcon,
-					WeatherIcon,
-					CompassIcon,
-					ClockIcon,
-					StockIcon,
-					TranslateIcon,
-					MeasureIcon,
-				);
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1164,7 +1163,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0.2;
+				MARKETING_VERSION = 1.2.4;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;

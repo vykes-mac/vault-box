@@ -61,7 +61,7 @@ class PurchaseService: NSObject {
     /// `entitlementExpirationDate` unless the customer fixes their payment method.
     private(set) var billingIssueDetectedAt: Date?
     private(set) var entitlementExpirationDate: Date?
-    var currentOffering: Offering?
+    private(set) var currentOffering: Offering?
     var isLoading = false
     var offeringsLoadError: String?
     var isOfferingsReady = false
@@ -70,6 +70,7 @@ class PurchaseService: NSObject {
     private(set) var hasResolvedPaywallConfiguration = false
     private let trialReminderService = TrialReminderService()
     private let appUserIDStore: RevenueCatAppUserIDStore
+    private var availableOfferings: Offerings?
     private var trialExpirationTask: Task<Void, Never>?
     private var isConfigured = false
 
@@ -134,13 +135,17 @@ class PurchaseService: NSObject {
 
         do {
             let offerings = try await Purchases.shared.offerings()
+            availableOfferings = offerings
             let explicitOffering = offerings.all[Constants.primaryOfferingID]
-            let resolvedOffering = explicitOffering ?? offerings.current
+            // RevenueCat assigns experiment and targeting variants through `current`.
+            // The literal `default` lookup is only a resilience fallback for a malformed
+            // dashboard response; preferring it would silently bypass every experiment.
+            let resolvedOffering = offerings.current ?? explicitOffering
 
             currentOffering = resolvedOffering
-            isUsingExplicitOffering = explicitOffering != nil
+            isUsingExplicitOffering = offerings.current == nil && explicitOffering != nil
             isOfferingsReady = resolvedOffering != nil
-            applyPaywallConfiguration(from: resolvedOffering)
+            applyPaywallConfiguration(from: offering(for: .onboardingEnd) ?? resolvedOffering)
 
             if let resolvedOffering {
                 debugLog(
@@ -160,6 +165,52 @@ class PurchaseService: NSObject {
             debugLog("Offerings fetch failed: \(error.localizedDescription)")
             throw error
         }
+    }
+
+    /// Resolves the Offering RevenueCat assigned to a particular paywall location.
+    /// Placements fall back to the experiment-aware current Offering until placement
+    /// rules are configured in the dashboard.
+    func offering(for placement: PaywallPlacement) -> Offering? {
+#if DEBUG
+        // QA can render a draft offering without enrolling real customers. A process
+        // environment value remains useful for one-off simulator launches and takes
+        // priority over the value compiled from Secrets.Debug.xcconfig.
+        if let identifier = debugOfferingOverrideIdentifier,
+           let offering = availableOfferings?.all[identifier] {
+            return offering
+        }
+#endif
+
+        return availableOfferings?.currentOffering(forPlacement: placement.rawValue)
+            ?? availableOfferings?.current
+            ?? availableOfferings?.all[Constants.primaryOfferingID]
+            ?? currentOffering
+    }
+
+#if DEBUG
+    private var debugOfferingOverrideIdentifier: String? {
+        let configuredValue = Bundle.main.object(
+            forInfoDictionaryKey: "PaywallOfferingOverride"
+        ) as? String
+        let candidates = [
+            ProcessInfo.processInfo.environment["VAULTBOX_PAYWALL_OFFERING"],
+            configuredValue
+        ]
+
+        return candidates
+            .compactMap { $0?.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .first { !$0.isEmpty && !$0.hasPrefix("$(") }
+    }
+#endif
+
+    func fetchOffering(
+        for placement: PaywallPlacement,
+        force: Bool = false
+    ) async throws -> Offering? {
+        if force || availableOfferings == nil {
+            try await fetchOfferings()
+        }
+        return offering(for: placement)
     }
 
     // MARK: - Purchase

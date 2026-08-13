@@ -24,6 +24,7 @@ struct ContentView: View {
     @State private var showImporter = false
     @State private var showPostOnboardingSecuritySetup = false
     @State private var showPostSetupPaywall = false
+    @State private var postSetupPaywallPlacement = PaywallPlacement.onboardingEnd
     @State private var deferPostSetupPaywallUntilSecuritySetupCompletes = false
     /// Set when a hard-gated user was let through anyway (App Store unreachable), so the
     /// paywall doesn't immediately re-present and trap them in a loop.
@@ -195,6 +196,7 @@ struct ContentView: View {
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
             VaultBoxPaywallView(
                 isHard: isHardPaywallRequired,
+                placement: postSetupPaywallPlacement,
                 onStoreUnavailableContinue: {
                     guard isHardPaywallRequired, !purchaseService.isPremium else { return }
                     hasWaivedHardPaywallThisSession = true
@@ -212,6 +214,7 @@ struct ContentView: View {
         ) { _ in
             Button("Resubscribe") {
                 lapsedDisguise = nil
+                postSetupPaywallPlacement = .subscriptionLapsed
                 showPostSetupPaywall = true
             }
             Button("Not now", role: .cancel) { lapsedDisguise = nil }
@@ -395,6 +398,7 @@ struct ContentView: View {
             route: currentRoute,
             accessState: hardPaywallAccessState
         ) else { return }
+        postSetupPaywallPlacement = .onboardingEnd
         showPostSetupPaywall = true
     }
 

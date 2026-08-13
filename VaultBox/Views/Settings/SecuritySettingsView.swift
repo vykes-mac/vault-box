@@ -152,7 +152,7 @@ struct SecuritySettingsView: View {
             Text(errorMessage)
         }
         .fullScreenCover(isPresented: $showPaywall) {
-            VaultBoxPaywallView()
+            VaultBoxPaywallView(placement: .settings)
         }
     }
 

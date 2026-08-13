@@ -52,6 +52,8 @@ struct PaywallPlan: Identifiable {
 @Observable
 final class PaywallViewModel {
     private(set) var plans: [PaywallPlan] = []
+    private(set) var offering: Offering?
+    private(set) var configuration = PaywallConfiguration.fallback
     private(set) var isLoadingPlans = false
     private(set) var loadError: String?
 
@@ -75,7 +77,11 @@ final class PaywallViewModel {
 
     // MARK: - Loading
 
-    func load(purchaseService: PurchaseService, force: Bool = false) async {
+    func load(
+        purchaseService: PurchaseService,
+        placement: PaywallPlacement,
+        force: Bool = false
+    ) async {
         guard !isLoadingPlans else { return }
         guard force || plans.isEmpty else { return }
 
@@ -83,21 +89,27 @@ final class PaywallViewModel {
         loadError = nil
         defer { isLoadingPlans = false }
 
-        if purchaseService.currentOffering == nil || force {
-            do {
-                try await purchaseService.fetchOfferings()
-            } catch {
-                loadError = error.localizedDescription
-            }
+        do {
+            offering = try await purchaseService.fetchOffering(
+                for: placement,
+                force: force
+            )
+        } catch {
+            offering = purchaseService.offering(for: placement)
+            loadError = error.localizedDescription
         }
 
-        let offering = purchaseService.currentOffering
+        configuration = PaywallConfiguration(metadata: offering?.metadata ?? [:])
         // Product IDs first, then package type, then the product's own billing period.
         // An offering renamed in the dashboard must never render an empty paywall.
-        let annualPackage = purchaseService.annualPackage
+        let annualPackage = offering?.availablePackages.first {
+            $0.storeProduct.productIdentifier == Constants.annualProductID
+        }
             ?? offering?.availablePackages.first { $0.packageType == .annual }
             ?? offering?.availablePackages.first { $0.storeProduct.subscriptionPeriod?.unit == .year }
-        let weeklyPackage = purchaseService.weeklyPackage
+        let weeklyPackage = offering?.availablePackages.first {
+            $0.storeProduct.productIdentifier == Constants.weeklyProductID
+        }
             ?? offering?.availablePackages.first { $0.packageType == .weekly }
             ?? offering?.availablePackages.first { $0.storeProduct.subscriptionPeriod?.unit == .week }
         let weeklyPrice = weeklyPackage?.storeProduct.price
@@ -142,10 +154,11 @@ final class PaywallViewModel {
                 ?? String(localized: "Subscription options are unavailable right now.")
         }
 
-        // Default to the yearly plan: it carries the trial and it is the anchor we want
-        // the weekly price compared against.
+        let preferredKind: PaywallPlan.Kind = configuration.defaultPlan == .annual
+            ? .annual
+            : .weekly
         if selectedPlanID == nil || !resolved.contains(where: { $0.id == selectedPlanID }) {
-            selectedPlanID = resolved.first { $0.kind == .annual }?.id ?? resolved.first?.id
+            selectedPlanID = resolved.first { $0.kind == preferredKind }?.id ?? resolved.first?.id
         }
     }
 

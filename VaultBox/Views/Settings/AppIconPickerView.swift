@@ -78,7 +78,7 @@ struct AppIconPickerView: View {
             Text(errorMessage ?? "Failed to change app icon.")
         }
         .fullScreenCover(isPresented: $showPaywall) {
-            VaultBoxPaywallView()
+            VaultBoxPaywallView(placement: .settings)
         }
         .sheet(item: $unlockGuideDisguise) { disguise in
             DisguiseUnlockGuideView(disguise: disguise) {

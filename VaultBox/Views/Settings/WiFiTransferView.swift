@@ -60,7 +60,7 @@ struct WiFiTransferView: View {
             }
         }
         .fullScreenCover(isPresented: $showPaywall) {
-            VaultBoxPaywallView()
+            VaultBoxPaywallView(placement: .settings)
         }
         .alert("Could Not Start Server", isPresented: Binding(
             get: { viewModel?.serverStartFailed ?? false },

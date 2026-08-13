@@ -1,3 +1,4 @@
+import RevenueCat
 import SwiftUI
 
 /// The app's only paywall.
@@ -10,6 +11,7 @@ import SwiftUI
 ///   this is the screen the ad spend is actually buying.
 struct VaultBoxPaywallView: View {
     var isHard = false
+    var placement: PaywallPlacement = .featureGate
     var onStoreUnavailableContinue: () -> Void = {}
 
     @Environment(PurchaseService.self) private var purchaseService
@@ -22,6 +24,7 @@ struct VaultBoxPaywallView: View {
     /// `.task` can re-run when the view swaps between its loading/content/unavailable
     /// branches. Counting that twice would halve every conversion rate computed from it.
     @State private var hasRecordedView = false
+    @State private var hasRecordedUnavailable = false
 
     /// Time the user spent weighing the offer. Short exits are a price/copy problem;
     /// long ones without a purchase point at the plan cards or the trial terms.
@@ -37,28 +40,18 @@ struct VaultBoxPaywallView: View {
             if viewModel.isLoadingPlans && !viewModel.hasPurchasablePlans {
                 loadingView
             } else if viewModel.hasPurchasablePlans {
-                content
+                if viewModel.configuration.layout == .privacyStat {
+                    privacyStatContent
+                } else {
+                    content
+                }
             } else {
                 unavailableView
             }
         }
         .task {
             answers = OnboardingAnswersStore.load()
-            appearedAt = Date()
-            await viewModel.load(purchaseService: purchaseService)
-
-            guard !hasRecordedView else { return }
-            hasRecordedView = true
-
-            if viewModel.hasPurchasablePlans {
-                analytics.record(.paywallViewed(
-                    isHard: isHard,
-                    offeringID: purchaseService.currentOffering?.identifier,
-                    trialDays: viewModel.trialDays
-                ))
-            } else {
-                analytics.record(.paywallUnavailable(message: viewModel.loadError))
-            }
+            await loadPlans()
         }
         .alert(
             "Something went wrong",
@@ -75,6 +68,20 @@ struct VaultBoxPaywallView: View {
 
     // MARK: - Content
 
+    private var privacyStatContent: some View {
+        PrivacyStatPaywallContent(
+            viewModel: viewModel,
+            canDismiss: !isHard,
+            ctaTitle: ctaTitle,
+            reassurance: reassurance,
+            disclosure: disclosure,
+            onDismiss: { dismissRecordingExit(reason: .closed) },
+            onSelectPlan: selectPlan,
+            onPurchase: startPurchase,
+            onRestore: restore
+        )
+    }
+
     private var content: some View {
         VStack(spacing: 0) {
             ScrollView {
@@ -87,7 +94,9 @@ struct VaultBoxPaywallView: View {
                     // then reads as consequences of the plan already chosen.
                     planPicker
 
-                    if let trialDays = viewModel.trialDays, let plan = viewModel.selectedPlan {
+                    if viewModel.configuration.showsTrialTimeline,
+                       let trialDays = viewModel.trialDays,
+                       let plan = viewModel.selectedPlan {
                         PaywallTrialTimeline(trialDays: trialDays, priceString: plan.priceString)
                     }
                 }
@@ -102,7 +111,7 @@ struct VaultBoxPaywallView: View {
         .overlay(alignment: .topTrailing) {
             if !isHard {
                 Button {
-                    dismissRecordingExit()
+                    dismissRecordingExit(reason: .closed)
                 } label: {
                     Image(systemName: "xmark")
                         .font(.subheadline.weight(.bold))
@@ -211,9 +220,7 @@ struct VaultBoxPaywallView: View {
                     plan: plan,
                     isSelected: viewModel.selectedPlan?.id == plan.id
                 ) {
-                    Haptics.itemSelected()
-                    viewModel.selectedPlanID = plan.id
-                    analytics.record(.paywallPlanSelected(planKind: plan.kind.rawValue))
+                    selectPlan(plan)
                 }
             }
         }
@@ -327,7 +334,7 @@ struct VaultBoxPaywallView: View {
                 .multilineTextAlignment(.center)
 
             Button("Try Again") {
-                Task { await viewModel.load(purchaseService: purchaseService, force: true) }
+                Task { await loadPlans(force: true) }
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.vaultAccent)
@@ -341,7 +348,7 @@ struct VaultBoxPaywallView: View {
                 if isHard {
                     onStoreUnavailableContinue()
                 }
-                dismissRecordingExit()
+                dismissRecordingExit(reason: .storeUnavailable)
             }
             .buttonStyle(.bordered)
         }
@@ -350,23 +357,91 @@ struct VaultBoxPaywallView: View {
 
     // MARK: - Actions
 
+    private var analyticsContext: PaywallAnalyticsContext {
+        PaywallAnalyticsContext(
+            placement: placement,
+            offeringID: viewModel.offering?.identifier,
+            layout: viewModel.configuration.layout,
+            isHard: isHard
+        )
+    }
+
+    private func loadPlans(force: Bool = false) async {
+        await viewModel.load(
+            purchaseService: purchaseService,
+            placement: placement,
+            force: force
+        )
+
+        if viewModel.hasPurchasablePlans, !hasRecordedView {
+            hasRecordedView = true
+            appearedAt = Date()
+
+            analytics.record(.paywallViewed(
+                context: analyticsContext,
+                selectedProductID: viewModel.selectedPlan?.package.storeProduct.productIdentifier,
+                trialDays: viewModel.trialDays
+            ))
+
+            if let offering = viewModel.offering {
+                Purchases.shared.trackCustomPaywallImpression(
+                    CustomPaywallImpressionParams(
+                        paywallId: "vaultbox_\(viewModel.configuration.layout.rawValue)",
+                        offering: offering
+                    )
+                )
+            }
+        } else if !viewModel.hasPurchasablePlans, !hasRecordedUnavailable {
+            hasRecordedUnavailable = true
+            analytics.record(.paywallUnavailable(
+                context: analyticsContext,
+                message: viewModel.loadError
+            ))
+        }
+    }
+
+    private func selectPlan(_ plan: PaywallPlan) {
+        Haptics.itemSelected()
+        viewModel.selectedPlanID = plan.id
+        analytics.record(.paywallPlanSelected(
+            context: analyticsContext,
+            planKind: plan.kind.rawValue,
+            productID: plan.package.storeProduct.productIdentifier
+        ))
+    }
+
     private func startPurchase() {
         guard let plan = viewModel.selectedPlan else { return }
         let productID = plan.package.storeProduct.productIdentifier
         let isTrial = plan.hasTrial
 
-        analytics.record(.paywallPurchaseStarted(productID: productID, isTrial: isTrial))
+        analytics.record(.paywallPurchaseStarted(
+            context: analyticsContext,
+            productID: productID,
+            isTrial: isTrial
+        ))
 
         Task {
             switch await viewModel.purchaseSelected(purchaseService: purchaseService) {
             case .purchased:
-                analytics.record(.paywallPurchaseSucceeded(productID: productID, isTrial: isTrial))
+                analytics.record(.paywallPurchaseSucceeded(
+                    context: analyticsContext,
+                    productID: productID,
+                    isTrial: isTrial
+                ))
                 Haptics.purchaseComplete()
-                dismissRecordingExit()
+                dismiss()
             case .cancelled:
-                analytics.record(.paywallPurchaseCancelled(productID: productID))
+                analytics.record(.paywallPurchaseCancelled(
+                    context: analyticsContext,
+                    productID: productID
+                ))
             case .failed(let message):
-                analytics.record(.paywallPurchaseFailed(productID: productID, message: message))
+                analytics.record(.paywallPurchaseFailed(
+                    context: analyticsContext,
+                    productID: productID,
+                    message: message
+                ))
             case .unavailable:
                 break
             }
@@ -374,26 +449,36 @@ struct VaultBoxPaywallView: View {
     }
 
     private func restore() {
-        analytics.record(.paywallRestoreTapped)
+        analytics.record(.paywallRestoreTapped(context: analyticsContext))
         Task {
             switch await viewModel.restore(purchaseService: purchaseService) {
             case .restored:
-                analytics.record(.paywallRestoreSucceeded)
+                analytics.record(.paywallRestoreSucceeded(context: analyticsContext))
                 Haptics.purchaseComplete()
-                dismissRecordingExit()
+                dismiss()
             case .nothingToRestore:
                 analytics.record(
-                    .paywallRestoreFailed(message: "no_active_subscription")
+                    .paywallRestoreFailed(
+                        context: analyticsContext,
+                        message: "no_active_subscription"
+                    )
                 )
             case .failed(let message):
-                analytics.record(.paywallRestoreFailed(message: message))
+                analytics.record(.paywallRestoreFailed(
+                    context: analyticsContext,
+                    message: message
+                ))
             }
         }
     }
 
-    private func dismissRecordingExit() {
+    private func dismissRecordingExit(reason: PaywallDismissalReason) {
         analytics.record(
-            .paywallDismissed(isHard: isHard, secondsOnScreen: secondsOnScreen)
+            .paywallDismissed(
+                context: analyticsContext,
+                secondsOnScreen: secondsOnScreen,
+                reason: reason
+            )
         )
         dismiss()
     }
