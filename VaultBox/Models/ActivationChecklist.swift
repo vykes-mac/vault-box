@@ -16,6 +16,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
     case secured
     case disguise
     case firstImport
+    case secureShare
 
     var id: String { rawValue }
 
@@ -24,6 +25,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: String(localized: "Your vault is locked")
         case .disguise: String(localized: "Hide it on your Home Screen")
         case .firstImport: String(localized: "Move your first files in")
+        case .secureShare: String(localized: "Share Securely")
         }
     }
 
@@ -35,6 +37,8 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
             String(localized: "Make VaultBox look like a calculator or a clock.")
         case .firstImport:
             String(localized: "They leave Photos and land here, encrypted.")
+        case .secureShare:
+            String(localized: "The recipient needs VaultBox installed to view the file. The link expires automatically.")
         }
     }
 
@@ -45,6 +49,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: String(localized: "Done")
         case .disguise: String(localized: "Choose a disguise")
         case .firstImport: String(localized: "Add files")
+        case .secureShare: String(localized: "Create Share Link")
         }
     }
 
@@ -53,6 +58,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: "lock.fill"
         case .disguise: "app.dashed"
         case .firstImport: "square.and.arrow.down.fill"
+        case .secureShare: "clock.badge.checkmark"
         }
     }
 
@@ -62,6 +68,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: "secured"
         case .disguise: "disguise"
         case .firstImport: "first_import"
+        case .secureShare: "secure_share"
         }
     }
 }
@@ -77,10 +84,12 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
 struct ActivationChecklist: Equatable, Sendable {
     var isDisguised: Bool
     var hasItems: Bool
+    var hasShared: Bool
 
-    init(isDisguised: Bool, hasItems: Bool) {
+    init(isDisguised: Bool, hasItems: Bool, hasShared: Bool = false) {
         self.isDisguised = isDisguised
         self.hasItems = hasItems
+        self.hasShared = hasShared
     }
 
     /// Always true: the vault is unreachable without a PIN, so anyone who can see this
@@ -94,6 +103,7 @@ struct ActivationChecklist: Equatable, Sendable {
         case .secured: isSecured
         case .disguise: isDisguised
         case .firstImport: hasItems
+        case .secureShare: hasShared
         }
     }
 
@@ -129,4 +139,23 @@ func shouldShowActivationChecklist(
     hasDismissed: Bool
 ) -> Bool {
     isVaultEmpty && !isSearching && !isDecoyMode && !hasDismissed
+}
+
+/// Whether unfinished setup should remain visible as a compact card above a populated vault.
+/// The full checklist owns the empty state; this version keeps later steps discoverable
+/// without pushing the user's files off screen.
+func shouldShowActivationProgressCard(
+    hasItems: Bool,
+    isSearching: Bool,
+    isSelecting: Bool,
+    isDecoyMode: Bool,
+    hasDismissed: Bool,
+    isFullyComplete: Bool
+) -> Bool {
+    hasItems
+        && !isSearching
+        && !isSelecting
+        && !isDecoyMode
+        && !hasDismissed
+        && !isFullyComplete
 }

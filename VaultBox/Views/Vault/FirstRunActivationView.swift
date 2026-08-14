@@ -212,6 +212,64 @@ struct ActivationStepRow: View {
     }
 }
 
+// MARK: - Populated Vault Progress
+
+/// Keeps the next setup action discoverable after the first import without covering the
+/// user's new content with the full empty-state tutorial.
+struct ActivationProgressCard: View {
+    let checklist: ActivationChecklist
+    let onSelect: (ActivationStep) -> Void
+    let onDismiss: () -> Void
+
+    var body: some View {
+        if let nextStep = checklist.nextStep {
+            VStack(spacing: 10) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Your vault is ready")
+                            .font(.headline)
+                            .foregroundStyle(Color.vaultTextPrimary)
+                        Text(
+                            String(
+                                format: String(localized: "%lld of %lld complete"),
+                                locale: Locale.current,
+                                Int64(checklist.completedCount),
+                                Int64(checklist.totalCount)
+                            )
+                        )
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                    }
+
+                    Spacer()
+
+                    Button(action: onDismiss) {
+                        Image(systemName: "xmark")
+                            .font(.caption.weight(.bold))
+                            .foregroundStyle(Color.vaultTextSecondary)
+                            .frame(width: 32, height: 32)
+                            .background(Color.vaultSurfaceSecondary, in: Circle())
+                    }
+                    .accessibilityLabel("Close")
+                }
+
+                ActivationStepRow(
+                    step: nextStep,
+                    isComplete: false,
+                    isNext: true,
+                    action: { onSelect(nextStep) }
+                )
+            }
+            .padding(14)
+            .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+            .overlay {
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .strokeBorder(Color.vaultAccent.opacity(0.25), lineWidth: 1)
+            }
+        }
+    }
+}
+
 #Preview {
     FirstRunActivationView(
         checklist: ActivationChecklist(isDisguised: false, hasItems: false),

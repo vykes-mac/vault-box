@@ -7,13 +7,13 @@ struct ActivationChecklistTests {
 
     // MARK: - Completion
 
-    @Test("A brand-new vault starts at one of three, not zero")
+    @Test("A brand-new vault starts with its completed security step credited")
     func creditsWorkAlreadyDone() {
         let checklist = ActivationChecklist(isDisguised: false, hasItems: false)
 
         #expect(checklist.isComplete(.secured))
         #expect(checklist.completedCount == 1)
-        #expect(checklist.totalCount == 3)
+        #expect(checklist.totalCount == 4)
         #expect(!checklist.isFullyComplete)
     }
 
@@ -28,13 +28,17 @@ struct ActivationChecklistTests {
         #expect(!importedOnly.isComplete(.disguise))
         #expect(importedOnly.isComplete(.firstImport))
         #expect(importedOnly.completedCount == 2)
+
+        let sharedOnly = ActivationChecklist(isDisguised: false, hasItems: false, hasShared: true)
+        #expect(sharedOnly.isComplete(.secureShare))
+        #expect(sharedOnly.completedCount == 2)
     }
 
     @Test("Everything done reports fully complete")
     func fullyComplete() {
-        let checklist = ActivationChecklist(isDisguised: true, hasItems: true)
+        let checklist = ActivationChecklist(isDisguised: true, hasItems: true, hasShared: true)
 
-        #expect(checklist.completedCount == 3)
+        #expect(checklist.completedCount == 4)
         #expect(checklist.isFullyComplete)
         #expect(checklist.nextStep == nil)
     }
@@ -66,13 +70,25 @@ struct ActivationChecklistTests {
         #expect(checklist.nextStep == .firstImport)
     }
 
+    @Test("Secure sharing follows the first import")
+    func sharingFollowsImport() {
+        let checklist = ActivationChecklist(isDisguised: true, hasItems: true)
+        #expect(checklist.nextStep == .secureShare)
+    }
+
     @Test("Only one step is ever highlighted")
     func exactlyOneNextStep() {
         for isDisguised in [true, false] {
             for hasItems in [true, false] {
-                let checklist = ActivationChecklist(isDisguised: isDisguised, hasItems: hasItems)
-                let highlighted = ActivationStep.allCases.filter { checklist.nextStep == $0 }
-                #expect(highlighted.count <= 1)
+                for hasShared in [true, false] {
+                    let checklist = ActivationChecklist(
+                        isDisguised: isDisguised,
+                        hasItems: hasItems,
+                        hasShared: hasShared
+                    )
+                    let highlighted = ActivationStep.allCases.filter { checklist.nextStep == $0 }
+                    #expect(highlighted.count <= 1)
+                }
             }
         }
     }
@@ -141,12 +157,37 @@ struct ActivationChecklistTests {
         )
     }
 
+    @Test("Compact progress remains visible after import until setup is complete")
+    func compactProgressAfterImport() {
+        #expect(
+            shouldShowActivationProgressCard(
+                hasItems: true,
+                isSearching: false,
+                isSelecting: false,
+                isDecoyMode: false,
+                hasDismissed: false,
+                isFullyComplete: false
+            )
+        )
+
+        #expect(
+            !shouldShowActivationProgressCard(
+                hasItems: true,
+                isSearching: false,
+                isSelecting: false,
+                isDecoyMode: false,
+                hasDismissed: false,
+                isFullyComplete: true
+            )
+        )
+    }
+
     // MARK: - Analytics naming
 
     @Test("Wire names are stable and unique")
     func analyticsNamesAreStable() {
         let names = ActivationStep.allCases.map(\.analyticsName)
-        #expect(names == ["secured", "disguise", "first_import"])
+        #expect(names == ["secured", "disguise", "first_import", "secure_share"])
         #expect(Set(names).count == names.count)
     }
 }

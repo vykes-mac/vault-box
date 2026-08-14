@@ -66,6 +66,7 @@ struct VaultGridView: View {
     var isDecoyMode: Bool = false
 
     @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(sort: \SharedItem.createdAt, order: .reverse) private var sharedItems: [SharedItem]
 
     @State private var sortOrder: VaultSortOrder = .dateImported
     @State private var filter: VaultFilter = .all
@@ -83,6 +84,7 @@ struct VaultGridView: View {
     @State private var isImportingDocuments = false
     @State private var showDocumentDeletePrompt = false
     @State private var pendingDocumentURLs: [URL] = []
+    @State private var secureShareItem: VaultItem?
 
     // First-run activation
     @AppStorage("activation.hasDismissedChecklist") private var hasDismissedActivationChecklist = false
@@ -132,7 +134,8 @@ struct VaultGridView: View {
     private var activationChecklist: ActivationChecklist {
         ActivationChecklist(
             isDisguised: AppDisguise(iconName: activeIconName) != nil,
-            hasItems: !allItems.isEmpty
+            hasItems: !allItems.isEmpty,
+            hasShared: !sharedItems.isEmpty
         )
     }
 
@@ -142,6 +145,17 @@ struct VaultGridView: View {
             isSearching: isSearchActive,
             isDecoyMode: isDecoyMode,
             hasDismissed: hasDismissedActivationChecklist
+        )
+    }
+
+    private var showsActivationProgressCard: Bool {
+        shouldShowActivationProgressCard(
+            hasItems: !filteredItems.isEmpty,
+            isSearching: isSearchActive,
+            isSelecting: isSelectionMode,
+            isDecoyMode: isDecoyMode,
+            hasDismissed: hasDismissedActivationChecklist,
+            isFullyComplete: activationChecklist.isFullyComplete
         )
     }
 
@@ -163,6 +177,12 @@ struct VaultGridView: View {
         case .firstImport:
             if purchaseService.isPremiumRequired(for: .unlimitedItems, itemCount: allItems.count) {
                 showPaywall = true
+            } else {
+                showImporter = true
+            }
+        case .secureShare:
+            if let item = filteredItems.first(where: { $0.type != .video }) {
+                secureShareItem = item
             } else {
                 showImporter = true
             }
@@ -323,6 +343,14 @@ struct VaultGridView: View {
             .sheet(isPresented: $showAlbumPicker) {
                 albumPickerSheet
             }
+            .sheet(item: $secureShareItem) { item in
+                ShareConfigView(
+                    item: item,
+                    vaultService: vaultService,
+                    sharingService: SharingService()
+                )
+                .presentationDetents([.large])
+            }
             .fullScreenCover(isPresented: $showImporter) {
                 ImportView(
                     vaultService: vaultService,
@@ -480,6 +508,16 @@ struct VaultGridView: View {
     private var gridContent: some View {
         ScrollViewReader { proxy in
             ScrollView {
+                if showsActivationProgressCard {
+                    ActivationProgressCard(
+                        checklist: activationChecklist,
+                        onSelect: handleActivationStep,
+                        onDismiss: { hasDismissedActivationChecklist = true }
+                    )
+                    .padding(.horizontal, Constants.standardPadding)
+                    .padding(.bottom, 12)
+                }
+
                 LazyVGrid(columns: columns, spacing: Constants.vaultGridSpacing) {
                     ForEach(displayedItems) { item in
                         thumbnailCell(for: item)
