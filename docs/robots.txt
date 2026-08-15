@@ -1,0 +1,10 @@
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: *
+Allow: /
+
+Sitemap: https://vaultbox.pacsix.com/sitemap.xml

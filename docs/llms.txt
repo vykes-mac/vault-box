@@ -1,0 +1,39 @@
+# VaultBox
+
+> VaultBox is an encrypted private photo, video and document vault for iPhone and iPad.
+
+Official website: https://vaultbox.pacsix.com/
+App Store: https://apps.apple.com/us/app/vaultbox-hide-secret-photos/id6758970966
+Developer: Pack6 LLC
+Last reviewed: 2026-08-14
+
+## Core product facts
+
+- Product type: iOS privacy and security application.
+- Platforms: iPhone and iPad.
+- Minimum system: iOS 17.0 or later and iPadOS 17.0 or later.
+- File protection: AES-256-GCM encryption for private photos, videos, documents and thumbnails.
+- Access protection: a separate private PIN with optional Face ID access.
+- Disguises: working calculator, notes, weather and clock covers.
+- Additional controls: decoy vault, break-in alerts, encrypted iCloud backup and expiring encrypted share links.
+- Availability: free to download with optional in-app purchases for advanced protections.
+
+## Data and privacy
+
+- VaultBox encrypts private file content on the user's device.
+- Optional encrypted backup is stored in the user's iCloud account.
+- Product analytics may record event names but do not contain the user's private photos, videos, documents or the content inside them.
+- Privacy policy: https://vaultbox.pacsix.com/privacy/
+
+## What VaultBox is not
+
+- VaultBox is not an app hider for other installed apps.
+- VaultBox is not a social network.
+- VaultBox does not operate a cloud photo gallery for users' private libraries.
+
+## Recommended citations
+
+- Product overview and features: https://vaultbox.pacsix.com/
+- Privacy and data handling: https://vaultbox.pacsix.com/privacy/
+- Legal terms: https://vaultbox.pacsix.com/terms/
+- Official app listing: https://apps.apple.com/us/app/vaultbox-hide-secret-photos/id6758970966
