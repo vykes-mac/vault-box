@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Share an Expiring Encrypted Photo on iPhone</title>
+  <meta name="description" content="Learn how to create an encrypted photo link on iPhone, choose an expiry from one minute to seven days, control saving and revoke access early.">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large"><meta name="theme-color" content="#0a0b0f">
+  <link rel="canonical" href="https://vaultbox.pacsix.com/guides/share-expiring-encrypted-photo-iphone/"><link rel="icon" href="/assets/favicon.png" type="image/png"><link rel="preload" href="/assets/instrument-sans-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/site.css"><link rel="stylesheet" href="/site-responsive.css"><link rel="stylesheet" href="/content.css">
+  <meta property="og:type" content="article"><meta property="og:title" content="Share an Expiring Encrypted Photo on iPhone"><meta property="og:description" content="Choose a short expiry, control saving and revoke the encrypted link when access should end."><meta property="og:url" content="https://vaultbox.pacsix.com/guides/share-expiring-encrypted-photo-iphone/"><meta property="og:image" content="https://vaultbox.pacsix.com/assets/vaultbox-social.webp">
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"How to Share an Expiring Encrypted Photo on iPhone","datePublished":"2026-08-14","dateModified":"2026-08-14","author":{"@type":"Organization","name":"Pack6 LLC"},"publisher":{"@type":"Organization","name":"Pack6 LLC","logo":{"@type":"ImageObject","url":"https://vaultbox.pacsix.com/assets/vaultbox-icon.webp"}},"mainEntityOfPage":"https://vaultbox.pacsix.com/guides/share-expiring-encrypted-photo-iphone/"},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://vaultbox.pacsix.com/"},{"@type":"ListItem","position":2,"name":"Guides","item":"https://vaultbox.pacsix.com/guides/"},{"@type":"ListItem","position":3,"name":"Expiring encrypted photo sharing"}]}]}</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+  <nav class="site-nav content-nav" aria-label="Primary navigation"><a class="brand" href="/" aria-label="VaultBox home"><img src="/assets/vaultbox-icon.webp" width="40" height="40" alt=""><span>VaultBox</span></a><div class="nav-links"><a href="/">Product</a><a href="/guides/" aria-current="page">Guides</a><a href="/compare/">Compare</a><a href="/privacy/">Privacy</a></div><a class="button button-small" href="https://apps.apple.com/us/app/vaultbox-hide-secret-photos/id6758970966">Get the app <svg class="icon-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></nav>
+  <main id="main" class="content-main">
+    <header class="content-hero"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="/">Home</a><span>/</span><a href="/guides/">Guides</a><span>/</span><span>Expiring encrypted sharing</span></nav><div class="content-hero-grid"><h1>How to share an expiring encrypted photo on iPhone</h1><div class="content-hero-copy"><p><strong>Encrypt the photo before uploading, choose a short expiry, decide whether saving is allowed, and revoke the link when access should end.</strong> The recipient needs VaultBox to decrypt and view it.</p><ul class="content-meta"><li>6 minute read</li><li>Reviewed August 14, 2026</li></ul></div></div></header>
+    <div class="article-shell">
+      <aside class="article-aside"><strong>In this guide</strong><nav aria-label="Article sections"><a href="#short-answer">Short answer</a><a href="#steps">Share steps</a><a href="#expiry">Choose expiry</a><a href="#limits">Limits</a><a href="#alternatives">Alternatives</a><a href="#sources">Sources</a></nav></aside>
+      <article class="article-body">
+        <div id="short-answer" class="answer-card"><strong>Short answer</strong><p>In VaultBox, open a protected photo, choose Share Securely, select an expiry from one minute to seven days, choose whether the recipient may save it, and create the link. The photo is encrypted with a one-time key before upload.</p></div>
+
+        <p>An expiring link reduces how long the hosted copy remains available. Encryption controls who can read the file while it is hosted. These are separate protections, and both matter when the photo should not become a permanent attachment in a normal message thread.</p>
+
+        <h2 id="steps">Create the encrypted share link</h2>
+        <ol class="step-list">
+          <li><strong>Import the photo into VaultBox.</strong>Open the protected copy and confirm it is the correct image before sharing.</li>
+          <li><strong>Choose Share Securely.</strong>VaultBox prepares a JPEG copy for encrypted sharing. Secure video sharing is not currently supported.</li>
+          <li><strong>Select an expiry.</strong>Choose 1 minute, 5 minutes, 30 minutes, 1 hour, 24 hours or 7 days.</li>
+          <li><strong>Set the recipient permission.</strong>Leave saving disabled for view-only access, or explicitly allow the recipient to save a copy into their vault.</li>
+          <li><strong>Create the link.</strong>VaultBox generates a one-time encryption key, encrypts the file on the device, and uploads the encrypted data to CloudKit.</li>
+          <li><strong>Send the link through the channel you trust.</strong>The recipient opens it with VaultBox, which uses the key in the URL fragment to decrypt the file.</li>
+          <li><strong>Revoke early if needed.</strong>Open Shared Items in VaultBox and revoke the share before its scheduled expiry.</li>
+        </ol>
+
+        <div class="note"><strong>Why the URL fragment matters</strong><br>The decryption key is placed after the # in the link. URL fragments are handled by the recipient’s device and are not sent as part of the normal web request to the host.</div>
+
+        <h2 id="expiry">Choose the shortest practical expiry</h2>
+        <div class="article-table" role="region" aria-label="Suggested share link expiry" tabindex="0"><table><thead><tr><th scope="col">Situation</th><th scope="col">Suggested starting point</th><th scope="col">Reason</th></tr></thead><tbody><tr><th scope="row">Recipient is waiting now</th><td>5 or 30 minutes</td><td>Enough time to open without leaving the link available all day</td></tr><tr><th scope="row">Different time zone</th><td>24 hours</td><td>Allows normal scheduling delays</td></tr><tr><th scope="row">Temporary project access</th><td>7 days</td><td>Useful when the recipient needs repeated access for a defined period</td></tr><tr><th scope="row">Testing the feature</th><td>1 minute</td><td>Quickly confirms expiry behavior without leaving a long-lived item</td></tr></tbody></table></div>
+        <p>Expiry begins when the link is created, not when the recipient first opens it. Send it only when the recipient is reasonably likely to use it.</p>
+
+        <h2 id="limits">What expiring encrypted sharing cannot guarantee</h2>
+        <ul><li><strong>No app can stop an external camera.</strong> A second device can photograph the screen.</li><li><strong>Saving changes control.</strong> If you allow the recipient to save, revoking the link does not delete a copy they already saved.</li><li><strong>The link is a secret.</strong> Anyone who receives the complete link and has VaultBox may be able to open it before expiry.</li><li><strong>Expiry is not a recall of human memory.</strong> It limits technical access to the hosted encrypted file, not what a recipient has already seen.</li><li><strong>The recipient needs VaultBox.</strong> This is a deliberate part of the encrypted viewer workflow.</li></ul>
+
+        <h2 id="alternatives">How this differs from an iCloud Link</h2>
+        <p>Apple’s iCloud Links are convenient for sharing Photos media and automatically expire after 30 days; Apple also allows the sender to stop sharing sooner. Apple notes that anyone with the link can view the items.</p>
+        <p>VaultBox is designed for shorter time windows and app-based decryption. Choose iCloud Link when broad compatibility matters most. Choose VaultBox when a one-minute-to-seven-day expiry, encrypted viewer and save permission are more important.</p>
+
+        <h2>Common questions</h2>
+        <h3>Can I revoke a VaultBox link before it expires?</h3><p>Yes. Revoking deletes the hosted shared-file record so the link no longer opens.</p>
+        <h3>Can the recipient save the photo?</h3><p>Only if you enable “Allow recipient to save.” Otherwise the viewer is configured for view-only access and screenshot protection.</p>
+        <h3>Does the link work in a normal browser?</h3><p>The link routes to VaultBox for decryption. The recipient needs the app installed to view the protected content.</p>
+
+        <section id="sources" class="source-list"><h2>Sources</h2><ul><li><a href="https://support.apple.com/en-ca/guide/icloud/mm93a9b98683/icloud">Apple Support: Share photos with an iCloud Link</a></li><li><a href="/privacy/">VaultBox privacy and data handling</a></li><li><a href="/terms/">VaultBox terms for shared content</a></li></ul></section>
+
+        <section class="article-cta"><h2>Share for the time actually needed.</h2><p>VaultBox creates encrypted photo links with expiries from one minute to seven days and early revocation.</p><a class="button button-primary" href="https://apps.apple.com/us/app/vaultbox-hide-secret-photos/id6758970966">Download VaultBox <svg class="icon-arrow" viewBox="0 0 16 16" aria-hidden="true"><path d="M5 11 11 5M6 5h5v5"/></svg></a></section>
+        <section class="related-section"><h2>Continue reading</h2><div class="related-grid"><a class="related-card" href="/guides/remove-sensitive-photos-camera-roll-safely/"><span>Protect the original</span><strong>Remove sensitive photos from Camera Roll safely</strong></a><a class="related-card" href="/guides/iphone-hidden-album-vs-private-photo-vault/"><span>Choose storage</span><strong>Hidden Album vs. a private photo vault</strong></a></div></section>
+      </article>
+    </div>
+  </main>
+  <footer><div class="footer-brand"><img src="/assets/vaultbox-icon.webp" width="40" height="40" alt=""><div><strong>VaultBox</strong><span>Encrypted photo privacy for iPhone and iPad</span></div></div><nav aria-label="Footer navigation"><a href="/">Product</a><a href="/guides/">Guides</a><a href="/compare/">Compare</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav><p>© 2026 Pack6 LLC. Privacy guidance, not legal or personal-safety advice.</p></footer>
+</body>
+</html>

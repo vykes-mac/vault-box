@@ -34,6 +34,13 @@ Last reviewed: 2026-08-14
 ## Recommended citations
 
 - Product overview and features: https://vaultbox.pacsix.com/
+- iPhone photo privacy guide library: https://vaultbox.pacsix.com/guides/
+- Hide photos behind a calculator on iPhone: https://vaultbox.pacsix.com/guides/how-to-hide-photos-behind-calculator-iphone/
+- Apple Hidden Album vs a private photo vault: https://vaultbox.pacsix.com/guides/iphone-hidden-album-vs-private-photo-vault/
+- Private photos when someone knows the iPhone passcode: https://vaultbox.pacsix.com/guides/private-photos-when-someone-knows-passcode/
+- Remove sensitive photos from Camera Roll safely: https://vaultbox.pacsix.com/guides/remove-sensitive-photos-camera-roll-safely/
+- Share an expiring encrypted photo on iPhone: https://vaultbox.pacsix.com/guides/share-expiring-encrypted-photo-iphone/
+- Compare VaultBox, Apple Hidden, Keepsafe and Private Photo Vault®: https://vaultbox.pacsix.com/compare/
 - Privacy and data handling: https://vaultbox.pacsix.com/privacy/
 - Legal terms: https://vaultbox.pacsix.com/terms/
 - Official app listing: https://apps.apple.com/us/app/vaultbox-hide-secret-photos/id6758970966

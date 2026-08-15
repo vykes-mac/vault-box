@@ -12,6 +12,8 @@
   .security-section { grid-template-columns: .8fr 1.2fr; }
   .security-content { padding-inline: 48px; }
   .capability-grid { grid-template-columns: repeat(2, 1fr); }
+  .home-guide-list { grid-template-columns: 1fr; }
+  .home-guide-list a:first-child { grid-row: auto; min-height: 260px; }
   .snapshot-section { grid-template-columns: 1fr; gap: 42px; }
   .final-cta { align-items: flex-start; flex-direction: column; }
 }
@@ -49,6 +51,7 @@
   .capability-grid { grid-template-columns: 1fr; }
   .capability-grid article { min-height: 230px; padding: 26px; }
   .capability-grid h3 { margin-top: 58px; }
+  .home-guide-list a, .home-guide-list a:first-child { min-height: 220px; }
   .comparison-table { margin-right: -18px; }
   table { min-width: 680px; }
   .snapshot-section { padding: 78px 18px; }

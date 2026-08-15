@@ -213,6 +213,7 @@ a:focus-visible, summary:focus-visible, [tabindex="0"]:focus-visible { outline: 
 
 .compare-section { border-top: 1px solid var(--line); }
 .comparison-table { overflow-x: auto; }
+.compare-link { margin-top: 24px; }
 table { width: 100%; border-collapse: collapse; background: var(--white); font-size: .88rem; }
 th, td { padding: 20px; border-bottom: 1px solid var(--line); text-align: left; }
 thead th { background: var(--ink); color: var(--white); font: 600 .68rem var(--mono); letter-spacing: .06em; text-transform: uppercase; }
@@ -232,6 +233,14 @@ tbody td:nth-child(2) { color: var(--blue-dark); font-weight: 700; }
 .snapshot-section dl div { display: grid; grid-template-columns: .8fr 1.2fr; gap: 20px; padding: 16px 0; border-bottom: 1px solid #c6cad3; }
 .snapshot-section dt { color: var(--muted); font-size: .78rem; }
 .snapshot-section dd { margin: 0; font-size: .82rem; font-weight: 600; }
+
+.home-guides-section { border-bottom: 1px solid var(--line); }
+.home-guide-list { display: grid; grid-template-columns: repeat(2, 1fr); border: 1px solid var(--line); border-right: 0; border-bottom: 0; }
+.home-guide-list a { display: flex; flex-direction: column; min-height: 190px; padding: 25px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); background: var(--white); text-decoration: none; }
+.home-guide-list a:first-child { grid-row: span 2; min-height: 380px; background: var(--ink); color: var(--white); }
+.home-guide-list span { color: var(--blue); font: 600 .66rem var(--mono); letter-spacing: .08em; text-transform: uppercase; }
+.home-guide-list strong { max-width: 480px; margin-top: auto; font-size: clamp(1.2rem, 2.4vw, 2rem); letter-spacing: -.035em; line-height: 1.05; }
+.home-guide-list a:hover { outline: 1px solid var(--blue); outline-offset: -1px; }
 
 .faq-section { padding-bottom: 130px; }
 .faq-list { max-width: 930px; margin-left: auto; border-top: 1px solid var(--ink); }
