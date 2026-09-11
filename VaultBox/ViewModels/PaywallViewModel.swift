@@ -8,6 +8,8 @@ struct PaywallPlan: Identifiable {
     enum Kind: String, Sendable {
         case annual
         case weekly
+        /// One-time non-consumable. Never auto-renews, so it needs its own legal copy.
+        case lifetime
     }
 
     let kind: Kind
@@ -24,6 +26,7 @@ struct PaywallPlan: Identifiable {
         switch kind {
         case .annual: String(localized: "Yearly")
         case .weekly: String(localized: "Weekly")
+        case .lifetime: String(localized: "Lifetime")
         }
     }
 
@@ -35,8 +38,11 @@ struct PaywallPlan: Identifiable {
         switch kind {
         case .annual: String(localized: "per year")
         case .weekly: String(localized: "per week")
+        case .lifetime: String(localized: "one-time")
         }
     }
+
+    var isRecurring: Bool { kind != .lifetime }
 
     /// "$1.15/wk" — lets the yearly plan be compared on the weekly plan's own terms.
     var perWeekString: String? {
@@ -112,6 +118,12 @@ final class PaywallViewModel {
         }
             ?? offering?.availablePackages.first { $0.packageType == .weekly }
             ?? offering?.availablePackages.first { $0.storeProduct.subscriptionPeriod?.unit == .week }
+        // Optional: offerings without a lifetime package keep the two-card paywall.
+        let lifetimePackage = offering?.availablePackages.first {
+            $0.storeProduct.productIdentifier == Constants.lifetimeProductID
+        }
+            ?? offering?.availablePackages.first { $0.packageType == .lifetime }
+            ?? offering?.availablePackages.first { $0.storeProduct.productType == .nonConsumable }
         let weeklyPrice = weeklyPackage?.storeProduct.price
 
         #if DEBUG
@@ -142,6 +154,19 @@ final class PaywallViewModel {
                     kind: .weekly,
                     package: weeklyPackage,
                     trialDays: await trialDays(for: weeklyPackage),
+                    savingsPercent: nil
+                )
+            )
+        }
+
+        // Last, so yearly-with-trial stays the anchor and the preselected plan.
+        if let lifetimePackage,
+           !resolved.contains(where: { $0.id == lifetimePackage.identifier }) {
+            resolved.append(
+                PaywallPlan(
+                    kind: .lifetime,
+                    package: lifetimePackage,
+                    trialDays: nil,
                     savingsPercent: nil
                 )
             )

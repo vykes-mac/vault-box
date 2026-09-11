@@ -97,6 +97,8 @@ enum Constants {
     static let premiumEntitlementID = "VaultBox Premium"
     static let weeklyProductID = "vaultbox_premium_weekly"
     static let annualProductID = "vaultbox_premium_annual"
+    /// Non-consumable one-time purchase, attached to the same premium entitlement.
+    static let lifetimeProductID = "vaultbox_premium_lifetime"
 
     // MARK: - App Store
 

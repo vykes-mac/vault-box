@@ -68,6 +68,11 @@ struct SettingsView: View {
                         )
                     }
                 }
+                if purchaseService.hasSubscriptionRenewingAlongsideLifetime {
+                    Section {
+                        LifetimeSubscriptionBanner()
+                    }
+                }
                 if !authService.isDecoyMode {
                     securitySection
                     appearanceSection
@@ -688,8 +693,13 @@ struct SettingsView: View {
                 showCustomerCenter = true
             } label: {
                 HStack {
-                    Label("Manage Subscription", systemImage: "creditcard")
-                        .foregroundStyle(Color.vaultTextPrimary)
+                    if purchaseService.isLifetime {
+                        Label("Lifetime Premium", systemImage: "checkmark.seal.fill")
+                            .foregroundStyle(Color.vaultTextPrimary)
+                    } else {
+                        Label("Manage Subscription", systemImage: "creditcard")
+                            .foregroundStyle(Color.vaultTextPrimary)
+                    }
                     Spacer()
                     if purchaseService.hasBillingIssue {
                         Image(systemName: "exclamationmark.circle.fill")

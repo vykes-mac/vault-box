@@ -31,6 +31,13 @@ struct PaywallExperimentTests {
         #expect(configuration == .fallback)
     }
 
+    @Test("Lifetime is never a remotely selectable default and reports a stable plan kind")
+    func lifetimePlanKind() {
+        // The one-time plan must stay a secondary option behind yearly-with-trial.
+        #expect(PaywallConfiguration.DefaultPlan(rawValue: "lifetime") == nil)
+        #expect(PaywallPlan.Kind.lifetime.rawValue == "lifetime")
+    }
+
     @Test("RevenueCat placement identifiers remain stable")
     func stablePlacementIdentifiers() {
         #expect(PaywallPlacement.onboardingEnd.rawValue == "onboarding_end")

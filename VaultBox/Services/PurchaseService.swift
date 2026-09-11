@@ -61,6 +61,11 @@ class PurchaseService: NSObject {
     /// `entitlementExpirationDate` unless the customer fixes their payment method.
     private(set) var billingIssueDetectedAt: Date?
     private(set) var entitlementExpirationDate: Date?
+    /// Premium comes from a non-expiring purchase rather than a subscription.
+    private(set) var isLifetime = false
+    /// Apple does not cancel an existing subscription when the customer buys lifetime,
+    /// so it keeps billing until they cancel it themselves.
+    private(set) var hasSubscriptionRenewingAlongsideLifetime = false
     private(set) var currentOffering: Offering?
     var isLoading = false
     var offeringsLoadError: String?
@@ -286,6 +291,26 @@ class PurchaseService: NSObject {
         return expirationDate > now
     }
 
+    /// Non-subscription entitlements carry no expiration date in RevenueCat.
+    nonisolated static func isLifetimeAccess(
+        entitlementIsActive: Bool,
+        expirationDate: Date?
+    ) -> Bool {
+        entitlementIsActive && expirationDate == nil
+    }
+
+    /// A subscription the customer has not cancelled, still being paid for on top of
+    /// lifetime access they already own.
+    nonisolated static func hasRenewingSubscription(
+        isLifetime: Bool,
+        subscriptions: [(isActive: Bool, willRenew: Bool, unsubscribeDetectedAt: Date?)]
+    ) -> Bool {
+        guard isLifetime else { return false }
+        return subscriptions.contains {
+            $0.isActive && $0.willRenew && $0.unsubscribeDetectedAt == nil
+        }
+    }
+
     /// True when premium is still granted but Apple has failed to collect payment.
     /// This is the only window in which the customer can recover the subscription
     /// themselves, so it is what the recovery banner keys off.
@@ -337,6 +362,20 @@ class PurchaseService: NSObject {
         hasResolvedCustomerInfo = true
         billingIssueDetectedAt = entitlement?.billingIssueDetectedAt
         entitlementExpirationDate = entitlement?.expirationDate
+        isLifetime = hasPremium && Self.isLifetimeAccess(
+            entitlementIsActive: entitlement?.isActive == true,
+            expirationDate: entitlement?.expirationDate
+        )
+        hasSubscriptionRenewingAlongsideLifetime = Self.hasRenewingSubscription(
+            isLifetime: isLifetime,
+            subscriptions: customerInfo.subscriptionsByProductIdentifier.values.map {
+                (
+                    isActive: $0.isActive,
+                    willRenew: $0.willRenew,
+                    unsubscribeDetectedAt: $0.unsubscribeDetectedAt
+                )
+            }
+        )
         logPremiumEntitlementStatus(entitlement, customerInfo: customerInfo, accessGranted: hasPremium)
         scheduleTrialExpirationIfNeeded()
 

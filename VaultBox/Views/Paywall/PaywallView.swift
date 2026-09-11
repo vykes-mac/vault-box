@@ -277,11 +277,24 @@ struct VaultBoxPaywallView: View {
         if viewModel.trialDays != nil {
             return String(localized: "No payment now · Cancel anytime")
         }
+        if viewModel.selectedPlan?.isRecurring == false {
+            return String(localized: "One-time payment · No subscription")
+        }
         return String(localized: "Cancel anytime in Settings")
     }
 
     private var disclosure: String {
         guard let plan = viewModel.selectedPlan else { return "" }
+        // Auto-renew language on a one-time purchase is misleading and an App Review flag.
+        guard plan.isRecurring else {
+            return String(
+                format: String(
+                    localized: "%@ one-time purchase. This is not a subscription and you won't be charged again."
+                ),
+                locale: Locale.current,
+                plan.priceString
+            )
+        }
         if let trialDays = plan.trialDays {
             let format = String(
                 localized: "%lld days free, then %@ %@. Auto-renews unless cancelled 24 hours before the period ends. Manage in Apple Account settings."

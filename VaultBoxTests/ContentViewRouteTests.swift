@@ -194,4 +194,31 @@ struct RevenueCatEntitlementEnforcementTests {
             now: Date()
         ))
     }
+
+    @Test("A non-expiring entitlement is lifetime access and always grants premium")
+    func lifetimeAccess() {
+        #expect(PurchaseService.isLifetimeAccess(entitlementIsActive: true, expirationDate: nil))
+        #expect(!PurchaseService.isLifetimeAccess(
+            entitlementIsActive: true,
+            expirationDate: Date(timeIntervalSince1970: 1)
+        ))
+        #expect(!PurchaseService.isLifetimeAccess(entitlementIsActive: false, expirationDate: nil))
+        #expect(PurchaseService.grantsPremiumAccess(
+            entitlementIsActive: true,
+            isTrial: false,
+            expirationDate: nil,
+            now: Date()
+        ))
+    }
+
+    @Test("Lifetime owners are warned only about subscriptions that will still bill them")
+    func subscriptionRenewingAlongsideLifetime() {
+        let renewing = (isActive: true, willRenew: true, unsubscribeDetectedAt: Date?.none)
+        let cancelled = (isActive: true, willRenew: false, unsubscribeDetectedAt: Date?(Date()))
+        let lapsed = (isActive: false, willRenew: false, unsubscribeDetectedAt: Date?.none)
+
+        #expect(PurchaseService.hasRenewingSubscription(isLifetime: true, subscriptions: [lapsed, renewing]))
+        #expect(!PurchaseService.hasRenewingSubscription(isLifetime: true, subscriptions: [cancelled, lapsed]))
+        #expect(!PurchaseService.hasRenewingSubscription(isLifetime: false, subscriptions: [renewing]))
+    }
 }

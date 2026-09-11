@@ -86,6 +86,9 @@ struct PaywallPlanCard: View {
                 perWeek
             )
         }
+        if !plan.isRecurring {
+            return String(localized: "Pay once, yours forever")
+        }
         return String(
             format: String(localized: "Billed %@"),
             locale: Locale.current,
