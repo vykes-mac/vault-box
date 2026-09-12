@@ -35598,7 +35598,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Du besitzt Premium auf Lebenszeit, aber dein VaultBox-Abo verlängert sich weiterhin. Kündige es, damit dir nichts mehr berechnet wird."
+            "value" : "Sie besitzen Premium auf Lebenszeit, aber Ihr VaultBox-Abo verlängert sich weiterhin. Kündigen Sie es, damit Ihnen nichts mehr berechnet wird."
           }
         },
         "es-MX" : {
@@ -35878,7 +35878,7 @@
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Dein Abo läuft noch"
+            "value" : "Ihr Abo läuft noch"
           }
         },
         "es-MX" : {
