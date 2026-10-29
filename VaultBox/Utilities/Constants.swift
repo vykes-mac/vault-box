@@ -6,6 +6,11 @@ enum Constants {
 
     static let freeItemLimit = 25
 
+    // MARK: - Recently Deleted
+
+    /// Days a deleted item stays restorable before it is purged on launch.
+    static let recentlyDeletedRetentionDays = 30
+
     // MARK: - Encryption
 
     static let masterKeySize = 32 // 256-bit

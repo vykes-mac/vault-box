@@ -52,17 +52,25 @@ class VaultService {
     private var visionService: VisionAnalysisService?
     private(set) var ingestionService: IngestionService?
     private let reminderService: DocumentReminderService
+    private let deleteCloudRecord: @Sendable (String) async throws -> Void
+    private let now: () -> Date
 
     init(
         encryptionService: EncryptionService,
         modelContext: ModelContext,
         hasPremiumAccess: @escaping () -> Bool = { false },
-        reminderService: DocumentReminderService = DocumentReminderService()
+        reminderService: DocumentReminderService = DocumentReminderService(),
+        deleteCloudRecord: (@Sendable (String) async throws -> Void)? = nil,
+        now: @escaping () -> Date = { Date() }
     ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
         self.hasPremiumAccess = hasPremiumAccess
         self.reminderService = reminderService
+        self.deleteCloudRecord = deleteCloudRecord ?? { recordID in
+            try await CloudService(encryptionService: encryptionService).deleteItem(recordID: recordID)
+        }
+        self.now = now
         self.visionService = VisionAnalysisService(encryptionService: encryptionService)
     }
 
@@ -536,15 +544,98 @@ class VaultService {
 
     // MARK: - Delete Methods
 
-    func deleteItems(_ items: [VaultItem]) async throws {
+    /// Moves items to Recently Deleted. The encrypted file, search index and iCloud
+    /// backup are kept so the item can be restored until it is purged.
+    func deleteItems(_ items: [VaultItem]) throws {
+        let deletedAt = now()
+        for item in items where !item.isTrashed {
+            item.deletedFromDecoy = item.album?.isDecoy == true
+            item.deletedAt = deletedAt
+            cancelReminderNotifications(forItemID: item.id)
+        }
+        try modelContext.save()
+    }
+
+    /// Returns items from Recently Deleted to the vault they were deleted from.
+    func restoreItems(_ items: [VaultItem]) async throws {
+        var restoredIDs: [UUID] = []
+        for item in items where item.isTrashed {
+            if item.deletedFromDecoy {
+                if item.album?.isDecoy != true {
+                    item.album = try defaultDecoyAlbum()
+                }
+            } else if item.album?.isDecoy == true {
+                item.album = nil
+            }
+            item.deletedAt = nil
+            item.deletedFromDecoy = false
+            restoredIDs.append(item.id)
+        }
+        try modelContext.save()
+
+        for itemID in restoredIDs {
+            await rescheduleReminders(forItemID: itemID)
+        }
+    }
+
+    /// Irreversibly removes items: encrypted file, search index, reminders, iCloud
+    /// backup record and the SwiftData record.
+    func permanentlyDeleteItems(_ items: [VaultItem]) async throws {
         removeSearchIndex(for: items)
+        var cloudRecordIDs: [String] = []
         for item in items {
             deleteReminders(forItemID: item.id)
+            if let recordID = item.cloudRecordID {
+                cloudRecordIDs.append(recordID)
+            }
             let fileURL = try await buildFileURL(for: item)
             try? FileManager.default.removeItem(at: fileURL)
             modelContext.delete(item)
         }
         try modelContext.save()
+
+        for recordID in cloudRecordIDs {
+            do {
+                try await deleteCloudRecord(recordID)
+            } catch {
+                #if DEBUG
+                print("[VaultService] Failed to delete iCloud record \(recordID): \(error)")
+                #endif
+            }
+        }
+    }
+
+    /// Permanently deletes items that have been in Recently Deleted for longer than
+    /// `Constants.recentlyDeletedRetentionDays`. Called on launch. Returns the purge count.
+    @discardableResult
+    func purgeExpiredItems() async -> Int {
+        let currentDate = now()
+        let expired = trashedItems().filter { item in
+            guard let deletedAt = item.deletedAt else { return false }
+            return VaultItem.purgeDate(forDeletedAt: deletedAt) <= currentDate
+        }
+        guard !expired.isEmpty else { return 0 }
+        do {
+            try await permanentlyDeleteItems(expired)
+        } catch {
+            #if DEBUG
+            print("[VaultService] Failed to purge Recently Deleted: \(error)")
+            #endif
+            return 0
+        }
+        return expired.count
+    }
+
+    /// Items waiting in Recently Deleted, newest deletion first. Pass `isDecoyMode`
+    /// to limit the result to one vault's bin.
+    func trashedItems(isDecoyMode: Bool? = nil) -> [VaultItem] {
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt != nil },
+            sortBy: [SortDescriptor(\VaultItem.deletedAt, order: .reverse)]
+        )
+        let items = (try? modelContext.fetch(descriptor)) ?? []
+        guard let isDecoyMode else { return items }
+        return items.filter { $0.isInRecentlyDeleted(inDecoyMode: isDecoyMode) }
     }
 
     func deleteFromCameraRoll(localIdentifiers: [String]) async throws {
@@ -644,19 +735,16 @@ class VaultService {
 
     // MARK: - Stats Methods
 
+    /// Live items across both vaults; items in Recently Deleted don't count toward the free limit.
     func getTotalItemCount() -> Int {
-        let descriptor = FetchDescriptor<VaultItem>()
+        let descriptor = FetchDescriptor<VaultItem>(predicate: #Predicate { $0.deletedAt == nil })
         return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
 
     func getItemCount(isDecoyMode: Bool) -> Int {
         let descriptor = FetchDescriptor<VaultItem>()
         guard let items = try? modelContext.fetch(descriptor) else { return 0 }
-        if isDecoyMode {
-            return items.filter { $0.album?.isDecoy == true }.count
-        } else {
-            return items.filter { $0.album?.isDecoy != true }.count
-        }
+        return items.filter { $0.isVisible(inDecoyMode: isDecoyMode) }.count
     }
 
     func getTotalStorageUsed() -> Int64 {
@@ -665,14 +753,11 @@ class VaultService {
         return items.reduce(0) { $0 + $1.fileSize }
     }
 
+    /// Includes the vault's Recently Deleted items, which still occupy disk space.
     func getStorageUsed(isDecoyMode: Bool) -> Int64 {
         let descriptor = FetchDescriptor<VaultItem>()
         guard let items = try? modelContext.fetch(descriptor) else { return 0 }
-        if isDecoyMode {
-            return items.filter { $0.album?.isDecoy == true }.reduce(0) { $0 + $1.fileSize }
-        } else {
-            return items.filter { $0.album?.isDecoy != true }.reduce(0) { $0 + $1.fileSize }
-        }
+        return items.filter { $0.isInDecoyVault == isDecoyMode }.reduce(0) { $0 + $1.fileSize }
     }
 
     func isAtFreeLimit() -> Bool {
@@ -780,7 +865,7 @@ class VaultService {
     /// reminders for any with a detectable expiry. Safe to call repeatedly.
     func backfillDocumentReminders() {
         let descriptor = FetchDescriptor<VaultItem>(
-            predicate: #Predicate { $0.extractedText != nil }
+            predicate: #Predicate { $0.extractedText != nil && $0.deletedAt == nil }
         )
         guard let items = try? modelContext.fetch(descriptor) else { return }
         for item in items {
@@ -793,9 +878,11 @@ class VaultService {
     func repairConfirmedDocumentReminders() async {
         let descriptor = FetchDescriptor<DocumentReminder>()
         guard let reminders = try? modelContext.fetch(descriptor) else { return }
+        let trashedIDs = Set(trashedItems().map(\.id))
 
         var didChange = false
         for reminder in reminders where reminder.isConfirmed && !reminder.isDismissed && reminder.reminderEnabled {
+            guard !trashedIDs.contains(reminder.itemID) else { continue }
             let ids = await reminderService.reschedule(for: reminder)
             if reminder.notificationIDs != ids {
                 reminder.notificationIDs = ids
@@ -847,6 +934,29 @@ class VaultService {
             modelContext.delete(reminder)
         }
         saveContext(context: "delete reminders for item")
+    }
+
+    /// Silences an item's reminders while it sits in Recently Deleted. The reminder
+    /// records are kept so `rescheduleReminders(forItemID:)` can bring them back on restore.
+    private func cancelReminderNotifications(forItemID itemID: UUID) {
+        let descriptor = FetchDescriptor<DocumentReminder>(
+            predicate: #Predicate { $0.itemID == itemID }
+        )
+        guard let reminders = try? modelContext.fetch(descriptor) else { return }
+        for reminder in reminders where !reminder.notificationIDs.isEmpty {
+            reminderService.cancel(notificationIDs: reminder.notificationIDs)
+            reminder.notificationIDs = []
+        }
+    }
+
+    private func rescheduleReminders(forItemID itemID: UUID) async {
+        let descriptor = FetchDescriptor<DocumentReminder>(
+            predicate: #Predicate { $0.itemID == itemID }
+        )
+        guard let reminders = try? modelContext.fetch(descriptor) else { return }
+        for reminder in reminders where reminder.isConfirmed && !reminder.isDismissed && reminder.reminderEnabled {
+            await applyReminderChanges(reminder)
+        }
     }
 
     private func saveContext(context: String) {
@@ -954,13 +1064,13 @@ class VaultService {
         guard ingestionService != nil else { return }
 
         let descriptor = FetchDescriptor<VaultItem>(
-            predicate: #Predicate<VaultItem> { !$0.isIndexed && !$0.indexingFailed }
+            predicate: #Predicate<VaultItem> { !$0.isIndexed && !$0.indexingFailed && $0.deletedAt == nil }
         )
         guard let unindexed = try? modelContext.fetch(descriptor), !unindexed.isEmpty else { return }
         queueSearchIndexing(for: unindexed)
     }
 
-    /// Removes search index data for the given items. Called before item deletion.
+    /// Removes search index data for the given items. Called before permanent deletion.
     private func removeSearchIndex(for items: [VaultItem]) {
         guard let ingestionService else { return }
         for item in items {

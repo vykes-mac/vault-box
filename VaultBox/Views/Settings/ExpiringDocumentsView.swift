@@ -10,12 +10,15 @@ struct ExpiringDocumentsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DocumentReminder.expiryDate, order: .forward)
     private var reminders: [DocumentReminder]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt != nil })
+    private var trashedItems: [VaultItem]
 
     @State private var editingReminder: DocumentReminder?
     @State private var handledTargetReminderID: UUID?
 
     private var activeReminders: [DocumentReminder] {
-        reminders.filter { !$0.isDismissed }
+        let trashedIDs = Set(trashedItems.map(\.id))
+        return reminders.filter { !$0.isDismissed && !trashedIDs.contains($0.itemID) }
     }
     private var unconfirmed: [DocumentReminder] { activeReminders.filter { !$0.isConfirmed } }
     private var confirmed: [DocumentReminder] { activeReminders.filter { $0.isConfirmed } }

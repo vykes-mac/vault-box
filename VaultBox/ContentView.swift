@@ -481,6 +481,7 @@ struct ContentView: View {
         breakInService = breakIn
 
         Task {
+            await vault.purgeExpiredItems()
             await vault.repairConfirmedDocumentReminders()
         }
 

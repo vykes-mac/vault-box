@@ -44,9 +44,13 @@ struct SettingsView: View {
 
     @Query private var settingsQuery: [AppSettings]
     @Query private var reminderQuery: [DocumentReminder]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt != nil }) private var trashedItems: [VaultItem]
 
     private var settings: AppSettings? { settingsQuery.first }
-    private var activeReminders: [DocumentReminder] { reminderQuery.filter { !$0.isDismissed } }
+    private var activeReminders: [DocumentReminder] {
+        let trashedIDs = Set(trashedItems.map(\.id))
+        return reminderQuery.filter { !$0.isDismissed && !trashedIDs.contains($0.itemID) }
+    }
     private var documentAttentionCount: Int {
         activeReminders.filter { reminder in
             if !reminder.isConfirmed { return true }

@@ -204,7 +204,7 @@ struct VaultBoxApp: App {
                 )
 
                 let descriptor = FetchDescriptor<VaultItem>(
-                    predicate: #Predicate<VaultItem> { !$0.isIndexed && !$0.indexingFailed }
+                    predicate: #Predicate<VaultItem> { !$0.isIndexed && !$0.indexingFailed && $0.deletedAt == nil }
                 )
                 let unindexed = (try? context.fetch(descriptor)) ?? []
 

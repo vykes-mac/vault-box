@@ -164,9 +164,17 @@ class AskVaultViewModel {
 
     // MARK: - Item Lookup
 
+    /// Items Ask My Vault may surface: live (not in Recently Deleted) and from the vault
+    /// that is currently unlocked. Trashed items keep their index chunks so restore is
+    /// instant, so results must always be post-filtered against this set.
+    static func searchableItems(from items: [VaultItem], isDecoyMode: Bool) -> [VaultItem] {
+        items.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
+    }
+
     /// Populates name/type lookup from SwiftData so result cards can display metadata.
     /// Called from the view when items query changes.
     func updateItemLookup(from items: [VaultItem]) {
+        let items = items.filter { !$0.isTrashed }
         var lookup: [UUID: (name: String, type: VaultItem.ItemType)] = [:]
         for item in items {
             lookup[item.id] = (name: item.originalFilename, type: item.type)

@@ -10,7 +10,7 @@ struct CameraView: View {
 
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.scenePhase) private var scenePhase
-    @Query private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }) private var allItems: [VaultItem]
 
     @State private var capturedPhoto: CapturedPhoto?
     @State private var isSaving = false

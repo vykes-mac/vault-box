@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -146,12 +146,14 @@
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
 		DC44390FD1E620CBD67A200B /* VaultBoxMainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */; };
 		DF32EFCCA0872BFE3EC0A083 /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815B6196E1DAC89853BA30A8 /* Data+Encryption.swift */; };
+		E45DD6F9EEDA06C21B69DB39 /* RecentlyDeletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */; };
 		EA564C14612D8F196C566C12 /* PremiumBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97902116F3003BBD32528411 /* PremiumBadge.swift */; };
 		EC84A7185FB8A2BC8B6916D6 /* SensitiveScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AB63DDDEC699C71E1D303A /* SensitiveScanViewModel.swift */; };
 		ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */; };
 		EEE30E0156A023F0F38F6FCE /* ContentViewRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */; };
 		F0FC9E9914D93B48A6F67E61 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD38D29E22E45F46FC58CCC /* SharingService.swift */; };
 		F30DF55655A76D81D0281813 /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */; };
+		F45D908691D06F9AE5277CE6 /* RecentlyDeletedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */; };
 		FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */; };
 		FA439FFB9D21DE6B622CD57B /* OnboardingQuestionSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */; };
 		FACDC7F1BC3527DC09DD47EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 307D7EEC4053DBFC3DC933D7 /* InfoPlist.strings */; };
@@ -235,6 +237,7 @@
 		53EE030F169434A471BB0B95 /* OnboardingPlanSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPlanSteps.swift; sourceTree = "<group>"; };
 		54444CBE438F2B4912228B82 /* AskVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultViewModel.swift; sourceTree = "<group>"; };
 		576CEF3691B5C209B27AF9DB /* SharedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItemsView.swift; sourceTree = "<group>"; };
+		5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyDeletedView.swift; sourceTree = "<group>"; };
 		5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		5DAAF6305764E8DEC418493E /* SearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchEngine.swift; sourceTree = "<group>"; };
 		613A77F664A6FA8CF727E567 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
@@ -250,7 +253,7 @@
 		74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
 		758EDDB57C2D63B26C0E14FC /* DashboardDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDisguiseViews.swift; sourceTree = "<group>"; };
 		76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPaywallTests.swift; sourceTree = "<group>"; };
-		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		792B5111919FC2FDFBF53902 /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
 		796E271CEED2372A036F31BE /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		79F852E51EB969C130EA1CFA /* OnboardingNarrativeSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNarrativeSteps.swift; sourceTree = "<group>"; };
@@ -275,7 +278,7 @@
 		97902116F3003BBD32528411 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
 		97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		99D487ED26681F007F4BB1CE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
 		9DD38D29E22E45F46FC58CCC /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
 		A2218977F1460A0977E0C6ED /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -285,7 +288,6 @@
 		A8A14BBC4299F74D4D76FFF5 /* vocab.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = vocab.txt; sourceTree = "<group>"; };
 		AB8C4A92AF7EA29E82840486 /* BreakInService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInService.swift; sourceTree = "<group>"; };
 		AD140710BF28B74D915976A7 /* AppRootRouting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootRouting.swift; sourceTree = "<group>"; };
-		AFB0AAFEBD108A8259A7EA52 /* Secrets.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.xcconfig; sourceTree = "<group>"; };
 		B30DDAE249CD0882BF6289A4 /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = "pt-BR.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		B5E10A8BA5E3247E72BB7165 /* PaywallPlacement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallPlacement.swift; sourceTree = "<group>"; };
 		B7023E56BE3EEDDB5A4C1276 /* Album.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Album.swift; sourceTree = "<group>"; };
@@ -317,7 +319,7 @@
 		E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallConfiguration.swift; sourceTree = "<group>"; };
-		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
+		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
 		E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallExperimentTests.swift; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		ECA4D39B39B1EA8D1D872E74 /* DocumentExpiryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParser.swift; sourceTree = "<group>"; };
@@ -331,6 +333,7 @@
 		F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSignalDetectors.swift; sourceTree = "<group>"; };
 		F4E01373AC984A41342BA198 /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 		FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
+		FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyDeletedTests.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FCA85F89FEFBDE400F1CF534 /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
 		FEC0D0313FD7D6D30F66A15C /* DisguiseCoverView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseCoverView.swift; sourceTree = "<group>"; };
@@ -403,6 +406,7 @@
 				BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */,
 				76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */,
 				E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */,
+				FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */,
 				2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
 			);
 			path = VaultBoxTests;
@@ -582,6 +586,7 @@
 				4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */,
 				FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */,
 				37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */,
+				5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */,
 				6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */,
 				2943DA75634CFC3588C738A8 /* SmartAlbumType.swift */,
 				4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */,
@@ -612,7 +617,6 @@
 				A2D14DA424B3748D4AD21D55 /* PaywallGate.swift */,
 				46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */,
 				6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */,
-				AFB0AAFEBD108A8259A7EA52 /* Secrets.xcconfig */,
 				78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */,
 				D604B675E73CAE586A9EB0E1 /* VaultBox.entitlements */,
 				34702C72F8A36861926F0D3C /* VaultBoxApp.swift */,
@@ -768,6 +772,7 @@
 				D06E306C7D69684641073C52 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				72FECDEB44800901DE211467 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -816,6 +821,7 @@
 				1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */,
 				FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */,
 				4F9DFD614E8287EBF8F23B97 /* PaywallExperimentTests.swift in Sources */,
+				F45D908691D06F9AE5277CE6 /* RecentlyDeletedTests.swift in Sources */,
 				7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -917,6 +923,7 @@
 				AAAF911616806070CF1B4834 /* PrivacyStatPaywallView.swift in Sources */,
 				AACA420494B2DD816BDA2EF1 /* ProductivityDisguiseViews.swift in Sources */,
 				605F801AE42F37A8AAAC7987 /* PurchaseService.swift in Sources */,
+				E45DD6F9EEDA06C21B69DB39 /* RecentlyDeletedView.swift in Sources */,
 				554AA0DF0BB7298B759E95CD /* ScreenCaptureMonitor.swift in Sources */,
 				29CC0D185BCF3A77A98B7E18 /* ScreenshotProofView.swift in Sources */,
 				FB73233FB3185654AC85817B /* SearchEngine.swift in Sources */,
@@ -995,7 +1002,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1010,7 +1026,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
@@ -1146,7 +1162,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1161,7 +1186,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2.5;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;

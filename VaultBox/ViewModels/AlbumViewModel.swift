@@ -36,11 +36,7 @@ class AlbumViewModel {
     func deleteAlbum(deleteContents: Bool, modelContext: ModelContext) {
         guard let album = albumToDelete else { return }
         if deleteContents {
-            if let items = album.items {
-                Task {
-                    try? await vaultService.deleteItems(items)
-                }
-            }
+            try? vaultService.deleteItems(album.liveItems)
         } else {
             if let items = album.items {
                 for item in items {
@@ -64,7 +60,7 @@ class AlbumViewModel {
             return
         }
 
-        let coverSource = album.coverItem ?? album.items?.first
+        let coverSource = album.coverItem.flatMap { $0.isTrashed ? nil : $0 } ?? album.liveItems.first
         guard let source = coverSource else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: source) else { return }
         coverCache[albumID] = image
