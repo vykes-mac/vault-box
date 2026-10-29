@@ -443,7 +443,8 @@ struct BackupSettingsView: View {
                 try await encryptionService.importWrappedMasterKey(
                     keyBackup.wrappedKey,
                     pin: pin,
-                    salt: keyBackup.salt
+                    salt: keyBackup.salt,
+                    formatVersion: keyBackup.formatVersion
                 )
 
                 // Success — close PIN sheet and start restore
@@ -528,7 +529,15 @@ struct BackupSettingsView: View {
                 )
 
                 let cloudService = CloudService(encryptionService: encryptionService)
-                try await cloudService.uploadKeyBackup(wrappedKey: wrappedKey, salt: wrappingSalt)
+                try await cloudService.uploadKeyBackup(
+                    wrappedKey: wrappedKey,
+                    salt: wrappingSalt,
+                    keyFingerprint: try await encryptionService.masterKeyFingerprint()
+                )
+                UserDefaults.standard.set(
+                    CloudService.keyBackupMarker(pinSalt: settings.pinSalt),
+                    forKey: Constants.keyBackupCheckedMarkerKey
+                )
 
                 // Close sheet and resume backup
                 keyBackupPIN = ""

@@ -71,6 +71,9 @@ enum Constants {
 
     static let cloudRecordType = "EncryptedVaultItem"
     static let cloudKeyBackupRecordType = "VaultKeyBackup"
+    /// 1 = wrapped with the PIN alone; 2 = PIN + iCloud Keychain backup secret.
+    static let keyBackupFormatVersion = 2
+    static let keyBackupCheckedMarkerKey = "keyBackupCheckedMarker"
     static let featureRequestRecordType = "FeatureRequest"
     static let featureVoteRecordType = "FeatureVote"
 
@@ -168,6 +171,7 @@ enum Constants {
     // MARK: - Keychain Keys
 
     static let keychainMasterKeyID = "com.vaultbox.masterKey"
+    static let keychainBackupSecretID = "com.vaultbox.keyBackupSecret"
     static let keychainRevenueCatAppUserID = "com.vaultbox.revenueCatAppUserID"
     static let keychainServiceID = "com.vaultbox.app"
 }

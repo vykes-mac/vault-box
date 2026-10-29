@@ -13,6 +13,16 @@ struct CloudUploadPayload: Sendable {
     let encryptedThumbnailData: Data?
 }
 
+// MARK: - Key Backup
+
+struct KeyBackup: Sendable {
+    let wrappedKey: Data
+    let salt: Data
+    let formatVersion: Int
+    /// Absent on format 1 backups.
+    let keyFingerprint: Data?
+}
+
 // MARK: - CloudService
 
 actor CloudService {
@@ -43,7 +53,8 @@ actor CloudService {
         record["itemID"] = payload.itemID.uuidString as CKRecordValue
         record["encryptedFile"] = CKAsset(fileURL: fileURL)
         record["itemType"] = payload.itemType as CKRecordValue
-        record["originalFilename"] = payload.originalFilename as CKRecordValue
+        let encryptedName = try await encryptedFilename(payload.originalFilename)
+        record["encryptedFilename"] = encryptedName as CKRecordValue
         record["fileSize"] = payload.fileSize as CKRecordValue
         record["createdAt"] = payload.createdAt as CKRecordValue
 
@@ -114,6 +125,44 @@ actor CloudService {
         return allRecords
     }
 
+    /// Uploads from older versions stored filenames in plain text. Encrypts them
+    /// in place and clears the plain-text field.
+    func encryptLegacyFilenames() async throws {
+        let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))
+        let desiredKeys = ["originalFilename"]
+        var page = try await database.records(matching: query, desiredKeys: desiredKeys, resultsLimit: 200)
+
+        while true {
+            var updated: [CKRecord] = []
+            for (_, result) in page.matchResults {
+                guard let record = try? result.get(),
+                      let filename = record["originalFilename"] as? String else { continue }
+                let encryptedName = try await encryptedFilename(filename)
+                record["encryptedFilename"] = encryptedName as CKRecordValue
+                record["originalFilename"] = nil
+                updated.append(record)
+            }
+
+            if !updated.isEmpty {
+                let (saveResults, _) = try await database.modifyRecords(
+                    saving: updated,
+                    deleting: [],
+                    savePolicy: .changedKeys
+                )
+                for (_, result) in saveResults {
+                    _ = try result.get()
+                }
+            }
+
+            guard let cursor = page.queryCursor else { break }
+            page = try await database.records(continuingMatchFrom: cursor, desiredKeys: desiredKeys, resultsLimit: 200)
+        }
+    }
+
+    private func encryptedFilename(_ filename: String) async throws -> Data {
+        try await encryptionService.encryptData(Data(filename.utf8))
+    }
+
     /// Returns just the count of backed-up records without downloading them.
     func countCloudRecords() async throws -> Int {
         let records = try await fetchAllCloudRecords()
@@ -125,15 +174,18 @@ actor CloudService {
     /// Well-known record ID for the single key backup record per user.
     private static let keyBackupRecordID = CKRecord.ID(recordName: "MasterKeyBackup")
 
-    /// Uploads a PIN-wrapped master key to CloudKit for restore on new devices.
+    /// Uploads a wrapped master key (see `EncryptionService.exportWrappedMasterKey`)
+    /// to CloudKit for restore on new devices.
     /// Uses a fixed record ID so repeated calls overwrite the previous backup.
-    func uploadKeyBackup(wrappedKey: Data, salt: Data) async throws {
+    func uploadKeyBackup(wrappedKey: Data, salt: Data, keyFingerprint: Data) async throws {
         let record = CKRecord(
             recordType: Constants.cloudKeyBackupRecordType,
             recordID: Self.keyBackupRecordID
         )
         record["wrappedMasterKey"] = wrappedKey as CKRecordValue
         record["keySalt"] = salt as CKRecordValue
+        record["formatVersion"] = Constants.keyBackupFormatVersion as CKRecordValue
+        record["keyFingerprint"] = keyFingerprint as CKRecordValue
         record["createdAt"] = Date() as CKRecordValue
 
         // Use changedKeys save policy so re-uploads overwrite the existing record.
@@ -148,9 +200,13 @@ actor CloudService {
         }
     }
 
-    /// Fetches the PIN-wrapped master key from CloudKit.
-    func fetchKeyBackup() async throws -> (wrappedKey: Data, salt: Data)? {
-        guard let record = try? await database.record(for: Self.keyBackupRecordID) else {
+    /// Fetches the wrapped master key from CloudKit. Returns nil only when no
+    /// backup exists; network and account errors are thrown.
+    func fetchKeyBackup() async throws -> KeyBackup? {
+        let record: CKRecord
+        do {
+            record = try await database.record(for: Self.keyBackupRecordID)
+        } catch let error as CKError where error.code == .unknownItem {
             return nil
         }
 
@@ -159,7 +215,68 @@ actor CloudService {
             return nil
         }
 
-        return (wrappedKey: wrappedKey, salt: salt)
+        return KeyBackup(
+            wrappedKey: wrappedKey,
+            salt: salt,
+            formatVersion: record["formatVersion"] as? Int ?? 1,
+            keyFingerprint: record["keyFingerprint"] as? Data
+        )
+    }
+
+    /// Brings the iCloud backup up to date for the PIN the user just unlocked
+    /// with: re-wraps a format 1 (PIN-only) backup or one made before a PIN
+    /// change, and encrypts any plain-text filenames left by older versions.
+    /// Only touches a backup of this device's vault key, so a fresh install
+    /// can never overwrite the backup it still needs to restore from.
+    func upgradeBackupIfNeeded(pin: String) async throws {
+        guard let backup = try await fetchKeyBackup() else { return }
+
+        let localFingerprint = try await encryptionService.masterKeyFingerprint()
+        let cloudKey = try? await encryptionService.unwrapMasterKey(
+            backup.wrappedKey,
+            pin: pin,
+            salt: backup.salt,
+            formatVersion: backup.formatVersion
+        )
+        // Format 1 backups carry no fingerprint: they belong to this vault if this
+        // PIN opens them to this device's key, or (after a PIN change) if this
+        // device's key decrypts the backed-up items.
+        let isThisVault: Bool
+        if let cloudFingerprint = backup.keyFingerprint ?? cloudKey.map(EncryptionService.fingerprint(of:)) {
+            isThisVault = cloudFingerprint == localFingerprint
+        } else {
+            isThisVault = try await backedUpItemsUseLocalKey()
+        }
+        guard isThisVault else { return }
+
+        if backup.formatVersion < Constants.keyBackupFormatVersion || cloudKey == nil {
+            let salt = await encryptionService.generateSalt()
+            let wrappedKey = try await encryptionService.exportWrappedMasterKey(pin: pin, salt: salt)
+            try await uploadKeyBackup(wrappedKey: wrappedKey, salt: salt, keyFingerprint: localFingerprint)
+        }
+
+        try await encryptLegacyFilenames()
+    }
+
+    /// True when this device's key decrypts a backed-up thumbnail, or when
+    /// there are no backed-up items to lose.
+    private func backedUpItemsUseLocalKey() async throws -> Bool {
+        let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))
+        let page = try await database.records(matching: query, desiredKeys: ["encryptedThumbnail"], resultsLimit: 5)
+        let records = page.matchResults.compactMap { try? $0.1.get() }
+        guard !records.isEmpty else { return true }
+
+        for record in records {
+            guard let thumbnail = record["encryptedThumbnail"] as? Data else { continue }
+            return (try? await encryptionService.decryptData(thumbnail)) != nil
+        }
+        return false
+    }
+
+    /// Value stored after `upgradeBackupIfNeeded` succeeds, so the check runs
+    /// once per PIN and backup format instead of on every unlock.
+    nonisolated static func keyBackupMarker(pinSalt: String) -> String {
+        "\(pinSalt)#\(Constants.keyBackupFormatVersion)"
     }
 
     /// Checks whether a key backup exists in iCloud without downloading it.

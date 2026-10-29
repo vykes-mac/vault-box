@@ -209,12 +209,34 @@ class AuthService {
             lastBackgroundAt = nil
             settings.lastUnlockedAt = Date()
             try? modelContext.save()
+            if settings.iCloudBackupEnabled {
+                upgradeCloudBackupIfNeeded(pin: pin, pinSalt: settings.pinSalt)
+            }
             return .success
         }
 
         // Failed attempt
         await handleFailedAttempt(pin)
         return settings.lockoutUntil != nil && settings.lockoutUntil! > Date() ? .locked : .failure
+    }
+
+    /// Re-wraps the iCloud key backup for the current PIN and backup format.
+    /// Runs in the background after an unlock, once per PIN.
+    private func upgradeCloudBackupIfNeeded(pin: String, pinSalt: String) {
+        let marker = CloudService.keyBackupMarker(pinSalt: pinSalt)
+        guard UserDefaults.standard.string(forKey: Constants.keyBackupCheckedMarkerKey) != marker else { return }
+
+        let cloudService = CloudService(encryptionService: encryptionService)
+        Task {
+            do {
+                try await cloudService.upgradeBackupIfNeeded(pin: pin)
+                UserDefaults.standard.set(marker, forKey: Constants.keyBackupCheckedMarkerKey)
+            } catch {
+                #if DEBUG
+                print("[AuthService] Key backup upgrade failed: \(error)")
+                #endif
+            }
+        }
     }
 
     func changePIN(old: String, new: String) async throws {

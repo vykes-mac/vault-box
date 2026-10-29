@@ -32,6 +32,31 @@ final class KeychainKeyStorage: KeyStorage {
     }
 }
 
+/// Keychain storage that syncs through iCloud Keychain, which is end-to-end
+/// encrypted. Holds the secret that locks the iCloud key backup, so the
+/// backup can be restored on a new device signed into the same Apple ID.
+final class SyncedKeychainKeyStorage: KeyStorage {
+    private let keychain: Keychain
+
+    init() {
+        self.keychain = Keychain(service: Constants.keychainServiceID)
+            .synchronizable(true)
+            .accessibility(.afterFirstUnlock)
+    }
+
+    func set(_ data: Data, forKey key: String) throws {
+        try keychain.set(data, key: key)
+    }
+
+    func getData(_ key: String) throws -> Data? {
+        try keychain.getData(key)
+    }
+
+    func remove(_ key: String) throws {
+        try keychain.remove(key)
+    }
+}
+
 final class InMemoryKeyStorage: KeyStorage, @unchecked Sendable {
     private let lock = NSLock()
     private var store: [String: Data] = [:]
@@ -53,9 +78,14 @@ final class InMemoryKeyStorage: KeyStorage, @unchecked Sendable {
 
 actor EncryptionService {
     private let keyStorage: KeyStorage
+    private let backupSecretStorage: KeyStorage
 
-    init(keyStorage: KeyStorage = KeychainKeyStorage()) {
+    init(
+        keyStorage: KeyStorage = KeychainKeyStorage(),
+        backupSecretStorage: KeyStorage = SyncedKeychainKeyStorage()
+    ) {
         self.keyStorage = keyStorage
+        self.backupSecretStorage = backupSecretStorage
     }
 
     // MARK: - Key Generation
@@ -184,37 +214,65 @@ actor EncryptionService {
 
     // MARK: - Key Wrapping (for iCloud Backup)
 
-    /// Exports the master key encrypted (wrapped) by a PIN-derived wrapping key.
-    /// The returned blob can be safely stored in CloudKit — it cannot be decrypted
-    /// without knowing the user's PIN.
+    /// Exports the master key wrapped for CloudKit (current backup format).
+    /// The wrapping key mixes the PIN with a random 256-bit secret kept in
+    /// iCloud Keychain, so the blob can't be brute-forced through the short PIN
+    /// by anyone who only has access to the CloudKit data.
     func exportWrappedMasterKey(pin: String, salt: Data) throws -> Data {
         let masterKey = try loadMasterKey()
-        let wrappingKey = deriveMasterKey(from: pin, salt: salt)
+        let wrappingKey = backupWrappingKey(pin: pin, salt: salt, secret: try loadOrCreateBackupSecret())
         let masterKeyData = masterKey.withUnsafeBytes { Data($0) }
         return try encryptData(masterKeyData, using: wrappingKey)
     }
 
-    /// Imports a wrapped master key by decrypting it with the user's PIN-derived key
-    /// and storing the resulting master key in the Keychain.
-    func importWrappedMasterKey(_ wrappedData: Data, pin: String, salt: Data) throws {
-        let wrappingKey = deriveMasterKey(from: pin, salt: salt)
-        let masterKeyData = try decryptData(wrappedData, using: wrappingKey)
-        let masterKey = SymmetricKey(data: masterKeyData)
+    /// Unwraps a CloudKit key backup and stores the master key in the Keychain.
+    func importWrappedMasterKey(_ wrappedData: Data, pin: String, salt: Data, formatVersion: Int) throws {
+        let masterKey = try unwrapMasterKey(wrappedData, pin: pin, salt: salt, formatVersion: formatVersion)
         try storeMasterKey(masterKey)
     }
 
-    // MARK: - Key Rotation
+    /// Unwraps a CloudKit key backup without storing it.
+    func unwrapMasterKey(_ wrappedData: Data, pin: String, salt: Data, formatVersion: Int) throws -> SymmetricKey {
+        let wrappingKey: SymmetricKey
+        if formatVersion >= Constants.keyBackupFormatVersion {
+            guard let secret = try backupSecretStorage.getData(Constants.keychainBackupSecretID) else {
+                throw EncryptionError.backupSecretUnavailable
+            }
+            wrappingKey = backupWrappingKey(pin: pin, salt: salt, secret: secret)
+        } else {
+            // Format 1 backups were wrapped with the PIN alone.
+            wrappingKey = deriveMasterKey(from: pin, salt: salt)
+        }
+        return SymmetricKey(data: try decryptData(wrappedData, using: wrappingKey))
+    }
 
-    func rotateMasterKey(oldPIN: String, oldSalt: Data, newPIN: String, newSalt: Data) throws {
-        let oldKey = deriveMasterKey(from: oldPIN, salt: oldSalt)
-        let newKey = deriveMasterKey(from: newPIN, salt: newSalt)
+    /// Identifies the vault key without revealing it, so a key backup can be
+    /// matched to the vault it belongs to.
+    func masterKeyFingerprint() throws -> Data {
+        Self.fingerprint(of: try loadMasterKey())
+    }
 
-        // Store the new key — in a full implementation, per-file keys
-        // would be re-encrypted here. Since we use a single master key
-        // for direct encryption, we just swap the stored key.
-        _ = oldKey // validated derivation
-        let keyData = newKey.withUnsafeBytes { Data($0) }
-        try keyStorage.set(keyData, forKey: Constants.keychainMasterKeyID)
+    static func fingerprint(of key: SymmetricKey) -> Data {
+        let mac = HMAC<SHA256>.authenticationCode(for: Data("com.vaultbox.key-fingerprint".utf8), using: key)
+        return Data(mac.prefix(16))
+    }
+
+    private func backupWrappingKey(pin: String, salt: Data, secret: Data) -> SymmetricKey {
+        HKDF<SHA256>.deriveKey(
+            inputKeyMaterial: SymmetricKey(data: secret + Data(pin.utf8)),
+            salt: salt,
+            info: Data("com.vaultbox.keybackup.v2".utf8),
+            outputByteCount: Constants.masterKeySize
+        )
+    }
+
+    private func loadOrCreateBackupSecret() throws -> Data {
+        if let secret = try backupSecretStorage.getData(Constants.keychainBackupSecretID) {
+            return secret
+        }
+        let secret = SymmetricKey(size: .bits256).withUnsafeBytes { Data($0) }
+        try backupSecretStorage.set(secret, forKey: Constants.keychainBackupSecretID)
+        return secret
     }
 
     // MARK: - File Paths
@@ -245,6 +303,7 @@ enum EncryptionError: LocalizedError {
     case encryptionFailed
     case decryptionFailed
     case thumbnailGenerationFailed
+    case backupSecretUnavailable
 
     var errorDescription: String? {
         switch self {
@@ -256,6 +315,8 @@ enum EncryptionError: LocalizedError {
             String(localized: "This item couldn't be opened. It may be corrupted.")
         case .thumbnailGenerationFailed:
             String(localized: "Couldn't generate thumbnail for this item.")
+        case .backupSecretUnavailable:
+            String(localized: "Your backup key isn't on this device yet. Turn on iCloud Keychain (Settings > [your name] > iCloud > Passwords & Keychain), wait a minute for it to sync, then try again.")
         }
     }
 }

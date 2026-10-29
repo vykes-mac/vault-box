@@ -1,4 +1,5 @@
 import Foundation
+import CloudKit
 import PhotosUI
 import AVFoundation
 import UniformTypeIdentifiers
@@ -580,7 +581,6 @@ class VaultService {
                   let itemID = UUID(uuidString: itemIDString),
                   let itemTypeRaw = record["itemType"] as? String,
                   let itemType = VaultItem.ItemType(rawValue: itemTypeRaw),
-                  let originalFilename = record["originalFilename"] as? String,
                   let fileSize = record["fileSize"] as? Int64 else {
                 progress(index + 1, total)
                 await cloudService.setDownloadProgress(completed: index + 1, total: total)
@@ -606,7 +606,7 @@ class VaultService {
                 // Create VaultItem with metadata from CloudKit record
                 let item = VaultItem(
                     type: itemType,
-                    originalFilename: originalFilename,
+                    originalFilename: await restoredFilename(from: record),
                     encryptedFileRelativePath: relativePath,
                     fileSize: fileSize
                 )
@@ -640,6 +640,16 @@ class VaultService {
 
         await cloudService.resetDownloadProgress()
         return restoredItems
+    }
+
+    private func restoredFilename(from record: CKRecord) async -> String {
+        if let encrypted = record["encryptedFilename"] as? Data,
+           let decrypted = try? await encryptionService.decryptData(encrypted),
+           let filename = String(data: decrypted, encoding: .utf8) {
+            return filename
+        }
+        // Records uploaded before filenames were encrypted
+        return record["originalFilename"] as? String ?? String(localized: "Restored item")
     }
 
     // MARK: - Stats Methods

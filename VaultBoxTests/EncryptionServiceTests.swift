@@ -6,8 +6,8 @@ import CryptoKit
 @Suite("EncryptionService Tests")
 struct EncryptionServiceTests {
 
-    private func makeService() -> EncryptionService {
-        EncryptionService(keyStorage: InMemoryKeyStorage())
+    private func makeService(backupSecretStorage: KeyStorage = InMemoryKeyStorage()) -> EncryptionService {
+        EncryptionService(keyStorage: InMemoryKeyStorage(), backupSecretStorage: backupSecretStorage)
     }
 
     @Test("Encrypt then decrypt roundtrip returns identical data")
@@ -123,5 +123,83 @@ struct EncryptionServiceTests {
         let salt2 = await service.generateSalt()
         #expect(salt1 != salt2)
         #expect(salt1.count == 32)
+    }
+
+    // MARK: - Key Backup
+
+    @Test("Key backup restores on a new device that shares iCloud Keychain")
+    func keyBackupRoundtripAcrossDevices() async throws {
+        let iCloudKeychain = InMemoryKeyStorage()
+        let oldDevice = makeService(backupSecretStorage: iCloudKeychain)
+        try await oldDevice.storeMasterKey(await oldDevice.generateMasterKey())
+        let salt = await oldDevice.generateSalt()
+        let wrapped = try await oldDevice.exportWrappedMasterKey(pin: "1234", salt: salt)
+
+        let newDevice = makeService(backupSecretStorage: iCloudKeychain)
+        try await newDevice.importWrappedMasterKey(
+            wrapped, pin: "1234", salt: salt, formatVersion: Constants.keyBackupFormatVersion
+        )
+
+        #expect(try await newDevice.masterKeyFingerprint() == oldDevice.masterKeyFingerprint())
+    }
+
+    @Test("Key backup can't be opened with the PIN alone")
+    func keyBackupNeedsBackupSecret() async throws {
+        let oldDevice = makeService()
+        try await oldDevice.storeMasterKey(await oldDevice.generateMasterKey())
+        let salt = await oldDevice.generateSalt()
+        let wrapped = try await oldDevice.exportWrappedMasterKey(pin: "1234", salt: salt)
+
+        // No shared iCloud Keychain secret
+        let attacker = makeService()
+        await #expect(throws: EncryptionError.self) {
+            try await attacker.unwrapMasterKey(
+                wrapped, pin: "1234", salt: salt, formatVersion: Constants.keyBackupFormatVersion
+            )
+        }
+        // Treating it as a PIN-only backup doesn't work either
+        await #expect(throws: (any Error).self) {
+            try await attacker.unwrapMasterKey(wrapped, pin: "1234", salt: salt, formatVersion: 1)
+        }
+    }
+
+    @Test("Key backup rejects a wrong PIN")
+    func keyBackupRejectsWrongPIN() async throws {
+        let service = makeService()
+        try await service.storeMasterKey(await service.generateMasterKey())
+        let salt = await service.generateSalt()
+        let wrapped = try await service.exportWrappedMasterKey(pin: "1234", salt: salt)
+
+        await #expect(throws: (any Error).self) {
+            try await service.unwrapMasterKey(
+                wrapped, pin: "9999", salt: salt, formatVersion: Constants.keyBackupFormatVersion
+            )
+        }
+    }
+
+    @Test("Format 1 (PIN-only) backups still restore")
+    func legacyKeyBackupRestores() async throws {
+        let service = makeService()
+        let masterKey = await service.generateMasterKey()
+        let salt = await service.generateSalt()
+        let legacyWrappingKey = await service.deriveMasterKey(from: "1234", salt: salt)
+        let wrapped = try await service.encryptData(
+            masterKey.withUnsafeBytes { Data($0) }, using: legacyWrappingKey
+        )
+
+        let restored = try await service.unwrapMasterKey(wrapped, pin: "1234", salt: salt, formatVersion: 1)
+
+        #expect(EncryptionService.fingerprint(of: restored) == EncryptionService.fingerprint(of: masterKey))
+    }
+
+    @Test("Key fingerprints identify a key without matching other keys")
+    func keyFingerprints() async {
+        let service = makeService()
+        let key1 = await service.generateMasterKey()
+        let key2 = await service.generateMasterKey()
+
+        #expect(EncryptionService.fingerprint(of: key1) == EncryptionService.fingerprint(of: key1))
+        #expect(EncryptionService.fingerprint(of: key1) != EncryptionService.fingerprint(of: key2))
+        #expect(EncryptionService.fingerprint(of: key1).count == 16)
     }
 }
