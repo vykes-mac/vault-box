@@ -169,6 +169,8 @@ enum Constants {
 
     static let keychainMasterKeyID = "com.vaultbox.masterKey"
     static let keychainRevenueCatAppUserID = "com.vaultbox.revenueCatAppUserID"
+    /// Private half of the share-extension inbox key pair. Never leaves the app.
+    static let keychainShareInboxKeyID = "com.vaultbox.shareInboxKey"
     static let keychainServiceID = "com.vaultbox.app"
 }
 
