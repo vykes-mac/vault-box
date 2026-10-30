@@ -30,6 +30,8 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>VaultBox uses the camera to capture photos directly into your vault.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VaultBox records sound with videos you capture into your vault.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>VaultBox uses Face ID to securely unlock your vault.</string>
 	<key>NSLocalNetworkUsageDescription</key>
