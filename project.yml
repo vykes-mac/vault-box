@@ -29,6 +29,7 @@ targets:
     platform: iOS
     sources:
       - path: VaultBox
+      - path: Shared
       - path: Launch Screen.storyboard
         buildPhase: resources
     resources:
@@ -71,6 +72,7 @@ targets:
       - package: KeychainAccess
       - package: TelemetryDeck
         product: TelemetryDeck
+      - target: VaultBoxShareExtension
     entitlements:
       path: VaultBox/VaultBox.entitlements
       properties:
@@ -81,6 +83,32 @@ targets:
         com.apple.security.application-groups:
           - group.com.vaultbox.app
         aps-environment: development
+
+  VaultBoxShareExtension:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: VaultBoxShareExtension
+      - path: Shared
+    settings:
+      base:
+        INFOPLIST_FILE: VaultBoxShareExtension/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.pack6.vaultbox.ShareExtension
+        MARKETING_VERSION: "1.0.2"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        SUPPORTS_MACCATALYST: "NO"
+        SWIFT_STRICT_CONCURRENCY: complete
+        APPLICATION_EXTENSION_API_ONLY: "YES"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "Apple Development"
+        DEVELOPMENT_TEAM: 4A7H788X5U
+    entitlements:
+      path: VaultBoxShareExtension/VaultBoxShareExtension.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.vaultbox.app
 
   VaultBoxTests:
     type: bundle.unit-test

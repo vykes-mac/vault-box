@@ -20,6 +20,8 @@ struct ContentView: View {
     @State private var breakInService: BreakInService?
     @State private var panicGestureService: PanicGestureService?
     @State private var searchEngine: SearchEngine?
+    @State private var shareInboxService: ShareInboxService?
+    @State private var shareInboxSummary: ShareInboxIngestSummary?
     @State private var indexingProgress = IndexingProgress()
     @State private var showImporter = false
     @State private var showPostOnboardingSecuritySetup = false
@@ -138,6 +140,8 @@ struct ContentView: View {
                 // screen, so the lapse check has to run again once they are actually
                 // somewhere they can read it.
                 presentDisguiseLapseNoticeIfNeeded()
+                shareInboxService?.publishConfiguration()
+                ingestSharedItemsIfNeeded()
             }
             attemptPrivacyShieldReveal()
         }
@@ -230,6 +234,27 @@ struct ContentView: View {
                 )
             )
         }
+        .alert(
+            "Shared to VaultBox",
+            isPresented: Binding(
+                get: { shareInboxSummary != nil },
+                set: { if !$0 { shareInboxSummary = nil } }
+            ),
+            presenting: shareInboxSummary
+        ) { summary in
+            if summary.waitingForPremium > 0 {
+                Button("Upgrade") {
+                    shareInboxSummary = nil
+                    postSetupPaywallPlacement = .featureGate
+                    showPostSetupPaywall = true
+                }
+                Button("Later", role: .cancel) { shareInboxSummary = nil }
+            } else {
+                Button("OK", role: .cancel) { shareInboxSummary = nil }
+            }
+        } message: { summary in
+            Text(shareInboxMessage(for: summary))
+        }
         .fullScreenCover(item: $activeShare, onDismiss: {
             // Only clear the pending URL when the user explicitly dismissed
             // the viewer (not when the lock cycle killed it).
@@ -312,6 +337,8 @@ struct ContentView: View {
         privacyShield.isVisible = true
         guard let authService else { return }
         guard authService.isSetupComplete else { return }
+        // Picks up PIN, biometric and premium changes made while unlocked.
+        shareInboxService?.publishConfiguration()
 
         if shouldLockImmediatelyForDisguise(iconName: UIApplication.shared.alternateIconName) {
             authService.lock()
@@ -347,6 +374,8 @@ struct ContentView: View {
             Task {
                 await vaultService?.repairConfirmedDocumentReminders()
             }
+            // Covers sharing while the vault is still inside its auto-lock window.
+            ingestSharedItemsIfNeeded()
         }
         attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
     }
@@ -424,6 +453,40 @@ struct ContentView: View {
         )
     }
 
+    private func ingestSharedItemsIfNeeded() {
+        guard let authService, let shareInboxService,
+              currentRoute == .main,
+              !hardPaywallAccessState.blocksMainContent else { return }
+        let isDecoyMode = authService.isDecoyMode
+        Task {
+            let summary = await shareInboxService.ingestPendingItems(isDecoyMode: isDecoyMode)
+            // Drop the result if the vault locked or switched modes while importing.
+            guard !summary.isEmpty,
+                  currentRoute == .main,
+                  authService.isDecoyMode == isDecoyMode else { return }
+            shareInboxSummary = summary
+        }
+    }
+
+    private func shareInboxMessage(for summary: ShareInboxIngestSummary) -> String {
+        var lines: [String] = []
+        if summary.imported > 0 {
+            lines.append(inflected("Added ^[\(summary.imported) shared item](inflect: true) to your vault."))
+        }
+        if summary.waitingForPremium > 0 {
+            lines.append(inflected("^[\(summary.waitingForPremium) shared item](inflect: true) waiting. Upgrade to Premium to finish importing."))
+        }
+        if summary.failed > 0 {
+            lines.append(inflected("Couldn't import ^[\(summary.failed) shared item](inflect: true)."))
+        }
+        return lines.joined(separator: "\n\n")
+    }
+
+    /// Localized text with automatic grammar agreement, so counts read "1 item" / "2 items".
+    private func inflected(_ resource: String.LocalizationValue) -> String {
+        String(AttributedString(localized: resource).characters)
+    }
+
     private func routeToPendingDocumentReminderIfNeeded() {
         guard hasPendingDocumentReminderNavigation, currentRoute == .main else { return }
         selectedMainTab = .settings
@@ -479,6 +542,11 @@ struct ContentView: View {
         authService = auth
         vaultService = vault
         breakInService = breakIn
+        shareInboxService = ShareInboxService(
+            vaultService: vault,
+            modelContext: modelContext,
+            hasPremiumAccess: { purchaseService.isPremium }
+        )
 
         Task {
             await vault.repairConfirmedDocumentReminders()
