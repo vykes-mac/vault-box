@@ -30,8 +30,7 @@ struct SettingsView: View {
     @State private var showRestoreAlert = false
     @State private var restoreMessage = ""
     @State private var showBreakInPermissionSetup = false
-    @State private var showRecoveryCodeSheet = false
-    @State private var generatedRecoveryCode: String?
+    @State private var recoveryCode: RecoveryCodePresentation?
     @State private var hasCopiedRecoveryCode = false
     @State private var showRecoveryActionAlert = false
     @State private var recoveryActionMessage = ""
@@ -176,8 +175,8 @@ struct SettingsView: View {
             } message: {
                 Text(recoveryActionMessage)
             }
-            .sheet(isPresented: $showRecoveryCodeSheet) {
-                recoveryCodeSheet
+            .sheet(item: $recoveryCode) { recoveryCode in
+                recoveryCodeSheet(code: recoveryCode.code)
             }
             .sheet(isPresented: $showPanicConfig) {
                 PanicGestureConfigSheet(
@@ -349,7 +348,7 @@ struct SettingsView: View {
         }
     }
 
-    private var recoveryCodeSheet: some View {
+    private func recoveryCodeSheet(code: String) -> some View {
         VStack(spacing: 18) {
             Text("New Recovery Code")
                 .font(.title3)
@@ -360,14 +359,14 @@ struct SettingsView: View {
                 .foregroundStyle(Color.vaultTextSecondary)
                 .multilineTextAlignment(.center)
 
-            Text(generatedRecoveryCode ?? "")
+            Text(code)
                 .font(.system(.title3, design: .monospaced))
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 12))
 
             Button {
-                copyRecoveryCodeToClipboard()
+                copyRecoveryCodeToClipboard(code)
             } label: {
                 Label(
                     hasCopiedRecoveryCode
@@ -381,7 +380,7 @@ struct SettingsView: View {
 
             Button("Done") {
                 hasCopiedRecoveryCode = false
-                showRecoveryCodeSheet = false
+                recoveryCode = nil
             }
             .buttonStyle(.borderedProminent)
             .tint(Color.vaultAccent)
@@ -393,9 +392,9 @@ struct SettingsView: View {
     private func regenerateRecoveryCode() {
         Task {
             do {
-                generatedRecoveryCode = try await authService.regenerateRecoveryCode()
+                let code = try await authService.regenerateRecoveryCode()
                 hasCopiedRecoveryCode = false
-                showRecoveryCodeSheet = true
+                recoveryCode = RecoveryCodePresentation(code: code)
             } catch {
                 recoveryActionMessage = error.localizedDescription
                 showRecoveryActionAlert = true
@@ -414,10 +413,8 @@ struct SettingsView: View {
         }
     }
 
-    private func copyRecoveryCodeToClipboard() {
-        guard let generatedRecoveryCode else { return }
-
-        UIPasteboard.general.string = generatedRecoveryCode
+    private func copyRecoveryCodeToClipboard(_ code: String) {
+        UIPasteboard.general.string = code
         hasCopiedRecoveryCode = true
 
         Task {

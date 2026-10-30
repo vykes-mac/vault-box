@@ -93,926 +93,6 @@
         }
       }
     },
-    "%lld days" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Tage"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld días"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld jours"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld giorni"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld日"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld일"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld dias"
-          }
-        }
-      }
-    },
-    "1 day" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 Tag"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 día"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 jour"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 giorno"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1日"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1일"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 dia"
-          }
-        }
-      }
-    },
-    "Delete All" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle löschen"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar todo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tout supprimer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina tutto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべて削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모두 삭제"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir tudo"
-          }
-        }
-      }
-    },
-    "Delete Permanently" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Endgültig löschen"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminar permanentemente"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer définitivement"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elimina definitivamente"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "完全に削除"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "영구적으로 삭제"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir permanentemente"
-          }
-        }
-      }
-    },
-    "Deleted items stay here for 30 days before they're permanently removed." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gelöschte Elemente bleiben 30 Tage hier, bevor sie endgültig entfernt werden."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos eliminados permanecen aquí 30 días antes de eliminarse de forma permanente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments supprimés restent ici 30 jours avant d’être définitivement effacés."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi eliminati restano qui per 30 giorni prima di essere rimossi definitivamente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "削除した項目は、完全に削除されるまで30日間ここに保管されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "삭제된 항목은 영구적으로 제거되기 전까지 30일 동안 여기에 보관됩니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens excluídos ficam aqui por 30 dias antes de serem removidos permanentemente."
-          }
-        }
-      }
-    },
-    "Deleted on This Device" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Auf diesem Gerät gelöscht"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminado en este dispositivo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimé sur cet appareil"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminato su questo dispositivo"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このデバイスから削除しました"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 기기에서 삭제됨"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apagado neste dispositivo"
-          }
-        }
-      }
-    },
-    "Items in this album will be moved to All Items, or to Recently Deleted." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Die Elemente in diesem Album werden in „Alle Elemente“ oder in „Zuletzt gelöscht“ verschoben."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos de este álbum se moverán a Todos los elementos o a Eliminados recientemente."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments de cet album seront déplacés dans Tous les éléments ou dans Supprimés récemment."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi di questo album verranno spostati in Tutti gli elementi o in Eliminati di recente."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "このアルバムの項目は「すべての項目」または「最近削除した項目」に移動します。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 앨범의 항목은 모든 항목 또는 최근 삭제된 항목으로 이동됩니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens deste álbum serão movidos para Todos os itens ou para Excluídos recentemente."
-          }
-        }
-      }
-    },
-    "Items show the days remaining before they're permanently deleted. After that, they can't be recovered." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elemente zeigen die verbleibenden Tage bis zur endgültigen Löschung an. Danach können sie nicht wiederhergestellt werden."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Los elementos muestran los días que faltan para su eliminación permanente. Después, no se podrán recuperar."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Les éléments indiquent le nombre de jours restants avant leur suppression définitive. Ensuite, ils ne pourront plus être récupérés."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Gli elementi mostrano i giorni rimanenti prima dell’eliminazione definitiva. Dopo non potranno più essere recuperati."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "各項目には完全に削除されるまでの残り日数が表示されます。その後は復元できません。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "각 항목에 영구 삭제까지 남은 일수가 표시됩니다. 그 이후에는 복구할 수 없습니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Os itens mostram os dias restantes até a exclusão permanente. Depois disso, não poderão ser recuperados."
-          }
-        }
-      }
-    },
-    "No Recently Deleted Items" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Keine zuletzt gelöschten Elemente"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No hay elementos eliminados recientemente"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aucun élément supprimé récemment"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nessun elemento eliminato di recente"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最近削除した項目はありません"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "최근 삭제된 항목 없음"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Nenhum item excluído recentemente"
-          }
-        }
-      }
-    },
-    "Permanently delete %lld items?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld Elemente endgültig löschen?"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Eliminar %lld elementos permanentemente?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer définitivement %lld éléments ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminare definitivamente %lld elementi?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld個の項目を完全に削除しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "%lld개의 항목을 영구적으로 삭제할까요?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir %lld itens permanentemente?"
-          }
-        }
-      }
-    },
-    "Permanently delete 1 item?" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1 Element endgültig löschen?"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "¿Eliminar 1 elemento permanentemente?"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimer définitivement 1 élément ?"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminare definitivamente 1 elemento?"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1つの項目を完全に削除しますか？"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "1개의 항목을 영구적으로 삭제할까요?"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluir 1 item permanentemente?"
-          }
-        }
-      }
-    },
-    "Recently Deleted" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Zuletzt gelöscht"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminados recientemente"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Supprimés récemment"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Eliminati di recente"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "最近削除した項目"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "최근 삭제된 항목"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Excluídos recentemente"
-          }
-        }
-      }
-    },
-    "Restore All" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Alle wiederherstellen"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaurar todo"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tout restaurer"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ripristina tutto"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "すべて復元"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "모두 복원"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Restaurar tudo"
-          }
-        }
-      }
-    },
-    "Restored item" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Wiederhergestelltes Objekt"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elemento restaurado"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Élément restauré"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Elemento ripristinato"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "復元された項目"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "복원된 항목"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Item restaurado"
-          }
-        }
-      }
-    },
-    "These items will be moved to Recently Deleted. You can restore them for 30 days." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Diese Elemente werden in „Zuletzt gelöscht“ verschoben. Du kannst sie 30 Tage lang wiederherstellen."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Estos elementos se moverán a Eliminados recientemente. Podrás restaurarlos durante 30 días."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Ces éléments seront déplacés dans Supprimés récemment. Vous pourrez les restaurer pendant 30 jours."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questi elementi verranno spostati in Eliminati di recente. Potrai ripristinarli per 30 giorni."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "これらの項目は「最近削除した項目」に移動します。30日間は復元できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 항목들은 최근 삭제된 항목으로 이동됩니다. 30일 동안 복원할 수 있습니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esses itens serão movidos para Excluídos recentemente. Você pode restaurá-los por 30 dias."
-          }
-        }
-      }
-    },
-    "This can't be undone. Items are also removed from your iCloud backup." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dies kann nicht rückgängig gemacht werden. Die Elemente werden auch aus deinem iCloud-Backup entfernt."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta acción no se puede deshacer. Los elementos también se eliminarán de tu respaldo de iCloud."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cette action est irréversible. Les éléments seront également supprimés de votre sauvegarde iCloud."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questa azione non può essere annullata. Gli elementi verranno rimossi anche dal backup iCloud."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この操作は取り消せません。項目はiCloudバックアップからも削除されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 작업은 실행 취소할 수 없습니다. 항목이 iCloud 백업에서도 제거됩니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Esta ação não pode ser desfeita. Os itens também serão removidos do seu backup do iCloud."
-          }
-        }
-      }
-    },
-    "This item will be moved to Recently Deleted. You can restore it for 30 days." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dieses Element wird in „Zuletzt gelöscht“ verschoben. Du kannst es 30 Tage lang wiederherstellen."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este elemento se moverá a Eliminados recientemente. Podrás restaurarlo durante 30 días."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Cet élément sera déplacé dans Supprimés récemment. Vous pourrez le restaurer pendant 30 jours."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Questo elemento verrà spostato in Eliminati di recente. Potrai ripristinarlo per 30 giorni."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "この項目は「最近削除した項目」に移動します。30日間は復元できます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "이 항목은 최근 삭제된 항목으로 이동됩니다. 30일 동안 복원할 수 있습니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Este item será movido para Excluídos recentemente. Você pode restaurá-lo por 30 dias."
-          }
-        }
-      }
-    },
-    "Utilities" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Werkzeuge"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utilidades"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utilitaires"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utility"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "ユーティリティ"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "유틸리티"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Utilitários"
-          }
-        }
-      }
-    },
-    "Your backup key isn't on this device yet. Turn on iCloud Keychain (Settings > [your name] > iCloud > Passwords & Keychain), wait a minute for it to sync, then try again." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein Backup-Schlüssel ist noch nicht auf diesem Gerät. Aktiviere den iCloud-Schlüsselbund (Einstellungen > [dein Name] > iCloud > Passwörter & Schlüsselbund), warte eine Minute auf die Synchronisierung und versuche es dann erneut."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tu clave de respaldo aún no está en este dispositivo. Activa el Llavero de iCloud (Configuración > [tu nombre] > iCloud > Contraseñas y llavero), espera un minuto a que se sincronice y vuelve a intentarlo."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre clé de sauvegarde n'est pas encore sur cet appareil. Activez le trousseau iCloud (Réglages > [votre nom] > iCloud > Mots de passe et trousseau), attendez une minute la synchronisation, puis réessayez."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La chiave di backup non è ancora su questo dispositivo. Attiva Portachiavi iCloud (Impostazioni > [il tuo nome] > iCloud > Password e portachiavi), attendi un minuto per la sincronizzazione e riprova."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップキーがまだこのデバイスにありません。iCloudキーチェーンをオンにして（設定 > [ユーザ名] > iCloud > パスワードとキーチェーン）、同期されるまで1分ほど待ってから、もう一度お試しください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업 키가 아직 이 기기에 없습니다. iCloud 키체인을 켜고(설정 > [사용자 이름] > iCloud > 암호 및 키체인) 동기화될 때까지 1분 정도 기다린 다음 다시 시도하세요."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sua chave de backup ainda não está neste dispositivo. Ative o Porta-chaves do iCloud (Ajustes > [seu nome] > iCloud > Senhas e Porta-chaves), aguarde um minuto para sincronizar e tente novamente."
-          }
-        }
-      }
-    },
-    "Your iCloud backup couldn't be reached. These items will be removed from it automatically next time you're online." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Dein iCloud-Backup war nicht erreichbar. Diese Objekte werden automatisch daraus entfernt, sobald du wieder online bist."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No se pudo acceder a tu respaldo de iCloud. Estos elementos se eliminarán de él automáticamente la próxima vez que tengas conexión."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Votre sauvegarde iCloud est inaccessible. Ces éléments en seront supprimés automatiquement dès que vous serez en ligne."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Impossibile raggiungere il backup iCloud. Questi elementi verranno rimossi automaticamente la prossima volta che sarai online."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloudバックアップに接続できませんでした。次にオンラインになったときに、これらの項目はバックアップから自動的に削除されます。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iCloud 백업에 연결할 수 없습니다. 다음에 온라인 상태가 되면 이 항목들이 백업에서 자동으로 삭제됩니다."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Não foi possível acessar seu backup do iCloud. Estes itens serão removidos dele automaticamente quando você estiver online."
-          }
-        }
-      }
-    },
     "—" : {
       "localizations" : {
         "de" : {
@@ -1673,6 +753,53 @@
       "comment" : "A label showing the progress of building the vault. The argument is the progress as a percentage.",
       "isCommentAutoGenerated" : true
     },
+    "%lld days" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Tage"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld días"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld jours"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld giorni"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld日"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld일"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld dias"
+          }
+        }
+      }
+    },
     "%lld days free, then %@" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -2041,6 +1168,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "• Use um PIN de disfarce diferente do PIN real."
+          }
+        }
+      }
+    },
+    "1 day" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Tag"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 día"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 jour"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 giorno"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1日"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1일"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 dia"
           }
         }
       }
@@ -9912,6 +9086,53 @@
         }
       }
     },
+    "Delete All" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle löschen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar todo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout supprimer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina tutto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 삭제"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir tudo"
+          }
+        }
+      }
+    },
     "Delete from Files?" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -10049,6 +9270,147 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Exclua os originais das Fotos depois de mover"
+          }
+        }
+      }
+    },
+    "Delete Permanently" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Endgültig löschen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminar permanentemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer définitivement"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elimina definitivamente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "完全に削除"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "영구적으로 삭제"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir permanentemente"
+          }
+        }
+      }
+    },
+    "Deleted items stay here for 30 days before they're permanently removed." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gelöschte Elemente bleiben 30 Tage hier, bevor sie endgültig entfernt werden."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos eliminados permanecen aquí 30 días antes de eliminarse de forma permanente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments supprimés restent ici 30 jours avant d’être définitivement effacés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi eliminati restano qui per 30 giorni prima di essere rimossi definitivamente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "削除した項目は、完全に削除されるまで30日間ここに保管されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "삭제된 항목은 영구적으로 제거되기 전까지 30일 동안 여기에 보관됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens excluídos ficam aqui por 30 dias antes de serem removidos permanentemente."
+          }
+        }
+      }
+    },
+    "Deleted on This Device" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf diesem Gerät gelöscht"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminado en este dispositivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimé sur cet appareil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminato su questo dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスから削除しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기기에서 삭제됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apagado neste dispositivo"
           }
         }
       }
@@ -16845,6 +16207,7 @@
       }
     },
     "Items in this album will be moved to All Items, or deleted permanently." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -16886,6 +16249,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Os itens neste álbum serão movidos para Todos os Itens ou excluídos permanentemente."
+          }
+        }
+      }
+    },
+    "Items in this album will be moved to All Items, or to Recently Deleted." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Die Elemente in diesem Album werden in „Alle Elemente“ oder in „Zuletzt gelöscht“ verschoben."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos de este álbum se moverán a Todos los elementos o a Eliminados recientemente."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments de cet album seront déplacés dans Tous les éléments ou dans Supprimés récemment."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi di questo album verranno spostati in Tutti gli elementi o in Eliminati di recente."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このアルバムの項目は「すべての項目」または「最近削除した項目」に移動します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 앨범의 항목은 모든 항목 또는 최근 삭제된 항목으로 이동됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens deste álbum serão movidos para Todos os itens ou para Excluídos recentemente."
           }
         }
       }
@@ -16933,6 +16342,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Itens que correspondam a esta categoria aparecerão aqui"
+          }
+        }
+      }
+    },
+    "Items show the days remaining before they're permanently deleted. After that, they can't be recovered." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemente zeigen die verbleibenden Tage bis zur endgültigen Löschung an. Danach können sie nicht wiederhergestellt werden."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Los elementos muestran los días que faltan para su eliminación permanente. Después, no se podrán recuperar."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les éléments indiquent le nombre de jours restants avant leur suppression définitive. Ensuite, ils ne pourront plus être récupérés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gli elementi mostrano i giorni rimanenti prima dell’eliminazione definitiva. Dopo non potranno più essere recuperati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "各項目には完全に削除されるまでの残り日数が表示されます。その後は復元できません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "각 항목에 영구 삭제까지 남은 일수가 표시됩니다. 그 이후에는 복구할 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Os itens mostram os dias restantes até a exclusão permanente. Depois disso, não poderão ser recuperados."
           }
         }
       }
@@ -19652,6 +19107,53 @@
         }
       }
     },
+    "No Recently Deleted Items" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keine zuletzt gelöschten Elemente"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No hay elementos eliminados recientemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucun élément supprimé récemment"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessun elemento eliminato di recente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近削除した項目はありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 삭제된 항목 없음"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum item excluído recentemente"
+          }
+        }
+      }
+    },
     "No Requests Yet" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -21660,6 +21162,100 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "por cento"
+          }
+        }
+      }
+    },
+    "Permanently delete %lld items?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Elemente endgültig löschen?"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar %lld elementos permanentemente?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer définitivement %lld éléments ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare definitivamente %lld elementi?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld個の項目を完全に削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld개의 항목을 영구적으로 삭제할까요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir %lld itens permanentemente?"
+          }
+        }
+      }
+    },
+    "Permanently delete 1 item?" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Element endgültig löschen?"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Eliminar 1 elemento permanentemente?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimer définitivement 1 élément ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminare definitivamente 1 elemento?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1つの項目を完全に削除しますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1개의 항목을 영구적으로 삭제할까요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluir 1 item permanentemente?"
           }
         }
       }
@@ -24141,6 +23737,52 @@
         }
       }
     },
+    "Recently Deleted" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Zuletzt gelöscht"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminados recientemente"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimés récemment"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminati di recente"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "最近削除した項目"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "최근 삭제된 항목"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Excluídos recentemente"
+          }
+        }
+      }
+    },
     "Recipient can save to their vault" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -25079,6 +24721,7 @@
       }
     },
     "Restore" : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -25120,6 +24763,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restaurar"
+          }
+        }
+      }
+    },
+    "Restore All" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alle wiederherstellen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar todo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tout restaurer"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ripristina tutto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "すべて復元"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "모두 복원"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar tudo"
           }
         }
       }
@@ -25261,6 +24951,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Restaurar Compras"
+          }
+        }
+      }
+    },
+    "Restored item" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederhergestelltes Objekt"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento restaurado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élément restauré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento ripristinato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復元された項目"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복원된 항목"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item restaurado"
           }
         }
       }
@@ -31228,7 +30965,54 @@
         }
       }
     },
+    "These items will be moved to Recently Deleted. You can restore them for 30 days." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Diese Elemente werden in „Zuletzt gelöscht“ verschoben. Du kannst sie 30 Tage lang wiederherstellen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estos elementos se moverán a Eliminados recientemente. Podrás restaurarlos durante 30 días."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ces éléments seront déplacés dans Supprimés récemment. Vous pourrez les restaurer pendant 30 jours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questi elementi verranno spostati in Eliminati di recente. Potrai ripristinarli per 30 giorni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "これらの項目は「最近削除した項目」に移動します。30日間は復元できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목들은 최근 삭제된 항목으로 이동됩니다. 30일 동안 복원할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esses itens serão movidos para Excluídos recentemente. Você pode restaurá-los por 30 dias."
+          }
+        }
+      }
+    },
     "These items will be permanently deleted from your vault." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -31364,6 +31148,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Este ícone do aplicativo não está disponível na versão atual."
+          }
+        }
+      }
+    },
+    "This can't be undone. Items are also removed from your iCloud backup." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dies kann nicht rückgängig gemacht werden. Die Elemente werden auch aus deinem iCloud-Backup entfernt."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta acción no se puede deshacer. Los elementos también se eliminarán de tu respaldo de iCloud."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette action est irréversible. Les éléments seront également supprimés de votre sauvegarde iCloud."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questa azione non può essere annullata. Gli elementi verranno rimossi anche dal backup iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この操作は取り消せません。項目はiCloudバックアップからも削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 작업은 실행 취소할 수 없습니다. 항목이 iCloud 백업에서도 제거됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta ação não pode ser desfeita. Os itens também serão removidos do seu backup do iCloud."
           }
         }
       }
@@ -31602,7 +31432,54 @@
         }
       }
     },
+    "This item will be moved to Recently Deleted. You can restore it for 30 days." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses Element wird in „Zuletzt gelöscht“ verschoben. Du kannst es 30 Tage lang wiederherstellen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este elemento se moverá a Eliminados recientemente. Podrás restaurarlo durante 30 días."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cet élément sera déplacé dans Supprimés récemment. Vous pourrez le restaurer pendant 30 jours."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo elemento verrà spostato in Eliminati di recente. Potrai ripristinarlo per 30 giorni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この項目は「最近削除した項目」に移動します。30日間は復元できます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 항목은 최근 삭제된 항목으로 이동됩니다. 30일 동안 복원할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este item será movido para Excluídos recentemente. Você pode restaurá-lo por 30 dias."
+          }
+        }
+      }
+    },
     "This item will be permanently deleted from your vault." : {
+      "extractionState" : "stale",
       "localizations" : {
         "de" : {
           "stringUnit" : {
@@ -33793,6 +33670,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Use o Código de Recuperação"
+          }
+        }
+      }
+    },
+    "Utilities" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Werkzeuge"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilidades"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilitaires"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utility"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ユーティリティ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "유틸리티"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Utilitários"
           }
         }
       }
@@ -37020,6 +36943,99 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seu backup é criptografado com seu PIN. Digite o PIN que você usou quando configurou pela primeira vez o VaultBox para descriptografar seus itens."
+          }
+        }
+      }
+    },
+    "Your backup key isn't on this device yet. Turn on iCloud Keychain (Settings > [your name] > iCloud > Passwords & Keychain), wait a minute for it to sync, then try again." : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Backup-Schlüssel ist noch nicht auf diesem Gerät. Aktiviere den iCloud-Schlüsselbund (Einstellungen > [dein Name] > iCloud > Passwörter & Schlüsselbund), warte eine Minute auf die Synchronisierung und versuche es dann erneut."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu clave de respaldo aún no está en este dispositivo. Activa el Llavero de iCloud (Configuración > [tu nombre] > iCloud > Contraseñas y llavero), espera un minuto a que se sincronice y vuelve a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre clé de sauvegarde n'est pas encore sur cet appareil. Activez le trousseau iCloud (Réglages > [votre nom] > iCloud > Mots de passe et trousseau), attendez une minute la synchronisation, puis réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La chiave di backup non è ancora su questo dispositivo. Attiva Portachiavi iCloud (Impostazioni > [il tuo nome] > iCloud > Password e portachiavi), attendi un minuto per la sincronizzazione e riprova."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップキーがまだこのデバイスにありません。iCloudキーチェーンをオンにして（設定 > [ユーザ名] > iCloud > パスワードとキーチェーン）、同期されるまで1分ほど待ってから、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 키가 아직 이 기기에 없습니다. iCloud 키체인을 켜고(설정 > [사용자 이름] > iCloud > 암호 및 키체인) 동기화될 때까지 1분 정도 기다린 다음 다시 시도하세요."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua chave de backup ainda não está neste dispositivo. Ative o Porta-chaves do iCloud (Ajustes > [seu nome] > iCloud > Senhas e Porta-chaves), aguarde um minuto para sincronizar e tente novamente."
+          }
+        }
+      }
+    },
+    "Your iCloud backup couldn't be reached. These items will be removed from it automatically next time you're online." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein iCloud-Backup war nicht erreichbar. Diese Objekte werden automatisch daraus entfernt, sobald du wieder online bist."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo acceder a tu respaldo de iCloud. Estos elementos se eliminarán de él automáticamente la próxima vez que tengas conexión."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre sauvegarde iCloud est inaccessible. Ces éléments en seront supprimés automatiquement dès que vous serez en ligne."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile raggiungere il backup iCloud. Questi elementi verranno rimossi automaticamente la prossima volta che sarai online."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudバックアップに接続できませんでした。次にオンラインになったときに、これらの項目はバックアップから自動的に削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 백업에 연결할 수 없습니다. 다음에 온라인 상태가 되면 이 항목들이 백업에서 자동으로 삭제됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível acessar seu backup do iCloud. Estes itens serão removidos dele automaticamente quando você estiver online."
           }
         }
       }

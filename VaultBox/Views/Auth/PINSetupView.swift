@@ -6,6 +6,11 @@ enum PINSetupMode {
     case recoveryReset(recoveryCode: String)
 }
 
+struct RecoveryCodePresentation: Identifiable {
+    let id = UUID()
+    let code: String
+}
+
 struct PINSetupView: View {
     let authService: AuthService
     let mode: PINSetupMode
@@ -25,8 +30,7 @@ struct PINSetupView: View {
     @State private var shakeOffset: CGFloat = 0
     @State private var errorMessage: String?
     @State private var isSubmitting = false
-    @State private var generatedRecoveryCode: String?
-    @State private var showRecoveryCodeSheet = false
+    @State private var recoveryCode: RecoveryCodePresentation?
     @State private var hasCopiedRecoveryCode = false
 
     @Environment(\.dismiss) private var dismiss
@@ -152,8 +156,8 @@ struct PINSetupView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, Constants.standardPadding)
         .background(Color.vaultBackground.ignoresSafeArea())
-        .sheet(isPresented: $showRecoveryCodeSheet) {
-            recoveryCodeSheet
+        .sheet(item: $recoveryCode) { recoveryCode in
+            recoveryCodeSheet(code: recoveryCode.code)
                 .interactiveDismissDisabled()
         }
         .toolbar {
@@ -174,7 +178,7 @@ struct PINSetupView: View {
         .toolbarBackground(.visible, for: .navigationBar)
     }
 
-    private var recoveryCodeSheet: some View {
+    private func recoveryCodeSheet(code: String) -> some View {
         VStack(spacing: 18) {
             Image(systemName: "key.horizontal.fill")
                 .font(.system(size: 40))
@@ -189,14 +193,14 @@ struct PINSetupView: View {
                 .foregroundStyle(Color.vaultTextSecondary)
                 .multilineTextAlignment(.center)
 
-            Text(generatedRecoveryCode ?? "")
+            Text(code)
                 .font(.system(.title3, design: .monospaced))
                 .padding()
                 .frame(maxWidth: .infinity)
                 .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 12))
 
             Button {
-                copyRecoveryCodeToClipboard()
+                copyRecoveryCodeToClipboard(code)
             } label: {
                 Label(
                     hasCopiedRecoveryCode
@@ -262,10 +266,10 @@ struct PINSetupView: View {
                     } else {
                         switch mode {
                         case .initialSetup:
-                            generatedRecoveryCode = try await authService.createPIN(pin)
+                            let code = try await authService.createPIN(pin)
                             Haptics.pinCorrect()
                             hasCopiedRecoveryCode = false
-                            showRecoveryCodeSheet = true
+                            recoveryCode = RecoveryCodePresentation(code: code)
                         case .recoveryReset(let recoveryCode):
                             try await authService.resetPINUsingRecoveryCode(recoveryCode, newPIN: pin)
                             Haptics.pinCorrect()
@@ -310,7 +314,7 @@ struct PINSetupView: View {
                 try authService.completeInitialSetup()
             }
             hasCopiedRecoveryCode = false
-            showRecoveryCodeSheet = false
+            recoveryCode = nil
             isSubmitting = false
             onSuccess?()
             onFinish?()
@@ -322,10 +326,8 @@ struct PINSetupView: View {
         }
     }
 
-    private func copyRecoveryCodeToClipboard() {
-        guard let generatedRecoveryCode else { return }
-
-        UIPasteboard.general.string = generatedRecoveryCode
+    private func copyRecoveryCodeToClipboard(_ code: String) {
+        UIPasteboard.general.string = code
         hasCopiedRecoveryCode = true
 
         Task {
