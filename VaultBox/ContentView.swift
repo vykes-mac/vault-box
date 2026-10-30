@@ -471,15 +471,20 @@ struct ContentView: View {
     private func shareInboxMessage(for summary: ShareInboxIngestSummary) -> String {
         var lines: [String] = []
         if summary.imported > 0 {
-            lines.append(String(localized: "\(summary.imported) shared items were added to your vault."))
+            lines.append(inflected("Added ^[\(summary.imported) shared item](inflect: true) to your vault."))
         }
         if summary.waitingForPremium > 0 {
-            lines.append(String(localized: "\(summary.waitingForPremium) shared items are waiting. Upgrade to Premium to import them."))
+            lines.append(inflected("^[\(summary.waitingForPremium) shared item](inflect: true) waiting. Upgrade to Premium to finish importing."))
         }
         if summary.failed > 0 {
-            lines.append(String(localized: "\(summary.failed) shared items couldn't be imported."))
+            lines.append(inflected("Couldn't import ^[\(summary.failed) shared item](inflect: true)."))
         }
         return lines.joined(separator: "\n\n")
+    }
+
+    /// Localized text with automatic grammar agreement, so counts read "1 item" / "2 items".
+    private func inflected(_ resource: String.LocalizationValue) -> String {
+        String(AttributedString(localized: resource).characters)
     }
 
     private func routeToPendingDocumentReminderIfNeeded() {

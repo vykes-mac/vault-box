@@ -59,7 +59,7 @@ struct ShareExtensionView: View {
             message(
                 symbol: saved > 0 ? "checkmark.shield.fill" : "exclamationmark.triangle",
                 title: saved > 0
-                    ? String(localized: "Encrypted \(saved) items")
+                    ? inflected("Encrypted ^[\(saved) item](inflect: true)")
                     : String(localized: "Nothing was saved"),
                 detail: finishedDetail(saved: saved, skipped: skipped)
             )
@@ -72,9 +72,14 @@ struct ShareExtensionView: View {
             lines.append(String(localized: "They'll appear in your vault next time you unlock VaultBox."))
         }
         if skipped > 0 {
-            lines.append(String(localized: "\(skipped) items couldn't be added. Videos over 250 MB and documents over 100 MB aren't supported."))
+            lines.append(inflected("^[\(skipped) item](inflect: true) couldn't be added. Videos over 250 MB and documents over 100 MB aren't supported."))
         }
         return lines.joined(separator: "\n\n")
+    }
+
+    /// Localized text with automatic grammar agreement, so counts read "1 item" / "2 items".
+    private func inflected(_ resource: String.LocalizationValue) -> String {
+        String(AttributedString(localized: resource).characters)
     }
 
     // MARK: - Unlock
@@ -88,7 +93,7 @@ struct ShareExtensionView: View {
                     .foregroundStyle(.tint)
                 Text("Enter your VaultBox PIN")
                     .font(.headline)
-                Text("to add \(model.itemCount) items to your vault")
+                Text("to add ^[\(model.itemCount) item](inflect: true) to your vault")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
