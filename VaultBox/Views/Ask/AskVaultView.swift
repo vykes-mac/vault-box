@@ -56,7 +56,11 @@ struct AskVaultView: View {
                 }
             }
             .toolbarBackground(Color.vaultBackground, for: .navigationBar)
-            .searchable(text: $searchText, prompt: Text("Search your vault..."))
+            .searchable(
+                text: $searchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: Text("Search your vault...")
+            )
             .onSubmit(of: .search) {
                 guard let viewModel else { return }
                 viewModel.searchText = searchText

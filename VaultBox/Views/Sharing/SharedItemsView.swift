@@ -1,6 +1,5 @@
 import SwiftUI
 import SwiftData
-import Combine
 
 // MARK: - SharedItemsView
 
@@ -12,9 +11,30 @@ struct SharedItemsView: View {
 
     @State private var itemToRevoke: SharedItem?
     @State private var showRevokeConfirm = false
-    @State private var timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
 
     var body: some View {
+        // Re-evaluates the rows every second so the countdowns tick.
+        TimelineView(.periodic(from: .now, by: 1)) { _ in
+            shareList
+        }
+        .navigationTitle("Shared Items")
+        .navigationBarTitleDisplayMode(.inline)
+        .confirmationDialog(
+            "Revoke Share?",
+            isPresented: $showRevokeConfirm,
+            titleVisibility: .visible
+        ) {
+            Button("Revoke", role: .destructive) {
+                if let item = itemToRevoke {
+                    revokeShare(item)
+                }
+            }
+        } message: {
+            Text("The share link will stop working immediately. This cannot be undone.")
+        }
+    }
+
+    private var shareList: some View {
         List {
             if activeShares.isEmpty && expiredShares.isEmpty {
                 emptyState
@@ -44,24 +64,6 @@ struct SharedItemsView: View {
                     .disabled(expiredShares.isEmpty)
                 }
             }
-        }
-        .navigationTitle("Shared Items")
-        .navigationBarTitleDisplayMode(.inline)
-        .confirmationDialog(
-            "Revoke Share?",
-            isPresented: $showRevokeConfirm,
-            titleVisibility: .visible
-        ) {
-            Button("Revoke", role: .destructive) {
-                if let item = itemToRevoke {
-                    revokeShare(item)
-                }
-            }
-        } message: {
-            Text("The share link will stop working immediately. This cannot be undone.")
-        }
-        .onReceive(timer) { _ in
-            // Force UI refresh for countdown timers
         }
     }
 

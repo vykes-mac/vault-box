@@ -271,7 +271,11 @@ struct VaultGridView: View {
                     DisguiseQuickSetupSheet()
                 }
                 .navigationTitle("Vault")
-                .searchable(text: $searchText, prompt: Text("Search tags, albums, dates…"))
+                .searchable(
+                    text: $searchText,
+                    placement: .navigationBarDrawer(displayMode: .always),
+                    prompt: Text("Search tags, albums, dates…")
+                )
                 .searchSuggestions { searchSuggestionsContent }
                 .toolbar { toolbarContent }
                 .overlay { sheetAndAlertModifiers }
