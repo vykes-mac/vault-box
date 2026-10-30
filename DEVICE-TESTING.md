@@ -68,7 +68,7 @@ The basic Photos → share → unlock flow passed on the simulator using the PIN
 
 ## 3. Lock Screen Quick Capture (`3ecfcb8`), iOS 18 or later only
 
-Not verified end to end anywhere. Design notes are in `docs/quick-capture.md`.
+Not verified end to end anywhere. Design notes are in `QUICK-CAPTURE.md`.
 
 - [ ] **3.1 Before first open:** on a fresh install, before opening the app, the capture extension shows "Open the app once to turn on Quick Capture". Open the app once and it starts working.
 - [ ] **3.2 Adding the control:** add the "Quick Capture" control to each of these:
@@ -104,4 +104,3 @@ The screen has never been tapped through. Most of this works on a simulator, but
 - Quick Capture text isn't translated, and resetting the vault doesn't delete the Quick Capture key.
 - Wi-Fi transfer and the album cover picker's "Choose from Vault" list real and decoy items together. Expiring Documents mixes decoy and real reminders.
 - Items in Recently Deleted don't count toward the free limit, so restoring can take a free user over it.
-- `docs/` is the public website (`.nojekyll`), so `docs/quick-capture.md` will be published as-is when pushed. Move it out of `docs/` if the security design shouldn't be public.
