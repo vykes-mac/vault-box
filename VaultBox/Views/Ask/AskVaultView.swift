@@ -11,14 +11,10 @@ struct AskVaultView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismissSearch) private var dismissSearch
 
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
     private var filteredItems: [VaultItem] {
-        if isDecoyMode {
-            return allItems.filter { $0.album?.isDecoy == true }
-        } else {
-            return allItems.filter { $0.album?.isDecoy != true }
-        }
+        AskVaultViewModel.searchableItems(from: allItems, isDecoyMode: isDecoyMode)
     }
 
     @State private var viewModel: AskVaultViewModel?

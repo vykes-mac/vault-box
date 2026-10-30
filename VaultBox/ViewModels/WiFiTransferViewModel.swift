@@ -154,7 +154,10 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
 
     func transferServiceNeedsItems() async throws -> [TransferItemPayload] {
         guard hasPremiumAccess() else { return [] }
-        let descriptor = FetchDescriptor<VaultItem>(sortBy: [SortDescriptor(\VaultItem.importedAt, order: .reverse)])
+        let descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil },
+            sortBy: [SortDescriptor(\VaultItem.importedAt, order: .reverse)]
+        )
         guard let items = try? modelContext.fetch(descriptor) else { return [] }
         return items.map { item in
             TransferItemPayload(
@@ -172,7 +175,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
         guard let uuid = UUID(uuidString: itemID) else {
             throw VaultError.itemNotFound
         }
-        let predicate = #Predicate<VaultItem> { $0.id == uuid }
+        let predicate = #Predicate<VaultItem> { $0.id == uuid && $0.deletedAt == nil }
         var descriptor = FetchDescriptor<VaultItem>(predicate: predicate)
         descriptor.fetchLimit = 1
         guard let item = try modelContext.fetch(descriptor).first else {
@@ -195,7 +198,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
         guard let uuid = UUID(uuidString: itemID) else {
             throw VaultError.itemNotFound
         }
-        let predicate = #Predicate<VaultItem> { $0.id == uuid }
+        let predicate = #Predicate<VaultItem> { $0.id == uuid && $0.deletedAt == nil }
         var descriptor = FetchDescriptor<VaultItem>(predicate: predicate)
         descriptor.fetchLimit = 1
         guard let item = try modelContext.fetch(descriptor).first else {

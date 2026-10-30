@@ -65,7 +65,7 @@ struct VaultGridView: View {
     let vaultService: VaultService
     var isDecoyMode: Bool = false
 
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
     @Query(sort: \SharedItem.createdAt, order: .reverse) private var sharedItems: [SharedItem]
 
     @State private var sortOrder: VaultSortOrder = .dateImported
@@ -198,11 +198,7 @@ struct VaultGridView: View {
         var items = allItems
 
         // Decoy mode filtering: show only items in decoy albums
-        if isDecoyMode {
-            items = items.filter { $0.album?.isDecoy == true }
-        } else {
-            items = items.filter { $0.album?.isDecoy != true }
-        }
+        items = items.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
 
         // Search filtering — multi-word AND logic
         let query = searchText.trimmingCharacters(in: .whitespaces).lowercased()
@@ -236,11 +232,7 @@ struct VaultGridView: View {
     }
 
     private var filteredItems: [VaultItem] {
-        if isDecoyMode {
-            return allItems.filter { $0.album?.isDecoy == true }
-        } else {
-            return allItems.filter { $0.album?.isDecoy != true }
-        }
+        allItems.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
     }
 
     private var itemCountText: String {
@@ -338,7 +330,7 @@ struct VaultGridView: View {
             ) {
                 Button("Delete", role: .destructive) { batchDelete() }
             } message: {
-                Text("These items will be permanently deleted from your vault.")
+                Text("These items will be moved to Recently Deleted. You can restore them for 30 days.")
             }
             .sheet(isPresented: $showAlbumPicker) {
                 albumPickerSheet
@@ -957,11 +949,9 @@ struct VaultGridView: View {
     private func batchDelete() {
         Haptics.deleteConfirmed()
         let items = selectedVaultItems()
-        Task {
-            try? await vaultService.deleteItems(items)
-            selectedItems.removeAll()
-            isSelectionMode = false
-        }
+        try? vaultService.deleteItems(items)
+        selectedItems.removeAll()
+        isSelectionMode = false
     }
 
     private func batchFavorite() {

@@ -141,7 +141,7 @@ struct PhotoDetailView: View {
                 deleteCurrentItem()
             }
         } message: {
-            Text("This item will be permanently deleted from your vault.")
+            Text("This item will be moved to Recently Deleted. You can restore it for 30 days.")
         }
     }
 
@@ -359,10 +359,8 @@ struct PhotoDetailView: View {
     private func deleteCurrentItem() {
         let item = currentItem
         Haptics.deleteConfirmed()
-        Task {
-            try? await vaultService.deleteItems([item])
-            dismiss()
-        }
+        try? vaultService.deleteItems([item])
+        dismiss()
     }
 
     private func closeForPrivacy() {

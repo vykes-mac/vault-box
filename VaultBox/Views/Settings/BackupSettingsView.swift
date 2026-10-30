@@ -10,7 +10,7 @@ struct BackupSettingsView: View {
     @Environment(PurchaseService.self) private var purchaseService
 
     @Query private var settingsQuery: [AppSettings]
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
     @State private var iCloudStatus: CKAccountStatus = .couldNotDetermine
     @State private var isSyncing = false

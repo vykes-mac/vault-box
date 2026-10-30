@@ -12,7 +12,7 @@ struct AlbumCoverPickerView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
     @Environment(PurchaseService.self) private var purchaseService
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
     @State private var showVaultItemPicker = false
     @State private var selectedPhotoItem: PhotosPickerItem?

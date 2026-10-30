@@ -549,6 +549,7 @@ struct ContentView: View {
         )
 
         Task {
+            await vault.purgeExpiredItems()
             await vault.repairConfirmedDocumentReminders()
         }
 

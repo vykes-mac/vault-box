@@ -28,7 +28,7 @@ class VaultViewModel {
 
     func deleteSelected(from items: [VaultItem]) async {
         let toDelete = items.filter { selectedItems.contains($0.id) }
-        try? await vaultService.deleteItems(toDelete)
+        try? vaultService.deleteItems(toDelete)
         exitSelectionMode()
     }
 

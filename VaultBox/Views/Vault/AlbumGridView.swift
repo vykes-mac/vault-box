@@ -9,7 +9,8 @@ struct AlbumGridView: View {
     var isDecoyMode: Bool = false
 
     @Query(sort: \Album.sortOrder) private var albums: [Album]
-    @Query private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt != nil }) private var trashedItems: [VaultItem]
     @Environment(\.modelContext) private var modelContext
 
     @Environment(PurchaseService.self) private var purchaseService
@@ -23,6 +24,7 @@ struct AlbumGridView: View {
     @State private var albumForCoverPicker: Album?
     @State private var showPaywall = false
     @State private var coverRefreshToken = 0
+    @State private var showRecentlyDeleted = false
 
     private var visibleAlbums: [Album] {
         if isDecoyMode {
@@ -33,11 +35,11 @@ struct AlbumGridView: View {
     }
 
     private var visibleItems: [VaultItem] {
-        if isDecoyMode {
-            return allItems.filter { $0.album?.isDecoy == true }
-        } else {
-            return allItems.filter { $0.album?.isDecoy != true }
-        }
+        allItems.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
+    }
+
+    private var recentlyDeletedCount: Int {
+        trashedItems.filter { $0.isInRecentlyDeleted(inDecoyMode: isDecoyMode) }.count
     }
 
     private let columns = Array(
@@ -56,7 +58,8 @@ struct AlbumGridView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                if visibleAlbums.isEmpty && visibleItems.isEmpty && smartAlbumsWithCounts.isEmpty {
+                if visibleAlbums.isEmpty && visibleItems.isEmpty && smartAlbumsWithCounts.isEmpty
+                    && recentlyDeletedCount == 0 {
                     emptyState
                         .padding(.top, 120)
                 } else {
@@ -68,6 +71,8 @@ struct AlbumGridView: View {
 
                         // Regular albums grid
                         albumsGrid
+
+                        recentlyDeletedRow
                     }
                 }
             }
@@ -111,7 +116,7 @@ struct AlbumGridView: View {
                 }
                 Button("Cancel", role: .cancel) { albumToDelete = nil }
             } message: {
-                Text("Items in this album will be moved to All Items, or deleted permanently.")
+                Text("Items in this album will be moved to All Items, or to Recently Deleted.")
             }
             .sheet(item: $albumForCoverPicker) { album in
                 AlbumCoverPickerView(
@@ -126,7 +131,49 @@ struct AlbumGridView: View {
             .sheet(isPresented: $showPaywall) {
                 VaultBoxPaywallView()
             }
+            .sheet(isPresented: $showRecentlyDeleted) {
+                RecentlyDeletedView(vaultService: vaultService, isDecoyMode: isDecoyMode)
+            }
+            .onChange(of: recentlyDeletedCount) { _, _ in
+                // A trashed or restored item may be an album's cover.
+                coverCache.removeAll()
+                coverRefreshToken += 1
+            }
         }
+    }
+
+    // MARK: - Recently Deleted Row
+
+    private var recentlyDeletedRow: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Utilities")
+                .font(.headline)
+
+            Button {
+                showRecentlyDeleted = true
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: "trash")
+                        .font(.body)
+                        .foregroundStyle(Color.vaultAccent)
+                        .frame(width: 28)
+                    Text("Recently Deleted")
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Spacer()
+                    Text("\(recentlyDeletedCount)")
+                        .foregroundStyle(Color.vaultTextSecondary)
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                }
+                .padding(Constants.standardPadding)
+                .background(Color.vaultSurface)
+                .clipShape(RoundedRectangle(cornerRadius: Constants.cardCornerRadius))
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, Constants.standardPadding)
+        .padding(.bottom, Constants.standardPadding)
     }
 
     // MARK: - Smart Albums Row
@@ -205,7 +252,7 @@ struct AlbumGridView: View {
                 } label: {
                     albumCard(
                         name: album.name,
-                        itemCount: album.items?.count ?? 0,
+                        itemCount: album.liveItems.count,
                         albumID: album.id
                     )
                 }
@@ -312,7 +359,7 @@ struct AlbumGridView: View {
             return
         }
 
-        let coverSource = album.coverItem ?? album.items?.first
+        let coverSource = album.coverItem.flatMap { $0.isTrashed ? nil : $0 } ?? album.liveItems.first
         guard let source = coverSource else { return }
         guard let image = try? await vaultService.decryptThumbnail(for: source) else { return }
         coverCache[albumID] = image
@@ -339,11 +386,9 @@ struct AlbumGridView: View {
         guard let album = albumToDelete else { return }
         Haptics.deleteConfirmed()
         if deleteContents {
-            if let items = album.items {
-                Task {
-                    try? await vaultService.deleteItems(items)
-                }
-            }
+            // Trash synchronously, before the album is deleted, so each item records
+            // which vault's bin it belongs to while its album link still exists.
+            try? vaultService.deleteItems(album.liveItems)
         } else {
             // In decoy mode, keep contents in decoy space to avoid cross-mode leakage.
             if let items = album.items {
@@ -386,7 +431,7 @@ struct AlbumDetailView: View {
     let vaultService: VaultService
     var isDecoyMode: Bool = false
 
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
     @Query(sort: \Album.sortOrder) private var albums: [Album]
 
     @State private var sortOrder: VaultSortOrder = .dateImported
@@ -425,16 +470,9 @@ struct AlbumDetailView: View {
 
     private var albumItems: [VaultItem] {
         if let album {
-            let items = album.items ?? []
-            if isDecoyMode {
-                return items.filter { $0.album?.isDecoy == true }
-            }
-            return items.filter { $0.album?.isDecoy != true }
+            return album.liveItems.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
         }
-        if isDecoyMode {
-            return allItems.filter { $0.album?.isDecoy == true }
-        }
-        return allItems.filter { $0.album?.isDecoy != true }
+        return allItems.filter { $0.isVisible(inDecoyMode: isDecoyMode) }
     }
 
     private var displayedItems: [VaultItem] {
@@ -567,7 +605,7 @@ struct AlbumDetailView: View {
         ) {
             Button("Delete", role: .destructive) { batchDelete() }
         } message: {
-            Text("These items will be permanently deleted from your vault.")
+            Text("These items will be moved to Recently Deleted. You can restore them for 30 days.")
         }
         .sheet(isPresented: $showAlbumPicker) {
             albumPickerSheet
@@ -912,11 +950,9 @@ struct AlbumDetailView: View {
     private func batchDelete() {
         Haptics.deleteConfirmed()
         let items = selectedVaultItems()
-        Task {
-            try? await vaultService.deleteItems(items)
-            selectedItems.removeAll()
-            isSelectionMode = false
-        }
+        try? vaultService.deleteItems(items)
+        selectedItems.removeAll()
+        isSelectionMode = false
     }
 
     private func batchFavorite() {
@@ -955,7 +991,7 @@ struct SmartAlbumDetailView: View {
     let vaultService: VaultService
     var isDecoyMode: Bool = false
 
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
 
     @State private var thumbnailCache: [UUID: UIImage] = [:]
     @State private var detailItem: VaultItem?
@@ -968,13 +1004,7 @@ struct SmartAlbumDetailView: View {
 
     private var matchingItems: [VaultItem] {
         let tag = smartAlbumType.tag
-        var items = allItems.filter { $0.smartTags.contains(tag) }
-        if isDecoyMode {
-            items = items.filter { $0.album?.isDecoy == true }
-        } else {
-            items = items.filter { $0.album?.isDecoy != true }
-        }
-        return items
+        return allItems.filter { $0.smartTags.contains(tag) && $0.isVisible(inDecoyMode: isDecoyMode) }
     }
 
     var body: some View {
