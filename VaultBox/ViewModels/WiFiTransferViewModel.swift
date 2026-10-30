@@ -44,7 +44,7 @@ class WiFiTransferViewModel: WiFiTransferDelegate {
     func onPINVerified() {
         guard hasPremiumAccess() else { return }
         showPINReEntry = false
-        Task {
+        Task { [self] in
             await transferService.setDelegate(self)
             await transferService.setOnStateChange { [weak self] in
                 Task { @MainActor [weak self] in
