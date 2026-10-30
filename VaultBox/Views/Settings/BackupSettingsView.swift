@@ -358,6 +358,7 @@ struct BackupSettingsView: View {
             do {
                 let encryptionService = EncryptionService()
                 let service = CloudService(encryptionService: encryptionService)
+                await vaultService.retryPendingCloudDeletions()
 
                 // Ensure key backup exists in iCloud (skip query if we just uploaded it)
                 if !keyBackupConfirmed {

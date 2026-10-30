@@ -145,6 +145,9 @@ struct ContentView: View {
                 presentDisguiseLapseNoticeIfNeeded()
                 shareInboxService?.publishConfiguration()
                 ingestSharedItemsIfNeeded()
+                if let vaultService {
+                    Task { await vaultService.retryPendingCloudDeletions() }
+                }
             }
             attemptPrivacyShieldReveal()
         }
@@ -574,6 +577,7 @@ struct ContentView: View {
 
         Task {
             await vault.purgeExpiredItems()
+            await vault.retryPendingCloudDeletions()
             await vault.repairConfirmedDocumentReminders()
         }
 

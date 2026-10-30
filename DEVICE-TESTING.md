@@ -64,7 +64,10 @@ The basic Photos → share → unlock flow passed on the simulator using the PIN
 - [ ] **2.4 Decoy PIN:** entering the decoy PIN in the extension sends the items to the decoy vault only.
 - [ ] **2.5 Free user:** documents shared by a free user stay in the inbox and import after upgrading. Check the free item limit too.
 - [ ] **2.6 Wrong PIN:** wrong PINs in the extension count toward lockout and break-in capture the same way they do in the app.
-- [ ] **2.7 Disguise leak (decision needed):** the share sheet shows the name "VaultBox" and the real icon, even with an icon disguise on. Decide whether to use a neutral name.
+- [ ] **2.7 Disguise in the share sheet:** the share option is now called "Quick Save", and its PIN screen says "Enter your PIN" with no mention of VaultBox.
+  - With an icon disguise on, check which icon the share sheet shows next to "Quick Save". If it's the real VaultBox icon, no code can change that. Add a line to the disguise setup telling users how to hide the option from their share sheet.
+  - Check which hiding options iOS offers under share sheet → More → Edit (removing from Favorites, and any on/off switch).
+  - Still to decide: under a disguised icon, the home screen label is the product name "VaultBox". A neutral name would fix that for everyone, but App Review may question a name that doesn't match the App Store listing.
 
 ## 3. Lock Screen Quick Capture (`3ecfcb8`), iOS 18 or later only
 
@@ -97,7 +100,11 @@ The screen has never been tapped through. Most of this works on a simulator, but
 - [ ] **4.4 Decoy:** the decoy vault's bin only shows decoy items, and the real bin only shows real items.
 - [ ] **4.5 Panic gesture:** the panic gesture and going to the background both close the Recently Deleted sheet.
 - [ ] **4.6 30-day purge:** delete an item, set the device date 31 days ahead and relaunch. The item is gone. Reset the date afterwards.
-- [ ] **4.7 Offline delete (known gap):** a permanent delete made offline leaves its CloudKit record behind and nothing retries it, so "Restore from iCloud" brings the item back. Confirm this, then decide whether to fix it before release.
+- [ ] **4.7 Offline permanent delete:** an iCloud delete that fails is now queued and retried on launch, unlock, delete, backup and restore. Restore skips anything still in the queue.
+  1. With backup on, turn on airplane mode and permanently delete a backed-up item. The "Deleted on This Device" note appears.
+  2. While still offline, "Restore from iCloud" does nothing (it can't reach iCloud). Back online, "Restore from iCloud" must **not** bring the item back.
+  3. Back online, unlock once. The item's `EncryptedVaultItem` record is gone in the CloudKit Console.
+  4. Known limit: if the phone never goes back online, a restore on another device can still bring those items back.
 
 ## Known gaps found during this work (not fixed)
 

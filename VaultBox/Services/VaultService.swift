@@ -55,6 +55,7 @@ class VaultService {
     private let reminderService: DocumentReminderService
     private let deleteCloudRecord: @Sendable (String) async throws -> Void
     private let now: () -> Date
+    private let defaults: UserDefaults
 
     init(
         encryptionService: EncryptionService,
@@ -62,7 +63,8 @@ class VaultService {
         hasPremiumAccess: @escaping () -> Bool = { false },
         reminderService: DocumentReminderService = DocumentReminderService(),
         deleteCloudRecord: (@Sendable (String) async throws -> Void)? = nil,
-        now: @escaping () -> Date = { Date() }
+        now: @escaping () -> Date = { Date() },
+        defaults: UserDefaults = .standard
     ) {
         self.encryptionService = encryptionService
         self.modelContext = modelContext
@@ -72,6 +74,7 @@ class VaultService {
             try await CloudService(encryptionService: encryptionService).deleteItem(recordID: recordID)
         }
         self.now = now
+        self.defaults = defaults
         self.visionService = VisionAnalysisService(encryptionService: encryptionService)
     }
 
@@ -580,8 +583,11 @@ class VaultService {
     }
 
     /// Irreversibly removes items: encrypted file, search index, reminders, iCloud
-    /// backup record and the SwiftData record.
-    func permanentlyDeleteItems(_ items: [VaultItem]) async throws {
+    /// backup record and the SwiftData record. iCloud records that can't be deleted
+    /// right now (usually offline) are queued and retried later.
+    /// Returns how many iCloud copies are still waiting to be deleted.
+    @discardableResult
+    func permanentlyDeleteItems(_ items: [VaultItem]) async throws -> Int {
         removeSearchIndex(for: items)
         var cloudRecordIDs: [String] = []
         for item in items {
@@ -595,15 +601,38 @@ class VaultService {
         }
         try modelContext.save()
 
-        for recordID in cloudRecordIDs {
+        // Queue first so a crash or kill mid-delete still gets retried.
+        pendingCloudDeletionIDs.formUnion(cloudRecordIDs)
+        return await retryPendingCloudDeletions()
+    }
+
+    // MARK: - Pending iCloud Deletions
+
+    /// iCloud backup records of permanently deleted items that haven't been
+    /// removed from CloudKit yet. Restore skips them so deleted items can't come back.
+    private var pendingCloudDeletionIDs: Set<String> {
+        get { Set(defaults.stringArray(forKey: Constants.pendingCloudDeletionsKey) ?? []) }
+        set { defaults.set(newValue.sorted(), forKey: Constants.pendingCloudDeletionsKey) }
+    }
+
+    /// Retries queued iCloud deletes. Called on launch, unlock, delete, backup and
+    /// restore. Returns how many are still waiting.
+    @discardableResult
+    func retryPendingCloudDeletions() async -> Int {
+        for recordID in pendingCloudDeletionIDs {
             do {
                 try await deleteCloudRecord(recordID)
+                pendingCloudDeletionIDs.remove(recordID)
+            } catch let error as CKError where error.code == .unknownItem {
+                // Already gone from iCloud.
+                pendingCloudDeletionIDs.remove(recordID)
             } catch {
                 #if DEBUG
-                print("[VaultService] Failed to delete iCloud record \(recordID): \(error)")
+                print("[VaultService] iCloud delete of \(recordID) still pending: \(error)")
                 #endif
             }
         }
+        return pendingCloudDeletionIDs.count
     }
 
     /// Permanently deletes items that have been in Recently Deleted for longer than
@@ -653,7 +682,11 @@ class VaultService {
         cloudService: CloudService,
         progress: @escaping (Int, Int) -> Void
     ) async throws -> [VaultItem] {
+        // Items permanently deleted on this device while offline must not come back.
+        await retryPendingCloudDeletions()
+        let pendingDeletions = pendingCloudDeletionIDs
         let records = try await cloudService.fetchAllCloudRecords()
+            .filter { !pendingDeletions.contains($0.recordID.recordName) }
         guard !records.isEmpty else { return [] }
 
         // Build a set of existing item IDs to avoid duplicates

@@ -39,6 +39,7 @@ struct RecentlyDeletedView: View {
     @State private var pendingPermanentDelete: [VaultItem] = []
     @State private var showPermanentDeleteConfirm = false
     @State private var errorMessage: String?
+    @State private var showICloudDeletePendingNotice = false
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -138,6 +139,11 @@ struct RecentlyDeletedView: View {
                 Button("OK", role: .cancel) { }
             } message: {
                 Text(errorMessage ?? "")
+            }
+            .alert("Deleted on This Device", isPresented: $showICloudDeletePendingNotice) {
+                Button("OK", role: .cancel) { }
+            } message: {
+                Text("Your iCloud backup couldn't be reached. These items will be removed from it automatically next time you're online.")
             }
             .onChange(of: items.isEmpty) { _, isEmpty in
                 if isEmpty { isSelectionMode = false }
@@ -257,8 +263,11 @@ struct RecentlyDeletedView: View {
         }
         Task {
             do {
-                try await vaultService.permanentlyDeleteItems(targets)
+                let waitingForICloud = try await vaultService.permanentlyDeleteItems(targets)
                 exitSelectionMode()
+                if waitingForICloud > 0 {
+                    showICloudDeletePendingNotice = true
+                }
             } catch {
                 errorMessage = error.localizedDescription
             }

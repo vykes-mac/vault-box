@@ -323,6 +323,52 @@
         }
       }
     },
+    "Deleted on This Device" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auf diesem Gerät gelöscht"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminado en este dispositivo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Supprimé sur cet appareil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Eliminato su questo dispositivo"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このデバイスから削除しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 기기에서 삭제됨"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apagado neste dispositivo"
+          }
+        }
+      }
+    },
     "Items in this album will be moved to All Items, or to Recently Deleted." : {
       "localizations" : {
         "de" : {
@@ -645,6 +691,52 @@
         }
       }
     },
+    "Restored item" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wiederhergestelltes Objekt"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento restaurado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Élément restauré"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elemento ripristinato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "復元された項目"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "복원된 항목"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Item restaurado"
+          }
+        }
+      }
+    },
     "These items will be moved to Recently Deleted. You can restore them for 30 days." : {
       "localizations" : {
         "de" : {
@@ -825,6 +917,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Utilitários"
+          }
+        }
+      }
+    },
+    "Your backup key isn't on this device yet. Turn on iCloud Keychain (Settings > [your name] > iCloud > Passwords & Keychain), wait a minute for it to sync, then try again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein Backup-Schlüssel ist noch nicht auf diesem Gerät. Aktiviere den iCloud-Schlüsselbund (Einstellungen > [dein Name] > iCloud > Passwörter & Schlüsselbund), warte eine Minute auf die Synchronisierung und versuche es dann erneut."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu clave de respaldo aún no está en este dispositivo. Activa el Llavero de iCloud (Configuración > [tu nombre] > iCloud > Contraseñas y llavero), espera un minuto a que se sincronice y vuelve a intentarlo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre clé de sauvegarde n'est pas encore sur cet appareil. Activez le trousseau iCloud (Réglages > [votre nom] > iCloud > Mots de passe et trousseau), attendez une minute la synchronisation, puis réessayez."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La chiave di backup non è ancora su questo dispositivo. Attiva Portachiavi iCloud (Impostazioni > [il tuo nome] > iCloud > Password e portachiavi), attendi un minuto per la sincronizzazione e riprova."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップキーがまだこのデバイスにありません。iCloudキーチェーンをオンにして（設定 > [ユーザ名] > iCloud > パスワードとキーチェーン）、同期されるまで1分ほど待ってから、もう一度お試しください。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 키가 아직 이 기기에 없습니다. iCloud 키체인을 켜고(설정 > [사용자 이름] > iCloud > 암호 및 키체인) 동기화될 때까지 1분 정도 기다린 다음 다시 시도하세요."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua chave de backup ainda não está neste dispositivo. Ative o Porta-chaves do iCloud (Ajustes > [seu nome] > iCloud > Senhas e Porta-chaves), aguarde um minuto para sincronizar e tente novamente."
+          }
+        }
+      }
+    },
+    "Your iCloud backup couldn't be reached. These items will be removed from it automatically next time you're online." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein iCloud-Backup war nicht erreichbar. Diese Objekte werden automatisch daraus entfernt, sobald du wieder online bist."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No se pudo acceder a tu respaldo de iCloud. Estos elementos se eliminarán de él automáticamente la próxima vez que tengas conexión."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre sauvegarde iCloud est inaccessible. Ces éléments en seront supprimés automatiquement dès que vous serez en ligne."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Impossibile raggiungere il backup iCloud. Questi elementi verranno rimossi automaticamente la prossima volta che sarai online."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudバックアップに接続できませんでした。次にオンラインになったときに、これらの項目はバックアップから自動的に削除されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 백업에 연결할 수 없습니다. 다음에 온라인 상태가 되면 이 항목들이 백업에서 자동으로 삭제됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível acessar seu backup do iCloud. Estes itens serão removidos dele automaticamente quando você estiver online."
           }
         }
       }

@@ -91,9 +91,10 @@ struct ShareExtensionView: View {
                 Image(systemName: "lock.fill")
                     .font(.title)
                     .foregroundStyle(.tint)
-                Text("Enter your VaultBox PIN")
+                // Neutral wording: this screen can be seen while an icon disguise is on.
+                Text("Enter your PIN")
                     .font(.headline)
-                Text("to add ^[\(model.itemCount) item](inflect: true) to your vault")
+                Text("to save ^[\(model.itemCount) item](inflect: true)")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }

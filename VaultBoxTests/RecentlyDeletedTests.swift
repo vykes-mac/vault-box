@@ -8,13 +8,22 @@ import UIKit
 private final class CloudDeleteRecorder: @unchecked Sendable {
     private let lock = NSLock()
     private var ids: [String] = []
+    private var offline = false
 
     var deletedRecordIDs: [String] {
         lock.withLock { ids }
     }
 
-    func record(_ id: String) {
-        lock.withLock { ids.append(id) }
+    var isOffline: Bool {
+        get { lock.withLock { offline } }
+        set { lock.withLock { offline = newValue } }
+    }
+
+    func record(_ id: String) throws {
+        try lock.withLock {
+            if offline { throw URLError(.notConnectedToInternet) }
+            ids.append(id)
+        }
     }
 }
 
@@ -65,8 +74,9 @@ struct RecentlyDeletedTests {
             encryptionService: encryption,
             modelContext: context,
             hasPremiumAccess: { true },
-            deleteCloudRecord: { cloud.record($0) },
-            now: { clock.now }
+            deleteCloudRecord: { try cloud.record($0) },
+            now: { clock.now },
+            defaults: UserDefaults(suiteName: "RecentlyDeletedTests-\(UUID().uuidString)")!
         )
         return Harness(
             service: service,
@@ -283,6 +293,29 @@ struct RecentlyDeletedTests {
         #expect(try allItems(in: harness).isEmpty)
         #expect(!FileManager.default.fileExists(atPath: url.path))
         #expect(harness.cloud.deletedRecordIDs == ["record-permanent"])
+    }
+
+    @Test("Offline permanent delete queues the iCloud delete and retries it later")
+    func offlinePermanentDeleteIsRetried() async throws {
+        let harness = try await makeHarness()
+        let item = try await importPhoto(harness)
+        item.cloudRecordID = "record-offline"
+        try harness.service.deleteItems([item])
+
+        harness.cloud.isOffline = true
+        let waiting = try await harness.service.permanentlyDeleteItems([item])
+
+        #expect(waiting == 1)
+        #expect(try allItems(in: harness).isEmpty)
+        #expect(harness.cloud.deletedRecordIDs.isEmpty)
+        #expect(await harness.service.retryPendingCloudDeletions() == 1)
+
+        harness.cloud.isOffline = false
+        #expect(await harness.service.retryPendingCloudDeletions() == 0)
+        #expect(harness.cloud.deletedRecordIDs == ["record-offline"])
+        // Nothing left to retry
+        #expect(await harness.service.retryPendingCloudDeletions() == 0)
+        #expect(harness.cloud.deletedRecordIDs == ["record-offline"])
     }
 
     // MARK: - Search Exclusion

@@ -79,6 +79,7 @@ enum Constants {
     /// 1 = wrapped with the PIN alone; 2 = PIN + iCloud Keychain backup secret.
     static let keyBackupFormatVersion = 2
     static let keyBackupCheckedMarkerKey = "keyBackupCheckedMarker"
+    static let pendingCloudDeletionsKey = "pendingCloudDeletionRecordIDs"
     static let featureRequestRecordType = "FeatureRequest"
     static let featureVoteRecordType = "FeatureVote"
 
