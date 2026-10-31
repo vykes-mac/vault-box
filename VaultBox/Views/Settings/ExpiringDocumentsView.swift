@@ -10,14 +10,15 @@ struct ExpiringDocumentsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DocumentReminder.expiryDate, order: .forward)
     private var reminders: [DocumentReminder]
-    @Query(filter: #Predicate<VaultItem> { $0.deletedAt != nil })
-    private var trashedItems: [VaultItem]
+    // Filtered in code: a predicate here makes SwiftUI rebuild this screen and
+    // SettingsView endlessly when it's opened with navigationDestination(isPresented:).
+    @Query private var vaultItems: [VaultItem]
 
     @State private var editingReminder: DocumentReminder?
     @State private var handledTargetReminderID: UUID?
 
     private var activeReminders: [DocumentReminder] {
-        let trashedIDs = Set(trashedItems.map(\.id))
+        let trashedIDs = Set(vaultItems.filter { $0.deletedAt != nil }.map(\.id))
         return reminders.filter { !$0.isDismissed && !trashedIDs.contains($0.itemID) }
     }
     private var unconfirmed: [DocumentReminder] { activeReminders.filter { !$0.isConfirmed } }

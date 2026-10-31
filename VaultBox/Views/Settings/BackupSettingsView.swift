@@ -10,7 +10,9 @@ struct BackupSettingsView: View {
     @Environment(PurchaseService.self) private var purchaseService
 
     @Query private var settingsQuery: [AppSettings]
-    @Query(filter: #Predicate<VaultItem> { $0.deletedAt == nil }, sort: \VaultItem.importedAt, order: .reverse) private var allItems: [VaultItem]
+    // Filtered in code: a predicate here makes SwiftUI rebuild this screen and
+    // SettingsView endlessly when it's opened with navigationDestination(isPresented:).
+    @Query(sort: \VaultItem.importedAt, order: .reverse) private var queriedItems: [VaultItem]
 
     @State private var iCloudStatus: CKAccountStatus = .couldNotDetermine
     @State private var isSyncing = false
@@ -37,6 +39,10 @@ struct BackupSettingsView: View {
     @AppStorage(Constants.keyBackupUpgradeErrorKey) private var keyBackupUpgradeError = ""
 
     private var settings: AppSettings? { settingsQuery.first }
+
+    private var allItems: [VaultItem] {
+        queriedItems.filter { $0.deletedAt == nil }
+    }
 
     private var uploadedCount: Int {
         allItems.filter(\.isUploaded).count
