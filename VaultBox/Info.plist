@@ -29,7 +29,7 @@
 		<string>_vaultbox._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>VaultBox uses the camera to capture photos directly into your vault.</string>
+	<string>VaultBox uses the camera to capture photos directly into your vault and, with Break-in Alerts, to photograph anyone who enters the wrong PIN.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>VaultBox uses Face ID to securely unlock your vault.</string>
 	<key>NSLocalNetworkUsageDescription</key>

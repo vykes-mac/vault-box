@@ -1,4 +1,4 @@
-"NSCameraUsageDescription" = "VaultBoxは、写真を保管庫に直接保存するためにカメラを使用します。";
+"NSCameraUsageDescription" = "VaultBoxは、写真を保管庫に直接保存するため、また不正アクセス通知により誤ったPINを入力した人を撮影するためにカメラを使用します。";
 "NSFaceIDUsageDescription" = "VaultBoxは、保管庫を安全にロック解除するためにFace IDを使用します。";
 "NSLocalNetworkUsageDescription" = "VaultBoxは、デバイスとコンピュータの間でWi-Fi経由でファイルを転送するためにローカルネットワークを使用します。";
 "NSLocationWhenInUseUsageDescription" = "VaultBoxは、不正なアクセス試行を検出したときに位置情報を記録します。";

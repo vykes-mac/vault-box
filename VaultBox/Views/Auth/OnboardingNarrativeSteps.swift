@@ -202,11 +202,11 @@ struct OnboardingTrustStep: View {
 
 // MARK: - Social Proof Copy
 
-/// Review copy shown during onboarding and on the paywall.
+/// Review shown during onboarding.
 ///
-/// - Important: These must be verbatim, attributable App Store reviews before release.
-///   Swap the placeholders below for real ones — fabricated testimonials are an App
-///   Review rejection and a trust problem for a privacy app.
+/// - Important: This must stay a verbatim App Store review, in the reviewer's own words, so
+///   it isn't translated. Fabricated testimonials are an App Review rejection and a trust
+///   problem for a privacy app.
 enum OnboardingSocialProof {
     struct Review: Sendable {
         let quote: String
@@ -214,15 +214,7 @@ enum OnboardingSocialProof {
     }
 
     static let featuredReview = Review(
-        quote: String(localized: "\"I stopped panicking every time someone asked to see a photo on my phone.\""),
-        author: String(localized: "App Store review")
+        quote: "\"It’s nice having documents and photos in one place where I can search. It’s still organized and the decoy pin feature is pretty cool.\"",
+        author: "techno_ja, App Store"
     )
-
-    static let reviews: [Review] = [
-        featuredReview,
-        Review(
-            quote: String(localized: "\"The break-in photo caught my brother going through my phone. Worth it alone.\""),
-            author: String(localized: "App Store review")
-        )
-    ]
 }
