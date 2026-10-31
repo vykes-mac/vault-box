@@ -44,6 +44,12 @@ enum VaultError: LocalizedError, Equatable {
 
 // MARK: - VaultService
 
+struct CloudRestoreResult {
+    let items: [VaultItem]
+    /// Backed-up items this device's key can't open, which were left out.
+    let unreadableCount: Int
+}
+
 @MainActor
 @Observable
 class VaultService {
@@ -681,13 +687,13 @@ class VaultService {
     func restoreFromiCloud(
         cloudService: CloudService,
         progress: @escaping (Int, Int) -> Void
-    ) async throws -> [VaultItem] {
+    ) async throws -> CloudRestoreResult {
         // Items permanently deleted on this device while offline must not come back.
         await retryPendingCloudDeletions()
         let pendingDeletions = pendingCloudDeletionIDs
         let records = try await cloudService.fetchAllCloudRecords()
             .filter { !pendingDeletions.contains($0.recordID.recordName) }
-        guard !records.isEmpty else { return [] }
+        guard !records.isEmpty else { return CloudRestoreResult(items: [], unreadableCount: 0) }
 
         // Build a set of existing item IDs to avoid duplicates
         let allDescriptor = FetchDescriptor<VaultItem>()
@@ -696,6 +702,7 @@ class VaultService {
 
         let vaultDir = try await encryptionService.vaultFilesDirectory()
         var restoredItems: [VaultItem] = []
+        var unreadableCount = 0
         let total = records.count
 
         await cloudService.setDownloadProgress(completed: 0, total: total)
@@ -718,9 +725,25 @@ class VaultService {
                 continue
             }
 
+            // Items backed up with a different key would only ever show as broken files.
+            let encryptedThumbnail = record["encryptedThumbnail"] as? Data
+            if let encryptedThumbnail, await !encryptionService.canDecrypt(encryptedThumbnail) {
+                unreadableCount += 1
+                progress(index + 1, total)
+                await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                continue
+            }
+
             do {
                 // Download encrypted file data from iCloud
                 let encryptedData = try await cloudService.downloadItem(recordID: record.recordID.recordName)
+
+                if encryptedThumbnail == nil, await !encryptionService.canDecrypt(encryptedData) {
+                    unreadableCount += 1
+                    progress(index + 1, total)
+                    await cloudService.setDownloadProgress(completed: index + 1, total: total)
+                    continue
+                }
 
                 // Save encrypted file to vault directory
                 let relativePath = "\(UUID()).\(Constants.encryptedFileExtension)"
@@ -744,9 +767,7 @@ class VaultService {
                 item.cloudRecordID = record.recordID.recordName
 
                 // Restore encrypted thumbnail if available
-                if let thumbnailData = record["encryptedThumbnail"] as? Data {
-                    item.encryptedThumbnailData = thumbnailData
-                }
+                item.encryptedThumbnailData = encryptedThumbnail
 
                 modelContext.insert(item)
                 try modelContext.save()
@@ -763,7 +784,25 @@ class VaultService {
         }
 
         await cloudService.resetDownloadProgress()
-        return restoredItems
+        return CloudRestoreResult(items: restoredItems, unreadableCount: unreadableCount)
+    }
+
+    /// Marks items whose iCloud records were removed so the next backup uploads them again.
+    /// Items this device can't open stay marked as uploaded, because uploading them would
+    /// only store another copy nobody can restore.
+    func markRemovedFromCloud(recordNames: [String]) async throws {
+        guard !recordNames.isEmpty else { return }
+        let removed = Set(recordNames)
+        let descriptor = FetchDescriptor<VaultItem>(predicate: #Predicate { $0.cloudRecordID != nil })
+        for item in try modelContext.fetch(descriptor) {
+            guard let recordName = item.cloudRecordID, removed.contains(recordName) else { continue }
+            item.cloudRecordID = nil
+            if let thumbnail = item.encryptedThumbnailData, await !encryptionService.canDecrypt(thumbnail) {
+                continue
+            }
+            item.isUploaded = false
+        }
+        try modelContext.save()
     }
 
     private func restoredFilename(from record: CKRecord) async -> String {

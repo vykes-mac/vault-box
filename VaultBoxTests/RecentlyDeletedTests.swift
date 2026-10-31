@@ -182,6 +182,31 @@ struct RecentlyDeletedTests {
         try? FileManager.default.removeItem(at: try await fileURL(for: item, in: harness))
     }
 
+    @Test("Items removed from iCloud upload again, except ones this device can't open")
+    func removedFromCloudResetsOnlyReadableItems() async throws {
+        let harness = try await makeHarness()
+        let removed = try await importPhoto(harness)
+        removed.isUploaded = true
+        removed.cloudRecordID = "removed"
+        let kept = try await importPhoto(harness)
+        kept.isUploaded = true
+        kept.cloudRecordID = "kept"
+        let unreadable = try await importPhoto(harness)
+        unreadable.isUploaded = true
+        unreadable.cloudRecordID = "unreadable"
+        unreadable.encryptedThumbnailData = Data("encrypted with another key".utf8)
+        try harness.context.save()
+
+        try await harness.service.markRemovedFromCloud(recordNames: ["removed", "unreadable"])
+
+        #expect(!removed.isUploaded)
+        #expect(removed.cloudRecordID == nil)
+        #expect(kept.isUploaded)
+        #expect(kept.cloudRecordID == "kept")
+        #expect(unreadable.isUploaded, "Uploading it would only store another unrecoverable copy")
+        #expect(unreadable.cloudRecordID == nil)
+    }
+
     // MARK: - Decoy Isolation
 
     @Test("Item counts and storage stay separate per vault and count the bin as storage")

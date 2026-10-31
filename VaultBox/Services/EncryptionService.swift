@@ -159,6 +159,12 @@ actor EncryptionService {
         return try AES.GCM.open(sealedBox, using: key)
     }
 
+    /// Whether this device's key opens data encrypted for the vault, such as a backed-up
+    /// thumbnail. AES-GCM authenticates, so the wrong key fails rather than returning garbage.
+    func canDecrypt(_ data: Data) -> Bool {
+        (try? decryptData(data)) != nil
+    }
+
     // MARK: - File Encryption / Decryption
 
     func encryptFile(at sourceURL: URL) throws -> Data {

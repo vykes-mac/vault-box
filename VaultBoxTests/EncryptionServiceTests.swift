@@ -177,6 +177,32 @@ struct EncryptionServiceTests {
         }
     }
 
+    @Test("Only the key that encrypted data can open it")
+    func canDecryptOnlyWithMatchingKey() async throws {
+        let service = makeService()
+        try await service.storeMasterKey(await service.generateMasterKey())
+        let mine = try await service.encryptData(Data("thumbnail".utf8))
+
+        let otherDevice = makeService()
+        try await otherDevice.storeMasterKey(await otherDevice.generateMasterKey())
+        let theirs = try await otherDevice.encryptData(Data("thumbnail".utf8))
+
+        #expect(await service.canDecrypt(mine))
+        #expect(await !service.canDecrypt(theirs))
+        #expect(await !service.canDecrypt(Data("not encrypted".utf8)))
+    }
+
+    @Test("A backup with a different key can't replace the key local items depend on")
+    func keyImportProtectsLocalItems() {
+        let local = Data([1])
+        let backup = Data([2])
+
+        #expect(CloudService.keyImportWouldOrphanItems(localFingerprint: local, backupFingerprint: backup, localItemCount: 1))
+        #expect(!CloudService.keyImportWouldOrphanItems(localFingerprint: local, backupFingerprint: backup, localItemCount: 0))
+        #expect(!CloudService.keyImportWouldOrphanItems(localFingerprint: local, backupFingerprint: local, localItemCount: 1))
+        #expect(!CloudService.keyImportWouldOrphanItems(localFingerprint: nil, backupFingerprint: backup, localItemCount: 1))
+    }
+
     @Test("Format 1 (PIN-only) backups still restore")
     func legacyKeyBackupRestores() async throws {
         let service = makeService()

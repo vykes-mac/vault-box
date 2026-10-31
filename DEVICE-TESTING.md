@@ -40,6 +40,14 @@ Backups are now locked with the PIN plus a secret stored in iCloud Keychain, whi
   4. In the CloudKit Console's **Production** environment, `VaultKeyBackup/MasterKeyBackup` should have `formatVersion = 2` and a `keyFingerprint`.
   5. The `EncryptedVaultItem` records should have `encryptedFilename` and **no** `originalFilename`.
   6. If the upgrade fails, Settings → Backup shows "Backup Update Didn't Finish" with the error. Connection errors show no warning and retry on the next PIN unlock.
+- [ ] **1.1b Mismatched keys.** Using an account whose items came from two installs:
+  1. Restore on an empty vault. Only items the backup's key opens are restored, and the alert says how many were skipped.
+  2. Restore on a vault that has its own items and a different key. It's refused with a message, and existing items still open.
+  3. Tap Backup Now on a vault whose key differs from the backup. It offers "Replace iCloud Backup?" with the number of items that would be deleted, and uploads nothing unless you confirm.
+  4. Choose Keep Current Backup. Nothing changes in the CloudKit Console.
+  5. Tap Backup Now again and choose Replace Backup. A wrong PIN and the decoy PIN are rejected, and nothing is deleted.
+  6. Enter the real PIN. In the Console, records this device can't open are gone, records it can open remain, and `MasterKeyBackup` has a new fingerprint. New items upload, and restoring on another device brings back everything left.
+  7. With iCloud Keychain off, try the replace. It fails with a message and deletes nothing.
 - [ ] **1.2 Restore on a new device.** On device B with iCloud Keychain on, do a fresh install, then use Settings → Backup → Restore with the PIN. Every item should come back with its original filename (check a PDF's name).
 - [ ] **1.3 iCloud Keychain off.** On device B, turn off iCloud Keychain and restore. You should see the "turn on iCloud Keychain" message, with no crash and no partial restore.
 - [ ] **1.4 After a PIN change.**

@@ -267,19 +267,103 @@ actor CloudService {
         return .upToDate
     }
 
-    /// True when this device's key decrypts a backed-up thumbnail, or when
-    /// there are no backed-up items to lose.
+    /// True when this device's key decrypts every sampled backed-up thumbnail, or
+    /// when there are no backed-up items to lose. All must open, because an account
+    /// can hold items from an earlier install under a different key.
     private func backedUpItemsUseLocalKey() async throws -> Bool {
         let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))
-        let page = try await database.records(matching: query, desiredKeys: ["encryptedThumbnail"], resultsLimit: 5)
+        let page = try await database.records(matching: query, desiredKeys: ["encryptedThumbnail"], resultsLimit: 200)
         let records = page.matchResults.compactMap { try? $0.1.get() }
         guard !records.isEmpty else { return true }
 
-        for record in records {
-            guard let thumbnail = record["encryptedThumbnail"] as? Data else { continue }
-            return (try? await encryptionService.decryptData(thumbnail)) != nil
+        let thumbnails = records.compactMap { $0["encryptedThumbnail"] as? Data }
+        guard !thumbnails.isEmpty else { return false }
+        for thumbnail in thumbnails where await !encryptionService.canDecrypt(thumbnail) {
+            return false
         }
-        return false
+        return true
+    }
+
+    /// Whether the existing key backup can restore items this device uploads. Uploading
+    /// when it can't would create backups that nothing can open.
+    func keyBackupMatchesThisVault() async throws -> Bool {
+        guard let backup = try await fetchKeyBackup() else { return true }
+        if let cloudFingerprint = backup.keyFingerprint {
+            return cloudFingerprint == (try await encryptionService.masterKeyFingerprint())
+        }
+        return try await backedUpItemsUseLocalKey()
+    }
+
+    /// How many backed-up items this device's key can't open, for the warning shown
+    /// before the backup is replaced.
+    func unreadableBackupItemCount() async throws -> Int {
+        try await unreadableBackupItemIDs().count
+    }
+
+    /// Makes this vault the owner of the iCloud backup: deletes the items its key can't
+    /// open, then replaces the key backup. The key goes last, so a failure part way
+    /// leaves a state the same action can finish. Returns the deleted record names.
+    func replaceBackup(wrappedKey: Data, salt: Data, keyFingerprint: Data) async throws -> [String] {
+        let unreadableIDs = try await unreadableBackupItemIDs()
+
+        var startIndex = 0
+        while startIndex < unreadableIDs.count {
+            let endIndex = min(startIndex + Self.maxRecordsPerDelete, unreadableIDs.count)
+            let (_, deleteResults) = try await database.modifyRecords(
+                saving: [],
+                deleting: Array(unreadableIDs[startIndex..<endIndex])
+            )
+            for (_, result) in deleteResults {
+                do {
+                    try result.get()
+                } catch let error as CKError where error.code == .unknownItem {
+                    continue
+                }
+            }
+            startIndex = endIndex
+        }
+
+        try await uploadKeyBackup(wrappedKey: wrappedKey, salt: salt, keyFingerprint: keyFingerprint)
+        return unreadableIDs.map(\.recordName)
+    }
+
+    private static let maxRecordsPerDelete = 400
+
+    private func unreadableBackupItemIDs() async throws -> [CKRecord.ID] {
+        let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))
+        let desiredKeys = ["encryptedThumbnail"]
+        var page = try await database.records(matching: query, desiredKeys: desiredKeys, resultsLimit: 200)
+        var unreadableIDs: [CKRecord.ID] = []
+
+        while true {
+            for (recordID, result) in page.matchResults {
+                let record = try result.get()
+                let isReadable: Bool
+                if let thumbnail = record["encryptedThumbnail"] as? Data {
+                    isReadable = await encryptionService.canDecrypt(thumbnail)
+                } else {
+                    let file = try await downloadItem(recordID: recordID.recordName)
+                    isReadable = await encryptionService.canDecrypt(file)
+                }
+                if !isReadable {
+                    unreadableIDs.append(recordID)
+                }
+            }
+            guard let cursor = page.queryCursor else { break }
+            page = try await database.records(continuingMatchFrom: cursor, desiredKeys: desiredKeys, resultsLimit: 200)
+        }
+        return unreadableIDs
+    }
+
+    /// Replacing the device's key leaves anything already encrypted with it unreadable,
+    /// so a backup with a different key can't be restored over existing items.
+    nonisolated static func keyImportWouldOrphanItems(
+        localFingerprint: Data?,
+        backupFingerprint: Data,
+        localItemCount: Int
+    ) -> Bool {
+        guard let localFingerprint else { return false }
+        return localFingerprint != backupFingerprint && localItemCount > 0
     }
 
     /// Value stored once `upgradeBackupIfNeeded` returns `.upToDate`, so the check
@@ -302,9 +386,15 @@ actor CloudService {
         }
     }
 
-    /// Checks whether a key backup exists in iCloud without downloading it.
-    func hasKeyBackup() async -> Bool {
-        (try? await database.record(for: Self.keyBackupRecordID)) != nil
+    /// Checks whether a key backup exists in iCloud. Network and account errors are
+    /// thrown, so an outage is never mistaken for there being no backup.
+    func keyBackupExists() async throws -> Bool {
+        do {
+            _ = try await database.record(for: Self.keyBackupRecordID)
+            return true
+        } catch let error as CKError where error.code == .unknownItem {
+            return false
+        }
     }
 
     // MARK: - Status
@@ -358,6 +448,8 @@ enum CloudError: LocalizedError {
     case storageFull
     case keyBackupNotFound
     case keyDecryptionFailed
+    case backupFromDifferentVault
+    case restoreWouldOrphanItems
 
     var errorDescription: String? {
         switch self {
@@ -373,6 +465,10 @@ enum CloudError: LocalizedError {
             String(localized: "No encryption key backup found in iCloud. Back up your vault first.")
         case .keyDecryptionFailed:
             String(localized: "Incorrect PIN. Could not decrypt your backup encryption key.")
+        case .backupFromDifferentVault:
+            String(localized: "Your iCloud backup was made with a different encryption key, usually from before the app was reinstalled. New items can't be restored with that key, so they weren't uploaded.")
+        case .restoreWouldOrphanItems:
+            String(localized: "This iCloud backup uses a different encryption key from the items on this device. Restoring it would make those items unreadable, so nothing was changed.")
         }
     }
 

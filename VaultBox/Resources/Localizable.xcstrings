@@ -1,6 +1,512 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Replace iCloud Backup?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud-Backup ersetzen?"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Reemplazar el respaldo de iCloud?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer la sauvegarde iCloud ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituire il backup iCloud?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudバックアップを置き換えますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 백업을 교체할까요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituir o backup do iCloud?"
+          }
+        }
+      }
+    },
+    "Replace Backup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup ersetzen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reemplazar respaldo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remplacer la sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sostituisci backup"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップを置き換える"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 교체"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Substituir backup"
+          }
+        }
+      }
+    },
+    "Keep Current Backup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aktuelles Backup behalten"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conservar respaldo actual"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conserver la sauvegarde actuelle"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni backup attuale"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "現在のバックアップを保持"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "현재 백업 유지"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manter backup atual"
+          }
+        }
+      }
+    },
+    "Confirm PIN to Replace Backup" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PIN bestätigen, um das Backup zu ersetzen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirma tu PIN para reemplazar el respaldo"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirmez le code PIN pour remplacer la sauvegarde"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conferma il PIN per sostituire il backup"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PINを確認してバックアップを置き換え"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업을 교체하려면 PIN을 확인하세요"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Confirme o PIN para substituir o backup"
+          }
+        }
+      }
+    },
+    "This can't be undone. You'll need this PIN to restore this backup on a new device." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das kann nicht rückgängig gemacht werden. Du benötigst diese PIN, um dieses Backup auf einem neuen Gerät wiederherzustellen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Esta acción no se puede deshacer. Necesitarás este PIN para restaurar este respaldo en un dispositivo nuevo."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette action est irréversible. Ce code PIN sera nécessaire pour restaurer cette sauvegarde sur un nouvel appareil."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "L'operazione non può essere annullata. Questo PIN servirà per ripristinare il backup su un nuovo dispositivo."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "この操作は取り消せません。新しいデバイスでこのバックアップを復元するには、このPINが必要です。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 작업은 취소할 수 없습니다. 새 기기에서 이 백업을 복원하려면 이 PIN이 필요합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Isso não pode ser desfeito. Você precisará deste PIN para restaurar este backup em um novo dispositivo."
+          }
+        }
+      }
+    },
+    "Replacing it permanently deletes the old key and 1 item this device can't open, on all your devices. Items on this device aren't affected." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Ersetzen werden der alte Schlüssel und 1 Objekt, das dieses Gerät nicht öffnen kann, auf all deinen Geräten dauerhaft gelöscht. Objekte auf diesem Gerät sind nicht betroffen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al reemplazarlo se eliminan de forma permanente, en todos tus dispositivos, la clave anterior y 1 elemento que este dispositivo no puede abrir. Los elementos de este dispositivo no se ven afectados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le remplacement supprime définitivement, sur tous vos appareils, l'ancienne clé et 1 élément que cet appareil ne peut pas ouvrir. Les éléments de cet appareil ne sont pas concernés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sostituzione elimina definitivamente, su tutti i tuoi dispositivi, la vecchia chiave e 1 elemento che questo dispositivo non può aprire. Gli elementi su questo dispositivo non vengono modificati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "置き換えると、以前のキーと、このデバイスで開けない1件の項目がすべてのデバイスから完全に削除されます。このデバイス上の項目には影響しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "교체하면 이전 키와 이 기기에서 열 수 없는 항목 1개가 모든 기기에서 영구적으로 삭제됩니다. 이 기기의 항목에는 영향이 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao substituir, a chave antiga e 1 item que este dispositivo não consegue abrir serão excluídos permanentemente em todos os seus dispositivos. Os itens neste dispositivo não são afetados."
+          }
+        }
+      }
+    },
+    "Replacing it permanently deletes the old key and %lld items this device can't open, on all your devices. Items on this device aren't affected." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim Ersetzen werden der alte Schlüssel und %lld Objekte, die dieses Gerät nicht öffnen kann, auf all deinen Geräten dauerhaft gelöscht. Objekte auf diesem Gerät sind nicht betroffen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Al reemplazarlo se eliminan de forma permanente, en todos tus dispositivos, la clave anterior y %lld elementos que este dispositivo no puede abrir. Los elementos de este dispositivo no se ven afectados."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le remplacement supprime définitivement, sur tous vos appareils, l'ancienne clé et %lld éléments que cet appareil ne peut pas ouvrir. Les éléments de cet appareil ne sont pas concernés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La sostituzione elimina definitivamente, su tutti i tuoi dispositivi, la vecchia chiave e %lld elementi che questo dispositivo non può aprire. Gli elementi su questo dispositivo non vengono modificati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "置き換えると、以前のキーと、このデバイスで開けない%lld件の項目がすべてのデバイスから完全に削除されます。このデバイス上の項目には影響しません。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "교체하면 이전 키와 이 기기에서 열 수 없는 항목 %lld개가 모든 기기에서 영구적으로 삭제됩니다. 이 기기의 항목에는 영향이 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ao substituir, a chave antiga e %lld itens que este dispositivo não consegue abrir serão excluídos permanentemente em todos os seus dispositivos. Os itens neste dispositivo não são afetados."
+          }
+        }
+      }
+    },
+    "Your iCloud backup was made with a different encryption key, usually from before the app was reinstalled. New items can't be restored with that key, so they weren't uploaded." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dein iCloud-Backup wurde mit einem anderen Verschlüsselungsschlüssel erstellt, meist noch vor einer Neuinstallation der App. Neue Objekte könnten damit nicht wiederhergestellt werden und wurden daher nicht hochgeladen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu respaldo de iCloud se creó con otra clave de cifrado, normalmente antes de reinstalar la app. Los elementos nuevos no se podrían restaurar con esa clave, así que no se subieron."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre sauvegarde iCloud a été créée avec une autre clé de chiffrement, généralement avant une réinstallation de l'app. Les nouveaux éléments ne pourraient pas être restaurés avec cette clé : ils n'ont donc pas été envoyés."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Il backup iCloud è stato creato con un'altra chiave di crittografia, di solito prima di reinstallare l'app. I nuovi elementi non potrebbero essere ripristinati con quella chiave, quindi non sono stati caricati."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudバックアップは別の暗号化キーで作成されています（通常はアプリの再インストール前のものです）。新しい項目はそのキーでは復元できないため、アップロードされませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 백업이 다른 암호화 키로 만들어졌습니다. 보통 앱을 다시 설치하기 전에 만든 백업입니다. 새 항목은 그 키로 복원할 수 없어 업로드하지 않았습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seu backup do iCloud foi criado com outra chave de criptografia, normalmente antes de reinstalar o app. Os novos itens não poderiam ser restaurados com essa chave, por isso não foram enviados."
+          }
+        }
+      }
+    },
+    "This iCloud backup uses a different encryption key from the items on this device. Restoring it would make those items unreadable, so nothing was changed." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dieses iCloud-Backup verwendet einen anderen Verschlüsselungsschlüssel als die Objekte auf diesem Gerät. Eine Wiederherstellung würde sie unlesbar machen, daher wurde nichts geändert."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este respaldo de iCloud usa una clave de cifrado distinta a la de los elementos de este dispositivo. Restaurarlo los haría ilegibles, así que no se cambió nada."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cette sauvegarde iCloud utilise une clé de chiffrement différente de celle des éléments de cet appareil. La restaurer les rendrait illisibles : rien n'a donc été modifié."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Questo backup iCloud usa una chiave di crittografia diversa da quella degli elementi su questo dispositivo. Ripristinarlo li renderebbe illeggibili, quindi non è stato modificato nulla."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "このiCloudバックアップは、このデバイス上の項目とは異なる暗号化キーを使用しています。復元するとそれらの項目が読み取れなくなるため、何も変更しませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "이 iCloud 백업은 이 기기의 항목과 다른 암호화 키를 사용합니다. 복원하면 해당 항목을 읽을 수 없게 되므로 아무것도 변경하지 않았습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este backup do iCloud usa uma chave de criptografia diferente da dos itens neste dispositivo. Restaurá-lo tornaria esses itens ilegíveis, por isso nada foi alterado."
+          }
+        }
+      }
+    },
+    "1 item couldn't be restored because it was backed up with a different key." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 Objekt konnte nicht wiederhergestellt werden, da es mit einem anderen Schlüssel gesichert wurde."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 elemento no se pudo restaurar porque se respaldó con otra clave."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 élément n'a pas pu être restauré, car il a été sauvegardé avec une autre clé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile ripristinare 1 elemento perché è stato salvato con un'altra chiave."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1件の項目は別のキーでバックアップされたため、復元できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 1개는 다른 키로 백업되어 복원할 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "1 item não pôde ser restaurado porque foi salvo com outra chave."
+          }
+        }
+      }
+    },
+    "%lld items couldn't be restored because they were backed up with a different key." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld Objekte konnten nicht wiederhergestellt werden, da sie mit einem anderen Schlüssel gesichert wurden."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld elementos no se pudieron restaurar porque se respaldaron con otra clave."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld éléments n'ont pas pu être restaurés, car ils ont été sauvegardés avec une autre clé."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non è stato possibile ripristinare %lld elementi perché sono stati salvati con un'altra chiave."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld件の項目は別のキーでバックアップされたため、復元できませんでした。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "항목 %lld개는 다른 키로 백업되어 복원할 수 없습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld itens não puderam ser restaurados porque foram salvos com outra chave."
+          }
+        }
+      }
+    },
     "" : {
       "localizations" : {
         "de" : {
@@ -4123,52 +4629,6 @@
         }
       }
     },
-    "Backup Update Didn't Finish" : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Backup-Aktualisierung nicht abgeschlossen"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La actualización del respaldo no terminó"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "La mise à jour de la sauvegarde n'est pas terminée"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Aggiornamento del backup non completato"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "バックアップの更新が完了しませんでした"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "백업 업데이트를 완료하지 못했습니다"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "A atualização do backup não terminou"
-          }
-        }
-      }
-    },
     "Backup paused — no internet connection." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4212,6 +4672,53 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Backup pausado — sem conexão com a internet."
+          }
+        }
+      }
+    },
+    "Backup Update Didn't Finish" : {
+      "extractionState" : "stale",
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup-Aktualisierung nicht abgeschlossen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La actualización del respaldo no terminó"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La mise à jour de la sauvegarde n'est pas terminée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornamento del backup non completato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップの更新が完了しませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 업데이트를 완료하지 못했습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A atualização do backup não terminou"
           }
         }
       }

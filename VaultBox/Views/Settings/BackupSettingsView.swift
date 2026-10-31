@@ -25,7 +25,7 @@ struct BackupSettingsView: View {
     @State private var restoreProgress: (completed: Int, total: Int) = (0, 0)
     @State private var showRestoreConfirmation = false
     @State private var showRestoreSuccess = false
-    @State private var restoredItemCount = 0
+    @State private var restoreSummary = ""
     @State private var showPINEntry = false
     @State private var restorePIN = ""
     @State private var pinError = ""
@@ -35,6 +35,9 @@ struct BackupSettingsView: View {
     @State private var keyBackupPIN = ""
     @State private var keyBackupPINError = ""
     @State private var keyBackupConfirmed = false
+    @State private var unreadableBackupItemCount = 0
+    @State private var showReplaceBackupConfirmation = false
+    @State private var isReplacingBackup = false
     @AppStorage(Constants.keyBackupUpgradeErrorKey) private var keyBackupUpgradeError = ""
 
     private static let uploadBatchSize = 20
@@ -110,6 +113,15 @@ struct BackupSettingsView: View {
         } message: {
             Text(errorMessage)
         }
+        .alert("Replace iCloud Backup?", isPresented: $showReplaceBackupConfirmation) {
+            Button("Replace Backup", role: .destructive) {
+                isReplacingBackup = true
+                showKeyBackupPINEntry = true
+            }
+            Button("Keep Current Backup", role: .cancel) {}
+        } message: {
+            Text(replaceBackupWarning)
+        }
         .alert("Restore from iCloud", isPresented: $showRestoreConfirmation) {
             Button("Restore", role: .destructive) {
                 startRestore()
@@ -121,11 +133,7 @@ struct BackupSettingsView: View {
         .alert("Restore Complete", isPresented: $showRestoreSuccess) {
             Button("OK") {}
         } message: {
-            if restoredItemCount == 1 {
-                Text("1 item restored from iCloud.")
-            } else {
-                Text("\(restoredItemCount) items restored from iCloud.")
-            }
+            Text(restoreSummary)
         }
         .sheet(isPresented: $showPINEntry) {
             restorePINEntrySheet
@@ -240,10 +248,12 @@ struct BackupSettingsView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.accent)
 
-                Text("Confirm PIN for Key Backup")
+                Text(isReplacingBackup ? String(localized: "Confirm PIN to Replace Backup") : String(localized: "Confirm PIN for Key Backup"))
                     .font(.title2.bold())
 
-                Text("Enter your PIN to encrypt your backup key. You'll need this PIN to restore on a new device.")
+                Text(isReplacingBackup
+                    ? String(localized: "This can't be undone. You'll need this PIN to restore this backup on a new device.")
+                    : String(localized: "Enter your PIN to encrypt your backup key. You'll need this PIN to restore on a new device."))
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -266,10 +276,11 @@ struct BackupSettingsView: View {
                 Button {
                     verifyPINAndBackupKey()
                 } label: {
-                    Text("Back Up Key")
+                    Text(isReplacingBackup ? String(localized: "Replace Backup") : String(localized: "Back Up Key"))
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
+                .tint(isReplacingBackup ? Color.vaultDestructive : nil)
                 .disabled(keyBackupPIN.isEmpty)
                 .padding(.horizontal)
 
@@ -282,6 +293,7 @@ struct BackupSettingsView: View {
                     Button("Cancel") {
                         keyBackupPIN = ""
                         keyBackupPINError = ""
+                        isReplacingBackup = false
                         showKeyBackupPINEntry = false
                     }
                 }
@@ -374,7 +386,7 @@ struct BackupSettingsView: View {
 
                 // Ensure key backup exists in iCloud (skip query if we just uploaded it)
                 if !keyBackupConfirmed {
-                    let hasKeyBackup = await service.hasKeyBackup()
+                    let hasKeyBackup = try await service.keyBackupExists()
                     if !hasKeyBackup {
                         // Need PIN to create the key backup
                         isSyncing = false
@@ -382,6 +394,10 @@ struct BackupSettingsView: View {
                         showKeyBackupPINEntry = true
                         return
                     }
+                    guard try await service.keyBackupMatchesThisVault() else {
+                        throw CloudError.backupFromDifferentVault
+                    }
+                    keyBackupConfirmed = true
                 }
 
                 // Uploaded items drop out of the next batch; a failed upload throws out of the loop.
@@ -416,6 +432,16 @@ struct BackupSettingsView: View {
                     .joined(separator: " ")
                 showError = true
                 syncStatusText = String(localized: "Error")
+            } catch let error as CloudError where error == .backupFromDifferentVault {
+                syncStatusText = String(localized: "Error")
+                do {
+                    unreadableBackupItemCount = try await CloudService(encryptionService: EncryptionService())
+                        .unreadableBackupItemCount()
+                    showReplaceBackupConfirmation = true
+                } catch {
+                    errorMessage = String(localized: "Backup paused — \(error.localizedDescription)")
+                    showError = true
+                }
             } catch {
                 errorMessage = String(localized: "Backup paused — \(error.localizedDescription)")
                 showError = true
@@ -444,11 +470,15 @@ struct BackupSettingsView: View {
                 // for it. Only skip PIN when there is no cloud key backup
                 // (i.e. this device is the backup origin).
                 let cloudService = CloudService(encryptionService: encryptionService)
-                let hasCloudKey = await cloudService.hasKeyBackup()
-                if hasCloudKey {
-                    showPINEntry = true
-                } else {
-                    performRestore(encryptionService: encryptionService)
+                do {
+                    if try await cloudService.keyBackupExists() {
+                        showPINEntry = true
+                    } else {
+                        performRestore(encryptionService: encryptionService)
+                    }
+                } catch {
+                    errorMessage = String(localized: "Restore failed — \(error.localizedDescription)")
+                    showError = true
                 }
             } else {
                 // Either no local key, or this is a fresh install (vault is
@@ -477,12 +507,26 @@ struct BackupSettingsView: View {
                 }
 
                 // Try to decrypt the master key with the entered PIN
-                try await encryptionService.importWrappedMasterKey(
+                let backupKey = try await encryptionService.unwrapMasterKey(
                     keyBackup.wrappedKey,
                     pin: pin,
                     salt: keyBackup.salt,
                     formatVersion: keyBackup.formatVersion
                 )
+
+                let localFingerprint = await encryptionService.hasMasterKey()
+                    ? try await encryptionService.masterKeyFingerprint()
+                    : nil
+                let localItemCount = try modelContext.fetchCount(FetchDescriptor<VaultItem>())
+                guard !CloudService.keyImportWouldOrphanItems(
+                    localFingerprint: localFingerprint,
+                    backupFingerprint: EncryptionService.fingerprint(of: backupKey),
+                    localItemCount: localItemCount
+                ) else {
+                    pinError = CloudError.restoreWouldOrphanItems.localizedDescription
+                    return
+                }
+                try await encryptionService.storeMasterKey(backupKey)
 
                 // Success — close PIN sheet and start restore
                 restorePIN = ""
@@ -502,6 +546,28 @@ struct BackupSettingsView: View {
         }
     }
 
+    private var replaceBackupWarning: String {
+        let reason = CloudError.backupFromDifferentVault.localizedDescription
+        let consequence = unreadableBackupItemCount == 1
+            ? String(localized: "Replacing it permanently deletes the old key and 1 item this device can't open, on all your devices. Items on this device aren't affected.")
+            : String(localized: "Replacing it permanently deletes the old key and \(unreadableBackupItemCount) items this device can't open, on all your devices. Items on this device aren't affected.")
+        return reason + "\n\n" + consequence
+    }
+
+    private static func restoreSummary(restoredCount: Int, unreadableCount: Int) -> String {
+        let restored = restoredCount == 1
+            ? String(localized: "1 item restored from iCloud.")
+            : String(localized: "\(String(restoredCount)) items restored from iCloud.")
+        switch unreadableCount {
+        case 0:
+            return restored
+        case 1:
+            return restored + " " + String(localized: "1 item couldn't be restored because it was backed up with a different key.")
+        default:
+            return restored + " " + String(localized: "\(unreadableCount) items couldn't be restored because they were backed up with a different key.")
+        }
+    }
+
     private func performRestore(encryptionService: EncryptionService) {
         guard requirePremiumAccess() else { return }
         isRestoring = true
@@ -510,12 +576,16 @@ struct BackupSettingsView: View {
         Task {
             do {
                 let cloudService = CloudService(encryptionService: encryptionService)
-                let restoredItems = try await vaultService.restoreFromiCloud(
+                let result = try await vaultService.restoreFromiCloud(
                     cloudService: cloudService
                 ) { completed, total in
                     restoreProgress = (completed, total)
                 }
-                restoredItemCount = restoredItems.count
+                let restoredItems = result.items
+                restoreSummary = Self.restoreSummary(
+                    restoredCount: restoredItems.count,
+                    unreadableCount: result.unreadableCount
+                )
 
                 // Queue vision analysis & search indexing — same as all other import flows
                 if !restoredItems.isEmpty {
@@ -567,11 +637,22 @@ struct BackupSettingsView: View {
                 )
 
                 let cloudService = CloudService(encryptionService: encryptionService)
-                try await cloudService.uploadKeyBackup(
-                    wrappedKey: wrappedKey,
-                    salt: wrappingSalt,
-                    keyFingerprint: try await encryptionService.masterKeyFingerprint()
-                )
+                let keyFingerprint = try await encryptionService.masterKeyFingerprint()
+                if isReplacingBackup {
+                    let removedRecordNames = try await cloudService.replaceBackup(
+                        wrappedKey: wrappedKey,
+                        salt: wrappingSalt,
+                        keyFingerprint: keyFingerprint
+                    )
+                    try await vaultService.markRemovedFromCloud(recordNames: removedRecordNames)
+                    isReplacingBackup = false
+                } else {
+                    try await cloudService.uploadKeyBackup(
+                        wrappedKey: wrappedKey,
+                        salt: wrappingSalt,
+                        keyFingerprint: keyFingerprint
+                    )
+                }
 
                 // Close sheet and resume backup
                 keyBackupPIN = ""
@@ -580,6 +661,7 @@ struct BackupSettingsView: View {
                 triggerManualSync()
             } catch {
                 keyBackupPINError = String(localized: "Failed to back up key: \(error.localizedDescription)")
+                // Stays in replace mode if that was the request, so trying again finishes it.
             }
         }
     }
