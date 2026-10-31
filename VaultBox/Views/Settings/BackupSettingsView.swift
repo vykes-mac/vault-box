@@ -379,10 +379,17 @@ struct BackupSettingsView: View {
                     if index < pendingItems.count {
                         pendingItems[index].cloudRecordID = recordName
                         pendingItems[index].isUploaded = true
+                        // Save each item so a failed run doesn't upload it again on retry
+                        try? modelContext.save()
                     }
                 }
-                try? modelContext.save()
                 syncStatusText = String(localized: "Up to date")
+            } catch let error as CloudError where error == .storageFull {
+                errorMessage = [error.errorDescription, error.recoverySuggestion]
+                    .compactMap { $0 }
+                    .joined(separator: " ")
+                showError = true
+                syncStatusText = String(localized: "Error")
             } catch {
                 errorMessage = String(localized: "Backup paused — \(error.localizedDescription)")
                 showError = true

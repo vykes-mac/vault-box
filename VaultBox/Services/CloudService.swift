@@ -62,8 +62,12 @@ actor CloudService {
             record["encryptedThumbnail"] = thumbnailData as CKRecordValue
         }
 
-        let savedRecord = try await database.save(record)
-        return savedRecord.recordID.recordName
+        do {
+            let savedRecord = try await database.save(record)
+            return savedRecord.recordID.recordName
+        } catch let error as CKError where error.code == .quotaExceeded {
+            throw CloudError.storageFull
+        }
     }
 
     // MARK: - Download
@@ -188,15 +192,19 @@ actor CloudService {
         record["keyFingerprint"] = keyFingerprint as CKRecordValue
         record["createdAt"] = Date() as CKRecordValue
 
-        // Use changedKeys save policy so re-uploads overwrite the existing record.
-        let (saveResults, _) = try await database.modifyRecords(
-            saving: [record],
-            deleting: [],
-            savePolicy: .changedKeys
-        )
-        // Surface any per-record error
-        for (_, result) in saveResults {
-            let _ = try result.get()
+        do {
+            // Use changedKeys save policy so re-uploads overwrite the existing record.
+            let (saveResults, _) = try await database.modifyRecords(
+                saving: [record],
+                deleting: [],
+                savePolicy: .changedKeys
+            )
+            // Surface any per-record error
+            for (_, result) in saveResults {
+                let _ = try result.get()
+            }
+        } catch let error as CKError where error.code == .quotaExceeded {
+            throw CloudError.storageFull
         }
     }
 
@@ -335,6 +343,15 @@ enum CloudError: LocalizedError {
             String(localized: "No encryption key backup found in iCloud. Back up your vault first.")
         case .keyDecryptionFailed:
             String(localized: "Incorrect PIN. Could not decrypt your backup encryption key.")
+        }
+    }
+
+    var recoverySuggestion: String? {
+        switch self {
+        case .storageFull:
+            String(localized: "Manage your iCloud storage in Settings.")
+        default:
+            nil
         }
     }
 }
