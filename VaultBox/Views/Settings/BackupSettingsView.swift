@@ -63,7 +63,10 @@ struct BackupSettingsView: View {
 
                     statusRow
                 } footer: {
-                    Text("All data is encrypted before uploading to your private iCloud storage. Apple cannot read your files.")
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("All data is encrypted before uploading to your private iCloud storage. Apple cannot read your files.")
+                        Text("To restore on a new device, iCloud Keychain must be turned on in the Settings app.")
+                    }
                 }
 
                 Section {

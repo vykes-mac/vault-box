@@ -1,6 +1,52 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "To restore on a new device, iCloud Keychain must be turned on in the Settings app." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Für die Wiederherstellung auf einem neuen Gerät muss der iCloud-Schlüsselbund in der App „Einstellungen“ aktiviert sein."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para restaurar en un dispositivo nuevo, Llavero de iCloud debe estar activado en la app Configuración."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour restaurer sur un nouvel appareil, le trousseau iCloud doit être activé dans l'app Réglages."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Per ripristinare su un nuovo dispositivo, il Portachiavi iCloud deve essere attivo nell'app Impostazioni."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しいデバイスで復元するには、設定アプリでiCloudキーチェーンをオンにしておく必要があります。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 기기에서 복원하려면 설정 앱에서 iCloud 키체인을 켜 두어야 합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Para restaurar em um novo dispositivo, as Chaves do iCloud precisam estar ativadas no app Ajustes."
+          }
+        }
+      }
+    },
     "Replace iCloud Backup?" : {
       "localizations" : {
         "de" : {
