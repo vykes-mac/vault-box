@@ -114,6 +114,10 @@ enum Constants {
 
     static let appStoreURL = "https://apps.apple.com/app/id6758970966"
 
+    // MARK: - Support
+
+    static let supportEmail = "knrymcleish@gmail.com"
+
     // MARK: - Rate Prompt
 
     static let ratePromptImportThreshold = 10

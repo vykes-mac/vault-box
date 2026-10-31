@@ -14,8 +14,10 @@ struct SettingsView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.openURL) private var openURL
 
     @State private var viewModel: SettingsViewModel?
+    @State private var showSupportEmailFallback = false
     @State private var isBiometricsAvailable: Bool = false
     @State private var showPaywall = false
     @State private var showCustomerCenter = false
@@ -157,6 +159,14 @@ struct SettingsView: View {
             }
             .navigationDestination(isPresented: $showExpiringDocuments) {
                 ExpiringDocumentsView(vaultService: vaultService, targetReminderID: activeTargetReminderID)
+            }
+            .alert("Couldn't Open Mail", isPresented: $showSupportEmailFallback) {
+                Button("Copy Address") {
+                    UIPasteboard.general.string = Constants.supportEmail
+                }
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text("Email us at \(Constants.supportEmail).")
             }
             .alert("Clear Break-in Log?", isPresented: $showClearBreakInConfirm) {
                 Button("Clear All", role: .destructive) {
@@ -640,6 +650,32 @@ struct SettingsView: View {
                         .font(.caption)
                         .foregroundStyle(Color.vaultTextSecondary)
                 }
+            }
+
+            Button {
+                contactSupport()
+            } label: {
+                Label("Contact Support", systemImage: "envelope")
+                    .foregroundStyle(Color.vaultTextPrimary)
+            }
+        }
+    }
+
+    private func contactSupport() {
+        var components = URLComponents()
+        components.scheme = "mailto"
+        components.path = Constants.supportEmail
+        components.queryItems = [
+            URLQueryItem(name: "subject", value: "VaultBox Support"),
+            URLQueryItem(name: "body", value: "\n\n---\nVaultBox \(appVersion)\niOS \(UIDevice.current.systemVersion)")
+        ]
+        guard let url = components.url else {
+            showSupportEmailFallback = true
+            return
+        }
+        openURL(url) { accepted in
+            if !accepted {
+                showSupportEmailFallback = true
             }
         }
     }
