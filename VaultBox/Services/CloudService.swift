@@ -236,8 +236,8 @@ actor CloudService {
     /// change, and encrypts any plain-text filenames left by older versions.
     /// Only touches a backup of this device's vault key, so a fresh install
     /// can never overwrite the backup it still needs to restore from.
-    func upgradeBackupIfNeeded(pin: String) async throws {
-        guard let backup = try await fetchKeyBackup() else { return }
+    func upgradeBackupIfNeeded(pin: String) async throws -> KeyBackupUpgradeResult {
+        guard let backup = try await fetchKeyBackup() else { return .noBackup }
 
         let localFingerprint = try await encryptionService.masterKeyFingerprint()
         let cloudKey = try? await encryptionService.unwrapMasterKey(
@@ -255,7 +255,7 @@ actor CloudService {
         } else {
             isThisVault = try await backedUpItemsUseLocalKey()
         }
-        guard isThisVault else { return }
+        guard isThisVault else { return .differentVault }
 
         if backup.formatVersion < Constants.keyBackupFormatVersion || cloudKey == nil {
             let salt = await encryptionService.generateSalt()
@@ -264,6 +264,7 @@ actor CloudService {
         }
 
         try await encryptLegacyFilenames()
+        return .upToDate
     }
 
     /// True when this device's key decrypts a backed-up thumbnail, or when
@@ -281,10 +282,24 @@ actor CloudService {
         return false
     }
 
-    /// Value stored after `upgradeBackupIfNeeded` succeeds, so the check runs
-    /// once per PIN and backup format instead of on every unlock.
+    /// Value stored once `upgradeBackupIfNeeded` returns `.upToDate`, so the check
+    /// runs once per PIN and backup format instead of on every unlock. The suffix
+    /// ignores older markers, which could be saved without an upgrade having run.
     nonisolated static func keyBackupMarker(pinSalt: String) -> String {
-        "\(pinSalt)#\(Constants.keyBackupFormatVersion)"
+        "\(pinSalt)#\(Constants.keyBackupFormatVersion)#upgraded"
+    }
+
+    /// True for failures that clear up by themselves, such as being offline.
+    /// These retry on the next PIN unlock without warning the user.
+    nonisolated static func isTransientUpgradeFailure(_ error: Error) -> Bool {
+        guard let cloudError = error as? CKError else { return false }
+        switch cloudError.code {
+        case .networkUnavailable, .networkFailure, .serviceUnavailable,
+             .requestRateLimited, .zoneBusy, .accountTemporarilyUnavailable:
+            return true
+        default:
+            return false
+        }
     }
 
     /// Checks whether a key backup exists in iCloud without downloading it.
@@ -320,6 +335,21 @@ actor CloudService {
 }
 
 // MARK: - Errors
+
+enum KeyBackupUpgradeResult: Sendable {
+    /// The backup belongs to this vault and is on the current format.
+    case upToDate
+    /// This iCloud environment has no key backup yet.
+    case noBackup
+    /// The backup belongs to another vault, so it was left alone.
+    case differentVault
+
+    /// Only a finished upgrade stops the check. The other results can change,
+    /// for example after a restore or when a build moves to another CloudKit environment.
+    var finishesCheck: Bool {
+        self == .upToDate
+    }
+}
 
 enum CloudError: LocalizedError {
     case fileNotFound

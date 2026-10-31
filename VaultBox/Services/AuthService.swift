@@ -1,5 +1,6 @@
 import Foundation
 import LocalAuthentication
+import os
 import SwiftData
 
 enum AuthResult {
@@ -12,6 +13,8 @@ enum AuthResult {
 @MainActor
 @Observable
 class AuthService {
+    private static let logger = Logger(subsystem: "com.vaultbox.app", category: "AuthService")
+
     private let encryptionService: EncryptionService
     private let modelContext: ModelContext
     private let hasPremiumAccess: () -> Bool
@@ -228,13 +231,19 @@ class AuthService {
 
         let cloudService = CloudService(encryptionService: encryptionService)
         Task {
+            let defaults = UserDefaults.standard
             do {
-                try await cloudService.upgradeBackupIfNeeded(pin: pin)
-                UserDefaults.standard.set(marker, forKey: Constants.keyBackupCheckedMarkerKey)
+                let result = try await cloudService.upgradeBackupIfNeeded(pin: pin)
+                if result.finishesCheck {
+                    defaults.set(marker, forKey: Constants.keyBackupCheckedMarkerKey)
+                }
+                defaults.removeObject(forKey: Constants.keyBackupUpgradeErrorKey)
+                Self.logger.info("Key backup upgrade check finished: \(String(describing: result), privacy: .public)")
             } catch {
-                #if DEBUG
-                print("[AuthService] Key backup upgrade failed: \(error)")
-                #endif
+                Self.logger.error("Key backup upgrade failed: \(String(describing: error), privacy: .public)")
+                if !CloudService.isTransientUpgradeFailure(error) {
+                    defaults.set(error.localizedDescription, forKey: Constants.keyBackupUpgradeErrorKey)
+                }
             }
         }
     }

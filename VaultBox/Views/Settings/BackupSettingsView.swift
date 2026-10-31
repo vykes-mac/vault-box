@@ -34,6 +34,7 @@ struct BackupSettingsView: View {
     @State private var keyBackupPIN = ""
     @State private var keyBackupPINError = ""
     @State private var keyBackupConfirmed = false
+    @AppStorage(Constants.keyBackupUpgradeErrorKey) private var keyBackupUpgradeError = ""
 
     private var settings: AppSettings? { settingsQuery.first }
 
@@ -79,6 +80,10 @@ struct BackupSettingsView: View {
                 }
 
                 restoreSection
+
+                if !keyBackupUpgradeError.isEmpty {
+                    keyBackupUpgradeWarning
+                }
 
                 Section("Status") {
                     LabeledContent("Uploaded", value: "\(uploadedCount) of \(allItems.count)")
@@ -283,6 +288,20 @@ struct BackupSettingsView: View {
     }
 
     // MARK: - Other Views
+
+    private var keyBackupUpgradeWarning: some View {
+        Section {
+            VStack(alignment: .leading, spacing: 4) {
+                Label("Backup Update Didn't Finish", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundStyle(Color.vaultDestructive)
+                Text("It will try again the next time you unlock with your PIN.")
+                    .font(.subheadline)
+                Text(keyBackupUpgradeError)
+                    .font(.caption)
+                    .foregroundStyle(Color.vaultTextSecondary)
+            }
+        }
+    }
 
     private var premiumRequiredSection: some View {
         Section {
@@ -541,10 +560,6 @@ struct BackupSettingsView: View {
                     wrappedKey: wrappedKey,
                     salt: wrappingSalt,
                     keyFingerprint: try await encryptionService.masterKeyFingerprint()
-                )
-                UserDefaults.standard.set(
-                    CloudService.keyBackupMarker(pinSalt: settings.pinSalt),
-                    forKey: Constants.keyBackupCheckedMarkerKey
                 )
 
                 // Close sheet and resume backup

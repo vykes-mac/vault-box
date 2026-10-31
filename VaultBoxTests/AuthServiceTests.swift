@@ -1,3 +1,4 @@
+import CloudKit
 import Testing
 import Foundation
 import SwiftData
@@ -432,5 +433,40 @@ struct AuthServiceTests {
             isSetupComplete: auth.isSetupComplete,
             isUnlocked: auth.isUnlocked
         ) == .main)
+    }
+}
+
+@Suite("Key backup upgrade")
+struct KeyBackupUpgradeTests {
+    @Test("Only a finished upgrade stops the check")
+    func onlyUpToDateFinishesCheck() {
+        #expect(KeyBackupUpgradeResult.upToDate.finishesCheck)
+        #expect(!KeyBackupUpgradeResult.noBackup.finishesCheck)
+        #expect(!KeyBackupUpgradeResult.differentVault.finishesCheck)
+    }
+
+    @Test("Markers saved by earlier builds are ignored")
+    func earlierMarkerIsIgnored() {
+        let earlierMarker = "salt#\(Constants.keyBackupFormatVersion)"
+        #expect(CloudService.keyBackupMarker(pinSalt: "salt") != earlierMarker)
+    }
+
+    @Test("Marker changes with the PIN")
+    func markerChangesWithPIN() {
+        #expect(CloudService.keyBackupMarker(pinSalt: "a") != CloudService.keyBackupMarker(pinSalt: "b"))
+    }
+
+    @Test("Connection problems don't warn the user")
+    func connectionProblemsAreTransient() {
+        #expect(CloudService.isTransientUpgradeFailure(CKError(.networkUnavailable)))
+        #expect(CloudService.isTransientUpgradeFailure(CKError(.networkFailure)))
+        #expect(CloudService.isTransientUpgradeFailure(CKError(.serviceUnavailable)))
+    }
+
+    @Test("Rejected saves and other errors warn the user")
+    func otherFailuresAreReported() {
+        #expect(!CloudService.isTransientUpgradeFailure(CKError(.serverRejectedRequest)))
+        #expect(!CloudService.isTransientUpgradeFailure(CKError(.invalidArguments)))
+        #expect(!CloudService.isTransientUpgradeFailure(CloudError.keyDecryptionFailed))
     }
 }

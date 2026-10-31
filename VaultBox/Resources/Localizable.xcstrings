@@ -4123,6 +4123,52 @@
         }
       }
     },
+    "Backup Update Didn't Finish" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Backup-Aktualisierung nicht abgeschlossen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La actualización del respaldo no terminó"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La mise à jour de la sauvegarde n'est pas terminée"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aggiornamento del backup non completato"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "バックアップの更新が完了しませんでした"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "백업 업데이트를 완료하지 못했습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A atualização do backup não terminou"
+          }
+        }
+      }
+    },
     "Backup paused — no internet connection." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -16061,6 +16107,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Já aconteceu uma vez. Vamos impedir que aconteça de novo."
+          }
+        }
+      }
+    },
+    "It will try again the next time you unlock with your PIN." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Beim nächsten Entsperren mit deiner PIN wird es erneut versucht."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Se volverá a intentar la próxima vez que desbloquees con tu PIN."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Une nouvelle tentative aura lieu au prochain déverrouillage avec votre code PIN."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verrà ritentato al prossimo sblocco con il PIN."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "次回PINでロック解除したときに再試行します。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "다음에 PIN으로 잠금 해제할 때 다시 시도합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Uma nova tentativa será feita na próxima vez que você desbloquear com seu PIN."
           }
         }
       }

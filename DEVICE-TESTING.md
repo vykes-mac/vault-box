@@ -16,7 +16,7 @@ You need:
 - **Device B:** a second iPhone or iPad signed into the **same Apple ID**.
 - Optionally, an iOS 17 device.
 - A sandbox Apple account for premium, since the hard paywall blocks most features.
-- The CloudKit Console (container `iCloud.com.vaultbox.app`, Development environment) to inspect records.
+- The CloudKit Console (container `iCloud.com.vaultbox.app`) to inspect records. App Store and TestFlight builds use the **Production** environment. Builds run from Xcode use **Development**, which holds separate data.
 
 ---
 
@@ -35,9 +35,11 @@ Backups are now locked with the PIN plus a secret stored in iCloud Keychain, whi
 
 - [ ] **1.1 Upgrade an old backup.**
   1. On device A, install **1.2.5**, turn on iCloud backup and back up a few photos and a PDF.
-  2. Install the new build and unlock with the real PIN.
-  3. In the CloudKit Console, `VaultKeyBackup/MasterKeyBackup` should have `formatVersion = 2` and a `keyFingerprint`.
-  4. The `EncryptedVaultItem` records should have `encryptedFilename` and **no** `originalFilename`.
+  2. Deploy the CloudKit schema to Production so it includes `formatVersion` and `keyFingerprint` on `VaultKeyBackup`, and `encryptedFilename` on `EncryptedVaultItem`. Without these fields, Production will reject the upgrade and new item backups.
+  3. Install the new build through **TestFlight** and unlock by **typing** the real PIN, because Face ID doesn't run the upgrade. Stay online for a moment afterwards.
+  4. In the CloudKit Console's **Production** environment, `VaultKeyBackup/MasterKeyBackup` should have `formatVersion = 2` and a `keyFingerprint`.
+  5. The `EncryptedVaultItem` records should have `encryptedFilename` and **no** `originalFilename`.
+  6. If the upgrade fails, Settings → Backup shows "Backup Update Didn't Finish" with the error. Connection errors show no warning and retry on the next PIN unlock.
 - [ ] **1.2 Restore on a new device.** On device B with iCloud Keychain on, do a fresh install, then use Settings → Backup → Restore with the PIN. Every item should come back with its original filename (check a PDF's name).
 - [ ] **1.3 iCloud Keychain off.** On device B, turn off iCloud Keychain and restore. You should see the "turn on iCloud Keychain" message, with no crash and no partial restore.
 - [ ] **1.4 After a PIN change.**
