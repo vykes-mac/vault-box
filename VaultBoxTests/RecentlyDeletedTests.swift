@@ -207,6 +207,39 @@ struct RecentlyDeletedTests {
         #expect(unreadable.cloudRecordID == nil)
     }
 
+    @Test("Deleting the whole backup re-queues items and clears pending iCloud deletes")
+    func entireBackupRemovedResetsState() async throws {
+        let harness = try await makeHarness()
+        let uploaded = try await importPhoto(harness)
+        uploaded.isUploaded = true
+        uploaded.cloudRecordID = "uploaded"
+        let trashed = try await importPhoto(harness)
+        trashed.isUploaded = true
+        trashed.cloudRecordID = "trashed"
+        try harness.service.deleteItems([trashed])
+        let unreadable = try await importPhoto(harness)
+        unreadable.isUploaded = true
+        unreadable.cloudRecordID = "unreadable"
+        unreadable.encryptedThumbnailData = Data("encrypted with another key".utf8)
+        let queued = try await importPhoto(harness)
+        queued.cloudRecordID = "queued"
+        try harness.context.save()
+        harness.cloud.isOffline = true
+        #expect(try await harness.service.permanentlyDeleteItems([queued], alsoFromICloud: true) == 1)
+
+        try await harness.service.markEntireBackupRemoved()
+
+        #expect(!uploaded.isUploaded)
+        #expect(uploaded.cloudRecordID == nil)
+        #expect(!trashed.isUploaded)
+        #expect(trashed.cloudRecordID == nil)
+        #expect(unreadable.isUploaded, "Uploading it would only store another unrecoverable copy")
+        #expect(unreadable.cloudRecordID == nil)
+        harness.cloud.isOffline = false
+        #expect(await harness.service.retryPendingCloudDeletions() == 0)
+        #expect(harness.cloud.deletedRecordIDs.isEmpty)
+    }
+
     // MARK: - Decoy Isolation
 
     @Test("Item counts and storage stay separate per vault and count the bin as storage")
@@ -260,7 +293,7 @@ struct RecentlyDeletedTests {
 
     // MARK: - Purge
 
-    @Test("Items are purged only after 30 days, removing file and iCloud record")
+    @Test("Items are purged only after 30 days, removing the file and keeping the iCloud record")
     func purgeRemovesExpiredItems() async throws {
         let harness = try await makeHarness()
         let expiring = try await importPhoto(harness)
@@ -286,7 +319,7 @@ struct RecentlyDeletedTests {
         #expect(!remaining.contains { $0.id == expiringID })
         #expect(!FileManager.default.fileExists(atPath: expiringURL.path))
         #expect(FileManager.default.fileExists(atPath: recentURL.path))
-        #expect(harness.cloud.deletedRecordIDs == ["record-expiring"])
+        #expect(harness.cloud.deletedRecordIDs.isEmpty, "An automatic purge must keep the iCloud backup")
 
         try? FileManager.default.removeItem(at: recentURL)
     }
@@ -325,7 +358,7 @@ struct RecentlyDeletedTests {
 
     // MARK: - Permanent Delete
 
-    @Test("Permanent delete removes the item, its file and its iCloud record")
+    @Test("Deleting from device and iCloud removes the item, its file and its iCloud record")
     func permanentDeleteRemovesEverything() async throws {
         let harness = try await makeHarness()
         let item = try await importPhoto(harness)
@@ -333,11 +366,28 @@ struct RecentlyDeletedTests {
         let url = try await fileURL(for: item, in: harness)
         try harness.service.deleteItems([item])
 
-        try await harness.service.permanentlyDeleteItems([item])
+        try await harness.service.permanentlyDeleteItems([item], alsoFromICloud: true)
 
         #expect(try allItems(in: harness).isEmpty)
         #expect(!FileManager.default.fileExists(atPath: url.path))
         #expect(harness.cloud.deletedRecordIDs == ["record-permanent"])
+    }
+
+    @Test("Deleting from this device only keeps the iCloud record and queues nothing")
+    func deviceOnlyDeleteKeepsICloudCopy() async throws {
+        let harness = try await makeHarness()
+        let item = try await importPhoto(harness)
+        item.cloudRecordID = "record-kept"
+        let url = try await fileURL(for: item, in: harness)
+        try harness.service.deleteItems([item])
+
+        let waiting = try await harness.service.permanentlyDeleteItems([item], alsoFromICloud: false)
+
+        #expect(waiting == 0)
+        #expect(try allItems(in: harness).isEmpty)
+        #expect(!FileManager.default.fileExists(atPath: url.path))
+        #expect(await harness.service.retryPendingCloudDeletions() == 0)
+        #expect(harness.cloud.deletedRecordIDs.isEmpty)
     }
 
     @Test("Offline permanent delete queues the iCloud delete and retries it later")
@@ -348,7 +398,7 @@ struct RecentlyDeletedTests {
         try harness.service.deleteItems([item])
 
         harness.cloud.isOffline = true
-        let waiting = try await harness.service.permanentlyDeleteItems([item])
+        let waiting = try await harness.service.permanentlyDeleteItems([item], alsoFromICloud: true)
 
         #expect(waiting == 1)
         #expect(try allItems(in: harness).isEmpty)

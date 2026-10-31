@@ -305,13 +305,36 @@ actor CloudService {
     /// leaves a state the same action can finish. Returns the deleted record names.
     func replaceBackup(wrappedKey: Data, salt: Data, keyFingerprint: Data) async throws -> [String] {
         let unreadableIDs = try await unreadableBackupItemIDs()
+        try await deleteRecords(unreadableIDs)
+        try await uploadKeyBackup(wrappedKey: wrappedKey, salt: salt, keyFingerprint: keyFingerprint)
+        return unreadableIDs.map(\.recordName)
+    }
 
+    /// Deletes every backed-up item and the key backup from iCloud. The key goes last,
+    /// so if this fails part way, nothing left behind has lost its key and it can run again.
+    func deleteEntireBackup() async throws {
+        let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))
+        var page = try await database.records(matching: query, desiredKeys: [], resultsLimit: 200)
+        var recordIDs: [CKRecord.ID] = []
+        while true {
+            recordIDs.append(contentsOf: page.matchResults.map(\.0))
+            guard let cursor = page.queryCursor else { break }
+            page = try await database.records(continuingMatchFrom: cursor, desiredKeys: [], resultsLimit: 200)
+        }
+
+        try await deleteRecords(recordIDs)
+        try await deleteRecords([Self.keyBackupRecordID])
+    }
+
+    private static let maxRecordsPerDelete = 400
+
+    private func deleteRecords(_ recordIDs: [CKRecord.ID]) async throws {
         var startIndex = 0
-        while startIndex < unreadableIDs.count {
-            let endIndex = min(startIndex + Self.maxRecordsPerDelete, unreadableIDs.count)
+        while startIndex < recordIDs.count {
+            let endIndex = min(startIndex + Self.maxRecordsPerDelete, recordIDs.count)
             let (_, deleteResults) = try await database.modifyRecords(
                 saving: [],
-                deleting: Array(unreadableIDs[startIndex..<endIndex])
+                deleting: Array(recordIDs[startIndex..<endIndex])
             )
             for (_, result) in deleteResults {
                 do {
@@ -322,12 +345,7 @@ actor CloudService {
             }
             startIndex = endIndex
         }
-
-        try await uploadKeyBackup(wrappedKey: wrappedKey, salt: salt, keyFingerprint: keyFingerprint)
-        return unreadableIDs.map(\.recordName)
     }
-
-    private static let maxRecordsPerDelete = 400
 
     private func unreadableBackupItemIDs() async throws -> [CKRecord.ID] {
         let query = CKQuery(recordType: Constants.cloudRecordType, predicate: NSPredicate(value: true))

@@ -3,6 +3,12 @@ import SwiftData
 import CloudKit
 import CryptoKit
 
+private enum KeyBackupPINPurpose {
+    case backUpKey
+    case replaceBackup
+    case deleteBackup
+}
+
 struct BackupSettingsView: View {
     let vaultService: VaultService
 
@@ -37,7 +43,8 @@ struct BackupSettingsView: View {
     @State private var keyBackupConfirmed = false
     @State private var unreadableBackupItemCount = 0
     @State private var showReplaceBackupConfirmation = false
-    @State private var isReplacingBackup = false
+    @State private var keyBackupPINPurpose: KeyBackupPINPurpose = .backUpKey
+    @State private var showDeleteBackupConfirmation = false
     @AppStorage(Constants.keyBackupUpgradeErrorKey) private var keyBackupUpgradeError = ""
 
     private static let uploadBatchSize = 20
@@ -97,6 +104,9 @@ struct BackupSettingsView: View {
             } else {
                 premiumRequiredSection
             }
+
+            // Not premium-gated here: removing your data from iCloud shouldn't depend on a subscription.
+            deleteBackupSection
         }
         .navigationTitle("Backup")
         .navigationBarTitleDisplayMode(.inline)
@@ -118,12 +128,21 @@ struct BackupSettingsView: View {
         }
         .alert("Replace iCloud Backup?", isPresented: $showReplaceBackupConfirmation) {
             Button("Replace Backup", role: .destructive) {
-                isReplacingBackup = true
+                keyBackupPINPurpose = .replaceBackup
                 showKeyBackupPINEntry = true
             }
             Button("Keep Current Backup", role: .cancel) {}
         } message: {
             Text(replaceBackupWarning)
+        }
+        .alert("Delete iCloud Backup?", isPresented: $showDeleteBackupConfirmation) {
+            Button("Continue", role: .destructive) {
+                keyBackupPINPurpose = .deleteBackup
+                showKeyBackupPINEntry = true
+            }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This permanently deletes all your backed-up items and your backup key from iCloud, for all your devices. Items on this device aren't affected, but anything that's only in iCloud will be lost.")
         }
         .alert("Restore from iCloud", isPresented: $showRestoreConfirmation) {
             Button("Restore", role: .destructive) {
@@ -181,6 +200,22 @@ struct BackupSettingsView: View {
             }
         } footer: {
             Text("Download backed-up items to this device. Items already on this device will be skipped.")
+        }
+    }
+
+    // MARK: - Delete Backup Section
+
+    private var deleteBackupSection: some View {
+        Section {
+            Button(role: .destructive) {
+                showDeleteBackupConfirmation = true
+            } label: {
+                Label("Delete iCloud Backup", systemImage: "trash")
+                    .foregroundStyle(Color.vaultDestructive)
+            }
+            .disabled(isRestoring || isSyncing || iCloudStatus != .available)
+        } footer: {
+            Text("Removes all your backed-up items from iCloud. Items on this device stay here.")
         }
     }
 
@@ -251,12 +286,10 @@ struct BackupSettingsView: View {
                     .font(.system(size: 48))
                     .foregroundStyle(.accent)
 
-                Text(isReplacingBackup ? String(localized: "Confirm PIN to Replace Backup") : String(localized: "Confirm PIN for Key Backup"))
+                Text(keyBackupPINTitle)
                     .font(.title2.bold())
 
-                Text(isReplacingBackup
-                    ? String(localized: "This can't be undone. You'll need this PIN to restore this backup on a new device.")
-                    : String(localized: "Enter your PIN to encrypt your backup key. You'll need this PIN to restore on a new device."))
+                Text(keyBackupPINMessage)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .multilineTextAlignment(.center)
@@ -279,11 +312,11 @@ struct BackupSettingsView: View {
                 Button {
                     verifyPINAndBackupKey()
                 } label: {
-                    Text(isReplacingBackup ? String(localized: "Replace Backup") : String(localized: "Back Up Key"))
+                    Text(keyBackupPINButtonTitle)
                         .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(.borderedProminent)
-                .tint(isReplacingBackup ? Color.vaultDestructive : nil)
+                .tint(keyBackupPINPurpose == .backUpKey ? nil : Color.vaultDestructive)
                 .disabled(keyBackupPIN.isEmpty)
                 .padding(.horizontal)
 
@@ -296,11 +329,35 @@ struct BackupSettingsView: View {
                     Button("Cancel") {
                         keyBackupPIN = ""
                         keyBackupPINError = ""
-                        isReplacingBackup = false
+                        keyBackupPINPurpose = .backUpKey
                         showKeyBackupPINEntry = false
                     }
                 }
             }
+        }
+    }
+
+    private var keyBackupPINTitle: String {
+        switch keyBackupPINPurpose {
+        case .backUpKey: String(localized: "Confirm PIN for Key Backup")
+        case .replaceBackup: String(localized: "Confirm PIN to Replace Backup")
+        case .deleteBackup: String(localized: "Confirm PIN to Delete Backup")
+        }
+    }
+
+    private var keyBackupPINMessage: String {
+        switch keyBackupPINPurpose {
+        case .backUpKey: String(localized: "Enter your PIN to encrypt your backup key. You'll need this PIN to restore on a new device.")
+        case .replaceBackup: String(localized: "This can't be undone. You'll need this PIN to restore this backup on a new device.")
+        case .deleteBackup: String(localized: "This can't be undone.")
+        }
+    }
+
+    private var keyBackupPINButtonTitle: String {
+        switch keyBackupPINPurpose {
+        case .backUpKey: String(localized: "Back Up Key")
+        case .replaceBackup: String(localized: "Replace Backup")
+        case .deleteBackup: String(localized: "Delete Backup")
         }
     }
 
@@ -609,7 +666,7 @@ struct BackupSettingsView: View {
     // MARK: - Key Backup Flow
 
     private func verifyPINAndBackupKey() {
-        guard requirePremiumAccess() else { return }
+        guard keyBackupPINPurpose == .deleteBackup || requirePremiumAccess() else { return }
         let pin = keyBackupPIN
         keyBackupPINError = ""
 
@@ -632,6 +689,22 @@ struct BackupSettingsView: View {
                     return
                 }
 
+                if keyBackupPINPurpose == .deleteBackup {
+                    try await CloudService(encryptionService: encryptionService).deleteEntireBackup()
+                    try await vaultService.markEntireBackupRemoved()
+                    UserDefaults.standard.removeObject(forKey: Constants.keyBackupCheckedMarkerKey)
+                    keyBackupUpgradeError = ""
+                    settings.iCloudBackupEnabled = false
+                    try? modelContext.save()
+                    keyBackupConfirmed = false
+                    keyBackupPIN = ""
+                    keyBackupPINPurpose = .backUpKey
+                    showKeyBackupPINEntry = false
+                    syncStatusText = String(localized: "Backup deleted")
+                    refreshItemCounts()
+                    return
+                }
+
                 // PIN verified — create wrapped key and upload
                 let wrappingSalt = await encryptionService.generateSalt()
                 let wrappedKey = try await encryptionService.exportWrappedMasterKey(
@@ -641,14 +714,14 @@ struct BackupSettingsView: View {
 
                 let cloudService = CloudService(encryptionService: encryptionService)
                 let keyFingerprint = try await encryptionService.masterKeyFingerprint()
-                if isReplacingBackup {
+                if keyBackupPINPurpose == .replaceBackup {
                     let removedRecordNames = try await cloudService.replaceBackup(
                         wrappedKey: wrappedKey,
                         salt: wrappingSalt,
                         keyFingerprint: keyFingerprint
                     )
                     try await vaultService.markRemovedFromCloud(recordNames: removedRecordNames)
-                    isReplacingBackup = false
+                    keyBackupPINPurpose = .backUpKey
                 } else {
                     try await cloudService.uploadKeyBackup(
                         wrappedKey: wrappedKey,
@@ -663,8 +736,10 @@ struct BackupSettingsView: View {
                 keyBackupConfirmed = true
                 triggerManualSync()
             } catch {
-                keyBackupPINError = String(localized: "Failed to back up key: \(error.localizedDescription)")
-                // Stays in replace mode if that was the request, so trying again finishes it.
+                // Stays in the same mode, so trying again finishes a replace or delete.
+                keyBackupPINError = keyBackupPINPurpose == .deleteBackup
+                    ? String(localized: "Couldn't delete the backup: \(error.localizedDescription)")
+                    : String(localized: "Failed to back up key: \(error.localizedDescription)")
             }
         }
     }

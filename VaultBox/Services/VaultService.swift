@@ -588,17 +588,17 @@ class VaultService {
         }
     }
 
-    /// Irreversibly removes items: encrypted file, search index, reminders, iCloud
-    /// backup record and the SwiftData record. iCloud records that can't be deleted
-    /// right now (usually offline) are queued and retried later.
+    /// Removes items from this device for good. With `alsoFromICloud`, their backup copies
+    /// go too, and deletes that can't reach iCloud right now (usually offline) are queued and
+    /// retried later. Without it, the copies stay and a later restore can bring the items back.
     /// Returns how many iCloud copies are still waiting to be deleted.
     @discardableResult
-    func permanentlyDeleteItems(_ items: [VaultItem]) async throws -> Int {
+    func permanentlyDeleteItems(_ items: [VaultItem], alsoFromICloud: Bool) async throws -> Int {
         removeSearchIndex(for: items)
         var cloudRecordIDs: [String] = []
         for item in items {
             deleteReminders(forItemID: item.id)
-            if let recordID = item.cloudRecordID {
+            if alsoFromICloud, let recordID = item.cloudRecordID {
                 cloudRecordIDs.append(recordID)
             }
             let fileURL = try await buildFileURL(for: item)
@@ -652,7 +652,8 @@ class VaultService {
         }
         guard !expired.isEmpty else { return 0 }
         do {
-            try await permanentlyDeleteItems(expired)
+            // Nobody chose this delete, so it never touches their iCloud backup.
+            try await permanentlyDeleteItems(expired, alsoFromICloud: false)
         } catch {
             #if DEBUG
             print("[VaultService] Failed to purge Recently Deleted: \(error)")
@@ -796,13 +797,28 @@ class VaultService {
         let descriptor = FetchDescriptor<VaultItem>(predicate: #Predicate { $0.cloudRecordID != nil })
         for item in try modelContext.fetch(descriptor) {
             guard let recordName = item.cloudRecordID, removed.contains(recordName) else { continue }
-            item.cloudRecordID = nil
-            if let thumbnail = item.encryptedThumbnailData, await !encryptionService.canDecrypt(thumbnail) {
-                continue
-            }
-            item.isUploaded = false
+            await markNotBackedUp(item)
         }
         try modelContext.save()
+    }
+
+    /// Call after the whole iCloud backup is deleted, so a later backup starts fresh.
+    /// Queued iCloud deletes are dropped too, since those records no longer exist.
+    func markEntireBackupRemoved() async throws {
+        let descriptor = FetchDescriptor<VaultItem>(predicate: #Predicate { $0.isUploaded == true || $0.cloudRecordID != nil })
+        for item in try modelContext.fetch(descriptor) {
+            await markNotBackedUp(item)
+        }
+        try modelContext.save()
+        pendingCloudDeletionIDs = []
+    }
+
+    private func markNotBackedUp(_ item: VaultItem) async {
+        item.cloudRecordID = nil
+        if let thumbnail = item.encryptedThumbnailData, await !encryptionService.canDecrypt(thumbnail) {
+            return
+        }
+        item.isUploaded = false
     }
 
     private func restoredFilename(from record: CKRecord) async -> String {

@@ -48,6 +48,13 @@ Backups are now locked with the PIN plus a secret stored in iCloud Keychain, whi
   5. Tap Backup Now again and choose Replace Backup. A wrong PIN and the decoy PIN are rejected, and nothing is deleted.
   6. Enter the real PIN. In the Console, records this device can't open are gone, records it can open remain, and `MasterKeyBackup` has a new fingerprint. New items upload, and restoring on another device brings back everything left.
   7. With iCloud Keychain off, try the replace. It fails with a message and deletes nothing.
+- [ ] **1.1c Delete iCloud Backup.** Use an account you can afford to lose.
+  1. In Settings → Backup, tap Delete iCloud Backup and cancel. Nothing changes in the CloudKit Console.
+  2. Try again. A wrong PIN and the decoy PIN are rejected, and nothing is deleted.
+  3. Enter the real PIN. All `EncryptedVaultItem` records and `MasterKeyBackup` are gone, items on the device still open, "Uploaded" shows 0, and the iCloud Backup toggle is off.
+  4. Turn backup back on and tap Backup Now. It asks for your PIN to create a new key backup, then uploads everything again.
+  5. Turn on airplane mode and try the delete. It shows an error, the sheet stays open, and retrying online finishes it.
+  6. Without premium (a lapsed sandbox subscription), Settings → iCloud Backup opens with the upgrade prompt, and Delete iCloud Backup still works.
 - [ ] **1.2 Restore on a new device.** On device B with iCloud Keychain on, do a fresh install, then use Settings → Backup → Restore with the PIN. Every item should come back with its original filename (check a PDF's name).
 - [ ] **1.3 iCloud Keychain off.** On device B, turn off iCloud Keychain and restore. You should see the "turn on iCloud Keychain" message, with no crash and no partial restore.
 - [ ] **1.4 After a PIN change.**
@@ -106,12 +113,16 @@ The screen has never been tapped through. Most of this works on a simulator, but
   2. Each one shows up under Albums → Utilities → Recently Deleted with days left.
   3. Restore puts each item back in its original album.
 - [ ] **4.2 Upgrade with real data:** install the new build over **1.2.5 with a real vault** of photos, videos, documents and albums. Everything should still be there. The earlier check only used an empty data store.
-- [ ] **4.3 Delete Permanently** removes the item, and with backup on, its `EncryptedVaultItem` record in CloudKit.
+- [ ] **4.3 Delete Permanently:**
+  1. For an item that was never backed up, there's a single Delete Permanently button.
+  2. For a backed-up item, the dialog offers "Delete from This Device Only" and "Delete from Device and iCloud".
+  3. Device only: the item leaves the device, its `EncryptedVaultItem` record stays, and "Restore from iCloud" brings it back.
+  4. Device and iCloud: the record is gone too, and restore doesn't bring it back.
 - [ ] **4.4 Decoy:** the decoy vault's bin only shows decoy items, and the real bin only shows real items.
 - [ ] **4.5 Panic gesture:** the panic gesture and going to the background both close the Recently Deleted sheet.
-- [ ] **4.6 30-day purge:** delete an item, set the device date 31 days ahead and relaunch. The item is gone. Reset the date afterwards.
+- [ ] **4.6 30-day purge:** delete an item, set the device date 31 days ahead and relaunch. The item is gone from the device, and its iCloud copy stays. Reset the date afterwards.
 - [ ] **4.7 Offline permanent delete:** an iCloud delete that fails is now queued and retried on launch, unlock, delete, backup and restore. Restore skips anything still in the queue.
-  1. With backup on, turn on airplane mode and permanently delete a backed-up item. The "Deleted on This Device" note appears.
+  1. With backup on, turn on airplane mode and choose "Delete from Device and iCloud" for a backed-up item. The "Deleted on This Device" note appears.
   2. While still offline, "Restore from iCloud" does nothing (it can't reach iCloud). Back online, "Restore from iCloud" must **not** bring the item back.
   3. Back online, unlock once. The item's `EncryptedVaultItem` record is gone in the CloudKit Console.
   4. Known limit: if the phone never goes back online, a restore on another device can still bring those items back.

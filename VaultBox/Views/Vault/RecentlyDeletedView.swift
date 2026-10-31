@@ -50,6 +50,10 @@ struct RecentlyDeletedView: View {
         trashedItems.filter { $0.isInRecentlyDeleted(inDecoyMode: isDecoyMode) }
     }
 
+    private var pendingDeleteHasICloudCopies: Bool {
+        pendingPermanentDelete.contains { $0.cloudRecordID != nil }
+    }
+
     private var selectedVaultItems: [VaultItem] {
         items.filter { selectedItems.contains($0.id) }
     }
@@ -122,12 +126,25 @@ struct RecentlyDeletedView: View {
                 isPresented: $showPermanentDeleteConfirm,
                 titleVisibility: .visible
             ) {
-                Button("Delete Permanently", role: .destructive) {
-                    permanentlyDelete(pendingPermanentDelete)
+                if pendingDeleteHasICloudCopies {
+                    Button("Delete from This Device Only", role: .destructive) {
+                        permanentlyDelete(pendingPermanentDelete, alsoFromICloud: false)
+                    }
+                    Button("Delete from Device and iCloud", role: .destructive) {
+                        permanentlyDelete(pendingPermanentDelete, alsoFromICloud: true)
+                    }
+                } else {
+                    Button("Delete Permanently", role: .destructive) {
+                        permanentlyDelete(pendingPermanentDelete, alsoFromICloud: false)
+                    }
                 }
                 Button("Cancel", role: .cancel) { pendingPermanentDelete = [] }
             } message: {
-                Text("This can't be undone. Items are also removed from your iCloud backup.")
+                if pendingDeleteHasICloudCopies {
+                    Text("Deleting from this device keeps the iCloud copy, and restoring from iCloud brings it back. Deleting from iCloud too can't be undone.")
+                } else {
+                    Text("This can't be undone.")
+                }
             }
             .alert(
                 "Error",
@@ -255,7 +272,7 @@ struct RecentlyDeletedView: View {
         showPermanentDeleteConfirm = true
     }
 
-    private func permanentlyDelete(_ targets: [VaultItem]) {
+    private func permanentlyDelete(_ targets: [VaultItem], alsoFromICloud: Bool) {
         Haptics.deleteConfirmed()
         pendingPermanentDelete = []
         for item in targets {
@@ -263,7 +280,7 @@ struct RecentlyDeletedView: View {
         }
         Task {
             do {
-                let waitingForICloud = try await vaultService.permanentlyDeleteItems(targets)
+                let waitingForICloud = try await vaultService.permanentlyDeleteItems(targets, alsoFromICloud: alsoFromICloud)
                 exitSelectionMode()
                 if waitingForICloud > 0 {
                     showICloudDeletePendingNotice = true

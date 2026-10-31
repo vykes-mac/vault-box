@@ -480,11 +480,9 @@ struct SettingsView: View {
     private var backupSection: some View {
         Section("Backup") {
             Button {
-                if purchaseService.isPremiumRequired(for: .iCloudBackup) {
-                    showPaywall = true
-                } else {
-                    showBackupSettings = true
-                }
+                // Opens for everyone: non-premium users see the upgrade prompt there,
+                // and can still delete an existing backup.
+                showBackupSettings = true
             } label: {
                 HStack {
                     Label("iCloud Backup", systemImage: "icloud")
