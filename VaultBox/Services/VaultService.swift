@@ -784,10 +784,15 @@ class VaultService {
         return (try? modelContext.fetchCount(descriptor)) ?? 0
     }
 
+    /// Counted in the store rather than by loading items, which keep their thumbnails inline.
     func getItemCount(isDecoyMode: Bool) -> Int {
-        let descriptor = FetchDescriptor<VaultItem>()
-        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
-        return items.filter { $0.isVisible(inDecoyMode: isDecoyMode) }.count
+        let context = modelContext
+        let decoyCount = (try? context.fetchCount(FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil && $0.album?.isDecoy == true }
+        ))) ?? 0
+        if isDecoyMode { return decoyCount }
+        let liveCount = (try? VaultItem.liveItemCount(in: context)) ?? 0
+        return liveCount - decoyCount
     }
 
     func getTotalStorageUsed() -> Int64 {
@@ -798,9 +803,36 @@ class VaultService {
 
     /// Includes the vault's Recently Deleted items, which still occupy disk space.
     func getStorageUsed(isDecoyMode: Bool) -> Int64 {
-        let descriptor = FetchDescriptor<VaultItem>()
-        guard let items = try? modelContext.fetch(descriptor) else { return 0 }
-        return items.filter { $0.isInDecoyVault == isDecoyMode }.reduce(0) { $0 + $1.fileSize }
+        Self.storageUsed(isDecoyMode: isDecoyMode, in: modelContext)
+    }
+
+    /// Adding up a large vault takes noticeable time, so screens use this to keep it off the main thread.
+    func loadStorageUsed(isDecoyMode: Bool) async -> Int64 {
+        let container = modelContext.container
+        return await Task.detached(priority: .utility) {
+            Self.storageUsed(isDecoyMode: isDecoyMode, in: ModelContext(container))
+        }.value
+    }
+
+    private nonisolated static func storageUsed(isDecoyMode: Bool, in context: ModelContext) -> Int64 {
+        // Separate queries: combined, the album condition drops trashed items whose album is gone.
+        var liveDecoyDescriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil && $0.album?.isDecoy == true }
+        )
+        liveDecoyDescriptor.propertiesToFetch = [\.fileSize]
+        var trashedDecoyDescriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt != nil && $0.deletedFromDecoy == true }
+        )
+        trashedDecoyDescriptor.propertiesToFetch = [\.fileSize]
+        let liveDecoyBytes = (try? context.fetch(liveDecoyDescriptor).reduce(0) { $0 + $1.fileSize }) ?? 0
+        let trashedDecoyBytes = (try? context.fetch(trashedDecoyDescriptor).reduce(0) { $0 + $1.fileSize }) ?? 0
+        let decoyBytes = liveDecoyBytes + trashedDecoyBytes
+        if isDecoyMode { return decoyBytes }
+
+        var allDescriptor = FetchDescriptor<VaultItem>()
+        allDescriptor.propertiesToFetch = [\.fileSize]
+        let allBytes = (try? context.fetch(allDescriptor).reduce(0) { $0 + $1.fileSize }) ?? 0
+        return allBytes - decoyBytes
     }
 
     func isAtFreeLimit() -> Bool {

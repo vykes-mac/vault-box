@@ -60,6 +60,45 @@ final class VaultItem {
     }
 }
 
+// MARK: - Targeted Fetches
+
+/// For screens that need facts about the whole vault. Items store their thumbnails
+/// inline, so these avoid loading full records. Screens opened with
+/// `navigationDestination(isPresented:)` must use these rather than a filtered `@Query`,
+/// which makes SwiftUI rebuild the screen and its parent endlessly.
+extension VaultItem {
+    static func liveItemCount(in context: ModelContext) throws -> Int {
+        try context.fetchCount(FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil }
+        ))
+    }
+
+    static func uploadedLiveItemCount(in context: ModelContext) throws -> Int {
+        try context.fetchCount(FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil && $0.isUploaded == true }
+        ))
+    }
+
+    /// The next live items waiting to upload, newest first. Fetched in small batches
+    /// so a large backup doesn't hold every thumbnail in memory.
+    static func pendingUploads(limit: Int, in context: ModelContext) throws -> [VaultItem] {
+        var descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt == nil && $0.isUploaded == false },
+            sortBy: [SortDescriptor(\.importedAt, order: .reverse)]
+        )
+        descriptor.fetchLimit = limit
+        return try context.fetch(descriptor)
+    }
+
+    static func trashedItemIDs(in context: ModelContext) throws -> Set<UUID> {
+        var descriptor = FetchDescriptor<VaultItem>(
+            predicate: #Predicate { $0.deletedAt != nil }
+        )
+        descriptor.propertiesToFetch = [\.id]
+        return Set(try context.fetch(descriptor).map(\.id))
+    }
+}
+
 // MARK: - Recently Deleted
 
 extension VaultItem {

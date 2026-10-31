@@ -184,6 +184,26 @@ struct RecentlyDeletedTests {
 
     // MARK: - Decoy Isolation
 
+    @Test("Item counts and storage stay separate per vault and count the bin as storage")
+    func countsAndStorageStaySeparatePerVault() async throws {
+        let harness = try await makeHarness()
+        let realItem = try await importPhoto(harness)
+        let trashedRealItem = try await importPhoto(harness)
+        let decoyItem = try await importPhoto(harness, isDecoyMode: true)
+        let trashedDecoyItem = try await importPhoto(harness, isDecoyMode: true)
+        try harness.service.deleteItems([trashedRealItem, trashedDecoyItem])
+
+        #expect(harness.service.getItemCount(isDecoyMode: false) == 1)
+        #expect(harness.service.getItemCount(isDecoyMode: true) == 1)
+
+        let realBytes = realItem.fileSize + trashedRealItem.fileSize
+        let decoyBytes = decoyItem.fileSize + trashedDecoyItem.fileSize
+        #expect(harness.service.getStorageUsed(isDecoyMode: false) == realBytes)
+        #expect(harness.service.getStorageUsed(isDecoyMode: true) == decoyBytes)
+        #expect(await harness.service.loadStorageUsed(isDecoyMode: false) == realBytes)
+        #expect(await harness.service.loadStorageUsed(isDecoyMode: true) == decoyBytes)
+    }
+
     @Test("Decoy bin only sees decoy items, even after their album is deleted")
     func decoyBinIsIsolated() async throws {
         let harness = try await makeHarness()
@@ -347,5 +367,92 @@ struct RecentlyDeletedTests {
         for item in [kept, trashed, decoy, trashedDecoy] {
             try? FileManager.default.removeItem(at: try await fileURL(for: item, in: harness))
         }
+    }
+}
+
+@Suite("Vault item targeted fetches")
+@MainActor
+struct VaultItemTargetedFetchTests {
+    private func makeContext() throws -> ModelContext {
+        let schema = Schema([AppSettings.self, VaultItem.self, Album.self, BreakInAttempt.self, DocumentReminder.self])
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        return ModelContext(try ModelContainer(for: schema, configurations: [config]))
+    }
+
+    @discardableResult
+    private func insertItem(
+        in context: ModelContext,
+        name: String = "item",
+        uploaded: Bool = false,
+        trashed: Bool = false,
+        importedAt: Date = Date()
+    ) -> VaultItem {
+        let item = VaultItem(type: .photo, originalFilename: name, encryptedFileRelativePath: name, fileSize: 1)
+        item.isUploaded = uploaded
+        item.deletedAt = trashed ? Date() : nil
+        item.importedAt = importedAt
+        context.insert(item)
+        return item
+    }
+
+    @Test("Counts exclude trashed items")
+    func countsExcludeTrashedItems() throws {
+        let context = try makeContext()
+        insertItem(in: context)
+        insertItem(in: context, uploaded: true)
+        insertItem(in: context, uploaded: true, trashed: true)
+        insertItem(in: context, trashed: true)
+        try context.save()
+
+        #expect(try VaultItem.liveItemCount(in: context) == 2)
+        #expect(try VaultItem.uploadedLiveItemCount(in: context) == 1)
+    }
+
+    @Test("Pending uploads skip uploaded and trashed items, newest first, within the limit")
+    func pendingUploadsAreBatched() throws {
+        let context = try makeContext()
+        let now = Date()
+        insertItem(in: context, name: "old", importedAt: now.addingTimeInterval(-200))
+        insertItem(in: context, name: "middle", importedAt: now.addingTimeInterval(-100))
+        insertItem(in: context, name: "new", importedAt: now)
+        insertItem(in: context, name: "uploaded", uploaded: true, importedAt: now)
+        insertItem(in: context, name: "trashed", trashed: true, importedAt: now)
+        try context.save()
+
+        let batch = try VaultItem.pendingUploads(limit: 2, in: context)
+        #expect(batch.map(\.originalFilename) == ["new", "middle"])
+    }
+
+    @Test("Uploading a batch moves on to the remaining items and then finishes")
+    func pendingUploadsDrain() throws {
+        let context = try makeContext()
+        for index in 0..<5 {
+            insertItem(in: context, name: "item\(index)")
+        }
+        try context.save()
+
+        var uploaded = 0
+        while true {
+            let batch = try VaultItem.pendingUploads(limit: 2, in: context)
+            guard !batch.isEmpty else { break }
+            for item in batch {
+                item.isUploaded = true
+                try context.save()
+                uploaded += 1
+            }
+        }
+
+        #expect(uploaded == 5)
+        #expect(try VaultItem.uploadedLiveItemCount(in: context) == 5)
+    }
+
+    @Test("Trashed IDs contain only trashed items")
+    func trashedIDsOnlyContainTrashedItems() throws {
+        let context = try makeContext()
+        insertItem(in: context)
+        let trashed = insertItem(in: context, trashed: true)
+        try context.save()
+
+        #expect(try VaultItem.trashedItemIDs(in: context) == [trashed.id])
     }
 }

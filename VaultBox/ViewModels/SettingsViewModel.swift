@@ -105,8 +105,8 @@ class SettingsViewModel {
         return String(localized: "\(count) of \(Constants.freeItemLimit) items")
     }
 
-    func storageUsedText(isDecoyMode: Bool) -> String {
-        let bytes = vaultService.getStorageUsed(isDecoyMode: isDecoyMode)
+    func loadStorageUsedText(isDecoyMode: Bool) async -> String {
+        let bytes = await vaultService.loadStorageUsed(isDecoyMode: isDecoyMode)
         return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file)
     }
 

@@ -10,16 +10,13 @@ struct ExpiringDocumentsView: View {
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \DocumentReminder.expiryDate, order: .forward)
     private var reminders: [DocumentReminder]
-    // Filtered in code: a predicate here makes SwiftUI rebuild this screen and
-    // SettingsView endlessly when it's opened with navigationDestination(isPresented:).
-    @Query private var vaultItems: [VaultItem]
 
+    @State private var trashedItemIDs: Set<UUID> = []
     @State private var editingReminder: DocumentReminder?
     @State private var handledTargetReminderID: UUID?
 
     private var activeReminders: [DocumentReminder] {
-        let trashedIDs = Set(vaultItems.filter { $0.deletedAt != nil }.map(\.id))
-        return reminders.filter { !$0.isDismissed && !trashedIDs.contains($0.itemID) }
+        reminders.filter { !$0.isDismissed && !trashedItemIDs.contains($0.itemID) }
     }
     private var unconfirmed: [DocumentReminder] { activeReminders.filter { !$0.isConfirmed } }
     private var confirmed: [DocumentReminder] { activeReminders.filter { $0.isConfirmed } }
@@ -60,6 +57,7 @@ struct ExpiringDocumentsView: View {
         .navigationTitle("Expiring Documents")
         .navigationBarTitleDisplayMode(.inline)
         .onAppear {
+            trashedItemIDs = (try? VaultItem.trashedItemIDs(in: modelContext)) ?? []
             vaultService.backfillDocumentReminders()
             openTargetReminderIfNeeded()
         }

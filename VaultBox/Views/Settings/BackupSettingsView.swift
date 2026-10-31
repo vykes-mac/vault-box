@@ -10,10 +10,9 @@ struct BackupSettingsView: View {
     @Environment(PurchaseService.self) private var purchaseService
 
     @Query private var settingsQuery: [AppSettings]
-    // Filtered in code: a predicate here makes SwiftUI rebuild this screen and
-    // SettingsView endlessly when it's opened with navigationDestination(isPresented:).
-    @Query(sort: \VaultItem.importedAt, order: .reverse) private var queriedItems: [VaultItem]
 
+    @State private var totalItemCount = 0
+    @State private var uploadedItemCount = 0
     @State private var iCloudStatus: CKAccountStatus = .couldNotDetermine
     @State private var isSyncing = false
     @State private var syncStatusText = String(localized: "Ready")
@@ -38,15 +37,9 @@ struct BackupSettingsView: View {
     @State private var keyBackupConfirmed = false
     @AppStorage(Constants.keyBackupUpgradeErrorKey) private var keyBackupUpgradeError = ""
 
+    private static let uploadBatchSize = 20
+
     private var settings: AppSettings? { settingsQuery.first }
-
-    private var allItems: [VaultItem] {
-        queriedItems.filter { $0.deletedAt == nil }
-    }
-
-    private var uploadedCount: Int {
-        allItems.filter(\.isUploaded).count
-    }
 
     var body: some View {
         List {
@@ -92,7 +85,7 @@ struct BackupSettingsView: View {
                 }
 
                 Section("Status") {
-                    LabeledContent("Uploaded", value: "\(uploadedCount) of \(allItems.count)")
+                    LabeledContent("Uploaded", value: "\(uploadedItemCount) of \(totalItemCount)")
                     LabeledContent("iCloud Account", value: iCloudStatusText)
                 }
             } else {
@@ -101,6 +94,9 @@ struct BackupSettingsView: View {
         }
         .navigationTitle("Backup")
         .navigationBarTitleDisplayMode(.inline)
+        .onAppear {
+            refreshItemCounts()
+        }
         .task {
             await checkiCloudStatus()
         }
@@ -357,6 +353,11 @@ struct BackupSettingsView: View {
         iCloudStatus = await service.getICloudAccountStatus()
     }
 
+    private func refreshItemCounts() {
+        totalItemCount = (try? VaultItem.liveItemCount(in: modelContext)) ?? totalItemCount
+        uploadedItemCount = (try? VaultItem.uploadedLiveItemCount(in: modelContext)) ?? uploadedItemCount
+    }
+
     private func triggerManualSync() {
         guard purchaseService.isPremium else {
             showPaywall = true
@@ -364,20 +365,6 @@ struct BackupSettingsView: View {
         }
         isSyncing = true
         syncStatusText = String(localized: "Syncing...")
-
-        // Capture item data on MainActor before crossing actor boundary
-        let pendingItems = allItems.filter { !$0.isUploaded }
-        let payloads = pendingItems.map { item in
-            CloudUploadPayload(
-                itemID: item.id,
-                encryptedFileRelativePath: item.encryptedFileRelativePath,
-                itemType: item.type.rawValue,
-                originalFilename: item.originalFilename,
-                fileSize: item.fileSize,
-                createdAt: item.createdAt,
-                encryptedThumbnailData: item.encryptedThumbnailData
-            )
-        }
 
         Task {
             do {
@@ -397,15 +384,29 @@ struct BackupSettingsView: View {
                     }
                 }
 
-                for (index, payload) in payloads.enumerated() {
-                    guard purchaseService.isPremium else { throw VaultError.premiumRequired }
-                    let recordName = try await service.uploadItem(payload)
-                    // Update local item on MainActor
-                    if index < pendingItems.count {
-                        pendingItems[index].cloudRecordID = recordName
-                        pendingItems[index].isUploaded = true
+                // Uploaded items drop out of the next batch; a failed upload throws out of the loop.
+                while true {
+                    let batch = try VaultItem.pendingUploads(limit: Self.uploadBatchSize, in: modelContext)
+                    guard !batch.isEmpty else { break }
+
+                    for item in batch {
+                        guard purchaseService.isPremium else { throw VaultError.premiumRequired }
+                        // Capture item data on MainActor before crossing actor boundary
+                        let payload = CloudUploadPayload(
+                            itemID: item.id,
+                            encryptedFileRelativePath: item.encryptedFileRelativePath,
+                            itemType: item.type.rawValue,
+                            originalFilename: item.originalFilename,
+                            fileSize: item.fileSize,
+                            createdAt: item.createdAt,
+                            encryptedThumbnailData: item.encryptedThumbnailData
+                        )
+                        let recordName = try await service.uploadItem(payload)
+                        item.cloudRecordID = recordName
+                        item.isUploaded = true
                         // Save each item so a failed run doesn't upload it again on retry
                         try? modelContext.save()
+                        uploadedItemCount += 1
                     }
                 }
                 syncStatusText = String(localized: "Up to date")
@@ -420,6 +421,7 @@ struct BackupSettingsView: View {
                 showError = true
                 syncStatusText = String(localized: "Error")
             }
+            refreshItemCounts()
             isSyncing = false
         }
     }
@@ -433,7 +435,9 @@ struct BackupSettingsView: View {
         Task {
             let hasMasterKey = await encryptionService.hasMasterKey()
 
-            if hasMasterKey && !allItems.isEmpty {
+            refreshItemCounts()
+
+            if hasMasterKey && totalItemCount > 0 {
                 // Local key exists with local items, but we must verify it
                 // matches the iCloud backup key. If a cloud key backup
                 // exists we cannot confirm a match without the PIN, so ask
@@ -524,6 +528,7 @@ struct BackupSettingsView: View {
                 errorMessage = String(localized: "Restore failed — \(error.localizedDescription)")
                 showError = true
             }
+            refreshItemCounts()
             isRestoring = false
         }
     }

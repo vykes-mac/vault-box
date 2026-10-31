@@ -40,6 +40,7 @@ struct SettingsView: View {
     @State private var showExpiringDocuments = false
     @State private var handledReminderNavigationTrigger = 0
     @State private var activeTargetReminderID: UUID?
+    @State private var storageUsedText = "—"
 
     @Query private var settingsQuery: [AppSettings]
     @Query private var reminderQuery: [DocumentReminder]
@@ -96,6 +97,7 @@ struct SettingsView: View {
                 }
                 isBiometricsAvailable = authService.isBiometricsAvailable()
                 handleReminderNavigationTrigger()
+                refreshStorageUsed()
             }
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .active {
@@ -646,10 +648,18 @@ struct SettingsView: View {
 
     // MARK: - Storage Section
 
+    private func refreshStorageUsed() {
+        guard let viewModel else { return }
+        let isDecoyMode = authService.isDecoyMode
+        Task {
+            storageUsedText = await viewModel.loadStorageUsedText(isDecoyMode: isDecoyMode)
+        }
+    }
+
     private var storageSection: some View {
         Section("Storage") {
             LabeledContent("Items", value: viewModel?.itemCountText(purchaseService: purchaseService, isDecoyMode: authService.isDecoyMode) ?? "—")
-            LabeledContent("Storage Used", value: viewModel?.storageUsedText(isDecoyMode: authService.isDecoyMode) ?? "—")
+            LabeledContent("Storage Used", value: storageUsedText)
 
             if !purchaseService.isPremium {
                 Button {
