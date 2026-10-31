@@ -6,10 +6,10 @@
 	<array>
 		<string>com.vaultbox.searchIndexing</string>
 	</array>
-	<key>CFBundleExecutable</key>
-	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
@@ -30,14 +30,14 @@
 	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>VaultBox uses the camera to capture photos directly into your vault.</string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>VaultBox records sound with videos you capture into your vault.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>VaultBox uses Face ID to securely unlock your vault.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>VaultBox uses your local network to transfer files between your device and computer over Wi-Fi.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>VaultBox records location data when an unauthorized access attempt is detected.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>VaultBox records sound with videos you capture into your vault.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>VaultBox needs access to import photos into your encrypted vault.</string>
 	<key>PaywallOfferingOverride</key>

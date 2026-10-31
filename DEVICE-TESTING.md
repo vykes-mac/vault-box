@@ -26,7 +26,7 @@ You need:
   - `com.pack6.vaultbox.ShareExtension`, with the App Group `group.com.vaultbox.app`
   - `com.pack6.vaultbox.QuickCapture`
   - `com.pack6.vaultbox.Controls`
-- [ ] **Versions:** `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` must be the same for the app and all three extensions. In `project.yml` they are `1.0.2` / `1`, so set them to `1.2.6` and a new build number. The App Store rejects an extension whose version differs from its app.
+- [ ] **Versions:** `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` must be the same for the app and all three extensions. `project.yml` and the Xcode project are now on `1.2.6` / `1`, so only raise the build number for a later upload. The App Store rejects an extension whose version differs from its app.
 - [ ] **Archive:** archive and upload once to check that App Store Connect validation accepts all three extensions.
 
 ## 1. iCloud key backup (`acb104a`)
