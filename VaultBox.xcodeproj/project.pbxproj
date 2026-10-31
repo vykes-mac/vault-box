@@ -842,14 +842,6 @@
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2710;
 				TargetAttributes = {
-					24E51D769374889E7FBB1215 = {
-						DevelopmentTeam = 4A7H788X5U;
-						ProvisioningStyle = Automatic;
-					};
-					463D908329DADB4F7DC804F4 = {
-						DevelopmentTeam = 4A7H788X5U;
-						ProvisioningStyle = Automatic;
-					};
 					529AC2156C00832676CF94B9 = {
 						DevelopmentTeam = 4A7H788X5U;
 						ProvisioningStyle = Automatic;
@@ -1145,7 +1137,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1297,7 +1289,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxShareExtension/VaultBoxShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1327,7 +1319,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1386,7 +1378,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxShareExtension/VaultBoxShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 8;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
