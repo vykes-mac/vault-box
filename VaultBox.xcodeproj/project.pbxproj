@@ -18,7 +18,6 @@
 		0A7EA6B38FC691535F9237CC /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA85F89FEFBDE400F1CF534 /* VaultService.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
 		0C4E4F0ABB45C4E121C57A59 /* ChunkingEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2E35325192A6966BAA3698 /* ChunkingEngine.swift */; };
-		0C559CD04995DDB7A420D765 /* SecureCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */; };
 		0D47830D5A56ADADC5BC08D8 /* ShareInboxService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B472834949CBD10793B46686 /* ShareInboxService.swift */; };
 		10B685F27DC8EC3C47DA842C /* SensitiveScanView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */; };
 		10B6F9F8F93B7C625FE48F18 /* SharedItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C3B88E140B5343818DAB7FD /* SharedItem.swift */; };
@@ -28,7 +27,6 @@
 		1D6CC5DC9724BDD55C36B6C1 /* DocumentThumbnailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8170D4D3662E92596079CF39 /* DocumentThumbnailService.swift */; };
 		1F0F368C040CE372AAEF983C /* OpenVaultCameraIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C4FD2348BEE305AE5690EA /* OpenVaultCameraIntent.swift */; };
 		212A7F03FC1F01E861A78481 /* OnboardingPlanSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EE030F169434A471BB0B95 /* OnboardingPlanSteps.swift */; };
-		2132C1F8E28A0D284D0717C7 /* QuickCaptureIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CF42E52F5B6CD14DCA1DE5 /* QuickCaptureIntent.swift */; };
 		221DB924130E87796C6A5BF0 /* DisguiseMotionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819E61A0114BED3A6CBAEE49 /* DisguiseMotionModel.swift */; };
 		25A4A66CB398F7894647D15F /* PostOnboardingSecuritySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF254867AF6621B36D12920 /* PostOnboardingSecuritySetupView.swift */; };
 		2655A7B059E016490EF83196 /* SmartAlbumType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2943DA75634CFC3588C738A8 /* SmartAlbumType.swift */; };
@@ -44,14 +42,12 @@
 		3859AF46A545529F4C4FF783 /* ActivationChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */; };
 		386F77C9ECD547B14E9300EF /* ImportViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C02C8C3B43208F63546E6630 /* ImportViewModel.swift */; };
 		39C918B95D6F74B1506DFF20 /* PINKeypadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0EC25525A796155921B2DB4 /* PINKeypadView.swift */; };
-		3A645835552E1DA639027CBE /* QuickCaptureTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E1E8942A8A493AD6BBDCBE0 /* QuickCaptureTests.swift */; };
 		3D5F91416828E30DA38904EF /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
 		3DA44B12A06E070FFAE505C8 /* WiFiTransferViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BA8F9F454BBB1E8534B527 /* WiFiTransferViewModel.swift */; };
 		3EDECC72B7A18F3A69DB84AF /* OnboardingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA0D72411BA86681250B77C /* OnboardingComponents.swift */; };
 		3F0CF2412BE0A0EEB4636048 /* PaywallGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D14DA424B3748D4AD21D55 /* PaywallGate.swift */; };
 		408C7A7EDCE1DB1B2F76273B /* View+ConditionalModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F02EB4950DDFCA8FF4AE109 /* View+ConditionalModifier.swift */; };
 		42EDD9B343383E39355D31A0 /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C4A92AF7EA29E82840486 /* BreakInService.swift */; };
-		439128CEFA839725F36EB34E /* QuickCaptureIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CF42E52F5B6CD14DCA1DE5 /* QuickCaptureIntent.swift */; };
 		44BB35D3F179A03282DD9589 /* DisguiseUnlockGuideView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */; };
 		4B02EDB5205A6258E6F87081 /* VaultGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25B4FD1E6E19689121223215 /* VaultGridView.swift */; };
 		4DB1A0385917DD0F1A6CD57D /* VaultBoxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316366EF8B35CE7EC217D70B /* VaultBoxError.swift */; };
@@ -75,8 +71,6 @@
 		67EFB7D1D762BA14E5800618 /* SecureCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */; };
 		6A41C316B4B9D2D0AF4540AD /* BreakInPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7BC1E82E24E70991C4BEAC9 /* BreakInPermissionService.swift */; };
 		6A63A3B41D50DC5E82BF2903 /* VectorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A2863E8999D81DA38827F /* VectorMath.swift */; };
-		6C92FFAFDFE886009ED36580 /* QuickCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E0D8D06D9F70EA8E5D5535 /* QuickCaptureService.swift */; };
-		6D130336E780E6B76E34D337 /* QuickCaptureIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50CF42E52F5B6CD14DCA1DE5 /* QuickCaptureIntent.swift */; };
 		6E46BDA4E33CFBA49D775D9A /* ImageSignalDetectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */; };
 		6F9B7F29D9B4A1BC28C48F00 /* DocumentReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63205CE6AB8E5F2822603DCD /* DocumentReminder.swift */; };
 		6FE553A683B57F0DDA2B284C /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484EDCBD57525A5175F36832 /* AnalyticsEvent.swift */; };
@@ -101,10 +95,8 @@
 		860FC48FEB9F57CAEA0EF07C /* vocab.txt in Resources */ = {isa = PBXBuildFile; fileRef = A8A14BBC4299F74D4D76FFF5 /* vocab.txt */; };
 		861A2AF93B44D3A9E8F0143B /* FeatureBoardModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA4EDBC45088713F67C4FE6B /* FeatureBoardModels.swift */; };
 		886725697AFAC77C31A2EB27 /* RevenueCatUI in Frameworks */ = {isa = PBXBuildFile; productRef = 97A6A02470F29DF5DBC0EF82 /* RevenueCatUI */; };
-		89BCBC2583E67E65E7D729BE /* QuickCaptureControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = E179D59A1600E5B90E9B5A64 /* QuickCaptureControl.swift */; };
 		8A3A407AC9B2EBD6E2490D72 /* PaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05FBF0C965DAC9D0064C1882 /* PaywallView.swift */; };
 		8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */; };
-		8CE19465A26E83EFB1EF8526 /* VaultBoxQuickCapture.appex in Embed ExtensionKit Extensions */ = {isa = PBXBuildFile; fileRef = A18F8962EA4D96B7B6DA9839 /* VaultBoxQuickCapture.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8F4F7DD6CDE7205622B6DCD7 /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */; };
 		917AE18DCEFA0EB698BB7604 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D537753271809D1690863D85 /* InfoPlist.strings */; };
 		920BE213B8A19FDDA9926202 /* RevenueCat in Frameworks */ = {isa = PBXBuildFile; productRef = DB3AC3CCEBE71B5ED091FA5A /* RevenueCat */; };
@@ -117,7 +109,6 @@
 		9DF79CE7083844F67F6D0B5B /* BreakInPermissionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AAA1A67D0364639B2B88064 /* BreakInPermissionServiceTests.swift */; };
 		9EAFE2205008E849E62E93F4 /* WiFiTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10BB9FEE8DF272A2283CAA33 /* WiFiTransferService.swift */; };
 		A26FB6BE073AA26256758D20 /* Localizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 0A0FF5F1A3531E3CA3C7ECFD /* Localizable.xcstrings */; };
-		A3ADF38F3DD511CCDDE44811 /* QuickCaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F19F98A17DC2D1E5BF393FE7 /* QuickCaptureView.swift */; };
 		A3AE518B167E8CA14E2BFEAE /* BackupSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 792B5111919FC2FDFBF53902 /* BackupSettingsView.swift */; };
 		A3E6E8F0C62F651FC9715570 /* SharedContentViewer.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */; };
 		A40827547DCF76EE1DB663D1 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99D487ED26681F007F4BB1CE /* AuthViewModel.swift */; };
@@ -137,14 +128,12 @@
 		B56EF2256E90DAB1E4B31ED1 /* VaultItemThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709360F5CF3E44380EE5F474 /* VaultItemThumbnail.swift */; };
 		B7710354796B2A3EA04905B2 /* ShareInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3810A6530DE79A8B6BDFB3 /* ShareInbox.swift */; };
 		B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F91B2AB4A2A2C832134794A /* Haptics.swift */; };
-		B9C58726989B8BD53FAD494B /* QuickCaptureExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEDB3097877254ED7328A479 /* QuickCaptureExtension.swift */; };
 		BBDB3FB995E9B678D8DFEBDE /* ImageSignalDetectors+SmartAlbums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81FCF4E85C5AF4BA658372FB /* ImageSignalDetectors+SmartAlbums.swift */; };
 		BE272DB3148C851EEFEFAAE8 /* SecuritySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E25DB16330E349150305FC /* SecuritySettingsView.swift */; };
 		BECC9A84B038FA789E526045 /* ExpiringDocumentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D21E90ABE03FB45980F0A1 /* ExpiringDocumentsView.swift */; };
 		BFB28857AC9B195B9B9DD60E /* SharedItemLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8552F4202072A6F15FDADDAC /* SharedItemLoader.swift */; };
 		C140F0C11CEEDE8406C46738 /* AuthServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32C17DE2C86D503C1D9879A7 /* AuthServiceTests.swift */; };
 		C6CF0083E21538914BB9AFC7 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = B30DDAE249CD0882BF6289A4 /* InfoPlist.strings */; };
-		C7AAEE55662B1EA564DE1C3F /* SealedCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9E7D14C48166B57E489A05 /* SealedCapture.swift */; };
 		C7EC3D906E8838D125EAD0D5 /* AskVaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54444CBE438F2B4912228B82 /* AskVaultViewModel.swift */; };
 		C7FF83F69BA4089FE7A37ED7 /* OnboardingNarrativeSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 79F852E51EB969C130EA1CFA /* OnboardingNarrativeSteps.swift */; };
 		C85B4C4BA9C3EB58A94DE37F /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 7B73B5168A0D23AC3F959DCD /* InfoPlist.strings */; };
@@ -163,7 +152,6 @@
 		D66B0571650024D24AAE78B0 /* WordPieceTokenizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C9C25AEE911106C14FFACBDB /* WordPieceTokenizer.swift */; };
 		D77DB54A7825208A164F00E8 /* AlbumViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 882F7D30EC474FB1D61B2E9E /* AlbumViewModel.swift */; };
 		D819717EC6B9185A6B6106F2 /* EmptyStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */; };
-		D9F778A3B4DE2FBC431983B5 /* VaultBoxControls.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 548F459440D7E4AF53D0C211 /* VaultBoxControls.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		D9F93C85C607EC771DD9B5A3 /* PhotoDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */; };
 		DB123B62051389735CFA4BC2 /* ShareConfigView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 86E90DA87E8218485FEEB15C /* ShareConfigView.swift */; };
 		DC090E5D08E3C434779B9093 /* AppSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 816F0C902D0934CACAF3E697 /* AppSettings.swift */; };
@@ -174,7 +162,6 @@
 		EC84A7185FB8A2BC8B6916D6 /* SensitiveScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AB63DDDEC699C71E1D303A /* SensitiveScanViewModel.swift */; };
 		ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */; };
 		EEE30E0156A023F0F38F6FCE /* ContentViewRouteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */; };
-		F0C3F51FC5753E27E9C4C9B0 /* SealedCapture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A9E7D14C48166B57E489A05 /* SealedCapture.swift */; };
 		F0FC9E9914D93B48A6F67E61 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD38D29E22E45F46FC58CCC /* SharingService.swift */; };
 		F30DF55655A76D81D0281813 /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */; };
 		F45D908691D06F9AE5277CE6 /* RecentlyDeletedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */; };
@@ -195,20 +182,6 @@
 			remoteGlobalIDString = E66CB4D30780880AC81B3D62;
 			remoteInfo = VaultBoxShareExtension;
 		};
-		1A47E930FDF49572B363B1F0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F74559B9175A78D7E7049B04 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 463D908329DADB4F7DC804F4;
-			remoteInfo = VaultBoxControls;
-		};
-		6825520CDB0E9894380B132B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F74559B9175A78D7E7049B04 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 24E51D769374889E7FBB1215;
-			remoteInfo = VaultBoxQuickCapture;
-		};
 		D9987E7DD4F54C6328B33688 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F74559B9175A78D7E7049B04 /* Project object */;
@@ -226,24 +199,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		7955397F7389D7C3887F1DF5 /* Embed ExtensionKit Extensions */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = Extensions;
-			dstSubfolderSpec = 1;
-			files = (
-				8CE19465A26E83EFB1EF8526 /* VaultBoxQuickCapture.appex in Embed ExtensionKit Extensions */,
-			);
-			name = "Embed ExtensionKit Extensions";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		CC250624F0C9DCE13283A080 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				D9F778A3B4DE2FBC431983B5 /* VaultBoxControls.appex in Embed Foundation Extensions */,
 				096D975A69E5299703019678 /* VaultBoxShareExtension.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
@@ -291,7 +252,6 @@
 		373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailView.swift; sourceTree = "<group>"; };
 		3899CF794C6ECAE372D27AAC /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		39E0D8D06D9F70EA8E5D5535 /* QuickCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureService.swift; sourceTree = "<group>"; };
 		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A28F538C09F749C0D96F58 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		428944AA034335296F7F42BB /* CalculatorDisguiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDisguiseView.swift; sourceTree = "<group>"; };
@@ -309,10 +269,8 @@
 		4F7396D5E7E80513DBD3BDE8 /* DocumentReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReminderService.swift; sourceTree = "<group>"; };
 		4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseUnlockGuideView.swift; sourceTree = "<group>"; };
 		4FFC381132D128AC133AAEE0 /* IngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngestionService.swift; sourceTree = "<group>"; };
-		50CF42E52F5B6CD14DCA1DE5 /* QuickCaptureIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureIntent.swift; sourceTree = "<group>"; };
 		53EE030F169434A471BB0B95 /* OnboardingPlanSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPlanSteps.swift; sourceTree = "<group>"; };
 		54444CBE438F2B4912228B82 /* AskVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultViewModel.swift; sourceTree = "<group>"; };
-		548F459440D7E4AF53D0C211 /* VaultBoxControls.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VaultBoxControls.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		576CEF3691B5C209B27AF9DB /* SharedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItemsView.swift; sourceTree = "<group>"; };
 		5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyDeletedView.swift; sourceTree = "<group>"; };
 		5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
@@ -328,7 +286,6 @@
 		6B8F3120EE9118E94ACB75E0 /* VaultBoxShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultBoxShareExtension.entitlements; sourceTree = "<group>"; };
 		6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveScanView.swift; sourceTree = "<group>"; };
 		6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Release.xcconfig; sourceTree = "<group>"; };
-		6E1E8942A8A493AD6BBDCBE0 /* QuickCaptureTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureTests.swift; sourceTree = "<group>"; };
 		709360F5CF3E44380EE5F474 /* VaultItemThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItemThumbnail.swift; sourceTree = "<group>"; };
 		721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureCameraViewController.swift; sourceTree = "<group>"; };
 		74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
@@ -360,11 +317,9 @@
 		97902116F3003BBD32528411 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
 		97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		99D487ED26681F007F4BB1CE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		9A9E7D14C48166B57E489A05 /* SealedCapture.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SealedCapture.swift; sourceTree = "<group>"; };
 		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
 		9DD38D29E22E45F46FC58CCC /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
-		A18F8962EA4D96B7B6DA9839 /* VaultBoxQuickCapture.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.extensionkit-extension"; includeInIndex = 0; path = VaultBoxQuickCapture.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A2218977F1460A0977E0C6ED /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
 		A2D14DA424B3748D4AD21D55 /* PaywallGate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallGate.swift; sourceTree = "<group>"; };
 		A2D47A47FB55772903C578E0 /* SensitiveImageLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveImageLayout.swift; sourceTree = "<group>"; };
@@ -390,7 +345,6 @@
 		C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINSetupView.swift; sourceTree = "<group>"; };
 		C9C25AEE911106C14FFACBDB /* WordPieceTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPieceTokenizer.swift; sourceTree = "<group>"; };
 		CB0858F25C8A90F971F5B777 /* FeatureBoardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardService.swift; sourceTree = "<group>"; };
-		CEDB3097877254ED7328A479 /* QuickCaptureExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureExtension.swift; sourceTree = "<group>"; };
 		CFD06E9BACD26FA2A6E0672B /* PrivacyStatPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrivacyStatPaywallView.swift; sourceTree = "<group>"; };
 		CFF254867AF6621B36D12920 /* PostOnboardingSecuritySetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PostOnboardingSecuritySetupView.swift; sourceTree = "<group>"; };
 		D00442829F6BB16A8BF70415 /* PaywallViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallViewModel.swift; sourceTree = "<group>"; };
@@ -402,15 +356,12 @@
 		D604B675E73CAE586A9EB0E1 /* VaultBox.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultBox.entitlements; sourceTree = "<group>"; };
 		D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivationChecklist.swift; sourceTree = "<group>"; };
 		D8D252275FD840944006E6B9 /* FeatureRequestsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureRequestsView.swift; sourceTree = "<group>"; };
-		D9F9F49BC8977C8BF3FA188C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		DA4EDBC45088713F67C4FE6B /* FeatureBoardModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureBoardModels.swift; sourceTree = "<group>"; };
 		E0C5C5ABCE3ACF4188B5831A /* DocumentExpiryParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParserTests.swift; sourceTree = "<group>"; };
-		E179D59A1600E5B90E9B5A64 /* QuickCaptureControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureControl.swift; sourceTree = "<group>"; };
 		E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallConfiguration.swift; sourceTree = "<group>"; };
 		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
-		E71B798FAE101F904938525E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallExperimentTests.swift; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		ECA4D39B39B1EA8D1D872E74 /* DocumentExpiryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParser.swift; sourceTree = "<group>"; };
@@ -420,7 +371,6 @@
 		EF8DF64C08D3C23D3A6B94D8 /* ContentViewRouteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentViewRouteTests.swift; sourceTree = "<group>"; };
 		F019B7D3B643EDEC85D53515 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
 		F0EC25525A796155921B2DB4 /* PINKeypadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINKeypadView.swift; sourceTree = "<group>"; };
-		F19F98A17DC2D1E5BF393FE7 /* QuickCaptureView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickCaptureView.swift; sourceTree = "<group>"; };
 		F270DA063AF932FACC74EF72 /* DocumentPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerView.swift; sourceTree = "<group>"; };
 		F28BEC1DB7FB4DDDF48CBC7F /* AlbumCoverPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumCoverPickerView.swift; sourceTree = "<group>"; };
 		F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSignalDetectors.swift; sourceTree = "<group>"; };
@@ -501,7 +451,6 @@
 				BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */,
 				76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */,
 				E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */,
-				6E1E8942A8A493AD6BBDCBE0 /* QuickCaptureTests.swift */,
 				FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */,
 				EDCAD03706C00B1CFB6072DE /* ShareInboxTests.swift */,
 				2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */,
@@ -513,23 +462,11 @@
 			isa = PBXGroup;
 			children = (
 				9ABD49527FCC499C4063B5C5 /* VaultBox.app */,
-				548F459440D7E4AF53D0C211 /* VaultBoxControls.appex */,
-				A18F8962EA4D96B7B6DA9839 /* VaultBoxQuickCapture.appex */,
 				FAB90E5064000CCB0D760AF4 /* VaultBoxShareExtension.appex */,
 				4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */,
 				41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		537C418FC5FA94EC45B75AB0 /* QuickCaptureExtension */ = {
-			isa = PBXGroup;
-			children = (
-				D9F9F49BC8977C8BF3FA188C /* Info.plist */,
-				CEDB3097877254ED7328A479 /* QuickCaptureExtension.swift */,
-				F19F98A17DC2D1E5BF393FE7 /* QuickCaptureView.swift */,
-			);
-			path = QuickCaptureExtension;
 			sourceTree = "<group>";
 		};
 		6A39F9D5E4AA9D48053F4934 /* Extensions */ = {
@@ -566,7 +503,6 @@
 				2D4CF9AF2FE015650E109833 /* PanicGestureService.swift */,
 				0BF6063A8A07FB9B1BFC048A /* PDFTextExtractor.swift */,
 				160CA92C325924808131115B /* PurchaseService.swift */,
-				39E0D8D06D9F70EA8E5D5535 /* QuickCaptureService.swift */,
 				5DAAF6305764E8DEC418493E /* SearchEngine.swift */,
 				B8ECC627E1FBE31D7796640A /* SearchIndexService.swift */,
 				14F054860F9EB3473DAF90EC /* SensitiveContentScanService.swift */,
@@ -602,9 +538,6 @@
 			isa = PBXGroup;
 			children = (
 				ED35A2F291354845F61EBF43 /* Launch Screen.storyboard */,
-				CCE8AECA3220F4E5A1FEF528 /* QuickCaptureControls */,
-				537C418FC5FA94EC45B75AB0 /* QuickCaptureExtension */,
-				8EA58CE26060A776892CB94D /* QuickCaptureShared */,
 				AB47A0158D33E20F20865EFA /* Shared */,
 				EF063D184B44030504E78953 /* VaultBox */,
 				909AF965080663A7C099DA6A /* VaultBoxShareExtension */,
@@ -635,16 +568,6 @@
 				B2C4FD2348BEE305AE5690EA /* OpenVaultCameraIntent.swift */,
 			);
 			path = AppIntents;
-			sourceTree = "<group>";
-		};
-		8EA58CE26060A776892CB94D /* QuickCaptureShared */ = {
-			isa = PBXGroup;
-			children = (
-				50CF42E52F5B6CD14DCA1DE5 /* QuickCaptureIntent.swift */,
-				9A9E7D14C48166B57E489A05 /* SealedCapture.swift */,
-				721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */,
-			);
-			path = QuickCaptureShared;
 			sourceTree = "<group>";
 		};
 		90940B6A470BDAF89BA024AF /* Models */ = {
@@ -743,6 +666,7 @@
 				FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */,
 				37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */,
 				5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */,
+				721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */,
 				6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */,
 				2943DA75634CFC3588C738A8 /* SmartAlbumType.swift */,
 				4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */,
@@ -750,15 +674,6 @@
 				356340D6145AE34F3A76DEA8 /* VideoPlayerView.swift */,
 			);
 			path = Vault;
-			sourceTree = "<group>";
-		};
-		CCE8AECA3220F4E5A1FEF528 /* QuickCaptureControls */ = {
-			isa = PBXGroup;
-			children = (
-				E71B798FAE101F904938525E /* Info.plist */,
-				E179D59A1600E5B90E9B5A64 /* QuickCaptureControl.swift */,
-			);
-			path = QuickCaptureControls;
 			sourceTree = "<group>";
 		};
 		EC332CB3A9FCF466563E700B /* Utilities */ = {
@@ -858,40 +773,6 @@
 			productReference = 4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		24E51D769374889E7FBB1215 /* VaultBoxQuickCapture */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 0A61709035E1A35BC7D417FB /* Build configuration list for PBXNativeTarget "VaultBoxQuickCapture" */;
-			buildPhases = (
-				397CE9C36BF6ABFF72F41A31 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = VaultBoxQuickCapture;
-			packageProductDependencies = (
-			);
-			productName = VaultBoxQuickCapture;
-			productReference = A18F8962EA4D96B7B6DA9839 /* VaultBoxQuickCapture.appex */;
-			productType = "com.apple.product-type.extensionkit-extension";
-		};
-		463D908329DADB4F7DC804F4 /* VaultBoxControls */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F51EFAFEAE29216222C7FF0E /* Build configuration list for PBXNativeTarget "VaultBoxControls" */;
-			buildPhases = (
-				B848FF3FBF3AD9C71D95CCC4 /* Sources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = VaultBoxControls;
-			packageProductDependencies = (
-			);
-			productName = VaultBoxControls;
-			productReference = 548F459440D7E4AF53D0C211 /* VaultBoxControls.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		529AC2156C00832676CF94B9 /* VaultBox */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 997E24467537922F8FD6576B /* Build configuration list for PBXNativeTarget "VaultBox" */;
@@ -900,13 +781,10 @@
 				D8086BDD2CCF2AC0BBB858FF /* Resources */,
 				E0FB12B3C0BB46AD2D5D696B /* Frameworks */,
 				CC250624F0C9DCE13283A080 /* Embed Foundation Extensions */,
-				7955397F7389D7C3887F1DF5 /* Embed ExtensionKit Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				4AEADC6A35EC35F2F0316249 /* PBXTargetDependency */,
-				17627DEE46FC9146CECCDC00 /* PBXTargetDependency */,
 				98C52589A84999C2E8FDE2F0 /* PBXTargetDependency */,
 			);
 			name = VaultBox;
@@ -1011,8 +889,6 @@
 			projectRoot = "";
 			targets = (
 				529AC2156C00832676CF94B9 /* VaultBox */,
-				463D908329DADB4F7DC804F4 /* VaultBoxControls */,
-				24E51D769374889E7FBB1215 /* VaultBoxQuickCapture */,
 				E66CB4D30780880AC81B3D62 /* VaultBoxShareExtension */,
 				0CE48DF4587592D4B518C910 /* VaultBoxTests */,
 				98E5DA03024BF023A84C7EC4 /* VaultBoxUITests */,
@@ -1058,7 +934,6 @@
 				1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */,
 				FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */,
 				4F9DFD614E8287EBF8F23B97 /* PaywallExperimentTests.swift in Sources */,
-				3A645835552E1DA639027CBE /* QuickCaptureTests.swift in Sources */,
 				F45D908691D06F9AE5277CE6 /* RecentlyDeletedTests.swift in Sources */,
 				B44373FA6A0B988DD97ABBE7 /* ShareInboxTests.swift in Sources */,
 				7C7F17A247776BFBE57C7002 /* VaultBoxTests.swift in Sources */,
@@ -1082,27 +957,6 @@
 				9BDF2329DC2ED806068D7640 /* ShareInbox.swift in Sources */,
 				5B9E69ED63D602A95CAE7615 /* ShareViewController.swift in Sources */,
 				BFB28857AC9B195B9B9DD60E /* SharedItemLoader.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		397CE9C36BF6ABFF72F41A31 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				B9C58726989B8BD53FAD494B /* QuickCaptureExtension.swift in Sources */,
-				2132C1F8E28A0D284D0717C7 /* QuickCaptureIntent.swift in Sources */,
-				A3ADF38F3DD511CCDDE44811 /* QuickCaptureView.swift in Sources */,
-				C7AAEE55662B1EA564DE1C3F /* SealedCapture.swift in Sources */,
-				0C559CD04995DDB7A420D765 /* SecureCameraViewController.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		B848FF3FBF3AD9C71D95CCC4 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				89BCBC2583E67E65E7D729BE /* QuickCaptureControl.swift in Sources */,
-				6D130336E780E6B76E34D337 /* QuickCaptureIntent.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1196,12 +1050,9 @@
 				AAAF911616806070CF1B4834 /* PrivacyStatPaywallView.swift in Sources */,
 				AACA420494B2DD816BDA2EF1 /* ProductivityDisguiseViews.swift in Sources */,
 				605F801AE42F37A8AAAC7987 /* PurchaseService.swift in Sources */,
-				439128CEFA839725F36EB34E /* QuickCaptureIntent.swift in Sources */,
-				6C92FFAFDFE886009ED36580 /* QuickCaptureService.swift in Sources */,
 				E45DD6F9EEDA06C21B69DB39 /* RecentlyDeletedView.swift in Sources */,
 				554AA0DF0BB7298B759E95CD /* ScreenCaptureMonitor.swift in Sources */,
 				29CC0D185BCF3A77A98B7E18 /* ScreenshotProofView.swift in Sources */,
-				F0C3F51FC5753E27E9C4C9B0 /* SealedCapture.swift in Sources */,
 				FB73233FB3185654AC85817B /* SearchEngine.swift in Sources */,
 				A55845CAA8285F60D5D35286 /* SearchIndexService.swift in Sources */,
 				657F114A82F905BFF97C2716 /* SearchResultCard.swift in Sources */,
@@ -1247,16 +1098,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		17627DEE46FC9146CECCDC00 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 463D908329DADB4F7DC804F4 /* VaultBoxControls */;
-			targetProxy = 1A47E930FDF49572B363B1F0 /* PBXContainerItemProxy */;
-		};
-		4AEADC6A35EC35F2F0316249 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 24E51D769374889E7FBB1215 /* VaultBoxQuickCapture */;
-			targetProxy = 6825520CDB0E9894380B132B /* PBXContainerItemProxy */;
-		};
 		6F1A6AE952C88C19B19E355F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 529AC2156C00832676CF94B9 /* VaultBox */;
@@ -1312,11 +1153,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2.6;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-weak_framework",
-					LockedCameraCapture,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
@@ -1479,27 +1315,6 @@
 			};
 			name = Debug;
 		};
-		7A509D4D774756984134F419 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
-				INFOPLIST_FILE = QuickCaptureControls/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.2.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.Controls;
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
 		7B9BC9781CCDAA272F48E951 /* Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */;
@@ -1520,11 +1335,6 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.2.6;
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					"-weak_framework",
-					LockedCameraCapture,
-				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox;
 				SDKROOT = iphoneos;
 				SUPPORTED_INTERFACE_ORIENTATIONS = UIInterfaceOrientationPortrait;
@@ -1568,67 +1378,6 @@
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VaultBox.app/VaultBox";
 			};
 			name = Debug;
-		};
-		A538C4A7A854E7819E93D3E4 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
-				INFOPLIST_FILE = QuickCaptureControls/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.2.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.Controls;
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		A970E9B41DB9933C4A87C287 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
-				INFOPLIST_FILE = QuickCaptureExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.2.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.QuickCapture;
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		D97863C2F5D041DCDB1FFC83 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 4A7H788X5U;
-				INFOPLIST_FILE = QuickCaptureExtension/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				MARKETING_VERSION = 1.2.6;
-				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.QuickCapture;
-				SDKROOT = iphoneos;
-				SWIFT_STRICT_CONCURRENCY = complete;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
 		};
 		F08B8648DC9ADD0DD3E0318B /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -1675,15 +1424,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		0A61709035E1A35BC7D417FB /* Build configuration list for PBXNativeTarget "VaultBoxQuickCapture" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A970E9B41DB9933C4A87C287 /* Debug */,
-				D97863C2F5D041DCDB1FFC83 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		2C1BD5412F00E4336A5D651A /* Build configuration list for PBXNativeTarget "VaultBoxUITests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -1725,15 +1465,6 @@
 			buildConfigurations = (
 				1422B29AA0BDE398C900A743 /* Debug */,
 				7B9BC9781CCDAA272F48E951 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
-		F51EFAFEAE29216222C7FF0E /* Build configuration list for PBXNativeTarget "VaultBoxControls" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				A538C4A7A854E7819E93D3E4 /* Debug */,
-				7A509D4D774756984134F419 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

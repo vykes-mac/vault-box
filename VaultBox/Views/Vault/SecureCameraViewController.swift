@@ -3,33 +3,17 @@ import UIKit
 
 // MARK: - SecureCameraViewController
 
-/// Camera preview + shutter shared by the in-app camera tab and the Lock Screen
-/// capture extension. It never touches the photo library: photos are handed back as
-/// encoded file data and videos are recorded into `movieRecordingDirectory`.
+/// Camera preview + shutter for the in-app camera tab. It never touches the photo
+/// library: photos are handed back as encoded file data.
 final class SecureCameraViewController: UIViewController {
-    enum Mode {
-        case photo
-        case video
-    }
-
     var onPhotoCaptured: ((Data) -> Void)?
-    var onVideoRecorded: ((URL) -> Void)?
-    var onRecordingStateChanged: ((Bool) -> Void)?
     var cameraPosition: AVCaptureDevice.Position = .back
-    /// Where in-progress recordings are written. `nil` hides video mode entirely.
-    var movieRecordingDirectory: URL?
-    /// Caps a single recording so the app can always import it later.
-    var maxRecordingBytes: Int64 = 240 * 1024 * 1024
 
     private let captureSession = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
-    private let movieOutput = AVCaptureMovieFileOutput()
     private var previewLayer: AVCaptureVideoPreviewLayer?
     private var currentInput: AVCaptureDeviceInput?
-    private var audioInput: AVCaptureDeviceInput?
     private let captureDelegate = PhotoDelegate()
-    private let recordingDelegate = MovieDelegate()
-    private var mode: Mode = .photo
     private let captureButton = UIButton(type: .system)
     private var isSimulatedCamera = false
 
@@ -50,9 +34,6 @@ final class SecureCameraViewController: UIViewController {
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        if movieOutput.isRecording {
-            movieOutput.stopRecording()
-        }
         let session = captureSession
         DispatchQueue.global(qos: .userInitiated).async {
             session.stopRunning()
@@ -62,10 +43,6 @@ final class SecureCameraViewController: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         previewLayer?.frame = view.bounds
-    }
-
-    private var supportsVideo: Bool {
-        movieRecordingDirectory != nil && !isSimulatedCamera
     }
 
     private func setupSession() {
@@ -87,11 +64,6 @@ final class SecureCameraViewController: UIViewController {
 
         if captureSession.canAddOutput(photoOutput) {
             captureSession.addOutput(photoOutput)
-        }
-
-        if movieRecordingDirectory != nil, captureSession.canAddOutput(movieOutput) {
-            movieOutput.maxRecordedFileSize = maxRecordingBytes
-            captureSession.addOutput(movieOutput)
         }
 
         let layer = AVCaptureVideoPreviewLayer(session: captureSession)
@@ -133,35 +105,9 @@ final class SecureCameraViewController: UIViewController {
             flipButton.widthAnchor.constraint(equalToConstant: 44),
             flipButton.heightAnchor.constraint(equalToConstant: 44)
         ])
-
-        guard supportsVideo else { return }
-
-        let modePicker = UISegmentedControl(items: [String(localized: "Photo"), String(localized: "Video")])
-        modePicker.translatesAutoresizingMaskIntoConstraints = false
-        modePicker.selectedSegmentIndex = 0
-        modePicker.selectedSegmentTintColor = UIColor.white.withAlphaComponent(0.35)
-        modePicker.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .normal)
-        modePicker.backgroundColor = UIColor.black.withAlphaComponent(0.3)
-        modePicker.addTarget(self, action: #selector(modeChanged(_:)), for: .valueChanged)
-        view.addSubview(modePicker)
-
-        NSLayoutConstraint.activate([
-            modePicker.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            modePicker.bottomAnchor.constraint(equalTo: captureButton.topAnchor, constant: -20),
-            modePicker.widthAnchor.constraint(equalToConstant: 180)
-        ])
     }
 
     @objc private func captureTapped() {
-        switch mode {
-        case .photo:
-            capturePhoto()
-        case .video:
-            toggleRecording()
-        }
-    }
-
-    private func capturePhoto() {
         let deliver: (Data) -> Void = { [weak self] data in
             DispatchQueue.main.async {
                 self?.onPhotoCaptured?(data)
@@ -180,78 +126,7 @@ final class SecureCameraViewController: UIViewController {
         photoOutput.capturePhoto(with: settings, delegate: captureDelegate)
     }
 
-    private func toggleRecording() {
-        if movieOutput.isRecording {
-            movieOutput.stopRecording()
-            return
-        }
-        guard let movieRecordingDirectory else { return }
-
-        let url = movieRecordingDirectory.appendingPathComponent("\(Self.captureFileStem()).mov")
-        recordingDelegate.onFinish = { [weak self] url, succeeded in
-            DispatchQueue.main.async {
-                self?.setRecordingAppearance(false)
-                if succeeded {
-                    self?.onVideoRecorded?(url)
-                } else {
-                    try? FileManager.default.removeItem(at: url)
-                }
-            }
-        }
-        movieOutput.startRecording(to: url, recordingDelegate: recordingDelegate)
-        setRecordingAppearance(true)
-    }
-
-    private func setRecordingAppearance(_ isRecording: Bool) {
-        UIView.animate(withDuration: 0.2) {
-            self.captureButton.backgroundColor = isRecording
-                ? UIColor.systemRed
-                : (self.mode == .video ? UIColor.systemRed.withAlphaComponent(0.5) : UIColor.white.withAlphaComponent(0.3))
-        }
-        captureButton.accessibilityLabel = isRecording
-            ? String(localized: "Stop Recording")
-            : (mode == .video ? String(localized: "Record Video") : String(localized: "Take Photo"))
-        onRecordingStateChanged?(isRecording)
-    }
-
-    @objc private func modeChanged(_ sender: UISegmentedControl) {
-        guard !movieOutput.isRecording else {
-            sender.selectedSegmentIndex = mode == .photo ? 0 : 1
-            return
-        }
-        mode = sender.selectedSegmentIndex == 0 ? .photo : .video
-
-        captureSession.beginConfiguration()
-        captureSession.sessionPreset = mode == .photo ? .photo : .high
-        captureSession.commitConfiguration()
-
-        if mode == .video {
-            attachMicrophoneIfAllowed()
-        }
-        setRecordingAppearance(false)
-    }
-
-    /// Videos get sound only when microphone access was already granted or is granted
-    /// now; otherwise they record silently rather than blocking capture.
-    private func attachMicrophoneIfAllowed() {
-        guard audioInput == nil else { return }
-        let session = captureSession
-        Task { @MainActor [weak self] in
-            guard await AVCaptureDevice.requestAccess(for: .audio),
-                  let self, self.audioInput == nil,
-                  let mic = AVCaptureDevice.default(for: .audio),
-                  let input = try? AVCaptureDeviceInput(device: mic) else { return }
-            session.beginConfiguration()
-            if session.canAddInput(input) {
-                session.addInput(input)
-                self.audioInput = input
-            }
-            session.commitConfiguration()
-        }
-    }
-
     @objc private func flipCamera() {
-        guard !movieOutput.isRecording else { return }
         cameraPosition = (cameraPosition == .back) ? .front : .back
         switchCamera()
     }
@@ -279,17 +154,11 @@ final class SecureCameraViewController: UIViewController {
         AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: position)
     }
 
-    /// Sortable, collision-free name so captures are ingested in the order they were taken.
-    static func captureFileStem() -> String {
-        let millis = Int64(Date().timeIntervalSince1970 * 1000)
-        return "\(millis)-\(UUID().uuidString)"
-    }
-
     // MARK: Simulator
 
     #if targetEnvironment(simulator)
     /// The simulator has no camera; show a placeholder and hand back a generated photo so
-    /// the capture → seal → ingest pipeline can still be exercised end to end.
+    /// the save path can still be exercised end to end.
     private func setupSimulatedPreview() {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -334,27 +203,5 @@ private final class PhotoDelegate: NSObject, AVCapturePhotoCaptureDelegate {
     ) {
         guard error == nil, let data = photo.fileDataRepresentation() else { return }
         onCapture?(data)
-    }
-}
-
-// MARK: - MovieDelegate
-
-private final class MovieDelegate: NSObject, AVCaptureFileOutputRecordingDelegate {
-    var onFinish: ((URL, Bool) -> Void)?
-
-    func fileOutput(
-        _ output: AVCaptureFileOutput,
-        didFinishRecordingTo outputFileURL: URL,
-        from connections: [AVCaptureConnection],
-        error: Error?
-    ) {
-        // Hitting maxRecordedFileSize reports an error but still finalizes a playable file.
-        let succeeded: Bool
-        if let error = error as NSError? {
-            succeeded = (error.userInfo[AVErrorRecordingSuccessfullyFinishedKey] as? Bool) ?? false
-        } else {
-            succeeded = true
-        }
-        onFinish?(outputFileURL, succeeded)
     }
 }

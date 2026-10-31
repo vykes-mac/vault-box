@@ -22,7 +22,6 @@ struct ContentView: View {
     @State private var searchEngine: SearchEngine?
     @State private var shareInboxService: ShareInboxService?
     @State private var shareInboxSummary: ShareInboxIngestSummary?
-    @State private var quickCaptureService: QuickCaptureService?
     @State private var indexingProgress = IndexingProgress()
     @State private var showImporter = false
     @State private var showPostOnboardingSecuritySetup = false
@@ -136,8 +135,7 @@ struct ContentView: View {
             if newRoute == .main {
                 presentPendingShareIfNeeded()
                 routeToPendingDocumentReminderIfNeeded()
-                routeToQuickCaptureCameraIfNeeded()
-                syncQuickCaptures()
+                routeToRequestedCameraIfNeeded()
                 presentHardPaywallIfNeeded()
                 // The store almost always answers while the user is still on the lock
                 // screen, so the lapse check has to run again once they are actually
@@ -288,8 +286,8 @@ struct ContentView: View {
                 pendingShareURL = url
             }
         }
-        .onReceive(NotificationCenter.default.publisher(for: .quickCaptureCameraRequested)) { _ in
-            routeToQuickCaptureCameraIfNeeded()
+        .onReceive(NotificationCenter.default.publisher(for: .cameraLaunchRequested)) { _ in
+            routeToRequestedCameraIfNeeded()
         }
         .onReceive(NotificationCenter.default.publisher(for: .documentReminderNotificationReceived)) { notification in
             let rawID = notification.userInfo?["reminderID"] as? String
@@ -385,7 +383,6 @@ struct ContentView: View {
             }
             // Covers sharing while the vault is still inside its auto-lock window.
             ingestSharedItemsIfNeeded()
-            syncQuickCaptures()
         }
         attemptPrivacyShieldReveal(token: privacyShieldRevealToken)
     }
@@ -504,20 +501,9 @@ struct ContentView: View {
         hasPendingDocumentReminderNavigation = false
     }
 
-    private func routeToQuickCaptureCameraIfNeeded() {
-        guard currentRoute == .main, QuickCaptureLaunchRequest.consume() else { return }
+    private func routeToRequestedCameraIfNeeded() {
+        guard currentRoute == .main, CameraLaunchRequest.consume() else { return }
         selectedMainTab = .camera
-    }
-
-    /// Imports Lock Screen captures. Skipped in decoy mode so captures never appear in
-    /// front of someone who was given the decoy PIN; they wait sealed for the real unlock.
-    private func syncQuickCaptures() {
-        guard currentRoute == .main,
-              let authService, !authService.isDecoyMode,
-              let vaultService, let quickCaptureService else { return }
-        Task {
-            await quickCaptureService.sync(into: vaultService)
-        }
     }
 
     private func dismissActivePresentationsForLock() {
@@ -573,7 +559,6 @@ struct ContentView: View {
             modelContext: modelContext,
             hasPremiumAccess: { purchaseService.isPremium }
         )
-        quickCaptureService = QuickCaptureService()
 
         Task {
             await vault.purgeExpiredItems()

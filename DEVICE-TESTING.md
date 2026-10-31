@@ -1,6 +1,6 @@
 # Physical-device test plan (1.2.6)
 
-These four changes were merged into `main` on 2026-10-29. Unit tests and simulator builds cover the
+These three changes were merged into `main` on 2026-10-29. Unit tests and simulator builds cover the
 code paths, but each one has cases that only a real iPhone (or a real iCloud account) can
 exercise. Work through this list before submitting 1.2.6.
 
@@ -9,7 +9,6 @@ exercise. Work through this list before submitting 1.2.6.
 | iCloud key backup hardening | `acb104a` | 14 encryption unit tests. No real CloudKit or iCloud Keychain. |
 | Share extension ("Save to VaultBox") | `ed4a1dc`, `440fe9d` | 6 unit tests. Simulator: shared a photo from Photos with the PIN, then saw it appear encrypted after unlock. |
 | Recently Deleted bin | `4ded261` | 9 unit tests. An empty store from the old build upgraded cleanly. The screen was never tapped through. |
-| Lock Screen Quick Capture | `3ecfcb8` | 13 unit tests, plus the build. The simulator hides camera-capture controls, so nothing was run end to end. |
 
 You need:
 - **Device A:** an iPhone on iOS 18 or later (an iPhone 15 Pro or later also covers the Action button).
@@ -22,12 +21,9 @@ You need:
 
 ## 0. Before you can install the build
 
-- [ ] **App IDs:** register App IDs and profiles for the three new bundle IDs:
-  - `com.pack6.vaultbox.ShareExtension`, with the App Group `group.com.vaultbox.app`
-  - `com.pack6.vaultbox.QuickCapture`
-  - `com.pack6.vaultbox.Controls`
-- [ ] **Versions:** `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` must be the same for the app and all three extensions. `project.yml` and the Xcode project are now on `1.2.6` / `1`, so only raise the build number for a later upload. The App Store rejects an extension whose version differs from its app.
-- [ ] **Archive:** archive and upload once to check that App Store Connect validation accepts all three extensions.
+- [ ] **App IDs:** register an App ID and profile for `com.pack6.vaultbox.ShareExtension`, with the App Group `group.com.vaultbox.app`.
+- [ ] **Versions:** `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` must be the same for the app and the share extension. `project.yml` and the Xcode project are now on `1.2.6` / `1`, so only raise the build number for a later upload. The App Store rejects an extension whose version differs from its app.
+- [ ] **Archive:** archive and upload once to check that App Store Connect validation accepts the share extension.
 
 ## 1. iCloud key backup (`acb104a`)
 
@@ -81,28 +77,17 @@ The basic Photos → share → unlock flow passed on the simulator using the PIN
 - [ ] **2.4 Decoy PIN:** entering the decoy PIN in the extension sends the items to the decoy vault only.
 - [ ] **2.5 Free user:** documents shared by a free user stay in the inbox and import after upgrading. Check the free item limit too.
 - [ ] **2.6 Wrong PIN:** wrong PINs in the extension count toward lockout and break-in capture the same way they do in the app.
-- [ ] **2.7 Disguise in the share sheet:** the share option is now called "Quick Save", and its PIN screen says "Enter your PIN" with no mention of VaultBox.
-  - With an icon disguise on, check which icon the share sheet shows next to "Quick Save". If it's the real VaultBox icon, no code can change that. Add a line to the disguise setup telling users how to hide the option from their share sheet.
-  - Check which hiding options iOS offers under share sheet → More → Edit (removing from Favorites, and any on/off switch).
+- [ ] **2.7 Disguise in the share sheet:** the extension's display name is "Quick Save", but on the simulator (2026-10-31) iOS showed a **VaultBox** tile with the real app icon, and the PIN screen's title is also "VaultBox".
+  - Check what the share sheet shows on a device, with and without an icon disguise.
+  - Check which hiding options iOS offers under share sheet → More → Edit (removing from Favorites, and any on/off switch). Add a line to the disguise setup telling users how to hide the option.
   - Still to decide: under a disguised icon, the home screen label is the product name "VaultBox". A neutral name would fix that for everyone, but App Review may question a name that doesn't match the App Store listing.
 
-## 3. Lock Screen Quick Capture (`3ecfcb8`), iOS 18 or later only
+## 3. In-app camera
 
-Not verified end to end anywhere. Design notes are in `QUICK-CAPTURE.md`.
+Lock Screen Quick Capture was removed before release on 2026-10-31. The camera tab and the Shortcuts action stay.
 
-- [ ] **3.1 Before first open:** on a fresh install, before opening the app, the capture extension shows "Open the app once to turn on Quick Capture". Open the app once and it starts working.
-- [ ] **3.2 Adding the control:** add the "Quick Capture" control to each of these:
-  - [ ] Control Center
-  - [ ] a Lock Screen slot
-  - [ ] the Action button (15 Pro or later)
-- [ ] **3.3 Photo from a locked phone:** with the phone locked, take a photo with the control. Then unlock VaultBox with the real PIN. The photo is in the vault and **not** in the Camera Roll.
-- [ ] **3.4 Video:** take a video. The microphone permission prompt appears, sound is recorded, a long video (over 1 min) imports and plays, and no readable video is left behind.
-- [ ] **3.5 Decoy mode:** unlock with the decoy PIN. Pending captures are not imported into the decoy vault and appear after the next real unlock.
-- [ ] **3.6 Free limit:** at the free item limit, captures are held back. There's currently no message telling the user this (known gap).
-- [ ] **3.7 Shortcuts:** the "Open VaultBox Camera" Shortcuts action works, including from the Action button.
-- [ ] **3.8 Disguise:** with an icon disguise on, the control and the capture screen only say "Quick Capture", "Saved" and "Open App".
-- [ ] **3.9 In-app camera:** with premium (sandbox purchase), the camera inside the app, which was rebuilt for this change, takes photos and videos into the vault.
-- [ ] **3.10 iOS 17:** on an iOS 17 device, the app launches normally and no control is offered.
+- [ ] **3.1 In-app camera:** with premium (sandbox purchase), the camera tab takes photos into the vault and nothing goes to the Camera Roll. Switching cameras works.
+- [ ] **3.2 Shortcuts:** the "Open VaultBox Camera" Shortcuts action opens the app, asks for the PIN and then selects the camera tab, including from the Action button. Leave it on the PIN screen for 30 seconds and check that the app stays open.
 
 ## 4. Recently Deleted (`4ded261`)
 
@@ -129,6 +114,5 @@ The screen has never been tapped through. Most of this works on a simulator, but
 
 ## Known gaps found during this work (not fixed)
 
-- Quick Capture text isn't translated, and resetting the vault doesn't delete the Quick Capture key.
 - Wi-Fi transfer and the album cover picker's "Choose from Vault" list real and decoy items together. Expiring Documents mixes decoy and real reminders.
 - Items in Recently Deleted don't count toward the free limit, so restoring can take a free user over it.
