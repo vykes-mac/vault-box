@@ -282,6 +282,20 @@ struct VaultGridView: View {
         }
     }
 
+    /// Centers a message inside a scroll view. On iOS 26 the search field is grey over
+    /// a scroll view and clear glass over anything else, so this keeps it the same as
+    /// when the grid is showing.
+    private func scrollableState<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        let content = content()
+        return GeometryReader { proxy in
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, minHeight: proxy.size.height)
+            }
+            .scrollBounceBehavior(.basedOnSize)
+        }
+    }
+
     private var mainContent: some View {
         VStack(spacing: 0) {
             if !purchaseService.isPremium && vaultService.isAtFreeLimit() {
@@ -296,14 +310,10 @@ struct VaultGridView: View {
                         onDismiss: { hasDismissedActivationChecklist = true }
                     )
                 } else {
-                    Spacer()
-                    emptyState
-                    Spacer()
+                    scrollableState { emptyState }
                 }
             } else if displayedItems.isEmpty {
-                Spacer()
-                noResultsState
-                Spacer()
+                scrollableState { noResultsState }
             } else {
                 gridContent
                 itemCountBar
