@@ -788,6 +788,13 @@ class VaultService {
         return CloudRestoreResult(items: restoredItems, unreadableCount: unreadableCount)
     }
 
+    /// Every iCloud record this device believes it has, including items in Recently Deleted.
+    func trackedCloudRecordNames() throws -> [String] {
+        var descriptor = FetchDescriptor<VaultItem>(predicate: #Predicate { $0.cloudRecordID != nil })
+        descriptor.propertiesToFetch = [\.cloudRecordID]
+        return try modelContext.fetch(descriptor).compactMap(\.cloudRecordID)
+    }
+
     /// Marks items whose iCloud records were removed so the next backup uploads them again.
     /// Items this device can't open stay marked as uploaded, because uploading them would
     /// only store another copy nobody can restore.

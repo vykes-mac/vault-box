@@ -310,6 +310,33 @@ actor CloudService {
         return unreadableIDs.map(\.recordName)
     }
 
+    private static let maxRecordsPerFetch = 200
+
+    /// Which of these records no longer exist in iCloud. Fetches by ID rather than with a
+    /// query, because a query can miss a record that was only just uploaded.
+    func missingRecordNames(from recordNames: [String]) async throws -> [String] {
+        var missing: [String] = []
+        var startIndex = 0
+        while startIndex < recordNames.count {
+            let endIndex = min(startIndex + Self.maxRecordsPerFetch, recordNames.count)
+            let recordIDs = recordNames[startIndex..<endIndex].map { CKRecord.ID(recordName: $0) }
+            let results = try await database.records(for: recordIDs, desiredKeys: [])
+            missing.append(contentsOf: Self.missingRecordNames(in: results))
+            startIndex = endIndex
+        }
+        return missing
+    }
+
+    /// Only "not found" counts as missing. Any other per-record error says nothing about
+    /// the record, and treating it as missing would upload a duplicate.
+    nonisolated static func missingRecordNames(in results: [CKRecord.ID: Result<CKRecord, Error>]) -> [String] {
+        results.compactMap { recordID, result in
+            guard case .failure(let error) = result,
+                  (error as? CKError)?.code == .unknownItem else { return nil }
+            return recordID.recordName
+        }
+    }
+
     /// Deletes every backed-up item and the key backup from iCloud. The key goes last,
     /// so if this fails part way, nothing left behind has lost its key and it can run again.
     func deleteEntireBackup() async throws {

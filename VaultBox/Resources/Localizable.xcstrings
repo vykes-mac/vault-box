@@ -38952,6 +38952,98 @@
           }
         }
       }
+    },
+    "Checking iCloud..." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud wird geprüft …"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Revisando iCloud..."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vérification d’iCloud…"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controllo di iCloud…"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloudを確認中..."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iCloud 확인 중..."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verificando o iCloud..."
+          }
+        }
+      }
+    },
+    "Uploads new items, and uploads again anything that's no longer in iCloud." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lädt neue Objekte hoch und lädt alles erneut hoch, was nicht mehr in iCloud ist."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sube los elementos nuevos y vuelve a subir lo que ya no esté en iCloud."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envoie les nouveaux éléments et renvoie tout ce qui n’est plus dans iCloud."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carica i nuovi elementi e ricarica ciò che non è più su iCloud."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "新しい項目をアップロードし、iCloudからなくなった項目も再度アップロードします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "새 항목을 업로드하고 iCloud에서 사라진 항목도 다시 업로드합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Envia os itens novos e reenvia o que não está mais no iCloud."
+          }
+        }
+      }
     }
   },
   "version" : "1.1"

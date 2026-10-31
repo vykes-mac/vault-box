@@ -1,4 +1,5 @@
 import Testing
+import CloudKit
 import Foundation
 import SwiftData
 import UIKit
@@ -205,6 +206,32 @@ struct RecentlyDeletedTests {
         #expect(kept.cloudRecordID == "kept")
         #expect(unreadable.isUploaded, "Uploading it would only store another unrecoverable copy")
         #expect(unreadable.cloudRecordID == nil)
+    }
+
+    @Test("Tracked iCloud records include Recently Deleted and skip items never backed up")
+    func trackedCloudRecordNamesCoverEveryBackedUpItem() async throws {
+        let harness = try await makeHarness()
+        let live = try await importPhoto(harness)
+        live.cloudRecordID = "live"
+        let trashed = try await importPhoto(harness)
+        trashed.cloudRecordID = "trashed"
+        trashed.deletedAt = Date()
+        _ = try await importPhoto(harness)
+        try harness.context.save()
+
+        #expect(Set(try harness.service.trackedCloudRecordNames()) == ["live", "trashed"])
+    }
+
+    @Test("Only records iCloud says don't exist count as missing")
+    func onlyNotFoundCountsAsMissing() {
+        let results: [CKRecord.ID: Result<CKRecord, Error>] = [
+            CKRecord.ID(recordName: "present"): .success(CKRecord(recordType: Constants.cloudRecordType)),
+            CKRecord.ID(recordName: "deleted"): .failure(CKError(.unknownItem)),
+            CKRecord.ID(recordName: "offline"): .failure(CKError(.networkFailure)),
+            CKRecord.ID(recordName: "throttled"): .failure(CKError(.requestRateLimited))
+        ]
+
+        #expect(CloudService.missingRecordNames(in: results) == ["deleted"])
     }
 
     @Test("Deleting the whole backup re-queues items and clears pending iCloud deletes")

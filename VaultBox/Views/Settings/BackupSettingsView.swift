@@ -89,6 +89,8 @@ struct BackupSettingsView: View {
                         }
                     }
                     .disabled(isSyncing || isRestoring || iCloudStatus != .available || settings?.iCloudBackupEnabled != true)
+                } footer: {
+                    Text("Uploads new items, and uploads again anything that's no longer in iCloud.")
                 }
 
                 restoreSection
@@ -459,6 +461,15 @@ struct BackupSettingsView: View {
                     }
                     keyBackupConfirmed = true
                 }
+
+                // Items removed from iCloud elsewhere still look uploaded here, so check first.
+                syncStatusText = String(localized: "Checking iCloud...")
+                let missingRecordNames = try await service.missingRecordNames(
+                    from: vaultService.trackedCloudRecordNames()
+                )
+                try await vaultService.markRemovedFromCloud(recordNames: missingRecordNames)
+                refreshItemCounts()
+                syncStatusText = String(localized: "Syncing...")
 
                 // Uploaded items drop out of the next batch; a failed upload throws out of the loop.
                 while true {

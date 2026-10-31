@@ -51,6 +51,11 @@ Backups are now locked with the PIN plus a secret stored in iCloud Keychain, whi
   4. Turn backup back on and tap Backup Now. It asks for your PIN to create a new key backup, then uploads everything again.
   5. Turn on airplane mode and try the delete. It shows an error, the sheet stays open, and retrying online finishes it.
   6. Without premium (a lapsed sandbox subscription), Settings → iCloud Backup opens with the upgrade prompt, and Delete iCloud Backup still works.
+- [ ] **1.1d Items removed from iCloud.**
+  1. Back up a few items, then delete some of their `EncryptedVaultItem` records in the CloudKit Console.
+  2. Tap Backup Now. "Uploaded" drops, then climbs back, and only the deleted items get new records. Records that were still there are untouched.
+  3. Tap Backup Now again straight away. Nothing uploads and no duplicates appear.
+  4. In airplane mode, tap Backup Now. It shows an error and "Uploaded" doesn't change.
 - [ ] **1.2 Restore on a new device.** On device B with iCloud Keychain on, do a fresh install, then use Settings → Backup → Restore with the PIN. Every item should come back with its original filename (check a PDF's name).
 - [ ] **1.3 iCloud Keychain off.** On device B, turn off iCloud Keychain and restore. You should see the "turn on iCloud Keychain" message, with no crash and no partial restore.
 - [ ] **1.4 After a PIN change.**
