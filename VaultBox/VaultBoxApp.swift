@@ -86,7 +86,7 @@ struct VaultBoxApp: App {
             )
             UNUserNotificationCenter.current().delegate = NotificationPresentationDelegate.shared
             seedSettingsIfNeeded(container: modelContainer)
-            registerBackgroundTasks()
+            Self.registerBackgroundTasks(container: modelContainer)
         } catch {
             fatalError("Could not initialize ModelContainer: \(error)")
         }
@@ -154,8 +154,9 @@ struct VaultBoxApp: App {
 
     // MARK: - Background Indexing
 
-    private func registerBackgroundTasks() {
-        let container = self.modelContainer
+    /// Must stay nonisolated: BGTaskScheduler runs the handler on its own background queue,
+    /// and a closure formed in a @MainActor context traps there on Swift 6's isolation check.
+    private nonisolated static func registerBackgroundTasks(container: ModelContainer) {
         BGTaskScheduler.shared.register(
             forTaskWithIdentifier: Constants.bgTaskIdentifier,
             using: nil
