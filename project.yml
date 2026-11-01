@@ -41,7 +41,7 @@ targets:
       base:
         INFOPLIST_FILE: VaultBox/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.pack6.vaultbox
-        MARKETING_VERSION: "1.2.6"
+        MARKETING_VERSION: "1.2.7"
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
@@ -94,7 +94,7 @@ targets:
       base:
         INFOPLIST_FILE: VaultBoxShareExtension/Info.plist
         PRODUCT_BUNDLE_IDENTIFIER: com.pack6.vaultbox.ShareExtension
-        MARKETING_VERSION: "1.2.6"
+        MARKETING_VERSION: "1.2.7"
         CURRENT_PROJECT_VERSION: "1"
         TARGETED_DEVICE_FAMILY: "1,2"
         SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
