@@ -83,6 +83,31 @@ enum HideAppsRules {
         }
         return (mergedTokens, max(existing.until, until))
     }
+
+    /// The hidden sets to write, in order, to get from `current` to `target`.
+    ///
+    /// Apps are released one per step. iOS puts a single app that stops being hidden back
+    /// in its old Home Screen spot, but several released together land on a new page.
+    /// Apps that need hiding are hidden in the first step, all at once: hiding never moves
+    /// anything.
+    static func releaseSteps<Token: Hashable>(
+        from current: Set<Token>,
+        to target: Set<Token>
+    ) -> [Set<Token>] {
+        let toRelease = current.subtracting(target)
+        guard toRelease.count > 1 else { return [target] }
+
+        var step = current.union(target)
+        var steps: [Set<Token>] = []
+        if step != current {
+            steps.append(step)
+        }
+        for token in toRelease {
+            step.remove(token)
+            steps.append(step)
+        }
+        return steps
+    }
 }
 
 // MARK: - Persistence
@@ -98,24 +123,45 @@ enum HideAppsStore {
         defaults.set(data, forKey: HideAppsShared.stateKey)
     }
 
-    /// Writes `state` to Screen Time and returns it with any expired reveal dropped.
+    /// Writes `state` to Screen Time in one go and returns it with any expired reveal
+    /// dropped. Used by the extension, which only ever hides apps; the app releases apps
+    /// one at a time instead (see ``HideAppsRules/releaseSteps(from:to:)``).
     @discardableResult
     static func apply(_ state: HideAppsState, now: Date = .now) -> HideAppsState {
+        let state = dropExpiredReveal(state, now: now)
+        write(appsToHide(for: state, now: now))
+        return state
+    }
+
+    static func dropExpiredReveal(_ state: HideAppsState, now: Date) -> HideAppsState {
         var state = state
         if let reveal = state.reveal, !reveal.isActive(at: now) {
             state.reveal = nil
         }
-        let hidden = HideAppsRules.appsToHide(
+        return state
+    }
+
+    static func appsToHide(for state: HideAppsState, now: Date) -> Set<ApplicationToken> {
+        HideAppsRules.appsToHide(
             selected: state.selection.applicationTokens,
             isEnabled: state.isEnabled,
             revealed: state.reveal?.tokens,
             revealUntil: state.reveal?.until,
             now: now
         )
+    }
+
+    /// The apps Screen Time is hiding right now.
+    static func currentlyHidden() -> Set<ApplicationToken> {
+        let blocked = ManagedSettingsStore(named: HideAppsShared.storeName)
+            .application.blockedApplications ?? []
+        return Set(blocked.compactMap(\.token))
+    }
+
+    static func write(_ hidden: Set<ApplicationToken>) {
         let store = ManagedSettingsStore(named: HideAppsShared.storeName)
         store.application.blockedApplications = hidden.isEmpty
             ? nil
             : Set(hidden.map { Application(token: $0) })
-        return state
     }
 }

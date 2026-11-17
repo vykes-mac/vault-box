@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 @preconcurrency import DeviceActivity
 @preconcurrency import FamilyControls
 @preconcurrency import ManagedSettings
@@ -140,6 +141,12 @@ final class HideAppsService {
 
     @ObservationIgnored private let defaults: UserDefaults
     @ObservationIgnored private let activityCenter = DeviceActivityCenter()
+    @ObservationIgnored private var releaseTask: Task<Void, Never>?
+    @ObservationIgnored private var releaseBackgroundTask: UIBackgroundTaskIdentifier = .invalid
+
+    /// Gap between apps when several come back at once. iOS needs them released
+    /// separately to put each back in its own Home Screen spot.
+    private static let releaseInterval: Duration = .seconds(1)
 
     /// Where the pick lived before the app group, in the first Hide Apps builds.
     private static let legacySelectionKey = "hideApps.selection"
@@ -321,10 +328,51 @@ final class HideAppsService {
 
     // MARK: Private
 
+    /// Saves `next` and brings Screen Time in line with it.
+    ///
+    /// The state, and so the UI, updates at once; Screen Time catches up over a few seconds
+    /// when several apps come back, releasing them one at a time.
     private func commit(_ next: HideAppsState) {
-        let applied = isAuthorized ? HideAppsStore.apply(next) : next
-        state = applied
-        HideAppsStore.save(applied, to: defaults)
+        let next = HideAppsStore.dropExpiredReveal(next, now: .now)
+        state = next
+        HideAppsStore.save(next, to: defaults)
+        guard isAuthorized else { return }
+        applyToScreenTime(HideAppsStore.appsToHide(for: next, now: .now))
+    }
+
+    private func applyToScreenTime(_ target: Set<ApplicationToken>) {
+        releaseTask?.cancel()
+        let steps = HideAppsRules.releaseSteps(from: HideAppsStore.currentlyHidden(), to: target)
+        guard steps.count > 1 else {
+            HideAppsStore.write(target)
+            endReleaseBackgroundTask()
+            return
+        }
+
+        // Someone who taps "Show" usually leaves for the app straight away. Ask for a little
+        // background time so the rest still come back; if iOS cuts it short, the next
+        // launch finishes the job.
+        endReleaseBackgroundTask()
+        releaseBackgroundTask = UIApplication.shared.beginBackgroundTask(withName: "HideAppsRelease") { [weak self] in
+            self?.endReleaseBackgroundTask()
+        }
+
+        releaseTask = Task { [weak self] in
+            for (index, step) in steps.enumerated() {
+                if index > 0 {
+                    try? await Task.sleep(for: Self.releaseInterval)
+                }
+                guard !Task.isCancelled else { return }
+                HideAppsStore.write(step)
+            }
+            self?.endReleaseBackgroundTask()
+        }
+    }
+
+    private func endReleaseBackgroundTask() {
+        guard releaseBackgroundTask != .invalid else { return }
+        UIApplication.shared.endBackgroundTask(releaseBackgroundTask)
+        releaseBackgroundTask = .invalid
     }
 
     private func startRevealTimer(from start: Date, until end: Date) throws {

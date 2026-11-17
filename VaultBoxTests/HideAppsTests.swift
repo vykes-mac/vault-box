@@ -110,6 +110,44 @@ struct HideAppsTests {
         #expect(merged.tokens == [2])
     }
 
+    // MARK: - Releasing apps one at a time
+
+    @Test("Several apps come back one per step, ending at the target")
+    func releasesOneAtATime() {
+        let steps = HideAppsRules.releaseSteps(from: [1, 2, 3, 4], to: [4])
+
+        #expect(steps.count == 3)
+        #expect(steps.last == [4])
+        var previous: Set<Int> = [1, 2, 3, 4]
+        for step in steps {
+            #expect(previous.subtracting(step).count == 1)
+            #expect(step.isSubset(of: previous))
+            previous = step
+        }
+    }
+
+    @Test("Showing everything releases each app separately")
+    func showAllReleasesSeparately() {
+        let steps = HideAppsRules.releaseSteps(from: [1, 2, 3], to: [])
+        #expect(steps.map(\.count) == [2, 1, 0])
+    }
+
+    @Test("A single app, or only hiding, is written in one go")
+    func singleChangesAreImmediate() {
+        #expect(HideAppsRules.releaseSteps(from: [1, 2], to: [2]) == [[2]])
+        #expect(HideAppsRules.releaseSteps(from: [1], to: [1, 2, 3]) == [[1, 2, 3]])
+        #expect(HideAppsRules.releaseSteps(from: Set<Int>(), to: Set<Int>()) == [[]])
+    }
+
+    @Test("New apps are hidden first, before any app is released")
+    func hidesBeforeReleasing() {
+        let steps = HideAppsRules.releaseSteps(from: [1, 2], to: [3])
+
+        #expect(steps.first == [1, 2, 3])
+        #expect(steps.last == [3])
+        #expect(steps.count == 3)
+    }
+
     @Test("Timers are never shorter than Screen Time allows")
     func durationsRespectScreenTimeMinimum() {
         #expect(HideAppsRevealDuration.allCases.allSatisfy { $0.seconds >= 15 * 60 })
