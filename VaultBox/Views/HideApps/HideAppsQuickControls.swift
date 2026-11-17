@@ -1,3 +1,4 @@
+import StoreKit
 import SwiftUI
 
 // MARK: - Toolbar Menu
@@ -178,5 +179,98 @@ enum HideAppsCopy {
 
     static func someVisibleUntil(_ date: Date) -> String {
         String(localized: "Some hidden apps are showing until \(time(date)).")
+    }
+}
+
+// MARK: - Expiry Warning
+
+/// Warns, while auto-renew is off, that hidden apps will reappear when Premium ends.
+///
+/// The best moment to keep a subscriber is before the end date, while turning auto-renew
+/// back on still costs them nothing. Lives in the vault rather than a notification: a
+/// lock-screen notification would say "VaultBox", which gives away a disguised app.
+///
+/// "Keep Premium" opens Apple's subscription sheet rather than the paywall: these users are
+/// still subscribed, and turning renewal back on is all it takes.
+struct HideAppsExpiryWarningBanner: View {
+    @State private var showManageSubscription = false
+
+    @Environment(HideAppsService.self) private var hideApps
+    @Environment(PurchaseService.self) private var purchaseService
+    @Environment(AnalyticsService.self) private var analytics
+
+    /// The end date the user dismissed this for, as seconds since 1970 (0 = never).
+    @AppStorage("hideApps.expiryWarningDismissedFor") private var dismissedFor: Double = 0
+
+    var body: some View {
+        if isShowing, let expirationDate = purchaseService.entitlementExpirationDate {
+            HStack(alignment: .top, spacing: 10) {
+                Image(systemName: "clock.badge.exclamationmark")
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.vaultPremium)
+
+                VStack(alignment: .leading, spacing: 6) {
+                    Text(
+                        String(
+                            localized: "Your hidden apps will reappear on \(expirationDate.formatted(date: .abbreviated, time: .omitted)), when Premium ends."
+                        )
+                    )
+                    .font(.footnote)
+                    .foregroundStyle(Color.vaultTextPrimary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                    Button {
+                        analytics.record(.hideAppsExpiryWarningTapped(daysLeft: daysLeft(until: expirationDate)))
+                        showManageSubscription = true
+                    } label: {
+                        Text("Keep Premium")
+                            .font(.footnote.weight(.semibold))
+                    }
+                    .buttonStyle(.borderless)
+                }
+
+                Spacer(minLength: 0)
+
+                Button {
+                    dismissedFor = expirationDate.timeIntervalSince1970
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(Color.vaultTextSecondary)
+                        .frame(width: 28, height: 28)
+                }
+                .buttonStyle(.borderless)
+                .accessibilityLabel(Text("Close"))
+            }
+            .padding(.horizontal, Constants.standardPadding)
+            .padding(.vertical, 10)
+            .background(Color.vaultPremium.opacity(0.10))
+            .task(id: expirationDate) {
+                analytics.record(.hideAppsExpiryWarningViewed(daysLeft: daysLeft(until: expirationDate)))
+            }
+            .manageSubscriptionsSheet(isPresented: $showManageSubscription)
+            .onChange(of: showManageSubscription) { _, isShowing in
+                // Pick up a re-enabled renewal straight away so the banner goes.
+                guard !isShowing else { return }
+                Task { await purchaseService.checkPremiumStatus() }
+            }
+        }
+    }
+
+    private var isShowing: Bool {
+        HideAppsLapsePolicy.shouldWarnBeforeLapse(
+            isPremium: purchaseService.isPremium,
+            isLifetime: purchaseService.isLifetime,
+            willRenew: purchaseService.willRenew,
+            hasBillingIssue: purchaseService.hasBillingIssue,
+            expirationDate: purchaseService.entitlementExpirationDate,
+            isHidingApps: hideApps.isHiding,
+            dismissedForExpiration: dismissedFor > 0 ? Date(timeIntervalSince1970: dismissedFor) : nil,
+            now: .now
+        )
+    }
+
+    private func daysLeft(until date: Date) -> Int {
+        max(0, Int((date.timeIntervalSinceNow / 86_400).rounded(.up)))
     }
 }

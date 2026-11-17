@@ -164,6 +164,86 @@ struct HideAppsTests {
         #expect(HideAppsStore.load(from: defaults) == state)
     }
 
+    // MARK: - Premium ending
+
+    @Test("Apps only reappear after a lapse RevenueCat confirmed, in the real vault")
+    func lapseNeedsConfirmationAndRealVault() {
+        func ask(
+            main: Bool = true, decoy: Bool = false, premium: Bool = false,
+            confirmed: Bool = true, hiding: Bool = true
+        ) -> Bool {
+            HideAppsLapsePolicy.shouldAskAfterLapse(
+                isMainRoute: main, isDecoyMode: decoy, isPremium: premium,
+                hasConfirmedCustomerInfo: confirmed, isHidingApps: hiding
+            )
+        }
+
+        #expect(ask())
+        // An offline launch never looks like a lapse.
+        #expect(!ask(confirmed: false))
+        #expect(!ask(premium: true))
+        // Never in decoy mode, and never from behind the lock screen.
+        #expect(!ask(decoy: true))
+        #expect(!ask(main: false))
+        #expect(!ask(hiding: false))
+    }
+
+    @Test("The vault warns in the final week of a cancelled subscription")
+    func warnsBeforeCancelledPremiumEnds() {
+        func warn(
+            premium: Bool = true, lifetime: Bool = false, willRenew: Bool = false,
+            billingIssue: Bool = false, endsIn days: Double? = 3, hiding: Bool = true,
+            dismissedFor: Date? = nil
+        ) -> Bool {
+            HideAppsLapsePolicy.shouldWarnBeforeLapse(
+                isPremium: premium, isLifetime: lifetime, willRenew: willRenew,
+                hasBillingIssue: billingIssue,
+                expirationDate: days.map { now.addingTimeInterval($0 * 86_400) },
+                isHidingApps: hiding, dismissedForExpiration: dismissedFor, now: now
+            )
+        }
+
+        #expect(warn())
+        #expect(!warn(willRenew: true))
+        #expect(!warn(lifetime: true))
+        // Billing problems have their own recovery banner.
+        #expect(!warn(billingIssue: true))
+        #expect(!warn(endsIn: 10))
+        #expect(!warn(endsIn: nil))
+        #expect(!warn(hiding: false))
+        #expect(!warn(premium: false))
+    }
+
+    @Test("Dismissing the warning covers that end date only")
+    func dismissalIsPerEndDate() {
+        let end = now.addingTimeInterval(3 * 86_400)
+        func warn(dismissedFor: Date?) -> Bool {
+            HideAppsLapsePolicy.shouldWarnBeforeLapse(
+                isPremium: true, isLifetime: false, willRenew: false, hasBillingIssue: false,
+                expirationDate: end, isHidingApps: true,
+                dismissedForExpiration: dismissedFor, now: now
+            )
+        }
+
+        #expect(!warn(dismissedFor: end))
+        #expect(warn(dismissedFor: end.addingTimeInterval(-30 * 86_400)))
+    }
+
+    @Test("State saved before lapse support still loads")
+    func olderStateStillDecodes() throws {
+        let defaults = try #require(UserDefaults(suiteName: "HideAppsTests.\(UUID().uuidString)"))
+        var legacy = try #require(
+            try JSONSerialization.jsonObject(with: JSONEncoder().encode(HideAppsState(isEnabled: true)))
+                as? [String: Any]
+        )
+        legacy.removeValue(forKey: "lapsePausedAt")
+        defaults.set(try JSONSerialization.data(withJSONObject: legacy), forKey: HideAppsShared.stateKey)
+
+        let loaded = try #require(HideAppsStore.load(from: defaults))
+        #expect(loaded.isEnabled)
+        #expect(loaded.lapsePausedAt == nil)
+    }
+
     // MARK: - Selection rules
 
     @Test("Individual apps alone are a clean pick")
@@ -286,5 +366,7 @@ struct HideAppsTests {
         let shown = AnalyticsEvent.hideAppsShownTemporarily(entryPoint: .vault, minutes: 15, scope: .one)
         #expect(shown.name == "hide_apps_shown_temporarily")
         #expect(shown.parameters == ["entry_point": "vault", "minutes": "15", "scope": "one"])
+        #expect(AnalyticsEvent.hideAppsLapseResolved(outcome: .shown).parameters == ["outcome": "shown"])
+        #expect(AnalyticsEvent.hideAppsLapseViewed(appCount: 4).name == "hide_apps_lapse_viewed")
     }
 }

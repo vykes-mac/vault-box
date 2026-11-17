@@ -49,6 +49,7 @@
 		3D5F91416828E30DA38904EF /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 9BCF83440C91B074EC834D97 /* KeychainAccess */; };
 		3DA44B12A06E070FFAE505C8 /* WiFiTransferViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18BA8F9F454BBB1E8534B527 /* WiFiTransferViewModel.swift */; };
 		3EDECC72B7A18F3A69DB84AF /* OnboardingComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FA0D72411BA86681250B77C /* OnboardingComponents.swift */; };
+		3EF8983473A933659F6879B0 /* HideAppsLapseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FD8D85E776246F39344F1FA /* HideAppsLapseView.swift */; };
 		3F0CF2412BE0A0EEB4636048 /* PaywallGate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2D14DA424B3748D4AD21D55 /* PaywallGate.swift */; };
 		408C7A7EDCE1DB1B2F76273B /* View+ConditionalModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F02EB4950DDFCA8FF4AE109 /* View+ConditionalModifier.swift */; };
 		42EDD9B343383E39355D31A0 /* BreakInService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB8C4A92AF7EA29E82840486 /* BreakInService.swift */; };
@@ -296,6 +297,7 @@
 		5CD63DEF523AD296E1B212C9 /* HideAppsQuickControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsQuickControls.swift; sourceTree = "<group>"; };
 		5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		5DAAF6305764E8DEC418493E /* SearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchEngine.swift; sourceTree = "<group>"; };
+		5FD8D85E776246F39344F1FA /* HideAppsLapseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsLapseView.swift; sourceTree = "<group>"; };
 		613A77F664A6FA8CF727E567 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
 		62C52C942568D443FC617D06 /* SuggestionChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionChipView.swift; sourceTree = "<group>"; };
 		63205CE6AB8E5F2822603DCD /* DocumentReminder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReminder.swift; sourceTree = "<group>"; };
@@ -428,6 +430,7 @@
 		0342680AF0834BFD661FE149 /* HideApps */ = {
 			isa = PBXGroup;
 			children = (
+				5FD8D85E776246F39344F1FA /* HideAppsLapseView.swift */,
 				5CD63DEF523AD296E1B212C9 /* HideAppsQuickControls.swift */,
 				7796A63A1EC536159942576A /* HideAppsView.swift */,
 			);
@@ -1100,6 +1103,7 @@
 				ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */,
 				9C94B522956252B618FF338A /* HTTPParser.swift in Sources */,
 				B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */,
+				3EF8983473A933659F6879B0 /* HideAppsLapseView.swift in Sources */,
 				52C80B430869ED387CB6D2EA /* HideAppsQuickControls.swift in Sources */,
 				32D61D2A4C5078C38C32D5B0 /* HideAppsService.swift in Sources */,
 				6F240E38211EEFF6B90281F0 /* HideAppsState.swift in Sources */,

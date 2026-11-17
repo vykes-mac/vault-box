@@ -104,6 +104,13 @@ enum AnalyticsEvent {
     /// Shown for a while before hiding again on their own. `scope` says whether every
     /// hidden app or a single one was shown — never which.
     case hideAppsShownTemporarily(entryPoint: HideAppsEntryPoint, minutes: Int, scope: HideAppsRevealScope)
+    /// Premium ended with apps hidden; the end-of-Premium screen appeared.
+    case hideAppsLapseViewed(appCount: Int)
+    case hideAppsLapseRenewTapped
+    case hideAppsLapseResolved(outcome: HideAppsLapseOutcome)
+    /// The vault warned that hidden apps reappear when a cancelled Premium ends.
+    case hideAppsExpiryWarningViewed(daysLeft: Int)
+    case hideAppsExpiryWarningTapped(daysLeft: Int)
 
     // MARK: - Wire format
 
@@ -140,6 +147,11 @@ enum AnalyticsEvent {
         case .hideAppsApplied: "hide_apps_applied"
         case .hideAppsRevealed: "hide_apps_revealed"
         case .hideAppsShownTemporarily: "hide_apps_shown_temporarily"
+        case .hideAppsLapseViewed: "hide_apps_lapse_viewed"
+        case .hideAppsLapseRenewTapped: "hide_apps_lapse_renew_tapped"
+        case .hideAppsLapseResolved: "hide_apps_lapse_resolved"
+        case .hideAppsExpiryWarningViewed: "hide_apps_expiry_warning_viewed"
+        case .hideAppsExpiryWarningTapped: "hide_apps_expiry_warning_tapped"
         }
     }
 
@@ -147,7 +159,8 @@ enum AnalyticsEvent {
         switch self {
         case .onboardingStarted, .pinSetupStarted, .pinCreated,
              .securitySetupViewed,
-             .disguiseUnlockGuideCompleted:
+             .disguiseUnlockGuideCompleted,
+             .hideAppsLapseRenewTapped:
             return [:]
 
         case .onboardingStepViewed(let step):
@@ -246,6 +259,16 @@ enum AnalyticsEvent {
 
         case .hideAppsApplied(let entryPoint, let appCount):
             return ["entry_point": entryPoint.rawValue, "app_count": String(appCount)]
+
+        case .hideAppsLapseViewed(let appCount):
+            return ["app_count": String(appCount)]
+
+        case .hideAppsLapseResolved(let outcome):
+            return ["outcome": outcome.rawValue]
+
+        case .hideAppsExpiryWarningViewed(let daysLeft),
+             .hideAppsExpiryWarningTapped(let daysLeft):
+            return ["days_left": String(daysLeft)]
 
         case .hideAppsShownTemporarily(let entryPoint, let minutes, let scope):
             return [

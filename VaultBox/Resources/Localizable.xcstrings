@@ -39288,52 +39288,6 @@
         }
       }
     },
-    "Your apps stay hidden. Renew Premium to change which ones." : {
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Deine Apps bleiben ausgeblendet. Verlängere Premium, um die Auswahl zu ändern."
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Tus apps siguen ocultas. Renueva Premium para cambiar cuáles."
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Vos apps restent masquées. Renouvelez Premium pour modifier la sélection."
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Le tue app restano nascoste. Rinnova Premium per cambiare quali."
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Appは非表示のままです。対象を変更するにはプレミアムを更新してください。"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "앱은 계속 숨겨져 있습니다. 숨길 앱을 바꾸려면 프리미엄을 갱신하세요."
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Seus apps continuam ocultos. Renove o Premium para mudar quais."
-          }
-        }
-      }
-    },
     "Hidden from your Home Screen, App Library and search." : {
       "localizations" : {
         "de" : {
@@ -41584,6 +41538,420 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Para usar um app oculto, mostre-o por um tempo daqui ou pelo botão de olho acima do seu cofre."
+          }
+        }
+      }
+    },
+    "Premium has ended" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium ist abgelaufen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium ha terminado"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium a pris fin"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium è scaduto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムが終了しました"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄이 종료되었습니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Premium terminou"
+          }
+        }
+      }
+    },
+    "Hide Apps is part of Premium. Renew to keep your %lld hidden apps out of sight, or show them now." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps ausblenden gehört zu Premium. Verlängere, damit deine %lld ausgeblendeten Apps verborgen bleiben, oder zeige sie jetzt an."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar apps es parte de Premium. Renueva para mantener ocultas tus %lld apps, o muéstralas ahora."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Masquer des apps fait partie de Premium. Renouvelez pour garder vos %lld apps masquées, ou affichez-les maintenant."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nascondi app fa parte di Premium. Rinnova per tenere nascoste le tue %lld app, oppure mostrale ora."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "「Appを非表示」はプレミアムの機能です。更新すると%lld個のAppを非表示のままにできます。今すぐ表示することもできます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "앱 숨기기는 프리미엄 기능입니다. 갱신하면 숨긴 앱 %lld개를 계속 숨길 수 있고, 지금 표시할 수도 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar Apps faz parte do Premium. Renove para manter seus %lld apps ocultos, ou mostre-os agora."
+          }
+        }
+      }
+    },
+    "Break-in photos, the decoy vault, and encrypted backup have also stopped, and your vault is limited to %lld items again." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Einbruchsfotos, der Täuschungstresor und das verschlüsselte Backup wurden ebenfalls beendet, und dein Tresor ist wieder auf %lld Objekte begrenzt."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Las fotos de intrusos, la bóveda señuelo y el respaldo cifrado también se detuvieron, y tu bóveda vuelve a estar limitada a %lld elementos."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Les photos d’intrusion, le coffre leurre et la sauvegarde chiffrée sont aussi arrêtés, et votre coffre est de nouveau limité à %lld éléments."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Anche le foto degli intrusi, la cassaforte esca e il backup crittografato si sono fermati, e la cassaforte è di nuovo limitata a %lld elementi."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "侵入者の写真、ダミー保管庫、暗号化バックアップも停止し、保管庫は再び%lld項目までに制限されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "침입자 사진, 미끼 보관함, 암호화 백업도 중지되었으며 보관함은 다시 %lld개 항목으로 제한됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As fotos de intrusos, o cofre isca e o backup criptografado também pararam, e seu cofre volta a ter limite de %lld itens."
+          }
+        }
+      }
+    },
+    "Renew to Keep Them Hidden" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Verlängern und verborgen halten"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar para mantenerlas ocultas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renouveler pour les garder masquées"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rinnova per tenerle nascoste"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "更新して非表示のままにする"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "갱신하고 계속 숨기기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Renovar para manter ocultos"
+          }
+        }
+      }
+    },
+    "Show My Apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Meine Apps anzeigen"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar mis apps"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Afficher mes apps"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostra le mie app"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Appを表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "내 앱 표시"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar meus apps"
+          }
+        }
+      }
+    },
+    "And %lld more" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Und %lld weitere"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Y %lld más"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Et %lld de plus"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E altre %lld"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ほか%lld個"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "외 %lld개"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E mais %lld"
+          }
+        }
+      }
+    },
+    "Premium has ended. Renew to keep these apps hidden, or turn this off to show them." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium ist abgelaufen. Verlängere, damit diese Apps verborgen bleiben, oder deaktiviere dies, um sie anzuzeigen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium ha terminado. Renueva para mantener ocultas estas apps, o desactiva esta opción para mostrarlas."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium a pris fin. Renouvelez pour garder ces apps masquées, ou désactivez cette option pour les afficher."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium è scaduto. Rinnova per tenere nascoste queste app, oppure disattiva l’opzione per mostrarle."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムが終了しました。更新するとこれらのAppを非表示のままにできます。オフにすると表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄이 종료되었습니다. 갱신하면 이 앱들을 계속 숨길 수 있고, 끄면 표시됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O Premium terminou. Renove para manter estes apps ocultos, ou desative para mostrá-los."
+          }
+        }
+      }
+    },
+    "Your hidden apps will reappear on %@, when Premium ends." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine ausgeblendeten Apps werden am %@ wieder sichtbar, wenn Premium endet."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus apps ocultas volverán a aparecer el %@, cuando termine Premium."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos apps masquées réapparaîtront le %@, à la fin de Premium."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue app nascoste ricompariranno il %@, alla scadenza di Premium."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムが終了する%@に、非表示のAppが再び表示されます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄이 종료되는 %@에 숨긴 앱이 다시 나타납니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seus apps ocultos vão reaparecer em %@, quando o Premium terminar."
+          }
+        }
+      }
+    },
+    "Keep Premium" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Premium behalten"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantener Premium"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Garder Premium"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mantieni Premium"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "プレミアムを継続"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "프리미엄 유지"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Manter Premium"
           }
         }
       }

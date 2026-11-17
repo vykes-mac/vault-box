@@ -345,6 +345,10 @@ struct VaultGridView: View {
                 HideAppsVisibleBanner(onManage: manageHiddenApps)
             }
 
+            if hideAppsService.isAvailable && !isDecoyMode {
+                HideAppsExpiryWarningBanner()
+            }
+
             if !purchaseService.isPremium && vaultService.isAtFreeLimit() {
                 freeLimitBanner
             }

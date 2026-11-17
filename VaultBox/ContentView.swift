@@ -14,6 +14,7 @@ struct ContentView: View {
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(AppPrivacyShield.self) private var privacyShield
     @Environment(AnalyticsService.self) private var analytics
+    @Environment(HideAppsService.self) private var hideAppsService
 
     @State private var authService: AuthService?
     @State private var vaultService: VaultService?
@@ -44,6 +45,9 @@ struct ContentView: View {
     /// being swallowed by a flag set months earlier.
     @AppStorage("disguise.hasShownLapseNotice") private var hasShownDisguiseLapseNotice = false
     @State private var lapsedDisguise: AppDisguise?
+    @State private var showHideAppsLapse = false
+    @State private var showHideAppsLapsePaywall = false
+    @State private var hideAppsLapseDisguise: AppDisguise?
 
     private var hasCompletedOnboarding: Bool {
         let descriptor = FetchDescriptor<AppSettings>()
@@ -160,6 +164,12 @@ struct ContentView: View {
             handlePremiumStatusChange(isPremium: purchaseService.isPremium)
             presentHardPaywallIfNeeded()
         }
+        .onChange(of: purchaseService.hasConfirmedCustomerInfo) { _, hasConfirmed in
+            // A lapse can only be acted on once RevenueCat itself has answered, which can
+            // land after the other checks have already run with nothing to go on.
+            guard hasConfirmed else { return }
+            presentHideAppsLapseIfNeeded()
+        }
         .onChange(of: purchaseService.hasResolvedPaywallConfiguration) { _, hasResolved in
             guard hasResolved else { return }
             presentHardPaywallIfNeeded()
@@ -178,6 +188,7 @@ struct ContentView: View {
                 PaywallGate.markSatisfied()
                 showPostSetupPaywall = false
                 hasShownDisguiseLapseNotice = false
+                resolveHideAppsLapseByRenewal()
             } else {
                 presentHardPaywallIfNeeded()
             }
@@ -199,6 +210,26 @@ struct ContentView: View {
                     }
                 )
                 .task { analytics.record(.securitySetupViewed) }
+            }
+        }
+        .fullScreenCover(isPresented: $showHideAppsLapse, onDismiss: {
+            // Showing the apps comes first; a hard-gated user meets the paywall after.
+            presentHardPaywallIfNeeded()
+        }) {
+            HideAppsLapseView(
+                disguise: hideAppsLapseDisguise,
+                onShowApps: {
+                    hideAppsService.showAllForLapse()
+                    analytics.record(.hideAppsLapseResolved(outcome: .shown))
+                    showHideAppsLapse = false
+                },
+                onRenew: {
+                    analytics.record(.hideAppsLapseRenewTapped)
+                    showHideAppsLapsePaywall = true
+                }
+            )
+            .sheet(isPresented: $showHideAppsLapsePaywall) {
+                VaultBoxPaywallView(placement: .subscriptionLapsed)
             }
         }
         .fullScreenCover(isPresented: $showPostSetupPaywall) {
@@ -430,6 +461,9 @@ struct ContentView: View {
     /// cold launch after they force-quit rather than choose a plan.
     private func presentHardPaywallIfNeeded() {
         guard !showPostSetupPaywall else { return }
+        // A lapsed hard-gated user would otherwise sit behind the paywall with their apps
+        // hidden and no way to bring them back. The lapse screen goes first.
+        if presentHideAppsLapseIfNeeded() || showHideAppsLapse { return }
         guard shouldPresentHardPaywall(
             route: currentRoute,
             accessState: hardPaywallAccessState
@@ -438,7 +472,48 @@ struct ContentView: View {
         showPostSetupPaywall = true
     }
 
+    /// Presents the end-of-Premium screen for hidden apps when it applies.
+    /// - Returns: whether it is now showing.
+    @discardableResult
+    private func presentHideAppsLapseIfNeeded() -> Bool {
+        guard !showHideAppsLapse else { return true }
+        guard hideAppsService.isAvailable,
+              HideAppsLapsePolicy.shouldAskAfterLapse(
+                  isMainRoute: currentRoute == .main,
+                  isDecoyMode: authService?.isDecoyMode ?? true,
+                  isPremium: purchaseService.isPremium,
+                  hasConfirmedCustomerInfo: purchaseService.hasConfirmedCustomerInfo,
+                  isHidingApps: hideAppsService.isHiding
+              )
+        else { return false }
+
+        // One end-of-Premium message: this screen also covers the disguise notice.
+        hideAppsLapseDisguise = AppDisguise(iconName: UIApplication.shared.alternateIconName)
+        hasShownDisguiseLapseNotice = true
+        lapsedDisguise = nil
+        showPostSetupPaywall = false
+        showHideAppsLapse = true
+        analytics.record(.hideAppsLapseViewed(appCount: hideAppsService.selectedAppCount))
+        return true
+    }
+
+    /// Premium came back: close the lapse screen if it is up, and hide again any apps that
+    /// were shown because Premium ended.
+    private func resolveHideAppsLapseByRenewal() {
+        if showHideAppsLapse {
+            showHideAppsLapsePaywall = false
+            showHideAppsLapse = false
+            analytics.record(.hideAppsLapseResolved(outcome: .renewed))
+        }
+        if hideAppsService.resumeAfterRenewal() {
+            analytics.record(
+                .hideAppsApplied(entryPoint: .renewal, appCount: hideAppsService.hiddenAppCount)
+            )
+        }
+    }
+
     private func presentDisguiseLapseNoticeIfNeeded() {
+        if presentHideAppsLapseIfNeeded() { return }
         guard shouldPresentDisguiseLapseNotice(
             isMainRoute: currentRoute == .main,
             isPremium: purchaseService.isPremium,
@@ -508,6 +583,9 @@ struct ContentView: View {
 
     private func dismissActivePresentationsForLock() {
         showImporter = false
+        // Comes back on the next unlock if Premium still hasn't been renewed.
+        showHideAppsLapsePaywall = false
+        showHideAppsLapse = false
         showPostOnboardingSecuritySetup = false
         showPostSetupPaywall = false
 

@@ -43,6 +43,9 @@ struct HideAppsState: Codable, Equatable, Sendable {
     /// it and expires; turning this off shows everything until they turn it back on.
     var isEnabled = false
     var reveal: HideAppsReveal?
+    /// Set when the apps were shown because Premium ended, so renewing can hide the same
+    /// apps again without asking the user to pick them a second time.
+    var lapsePausedAt: Date?
 }
 
 // MARK: - Rules

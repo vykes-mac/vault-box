@@ -166,7 +166,7 @@ struct HideAppsView: View {
 
     private var hidingFooter: String {
         if isLocked && hideApps.isHiding {
-            return String(localized: "Your apps stay hidden. Renew Premium to change which ones.")
+            return String(localized: "Premium has ended. Renew to keep these apps hidden, or turn this off to show them.")
         }
         if hideApps.isHiding {
             return String(localized: "Hidden from your Home Screen, App Library and search.")

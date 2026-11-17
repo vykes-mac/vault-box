@@ -62,6 +62,13 @@ class PurchaseService: NSObject {
     /// `entitlementExpirationDate` unless the customer fixes their payment method.
     private(set) var billingIssueDetectedAt: Date?
     private(set) var entitlementExpirationDate: Date?
+    /// False once the customer has turned off auto-renew (or Apple can't renew). Premium
+    /// continues until `entitlementExpirationDate`.
+    private(set) var willRenew = true
+    /// True only after RevenueCat itself answered. `hasResolvedCustomerInfo` also turns
+    /// true when the lookup fails, which is right for the paywall gate but far too weak for
+    /// anything that undoes a protection: an offline launch must never look like a lapse.
+    private(set) var hasConfirmedCustomerInfo = false
     /// Premium comes from a non-expiring purchase rather than a subscription.
     private(set) var isLifetime = false
     /// Apple does not cancel an existing subscription when the customer buys lifetime,
@@ -361,8 +368,10 @@ class PurchaseService: NSObject {
         isPremium = hasPremium
         isTrial = hasPremium && entitlementIsTrial
         hasResolvedCustomerInfo = true
+        hasConfirmedCustomerInfo = true
         billingIssueDetectedAt = entitlement?.billingIssueDetectedAt
         entitlementExpirationDate = entitlement?.expirationDate
+        willRenew = entitlement?.willRenew == true && entitlement?.unsubscribeDetectedAt == nil
         isLifetime = hasPremium && Self.isLifetimeAccess(
             entitlementIsActive: entitlement?.isActive == true,
             expirationDate: entitlement?.expirationDate

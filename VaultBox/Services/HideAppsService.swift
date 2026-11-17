@@ -33,6 +33,14 @@ enum HideAppsEntryPoint: String, Sendable {
     case checklist
     /// The eye button in the vault's toolbar.
     case vault
+    /// Re-hidden automatically when Premium came back after a lapse.
+    case renewal
+}
+
+/// How the end-of-Premium screen for hidden apps was resolved.
+enum HideAppsLapseOutcome: String, Sendable {
+    case renewed
+    case shown
 }
 
 /// Whether a temporary reveal covers every hidden app or a single one.
@@ -114,16 +122,63 @@ enum HideAppsSelectionIssue: Equatable, Sendable {
     }
 }
 
+// MARK: - Premium Lapse
+
+/// When hidden apps come back because Premium ended, and when to warn first.
+///
+/// Hidden apps must not stay hidden for free forever, or a trial would buy the feature for
+/// good. But for a privacy app the worst outcome is a private app reappearing while
+/// someone else holds the phone, so every rule here leans towards waiting:
+/// - only a lapse RevenueCat itself confirmed counts (never an offline launch, never
+///   Apple's billing grace period, during which Premium is still active);
+/// - nothing reappears until the user has opened the real vault and read why;
+/// - while auto-renew is off, they're warned in the vault before the end date.
+enum HideAppsLapsePolicy {
+    /// How far ahead of the end date the vault starts warning.
+    static let warningWindow: TimeInterval = 7 * 24 * 60 * 60
+
+    static func shouldAskAfterLapse(
+        isMainRoute: Bool,
+        isDecoyMode: Bool,
+        isPremium: Bool,
+        hasConfirmedCustomerInfo: Bool,
+        isHidingApps: Bool
+    ) -> Bool {
+        isMainRoute && !isDecoyMode && hasConfirmedCustomerInfo && !isPremium && isHidingApps
+    }
+
+    static func shouldWarnBeforeLapse(
+        isPremium: Bool,
+        isLifetime: Bool,
+        willRenew: Bool,
+        hasBillingIssue: Bool,
+        expirationDate: Date?,
+        isHidingApps: Bool,
+        dismissedForExpiration: Date?,
+        now: Date
+    ) -> Bool {
+        guard isPremium, !isLifetime, !willRenew, !hasBillingIssue, isHidingApps,
+              let expirationDate, expirationDate > now,
+              expirationDate.timeIntervalSince(now) <= warningWindow
+        else { return false }
+        // Dismissing covers this end date only; a new one (after resubscribing and
+        // cancelling again) warns again.
+        guard let dismissedForExpiration else { return true }
+        return abs(dismissedForExpiration.timeIntervalSince(expirationDate)) > 1
+    }
+}
+
 // MARK: - Service
 
 /// Hides other apps from the Home Screen, App Library and search through Screen Time.
 ///
 /// Uses `ManagedSettingsStore.application.blockedApplications`, which removes the apps
 /// rather than `shield`, which only dims them. Hidden apps stay hidden after VaultBox
-/// closes, after a restart, and after a subscription lapses; the user brings them back
-/// from inside VaultBox, by revoking Screen Time access in Settings, or by deleting
-/// VaultBox. All three are deliberate escape hatches: nobody can be locked out of their
-/// own apps.
+/// closes and after a restart; the user brings them back from inside VaultBox, by
+/// revoking Screen Time access in Settings, or by deleting VaultBox. All three are
+/// deliberate escape hatches: nobody can be locked out of their own apps. When Premium
+/// ends they come back too, but only after the user has seen why; see
+/// ``HideAppsLapsePolicy``.
 ///
 /// Apps can also be shown for a while — all of them or one — and hide again on their own.
 /// The timer is a Screen Time schedule, and the HideAppsMonitor extension re-hides the apps
@@ -272,6 +327,7 @@ final class HideAppsService {
         var next = state
         next.isEnabled = true
         next.reveal = nil
+        next.lapsePausedAt = nil
         activityCenter.stopMonitoring([HideAppsShared.revealActivity])
         commit(next)
     }
@@ -282,8 +338,32 @@ final class HideAppsService {
         var next = state
         next.isEnabled = false
         next.reveal = nil
+        next.lapsePausedAt = nil
         activityCenter.stopMonitoring([HideAppsShared.revealActivity])
         commit(next)
+    }
+
+    /// Shows every picked app because Premium ended, remembering the pick so renewing can
+    /// hide the same apps again.
+    func showAllForLapse(now: Date = .now) {
+        guard isAvailable else { return }
+        var next = state
+        next.isEnabled = false
+        next.reveal = nil
+        next.lapsePausedAt = now
+        activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        commit(next)
+    }
+
+    /// Hides the apps shown at a lapse again once Premium is back.
+    /// - Returns: whether anything was hidden.
+    @discardableResult
+    func resumeAfterRenewal() -> Bool {
+        guard isAvailable, isAuthorized, state.lapsePausedAt != nil,
+              !state.selection.applicationTokens.isEmpty
+        else { return false }
+        hide()
+        return true
     }
 
     /// Shows apps for a while, then hides them again on their own.
