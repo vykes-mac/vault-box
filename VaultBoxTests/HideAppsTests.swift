@@ -164,6 +164,21 @@ struct HideAppsTests {
         #expect(HideAppsStore.load(from: defaults) == state)
     }
 
+    @Test("The locked-phone copy of the state survives a round trip through its file")
+    func stateFileRoundTrips() throws {
+        let url = FileManager.default.temporaryDirectory
+            .appendingPathComponent("HideAppsTests-\(UUID().uuidString)", isDirectory: true)
+            .appendingPathComponent("state.json")
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+        let state = HideAppsState(
+            isEnabled: true,
+            reveal: HideAppsReveal(tokens: nil, until: now)
+        )
+        #expect(HideAppsStore.load(fromFile: url) == nil)
+        HideAppsStore.save(state, toFile: url)
+        #expect(HideAppsStore.load(fromFile: url) == state)
+    }
+
     // MARK: - Premium ending
 
     @Test("Apps only reappear after a lapse RevenueCat confirmed, in the real vault")

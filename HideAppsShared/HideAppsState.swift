@@ -126,6 +126,54 @@ enum HideAppsStore {
         defaults.set(data, forKey: HideAppsShared.stateKey)
     }
 
+    // MARK: Shared file
+
+    /// A copy of the state in a file of its own in the app group.
+    ///
+    /// The extension usually runs while the phone is locked, which is exactly when a
+    /// reveal tends to run out. A file with "until first unlock" protection can be read
+    /// then; the shared defaults are not something we control. It holds only Screen
+    /// Time's opaque tokens, which name no app outside Screen Time.
+    static var sharedStateFileURL: URL? {
+        FileManager.default
+            .containerURL(forSecurityApplicationGroupIdentifier: HideAppsShared.appGroupIdentifier)?
+            .appendingPathComponent("HideApps", isDirectory: true)
+            .appendingPathComponent("state.json")
+    }
+
+    static func load(fromFile url: URL) -> HideAppsState? {
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return try? JSONDecoder().decode(HideAppsState.self, from: data)
+    }
+
+    static func save(_ state: HideAppsState, toFile url: URL) {
+        guard let data = try? JSONEncoder().encode(state) else { return }
+        try? FileManager.default.createDirectory(
+            at: url.deletingLastPathComponent(),
+            withIntermediateDirectories: true,
+            attributes: [.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
+        )
+        try? data.write(to: url, options: [.atomic, .completeFileProtectionUntilFirstUserAuthentication])
+    }
+
+    /// The state as the extension sees it: the file first, the shared defaults second.
+    static func loadShared() -> HideAppsState? {
+        if let url = sharedStateFileURL, let state = load(fromFile: url) {
+            return state
+        }
+        guard let defaults = HideAppsShared.defaults else { return nil }
+        return load(from: defaults)
+    }
+
+    static func saveShared(_ state: HideAppsState) {
+        if let url = sharedStateFileURL {
+            save(state, toFile: url)
+        }
+        if let defaults = HideAppsShared.defaults {
+            save(state, to: defaults)
+        }
+    }
+
     /// Writes `state` to Screen Time in one go and returns it with any expired reveal
     /// dropped. Used by the extension, which only ever hides apps; the app releases apps
     /// one at a time instead (see ``HideAppsRules/releaseSteps(from:to:)``).

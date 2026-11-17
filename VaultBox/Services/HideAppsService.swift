@@ -195,6 +195,8 @@ final class HideAppsService {
     private(set) var state = HideAppsState()
 
     @ObservationIgnored private let defaults: UserDefaults
+    /// The copy of the state the extension reads while the phone is locked.
+    @ObservationIgnored private let stateFile: URL?
     @ObservationIgnored private let activityCenter = DeviceActivityCenter()
     @ObservationIgnored private var releaseTask: Task<Void, Never>?
     @ObservationIgnored private var releaseBackgroundTask: UIBackgroundTaskIdentifier = .invalid
@@ -208,16 +210,21 @@ final class HideAppsService {
 
     init(
         isAvailable: Bool = HideAppsAvailability.isEnabled,
-        defaults: UserDefaults? = HideAppsShared.defaults
+        defaults: UserDefaults? = HideAppsShared.defaults,
+        stateFile: URL? = HideAppsStore.sharedStateFileURL
     ) {
         self.isAvailable = isAvailable
         self.defaults = defaults ?? .standard
+        self.stateFile = stateFile
         guard isAvailable else { return }
         #if DEBUG
         // The pre-release test screen used its own store. Never leave its blocks behind.
         ManagedSettingsStore(named: ManagedSettingsStore.Name("hideAppsLab")).clearAllSettings()
         #endif
-        state = HideAppsStore.load(from: self.defaults) ?? Self.migratedState()
+        // The file first: the extension may have updated it while the phone was locked.
+        state = stateFile.flatMap(HideAppsStore.load(fromFile:))
+            ?? HideAppsStore.load(from: self.defaults)
+            ?? Self.migratedState()
         refresh()
     }
 
@@ -416,6 +423,9 @@ final class HideAppsService {
         let next = HideAppsStore.dropExpiredReveal(next, now: .now)
         state = next
         HideAppsStore.save(next, to: defaults)
+        if let stateFile {
+            HideAppsStore.save(next, toFile: stateFile)
+        }
         guard isAuthorized else { return }
         applyToScreenTime(HideAppsStore.appsToHide(for: next, now: .now))
     }
@@ -456,8 +466,12 @@ final class HideAppsService {
     }
 
     private func startRevealTimer(from start: Date, until end: Date) throws {
+        // Time of day only. Schedules that also carry the year, month and day are the ones
+        // developers report never reaching intervalDidEnd (Apple forums 774285, 751597);
+        // time-of-day schedules are the form Apple documents and Screen Time apps rely on.
+        // A reveal never lasts a day, and an end earlier than the start rolls to tomorrow.
         let calendar = Calendar.current
-        let parts: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
+        let parts: Set<Calendar.Component> = [.hour, .minute, .second]
         let schedule = DeviceActivitySchedule(
             intervalStart: calendar.dateComponents(parts, from: start),
             intervalEnd: calendar.dateComponents(parts, from: end),
