@@ -187,7 +187,7 @@ struct ActivationChecklistTests {
     @Test("Wire names are stable and unique")
     func analyticsNamesAreStable() {
         let names = ActivationStep.allCases.map(\.analyticsName)
-        #expect(names == ["secured", "disguise", "first_import", "secure_share"])
+        #expect(names == ["secured", "disguise", "first_import", "hide_apps", "secure_share"])
         #expect(Set(names).count == names.count)
     }
 }

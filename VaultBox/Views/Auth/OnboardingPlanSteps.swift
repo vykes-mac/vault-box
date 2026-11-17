@@ -12,13 +12,17 @@ struct OnboardingBuildingStep: View {
     @State private var completedCount = 0
 
     private var tasks: [String] {
-        [
+        var tasks = [
             String(localized: "Generating your 256-bit encryption key"),
             String(localized: "Configuring vault for \(answers.targetSummary)"),
             String(localized: "Arming break-in detection"),
-            String(localized: "Hiding VaultBox from the Photos app"),
-            String(localized: "Sealing your vault")
+            String(localized: "Hiding VaultBox from the Photos app")
         ]
+        if HideAppsAvailability.isEnabled {
+            tasks.append(String(localized: "Preparing app hiding"))
+        }
+        tasks.append(String(localized: "Sealing your vault"))
+        return tasks
     }
 
     private var progress: Double {
@@ -136,6 +140,14 @@ struct OnboardingPlanStep: View {
                         title: String(localized: "Encrypted storage for \(answers.targetSummary)"),
                         detail: String(localized: "Locked with AES-256 the second it's imported, and wiped from your camera roll.")
                     )
+
+                    if HideAppsAvailability.isEnabled {
+                        OnboardingFactRow(
+                            icon: "eye.slash.fill",
+                            title: String(localized: "Hidden apps"),
+                            detail: String(localized: "Pick any app, like dating or chat apps, and it vanishes from your Home Screen. Only VaultBox brings it back.")
+                        )
+                    }
 
                     ForEach(answers.exposureRisks) { risk in
                         OnboardingFactRow(

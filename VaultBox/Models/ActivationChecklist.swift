@@ -9,13 +9,17 @@ import Foundation
 /// promise the ad made, and keeping that promise inside the first session is what makes
 /// the app feel like the thing they tapped on. Importing comes second because it is what
 /// makes them *stay* — a disguised empty vault protects nothing, and a user whose vault
-/// is still empty on day two has no reason to keep paying.
+/// is still empty on day two has no reason to keep paying. Hiding other apps follows the
+/// import: it extends the same promise to the rest of the phone, but only once the vault
+/// itself holds something worth protecting.
 enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
     /// Already done by everyone who can see this list. Present on purpose — see
     /// ``ActivationChecklist/isSecured``.
     case secured
     case disguise
     case firstImport
+    /// Only on builds that can hide apps; see ``ActivationChecklist/steps``.
+    case hideApps
     case secureShare
 
     var id: String { rawValue }
@@ -25,6 +29,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: String(localized: "Your vault is locked")
         case .disguise: String(localized: "Hide it on your Home Screen")
         case .firstImport: String(localized: "Move your first files in")
+        case .hideApps: String(localized: "Hide your private apps")
         case .secureShare: String(localized: "Share Securely")
         }
     }
@@ -37,6 +42,8 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
             String(localized: "Make VaultBox look like a calculator or a clock.")
         case .firstImport:
             String(localized: "They leave Photos and land here, encrypted.")
+        case .hideApps:
+            String(localized: "Make apps like dating or chat apps vanish from your Home Screen.")
         case .secureShare:
             String(localized: "The recipient needs VaultBox installed to view the file. The link expires automatically.")
         }
@@ -49,6 +56,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: String(localized: "Done")
         case .disguise: String(localized: "Choose a disguise")
         case .firstImport: String(localized: "Add files")
+        case .hideApps: String(localized: "Choose apps")
         case .secureShare: String(localized: "Create Share Link")
         }
     }
@@ -58,6 +66,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: "lock.fill"
         case .disguise: "app.dashed"
         case .firstImport: "square.and.arrow.down.fill"
+        case .hideApps: "eye.slash.fill"
         case .secureShare: "clock.badge.checkmark"
         }
     }
@@ -68,6 +77,7 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
         case .secured: "secured"
         case .disguise: "disguise"
         case .firstImport: "first_import"
+        case .hideApps: "hide_apps"
         case .secureShare: "secure_share"
         }
     }
@@ -77,19 +87,35 @@ enum ActivationStep: String, CaseIterable, Identifiable, Sendable {
 
 /// Completion state of the first-run checklist.
 ///
-/// Every step is *derived* from something observably true — the live alternate icon name
-/// and the real item count — rather than from a "user tapped this" flag. A checklist that
+/// Every step is *derived* from something observably true — the live alternate icon name,
+/// the real item count, and whether Screen Time is hiding apps right now — rather than from a "user tapped this" flag. A checklist that
 /// bookkeeps its own progress can drift out of sync with the app (icon reverted on a
 /// lapsed subscription, items deleted) and then lies to the user. This one cannot.
 struct ActivationChecklist: Equatable, Sendable {
     var isDisguised: Bool
     var hasItems: Bool
     var hasShared: Bool
+    /// Whether this build can hide apps at all. When it can't, the step isn't listed.
+    var includesHideApps: Bool
+    var isHidingApps: Bool
 
-    init(isDisguised: Bool, hasItems: Bool, hasShared: Bool = false) {
+    init(
+        isDisguised: Bool,
+        hasItems: Bool,
+        hasShared: Bool = false,
+        includesHideApps: Bool = false,
+        isHidingApps: Bool = false
+    ) {
         self.isDisguised = isDisguised
         self.hasItems = hasItems
         self.hasShared = hasShared
+        self.includesHideApps = includesHideApps
+        self.isHidingApps = isHidingApps
+    }
+
+    /// The steps shown, in order.
+    var steps: [ActivationStep] {
+        ActivationStep.allCases.filter { $0 != .hideApps || includesHideApps }
     }
 
     /// Always true: the vault is unreachable without a PIN, so anyone who can see this
@@ -103,20 +129,21 @@ struct ActivationChecklist: Equatable, Sendable {
         case .secured: isSecured
         case .disguise: isDisguised
         case .firstImport: hasItems
+        case .hideApps: isHidingApps
         case .secureShare: hasShared
         }
     }
 
     var completedCount: Int {
-        ActivationStep.allCases.filter { isComplete($0) }.count
+        steps.filter { isComplete($0) }.count
     }
 
-    var totalCount: Int { ActivationStep.allCases.count }
+    var totalCount: Int { steps.count }
 
     /// The first unfinished step, used to give exactly one row the primary emphasis.
     /// Two competing calls to action on one screen is the same as none.
     var nextStep: ActivationStep? {
-        ActivationStep.allCases.first { !isComplete($0) }
+        steps.first { !isComplete($0) }
     }
 
     var isFullyComplete: Bool { nextStep == nil }

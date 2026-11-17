@@ -10,8 +10,19 @@ enum ProtectionTarget: String, CaseIterable, Identifiable, Sendable {
     case documents
     case videos
     case work
+    /// Other apps the user wants off their Home Screen. Only offered when this build can
+    /// actually hide apps; see ``available(hideAppsEnabled:)``.
+    case apps
 
     var id: String { rawValue }
+
+    /// The targets this build can deliver on. Offering "Private apps" without Hide Apps
+    /// would be a promise the plan screen can't keep.
+    static func available(
+        hideAppsEnabled: Bool = HideAppsAvailability.isEnabled
+    ) -> [ProtectionTarget] {
+        allCases.filter { $0 != .apps || hideAppsEnabled }
+    }
 
     var label: String {
         switch self {
@@ -20,6 +31,7 @@ enum ProtectionTarget: String, CaseIterable, Identifiable, Sendable {
         case .documents: String(localized: "IDs & documents")
         case .videos: String(localized: "Private videos")
         case .work: String(localized: "Work & money files")
+        case .apps: String(localized: "Private apps")
         }
     }
 
@@ -30,6 +42,7 @@ enum ProtectionTarget: String, CaseIterable, Identifiable, Sendable {
         case .documents: "doc.text.fill"
         case .videos: "play.rectangle.fill"
         case .work: "briefcase.fill"
+        case .apps: "square.grid.2x2.fill"
         }
     }
 
@@ -42,6 +55,7 @@ enum ProtectionTarget: String, CaseIterable, Identifiable, Sendable {
         case .documents: String(localized: "IDs and documents")
         case .videos: String(localized: "private videos")
         case .work: String(localized: "work files")
+        case .apps: String(localized: "private apps")
         }
     }
 }
@@ -119,7 +133,12 @@ struct OnboardingAnswers: Codable, Equatable, Sendable {
     var snoopingHistory: String?
 
     var protectionTargets: [ProtectionTarget] {
-        ProtectionTarget.allCases.filter { targets.contains($0.rawValue) }
+        protectionTargets(hideAppsEnabled: HideAppsAvailability.isEnabled)
+    }
+
+    func protectionTargets(hideAppsEnabled: Bool) -> [ProtectionTarget] {
+        ProtectionTarget.available(hideAppsEnabled: hideAppsEnabled)
+            .filter { targets.contains($0.rawValue) }
     }
 
     var exposureRisks: [ExposureRisk] {

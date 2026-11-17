@@ -18,6 +18,7 @@ enum PremiumFeature {
     case customAlbumCovers
     case documentStorage
     case askMyVault
+    case hideApps
 }
 
 // MARK: - RevenueCat Identity
@@ -326,7 +327,7 @@ class PurchaseService: NSObject {
         case .iCloudBackup, .decoyVault, .fakeAppIcon, .panicGesture,
              .wifiTransfer, .albumLock, .videoSpeedControl, .breakInGPS,
              .timeLimitedSharing, .customAlbumCovers, .documentStorage,
-             .askMyVault:
+             .askMyVault, .hideApps:
             return true
         }
     }

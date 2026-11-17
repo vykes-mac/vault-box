@@ -9,6 +9,9 @@ struct PostOnboardingSecuritySetupView: View {
     /// finish the screen — being force-dismissed by an app lock is not a completion.
     let onContinue: (BreakInPermissionSnapshot?) -> Void
 
+    @Environment(HideAppsService.self) private var hideAppsService
+
+    @State private var showHideApps = false
     @State private var biometricsEnabled = false
     @State private var biometricRequestInFlight = false
     @State private var biometricMessage: String?
@@ -51,6 +54,16 @@ struct PostOnboardingSecuritySetupView: View {
                             permissionRow(permission)
                         }
                     }
+
+                    if hideAppsService.isAvailable {
+                        VStack(alignment: .leading, spacing: 14) {
+                            Text("Hide Apps")
+                                .font(.headline)
+                                .foregroundStyle(Color.vaultTextPrimary)
+
+                            hideAppsRow
+                        }
+                    }
                 }
                 .padding(Constants.standardPadding)
             }
@@ -68,6 +81,49 @@ struct PostOnboardingSecuritySetupView: View {
             biometricsEnabled = authService.isBiometricsEnabled()
             await refreshSnapshot()
         }
+        .sheet(isPresented: $showHideApps) {
+            NavigationStack {
+                HideAppsView(entryPoint: .securitySetup, onDone: { showHideApps = false })
+            }
+        }
+    }
+
+    private var hideAppsRow: some View {
+        let isHiding = hideAppsService.isHiding
+        return VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
+                Image(systemName: "eye.slash.fill")
+                    .font(.title3)
+                    .foregroundStyle(Color.accentColor)
+                    .frame(width: 28)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Hide Other Apps")
+                        .font(.headline)
+                        .foregroundStyle(Color.vaultTextPrimary)
+                    Text("Make apps like dating or chat apps vanish from your Home Screen.")
+                        .font(.caption)
+                        .foregroundStyle(Color.vaultTextSecondary)
+                }
+
+                Spacer(minLength: 8)
+
+                Text(isHiding ? String(localized: "Enabled") : String(localized: "Not Set"))
+                    .font(.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(isHiding ? Color.green : Color.orange)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 4)
+                    .background((isHiding ? Color.green : Color.orange).opacity(0.12), in: Capsule())
+            }
+
+            Button(isHiding ? String(localized: "Edit Hidden Apps") : String(localized: "Choose Apps to Hide")) {
+                showHideApps = true
+            }
+            .buttonStyle(.bordered)
+        }
+        .padding(14)
+        .background(Color.vaultSurface, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
     }
 
     private var biometricsRow: some View {

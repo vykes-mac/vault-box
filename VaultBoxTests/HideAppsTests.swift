@@ -1,0 +1,252 @@
+import Foundation
+import Testing
+
+@testable import VaultBox
+
+@Suite("Hide Apps")
+struct HideAppsTests {
+
+    // MARK: - Availability
+
+    @Test("The build flag turns the feature on only for an explicit yes")
+    func availabilityReadsBuildFlag() {
+        #expect(HideAppsAvailability.isEnabled(infoDictionary: ["HideAppsEnabled": "YES"]))
+        #expect(HideAppsAvailability.isEnabled(infoDictionary: ["HideAppsEnabled": "yes"]))
+        #expect(!HideAppsAvailability.isEnabled(infoDictionary: ["HideAppsEnabled": "NO"]))
+        // An unexpanded build setting means the flag was never set: stay off.
+        #expect(!HideAppsAvailability.isEnabled(infoDictionary: ["HideAppsEnabled": "$(HIDE_APPS_ENABLED)"]))
+        #expect(!HideAppsAvailability.isEnabled(infoDictionary: [:]))
+        #expect(!HideAppsAvailability.isEnabled(infoDictionary: nil))
+    }
+
+    @Test("An unavailable service never reports hidden apps")
+    @MainActor
+    func unavailableServiceIsInert() {
+        let service = HideAppsService(isAvailable: false)
+
+        #expect(!service.isHiding)
+        #expect(!service.isAuthorized)
+        #expect(service.hiddenAppCount == 0)
+        #expect(service.selectionIssue == nil)
+    }
+
+    // MARK: - Showing for a while
+
+    private let now = Date(timeIntervalSince1970: 1_800_000_000)
+
+    @Test("Hiding off shows everything, whatever else is set")
+    func disabledHidesNothing() {
+        let hidden = HideAppsRules.appsToHide(
+            selected: [1, 2, 3], isEnabled: false, revealed: nil, revealUntil: nil, now: now
+        )
+        #expect(hidden.isEmpty)
+    }
+
+    @Test("With no reveal running, every picked app is hidden")
+    func noRevealHidesAll() {
+        let hidden = HideAppsRules.appsToHide(
+            selected: [1, 2, 3], isEnabled: true, revealed: nil, revealUntil: nil, now: now
+        )
+        #expect(hidden == [1, 2, 3])
+    }
+
+    @Test("Showing all apps for a while hides nothing until the time is up")
+    func showAllRevealsEverything() {
+        let until = now.addingTimeInterval(900)
+        let during = HideAppsRules.appsToHide(
+            selected: [1, 2, 3], isEnabled: true, revealed: nil, revealUntil: until, now: now
+        )
+        #expect(during.isEmpty)
+
+        let after = HideAppsRules.appsToHide(
+            selected: [1, 2, 3], isEnabled: true, revealed: nil, revealUntil: until,
+            now: until.addingTimeInterval(1)
+        )
+        #expect(after == [1, 2, 3])
+    }
+
+    @Test("Showing one app keeps the rest hidden")
+    func showOneKeepsOthersHidden() {
+        let hidden = HideAppsRules.appsToHide(
+            selected: [1, 2, 3], isEnabled: true, revealed: [2],
+            revealUntil: now.addingTimeInterval(900), now: now
+        )
+        #expect(hidden == [1, 3])
+    }
+
+    @Test("A new reveal on top of a running one keeps both apps showing until the later end")
+    func revealsMerge() {
+        let first = now.addingTimeInterval(3600)
+        let merged = HideAppsRules.merge(
+            existing: (tokens: Set([1]), until: first),
+            adding: Set([2]),
+            until: now.addingTimeInterval(900),
+            now: now
+        )
+        #expect(merged.tokens == [1, 2])
+        #expect(merged.until == first)
+    }
+
+    @Test("Showing all on top of showing one shows all")
+    func showAllWinsOverOne() {
+        let merged = HideAppsRules.merge(
+            existing: (tokens: Set([1]), until: now.addingTimeInterval(900)),
+            adding: nil,
+            until: now.addingTimeInterval(3600),
+            now: now
+        )
+        #expect(merged.tokens == nil)
+        #expect(merged.until == now.addingTimeInterval(3600))
+    }
+
+    @Test("An expired reveal doesn't carry into a new one")
+    func expiredRevealIsIgnored() {
+        let merged = HideAppsRules.merge(
+            existing: (tokens: Set([1]), until: now.addingTimeInterval(-1)),
+            adding: Set([2]),
+            until: now.addingTimeInterval(900),
+            now: now
+        )
+        #expect(merged.tokens == [2])
+    }
+
+    @Test("Timers are never shorter than Screen Time allows")
+    func durationsRespectScreenTimeMinimum() {
+        #expect(HideAppsRevealDuration.allCases.allSatisfy { $0.seconds >= 15 * 60 })
+    }
+
+    @Test("Saved state survives a round trip through the app group")
+    func stateRoundTrips() throws {
+        let defaults = try #require(UserDefaults(suiteName: "HideAppsTests.\(UUID().uuidString)"))
+        let state = HideAppsState(
+            isEnabled: true,
+            reveal: HideAppsReveal(tokens: nil, until: now)
+        )
+        HideAppsStore.save(state, to: defaults)
+        #expect(HideAppsStore.load(from: defaults) == state)
+    }
+
+    // MARK: - Selection rules
+
+    @Test("Individual apps alone are a clean pick")
+    func appsOnlyIsClean() {
+        #expect(HideAppsSelectionIssue.issue(appCount: 3, otherCount: 0) == nil)
+        #expect(HideAppsSelectionIssue.issue(appCount: 0, otherCount: 0) == nil)
+    }
+
+    @Test("Categories without apps are flagged, because categories can't be hidden")
+    func categoriesOnlyIsFlagged() {
+        let issue = HideAppsSelectionIssue.issue(appCount: 0, otherCount: 2)
+        #expect(issue == .noAppsPicked)
+        #expect(issue?.blocksSaving == false)
+    }
+
+    @Test("Categories next to apps are noted but don't block the apps")
+    func mixedPickNotesCategories() {
+        let issue = HideAppsSelectionIssue.issue(appCount: 2, otherCount: 1)
+        #expect(issue == .ignoresCategories)
+        #expect(issue?.blocksSaving == false)
+    }
+
+    @Test("More apps than Screen Time accepts blocks saving")
+    func tooManyAppsBlocks() {
+        let limit = HideAppsSelectionIssue.appLimit
+        #expect(HideAppsSelectionIssue.issue(appCount: limit, otherCount: 0) == nil)
+
+        let issue = HideAppsSelectionIssue.issue(appCount: limit + 1, otherCount: 0)
+        #expect(issue == .tooManyApps(limit: limit))
+        #expect(issue?.blocksSaving == true)
+    }
+
+    // MARK: - Checklist
+
+    @Test("Builds without Hide Apps keep the original four steps")
+    func checklistWithoutHideApps() {
+        let checklist = ActivationChecklist(isDisguised: false, hasItems: false)
+
+        #expect(!checklist.steps.contains(.hideApps))
+        #expect(checklist.totalCount == 4)
+    }
+
+    @Test("Hide Apps sits between the first import and sharing")
+    func checklistOrderWithHideApps() {
+        let checklist = ActivationChecklist(
+            isDisguised: false,
+            hasItems: false,
+            includesHideApps: true
+        )
+
+        #expect(checklist.steps == [.secured, .disguise, .firstImport, .hideApps, .secureShare])
+        #expect(checklist.totalCount == 5)
+    }
+
+    @Test("The step follows whether apps are hidden right now")
+    func checklistDerivesFromLiveHiding() {
+        var checklist = ActivationChecklist(
+            isDisguised: true,
+            hasItems: true,
+            includesHideApps: true
+        )
+        #expect(checklist.nextStep == .hideApps)
+
+        checklist.isHidingApps = true
+        #expect(checklist.isComplete(.hideApps))
+        #expect(checklist.nextStep == .secureShare)
+
+        // Showing the apps again, or iOS clearing them after access is revoked, reopens it.
+        checklist.isHidingApps = false
+        #expect(checklist.nextStep == .hideApps)
+    }
+
+    @Test("Hidden apps don't count on a build that can't show the step")
+    func hiddenAppsIgnoredWhenStepAbsent() {
+        let checklist = ActivationChecklist(
+            isDisguised: true,
+            hasItems: true,
+            hasShared: true,
+            includesHideApps: false,
+            isHidingApps: true
+        )
+
+        #expect(checklist.completedCount == 4)
+        #expect(checklist.isFullyComplete)
+    }
+
+    // MARK: - Onboarding
+
+    @Test("Private apps is only offered when the build can hide apps")
+    func onboardingTargetFollowsAvailability() {
+        #expect(ProtectionTarget.available(hideAppsEnabled: true).contains(.apps))
+        #expect(!ProtectionTarget.available(hideAppsEnabled: false).contains(.apps))
+    }
+
+    @Test("A saved Private apps answer is dropped when the feature is off")
+    func savedAnswerRespectsAvailability() {
+        var answers = OnboardingAnswers()
+        answers.targets = [ProtectionTarget.photos.rawValue, ProtectionTarget.apps.rawValue]
+
+        #expect(answers.protectionTargets(hideAppsEnabled: true) == [.photos, .apps])
+        #expect(answers.protectionTargets(hideAppsEnabled: false) == [.photos])
+    }
+
+    // MARK: - Analytics
+
+    @Test("Events carry counts and entry points, never app identities")
+    func analyticsPayloads() {
+        let applied = AnalyticsEvent.hideAppsApplied(entryPoint: .checklist, appCount: 3)
+        #expect(applied.name == "hide_apps_applied")
+        #expect(applied.parameters == ["entry_point": "checklist", "app_count": "3"])
+
+        let authorized = AnalyticsEvent.hideAppsAuthorized(entryPoint: .securitySetup, granted: true)
+        #expect(authorized.name == "hide_apps_authorized")
+        #expect(authorized.parameters == ["entry_point": "security_setup", "granted": "true"])
+
+        #expect(AnalyticsEvent.hideAppsViewed(entryPoint: .settings).parameters == ["entry_point": "settings"])
+        #expect(AnalyticsEvent.hideAppsRevealed(entryPoint: .settings).name == "hide_apps_revealed")
+        #expect(ActivationStep.hideApps.analyticsName == "hide_apps")
+
+        let shown = AnalyticsEvent.hideAppsShownTemporarily(entryPoint: .vault, minutes: 15, scope: .one)
+        #expect(shown.name == "hide_apps_shown_temporarily")
+        #expect(shown.parameters == ["entry_point": "vault", "minutes": "15", "scope": "one"])
+    }
+}

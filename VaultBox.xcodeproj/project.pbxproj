@@ -3,10 +3,11 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 63;
+	objectVersion = 77;
 	objects = {
 
 /* Begin PBXBuildFile section */
+		034D82B761A6A762C4312E56 /* VaultBoxHideAppsMonitor.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 9AC8649364A6FC210605D746 /* VaultBoxHideAppsMonitor.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		03B43E70C62B200C3C520189 /* CloudService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19E87BF05D8B2B0BF8E394AA /* CloudService.swift */; };
 		03B7C675578468D72721A812 /* CalculatorDisguiseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 428944AA034335296F7F42BB /* CalculatorDisguiseView.swift */; };
 		04CDEA67669113E658B9BF14 /* AlbumGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7A5C9C60BCF62D9ECA6D18 /* AlbumGridView.swift */; };
@@ -14,6 +15,7 @@
 		087BA3FF743E9B5DE630FFC9 /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */; };
 		08D43A2D2501C340A7975F45 /* TelemetryDeckAnalyticsSink.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27B75B11B9C6995723C03262 /* TelemetryDeckAnalyticsSink.swift */; };
 		09038FC33880FA2DC40FD365 /* MiniLM.mlmodelc in Resources */ = {isa = PBXBuildFile; fileRef = E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */; };
+		0964A51ED638F85785EE6C73 /* HideAppsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20DE226AB8E3D4F217FE2D8D /* HideAppsState.swift */; };
 		096D975A69E5299703019678 /* VaultBoxShareExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = FAB90E5064000CCB0D760AF4 /* VaultBoxShareExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		0A7EA6B38FC691535F9237CC /* VaultService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FCA85F89FEFBDE400F1CF534 /* VaultService.swift */; };
 		0B74EFBF667408B7CA6226B5 /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A86E457B9D24261AA37C220 /* AuthService.swift */; };
@@ -26,6 +28,7 @@
 		1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */; };
 		1D6CC5DC9724BDD55C36B6C1 /* DocumentThumbnailService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8170D4D3662E92596079CF39 /* DocumentThumbnailService.swift */; };
 		1F0F368C040CE372AAEF983C /* OpenVaultCameraIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2C4FD2348BEE305AE5690EA /* OpenVaultCameraIntent.swift */; };
+		205C4A26B08C59648CBABDE9 /* HideAppsMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 711B331FD8101480355D0F0D /* HideAppsMonitor.swift */; };
 		212A7F03FC1F01E861A78481 /* OnboardingPlanSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53EE030F169434A471BB0B95 /* OnboardingPlanSteps.swift */; };
 		221DB924130E87796C6A5BF0 /* DisguiseMotionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 819E61A0114BED3A6CBAEE49 /* DisguiseMotionModel.swift */; };
 		25A4A66CB398F7894647D15F /* PostOnboardingSecuritySetupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CFF254867AF6621B36D12920 /* PostOnboardingSecuritySetupView.swift */; };
@@ -37,6 +40,7 @@
 		2F3E7F8FBCC1D8B3BADBC39B /* PDFTextExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BF6063A8A07FB9B1BFC048A /* PDFTextExtractor.swift */; };
 		3179AC62412D7B5689112107 /* WiFiTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4AF9EE5DB13C024FE004E722 /* WiFiTransferView.swift */; };
 		32CC73915FA601669783EE4F /* PaywallComponents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C901CE9C7BA4F20741F7BB /* PaywallComponents.swift */; };
+		32D61D2A4C5078C38C32D5B0 /* HideAppsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C3BD9A6BEA7552AA5A7958E /* HideAppsService.swift */; };
 		330A1B65C182CB2190DB0B3E /* BillingIssueBanner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C861DB920DDF29DE522A851 /* BillingIssueBanner.swift */; };
 		337D9B7F809D6E5526D3CD8C /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6779848ECA0F6D6607E02102 /* InfoPlist.strings */; };
 		3859AF46A545529F4C4FF783 /* ActivationChecklist.swift in Sources */ = {isa = PBXBuildFile; fileRef = D69DA62A73FB4E461171BEFB /* ActivationChecklist.swift */; };
@@ -53,6 +57,7 @@
 		4DB1A0385917DD0F1A6CD57D /* VaultBoxError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 316366EF8B35CE7EC217D70B /* VaultBoxError.swift */; };
 		4F9DFD614E8287EBF8F23B97 /* PaywallExperimentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */; };
 		51B48A11C8064D7A88EE2D40 /* VaultViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A46DAFB2B54EC1C29F0A840 /* VaultViewModel.swift */; };
+		52C80B430869ED387CB6D2EA /* HideAppsQuickControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5CD63DEF523AD296E1B212C9 /* HideAppsQuickControls.swift */; };
 		52D034F4477E6260F4D6F90B /* PINReEntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BD99A8D49A43B16E345118 /* PINReEntryView.swift */; };
 		539CCFD3D2B95C975EFB1307 /* Secrets.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = 78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */; };
 		554AA0DF0BB7298B759E95CD /* ScreenCaptureMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3A793E499D9A5FC6BE63529 /* ScreenCaptureMonitor.swift */; };
@@ -68,10 +73,10 @@
 		6123B8D75B3CFB9DD8D67E83 /* FeatureBoardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB0858F25C8A90F971F5B777 /* FeatureBoardService.swift */; };
 		657F114A82F905BFF97C2716 /* SearchResultCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E01373AC984A41342BA198 /* SearchResultCard.swift */; };
 		675764EA044DEECF46B8D108 /* VaultItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */; };
-		67EFB7D1D762BA14E5800618 /* SecureCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */; };
 		6A41C316B4B9D2D0AF4540AD /* BreakInPermissionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7BC1E82E24E70991C4BEAC9 /* BreakInPermissionService.swift */; };
 		6A63A3B41D50DC5E82BF2903 /* VectorMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 267A2863E8999D81DA38827F /* VectorMath.swift */; };
 		6E46BDA4E33CFBA49D775D9A /* ImageSignalDetectors.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */; };
+		6F240E38211EEFF6B90281F0 /* HideAppsState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 20DE226AB8E3D4F217FE2D8D /* HideAppsState.swift */; };
 		6F9B7F29D9B4A1BC28C48F00 /* DocumentReminder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63205CE6AB8E5F2822603DCD /* DocumentReminder.swift */; };
 		6FE553A683B57F0DDA2B284C /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484EDCBD57525A5175F36832 /* AnalyticsEvent.swift */; };
 		71500CDFA5559C9E42DC0BE7 /* VaultBoxApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 34702C72F8A36861926F0D3C /* VaultBoxApp.swift */; };
@@ -127,6 +132,7 @@
 		B44373FA6A0B988DD97ABBE7 /* ShareInboxTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDCAD03706C00B1CFB6072DE /* ShareInboxTests.swift */; };
 		B56EF2256E90DAB1E4B31ED1 /* VaultItemThumbnail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 709360F5CF3E44380EE5F474 /* VaultItemThumbnail.swift */; };
 		B7710354796B2A3EA04905B2 /* ShareInbox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1B3810A6530DE79A8B6BDFB3 /* ShareInbox.swift */; };
+		B8222AA8335212ECBE1A22C9 /* HideAppsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFD9984C5F17735697BCBA31 /* HideAppsTests.swift */; };
 		B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F91B2AB4A2A2C832134794A /* Haptics.swift */; };
 		BBDB3FB995E9B678D8DFEBDE /* ImageSignalDetectors+SmartAlbums.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81FCF4E85C5AF4BA658372FB /* ImageSignalDetectors+SmartAlbums.swift */; };
 		BE272DB3148C851EEFEFAAE8 /* SecuritySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4E25DB16330E349150305FC /* SecuritySettingsView.swift */; };
@@ -158,6 +164,7 @@
 		DC44390FD1E620CBD67A200B /* VaultBoxMainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */; };
 		DF32EFCCA0872BFE3EC0A083 /* Data+Encryption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 815B6196E1DAC89853BA30A8 /* Data+Encryption.swift */; };
 		E45DD6F9EEDA06C21B69DB39 /* RecentlyDeletedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */; };
+		E88300996F04135552C3FB99 /* SecureCameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25E885E3F0B86C78A00DFDC7 /* SecureCameraViewController.swift */; };
 		EA564C14612D8F196C566C12 /* PremiumBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97902116F3003BBD32528411 /* PremiumBadge.swift */; };
 		EC84A7185FB8A2BC8B6916D6 /* SensitiveScanViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33AB63DDDEC699C71E1D303A /* SensitiveScanViewModel.swift */; };
 		ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A336AE7B6FEE2B8B3EAC329 /* FirstRunActivationView.swift */; };
@@ -165,6 +172,7 @@
 		F0FC9E9914D93B48A6F67E61 /* SharingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9DD38D29E22E45F46FC58CCC /* SharingService.swift */; };
 		F30DF55655A76D81D0281813 /* PanicGestureConfigSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */; };
 		F45D908691D06F9AE5277CE6 /* RecentlyDeletedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */; };
+		F88B1263408D970EC4AE56D8 /* HideAppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7796A63A1EC536159942576A /* HideAppsView.swift */; };
 		FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */; };
 		FA439FFB9D21DE6B622CD57B /* OnboardingQuestionSteps.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */; };
 		FACDC7F1BC3527DC09DD47EC /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 307D7EEC4053DBFC3DC933D7 /* InfoPlist.strings */; };
@@ -181,6 +189,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = E66CB4D30780880AC81B3D62;
 			remoteInfo = VaultBoxShareExtension;
+		};
+		3BE57039DD550ACA67E17B8B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F74559B9175A78D7E7049B04 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A2FAC8FF23C0428F128B792D;
+			remoteInfo = VaultBoxHideAppsMonitor;
 		};
 		D9987E7DD4F54C6328B33688 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -206,6 +221,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				096D975A69E5299703019678 /* VaultBoxShareExtension.appex in Embed Foundation Extensions */,
+				034D82B761A6A762C4312E56 /* VaultBoxHideAppsMonitor.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -226,9 +242,12 @@
 		19E87BF05D8B2B0BF8E394AA /* CloudService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudService.swift; sourceTree = "<group>"; };
 		1A86E457B9D24261AA37C220 /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		1B3810A6530DE79A8B6BDFB3 /* ShareInbox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareInbox.swift; sourceTree = "<group>"; };
+		1C3BD9A6BEA7552AA5A7958E /* HideAppsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsService.swift; sourceTree = "<group>"; };
 		1C861DB920DDF29DE522A851 /* BillingIssueBanner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BillingIssueBanner.swift; sourceTree = "<group>"; };
+		20DE226AB8E3D4F217FE2D8D /* HideAppsState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsState.swift; sourceTree = "<group>"; };
 		243ACC7DC619851EF4ADBA07 /* DisguiseQuickSetupSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseQuickSetupSheet.swift; sourceTree = "<group>"; };
 		25B4FD1E6E19689121223215 /* VaultGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultGridView.swift; sourceTree = "<group>"; };
+		25E885E3F0B86C78A00DFDC7 /* SecureCameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureCameraViewController.swift; sourceTree = "<group>"; };
 		267A2863E8999D81DA38827F /* VectorMath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VectorMath.swift; sourceTree = "<group>"; };
 		2685762B4DE2B8FF30F74FAB /* VaultBoxTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxTests.swift; sourceTree = "<group>"; };
 		27B75B11B9C6995723C03262 /* TelemetryDeckAnalyticsSink.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TelemetryDeckAnalyticsSink.swift; sourceTree = "<group>"; };
@@ -252,7 +271,8 @@
 		373820D4730BDBDE9DC2D4F6 /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoDetailView.swift; sourceTree = "<group>"; };
 		3899CF794C6ECAE372D27AAC /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = it.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		40A4FE144C0A5FFD67383D83 /* VaultBoxHideAppsMonitor.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VaultBoxHideAppsMonitor.entitlements; sourceTree = "<group>"; };
+		41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		41A28F538C09F749C0D96F58 /* ShareViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShareViewController.swift; sourceTree = "<group>"; };
 		428944AA034335296F7F42BB /* CalculatorDisguiseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorDisguiseView.swift; sourceTree = "<group>"; };
 		42D5011CD6C2FB2CFBAEF5EC /* OnboardingQuestionSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingQuestionSteps.swift; sourceTree = "<group>"; };
@@ -265,7 +285,7 @@
 		4AE598F59409632C23CF56CB /* InfoPlist.strings */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = InfoPlist.strings; path = de.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		4AF9EE5DB13C024FE004E722 /* WiFiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferView.swift; sourceTree = "<group>"; };
 		4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultBoxMainTabView.swift; sourceTree = "<group>"; };
-		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.cfbundle; path = VaultBoxTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7396D5E7E80513DBD3BDE8 /* DocumentReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentReminderService.swift; sourceTree = "<group>"; };
 		4FC7331D8372F6F3C2D733CE /* DisguiseUnlockGuideView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisguiseUnlockGuideView.swift; sourceTree = "<group>"; };
 		4FFC381132D128AC133AAEE0 /* IngestionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IngestionService.swift; sourceTree = "<group>"; };
@@ -273,6 +293,7 @@
 		54444CBE438F2B4912228B82 /* AskVaultViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AskVaultViewModel.swift; sourceTree = "<group>"; };
 		576CEF3691B5C209B27AF9DB /* SharedItemsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedItemsView.swift; sourceTree = "<group>"; };
 		5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyDeletedView.swift; sourceTree = "<group>"; };
+		5CD63DEF523AD296E1B212C9 /* HideAppsQuickControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsQuickControls.swift; sourceTree = "<group>"; };
 		5D84CDE534843E4488755788 /* PanicGestureConfigSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanicGestureConfigSheet.swift; sourceTree = "<group>"; };
 		5DAAF6305764E8DEC418493E /* SearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchEngine.swift; sourceTree = "<group>"; };
 		613A77F664A6FA8CF727E567 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
@@ -287,11 +308,12 @@
 		6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SensitiveScanView.swift; sourceTree = "<group>"; };
 		6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Secrets.Release.xcconfig; sourceTree = "<group>"; };
 		709360F5CF3E44380EE5F474 /* VaultItemThumbnail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItemThumbnail.swift; sourceTree = "<group>"; };
-		721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureCameraViewController.swift; sourceTree = "<group>"; };
+		711B331FD8101480355D0F0D /* HideAppsMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsMonitor.swift; sourceTree = "<group>"; };
 		74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageOCRExtractor.swift; sourceTree = "<group>"; };
 		758EDDB57C2D63B26C0E14FC /* DashboardDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardDisguiseViews.swift; sourceTree = "<group>"; };
 		76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingPaywallTests.swift; sourceTree = "<group>"; };
-		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; lastKnownFileType = text; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
+		7796A63A1EC536159942576A /* HideAppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsView.swift; sourceTree = "<group>"; };
+		78E5EF0738A6B7C1D851EAFE /* Secrets.xcconfig.example */ = {isa = PBXFileReference; path = Secrets.xcconfig.example; sourceTree = "<group>"; };
 		792B5111919FC2FDFBF53902 /* BackupSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackupSettingsView.swift; sourceTree = "<group>"; };
 		796E271CEED2372A036F31BE /* DocumentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentDetailView.swift; sourceTree = "<group>"; };
 		79F852E51EB969C130EA1CFA /* OnboardingNarrativeSteps.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingNarrativeSteps.swift; sourceTree = "<group>"; };
@@ -317,7 +339,8 @@
 		97902116F3003BBD32528411 /* PremiumBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumBadge.swift; sourceTree = "<group>"; };
 		97CE43E1EEBCEC8413A9B217 /* WiFiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WiFiTransferHTML.swift; sourceTree = "<group>"; };
 		99D487ED26681F007F4BB1CE /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9ABD49527FCC499C4063B5C5 /* VaultBox.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = VaultBox.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AC8649364A6FC210605D746 /* VaultBoxHideAppsMonitor.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VaultBoxHideAppsMonitor.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		9B86737D328D2424A4DF5E64 /* BreakInPermissionSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionSetupView.swift; sourceTree = "<group>"; };
 		9DD38D29E22E45F46FC58CCC /* SharingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingService.swift; sourceTree = "<group>"; };
 		A2218977F1460A0977E0C6ED /* CameraView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraView.swift; sourceTree = "<group>"; };
@@ -336,11 +359,13 @@
 		B7BC1E82E24E70991C4BEAC9 /* BreakInPermissionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreakInPermissionService.swift; sourceTree = "<group>"; };
 		B8ECC627E1FBE31D7796640A /* SearchIndexService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchIndexService.swift; sourceTree = "<group>"; };
 		BADE5E1C90AC5304992FC1ED /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		BB0C36BC7899B2CF4348B896 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		BBF26CB196E0B218F97D0403 /* ProductivityDisguiseViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductivityDisguiseViews.swift; sourceTree = "<group>"; };
 		BC2E35325192A6966BAA3698 /* ChunkingEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChunkingEngine.swift; sourceTree = "<group>"; };
 		BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSignalDetectorsTests.swift; sourceTree = "<group>"; };
 		BED3E42B8DBCF2065727C874 /* EncryptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionService.swift; sourceTree = "<group>"; };
 		BF1DDF1DBB1D5870577C567A /* ScreenshotProofView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenshotProofView.swift; sourceTree = "<group>"; };
+		BFD9984C5F17735697BCBA31 /* HideAppsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideAppsTests.swift; sourceTree = "<group>"; };
 		C02C8C3B43208F63546E6630 /* ImportViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportViewModel.swift; sourceTree = "<group>"; };
 		C4D5F0EBAFA96909C9712F62 /* PINSetupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PINSetupView.swift; sourceTree = "<group>"; };
 		C9C25AEE911106C14FFACBDB /* WordPieceTokenizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WordPieceTokenizer.swift; sourceTree = "<group>"; };
@@ -361,7 +386,7 @@
 		E37360FC9BFEF98FAAFC18A2 /* EmptyStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateView.swift; sourceTree = "<group>"; };
 		E5BFA206FEC974A5C469B54C /* SharedContentViewer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedContentViewer.swift; sourceTree = "<group>"; };
 		E69E17FEC54DF7BC16704BAE /* PaywallConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallConfiguration.swift; sourceTree = "<group>"; };
-		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
+		E6B8DB55D8C3AD62E5BE49FD /* MiniLM.mlmodelc */ = {isa = PBXFileReference; path = MiniLM.mlmodelc; sourceTree = "<group>"; };
 		E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaywallExperimentTests.swift; sourceTree = "<group>"; };
 		E7E7FE5EAECDA281CF730A0A /* VaultItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultItem.swift; sourceTree = "<group>"; };
 		ECA4D39B39B1EA8D1D872E74 /* DocumentExpiryParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentExpiryParser.swift; sourceTree = "<group>"; };
@@ -376,7 +401,7 @@
 		F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSignalDetectors.swift; sourceTree = "<group>"; };
 		F4E01373AC984A41342BA198 /* SearchResultCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchResultCard.swift; sourceTree = "<group>"; };
 		FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
-		FAB90E5064000CCB0D760AF4 /* VaultBoxShareExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = VaultBoxShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		FAB90E5064000CCB0D760AF4 /* VaultBoxShareExtension.appex */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = "wrapper.app-extension"; path = VaultBoxShareExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		FB3D3BC6ED3EB44915B98AEC /* RecentlyDeletedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyDeletedTests.swift; sourceTree = "<group>"; };
 		FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EncryptionServiceTests.swift; sourceTree = "<group>"; };
 		FCA85F89FEFBDE400F1CF534 /* VaultService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaultService.swift; sourceTree = "<group>"; };
@@ -400,6 +425,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0342680AF0834BFD661FE149 /* HideApps */ = {
+			isa = PBXGroup;
+			children = (
+				5CD63DEF523AD296E1B212C9 /* HideAppsQuickControls.swift */,
+				7796A63A1EC536159942576A /* HideAppsView.swift */,
+			);
+			path = HideApps;
+			sourceTree = "<group>";
+		};
 		04E556EF62C75DC58BE05D8E /* Paywall */ = {
 			isa = PBXGroup;
 			children = (
@@ -448,6 +482,7 @@
 				2F39461AD84B6BBBF89674DD /* DisguiseTests.swift */,
 				E0C5C5ABCE3ACF4188B5831A /* DocumentExpiryParserTests.swift */,
 				FC2E72817BEC8029EC0BADFD /* EncryptionServiceTests.swift */,
+				BFD9984C5F17735697BCBA31 /* HideAppsTests.swift */,
 				BCD522201D1BFEDF5112A636 /* ImageSignalDetectorsTests.swift */,
 				76490190AEB515886C3BE12D /* OnboardingPaywallTests.swift */,
 				E770C90EEF0CB76C72E9B925 /* PaywallExperimentTests.swift */,
@@ -462,11 +497,22 @@
 			isa = PBXGroup;
 			children = (
 				9ABD49527FCC499C4063B5C5 /* VaultBox.app */,
+				9AC8649364A6FC210605D746 /* VaultBoxHideAppsMonitor.appex */,
 				FAB90E5064000CCB0D760AF4 /* VaultBoxShareExtension.appex */,
 				4EB283B9F03B54A1D7149635 /* VaultBoxTests.xctest */,
 				41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		57CF2F5E68A7BD3E651433BA /* VaultBoxHideAppsMonitor */ = {
+			isa = PBXGroup;
+			children = (
+				711B331FD8101480355D0F0D /* HideAppsMonitor.swift */,
+				BB0C36BC7899B2CF4348B896 /* Info.plist */,
+				40A4FE144C0A5FFD67383D83 /* VaultBoxHideAppsMonitor.entitlements */,
+			);
+			path = VaultBoxHideAppsMonitor;
 			sourceTree = "<group>";
 		};
 		6A39F9D5E4AA9D48053F4934 /* Extensions */ = {
@@ -495,6 +541,7 @@
 				0E029816D05F010C2F99A076 /* EmbeddingService.swift */,
 				BED3E42B8DBCF2065727C874 /* EncryptionService.swift */,
 				CB0858F25C8A90F971F5B777 /* FeatureBoardService.swift */,
+				1C3BD9A6BEA7552AA5A7958E /* HideAppsService.swift */,
 				829A41F776AEDDA37E529199 /* HTTPParser.swift */,
 				74AD1BA9BE6E1018EC782FBE /* ImageOCRExtractor.swift */,
 				F28BEDA9BFD8AD72B19008AD /* ImageSignalDetectors.swift */,
@@ -538,8 +585,10 @@
 			isa = PBXGroup;
 			children = (
 				ED35A2F291354845F61EBF43 /* Launch Screen.storyboard */,
+				C846185594AC5AB2C230E16A /* HideAppsShared */,
 				AB47A0158D33E20F20865EFA /* Shared */,
 				EF063D184B44030504E78953 /* VaultBox */,
+				57CF2F5E68A7BD3E651433BA /* VaultBoxHideAppsMonitor */,
 				909AF965080663A7C099DA6A /* VaultBoxShareExtension */,
 				235789091AB060360248372C /* VaultBoxTests */,
 				B168FC54781B942CAEFCFEF2 /* VaultBoxUITests */,
@@ -554,6 +603,7 @@
 				0F9830AC2BFA45A7D6D1CAA2 /* Auth */,
 				1C67CB70A87A01D3BDDD2D9B /* Components */,
 				743CC8F27E290596F5981B8C /* Disguise */,
+				0342680AF0834BFD661FE149 /* HideApps */,
 				04E556EF62C75DC58BE05D8E /* Paywall */,
 				939892434EAAB162892D3F7C /* Settings */,
 				FCC57BE8C6970F718450490D /* Sharing */,
@@ -666,7 +716,7 @@
 				FA72AB99A6D81C7B3B0B0565 /* ImportView.swift */,
 				37FAA8FF997590FE3B158A45 /* PhotoDetailView.swift */,
 				5A594CC7997F1D065E0B9BCC /* RecentlyDeletedView.swift */,
-				721F4862E8BC558B7315DF72 /* SecureCameraViewController.swift */,
+				25E885E3F0B86C78A00DFDC7 /* SecureCameraViewController.swift */,
 				6B906C333AFCFBF6B4808D39 /* SensitiveScanView.swift */,
 				2943DA75634CFC3588C738A8 /* SmartAlbumType.swift */,
 				4C5F43B52634FEA8280446B4 /* VaultBoxMainTabView.swift */,
@@ -674,6 +724,14 @@
 				356340D6145AE34F3A76DEA8 /* VideoPlayerView.swift */,
 			);
 			path = Vault;
+			sourceTree = "<group>";
+		};
+		C846185594AC5AB2C230E16A /* HideAppsShared */ = {
+			isa = PBXGroup;
+			children = (
+				20DE226AB8E3D4F217FE2D8D /* HideAppsState.swift */,
+			);
+			path = HideAppsShared;
 			sourceTree = "<group>";
 		};
 		EC332CB3A9FCF466563E700B /* Utilities */ = {
@@ -786,6 +844,7 @@
 			);
 			dependencies = (
 				98C52589A84999C2E8FDE2F0 /* PBXTargetDependency */,
+				31F8B62B1F7BC6C0846A6C25 /* PBXTargetDependency */,
 			);
 			name = VaultBox;
 			packageProductDependencies = (
@@ -816,6 +875,23 @@
 			productReference = 41A065F9BAEF35D0759437D5 /* VaultBoxUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A2FAC8FF23C0428F128B792D /* VaultBoxHideAppsMonitor */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5983247DFE6DCA7A50634D03 /* Build configuration list for PBXNativeTarget "VaultBoxHideAppsMonitor" */;
+			buildPhases = (
+				076DC50B50E3E31DFD58D56D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VaultBoxHideAppsMonitor;
+			packageProductDependencies = (
+			);
+			productName = VaultBoxHideAppsMonitor;
+			productReference = 9AC8649364A6FC210605D746 /* VaultBoxHideAppsMonitor.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		E66CB4D30780880AC81B3D62 /* VaultBoxShareExtension */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 5CE46446876CC841A475C497 /* Build configuration list for PBXNativeTarget "VaultBoxShareExtension" */;
@@ -840,7 +916,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastUpgradeCheck = 2710;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					529AC2156C00832676CF94B9 = {
 						DevelopmentTeam = 4A7H788X5U;
@@ -848,6 +924,10 @@
 					};
 					98E5DA03024BF023A84C7EC4 = {
 						TestTargetID = 529AC2156C00832676CF94B9;
+					};
+					A2FAC8FF23C0428F128B792D = {
+						DevelopmentTeam = 4A7H788X5U;
+						ProvisioningStyle = Automatic;
 					};
 					E66CB4D30780880AC81B3D62 = {
 						DevelopmentTeam = 4A7H788X5U;
@@ -877,10 +957,12 @@
 				D06E306C7D69684641073C52 /* XCRemoteSwiftPackageReference "purchases-ios-spm" */,
 				72FECDEB44800901DE211467 /* XCRemoteSwiftPackageReference "SwiftSDK" */,
 			);
+			preferredProjectObjectVersion = 77;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				529AC2156C00832676CF94B9 /* VaultBox */,
+				A2FAC8FF23C0428F128B792D /* VaultBoxHideAppsMonitor */,
 				E66CB4D30780880AC81B3D62 /* VaultBoxShareExtension */,
 				0CE48DF4587592D4B518C910 /* VaultBoxTests */,
 				98E5DA03024BF023A84C7EC4 /* VaultBoxUITests */,
@@ -912,6 +994,15 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		076DC50B50E3E31DFD58D56D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				205C4A26B08C59648CBABDE9 /* HideAppsMonitor.swift in Sources */,
+				0964A51ED638F85785EE6C73 /* HideAppsState.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		087EA3CA89D23128A3F50155 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -923,6 +1014,7 @@
 				B3598319EAE3BC94FF22FCE9 /* DisguiseTests.swift in Sources */,
 				D153FF63CFD77DDF9F814AF1 /* DocumentExpiryParserTests.swift in Sources */,
 				A98A28668C94C86E6A5EDCCD /* EncryptionServiceTests.swift in Sources */,
+				B8222AA8335212ECBE1A22C9 /* HideAppsTests.swift in Sources */,
 				1C4A6F89F0208805CE3664DC /* ImageSignalDetectorsTests.swift in Sources */,
 				FA30F2A4006291E65DE6AF8A /* OnboardingPaywallTests.swift in Sources */,
 				4F9DFD614E8287EBF8F23B97 /* PaywallExperimentTests.swift in Sources */,
@@ -1008,6 +1100,10 @@
 				ECB5C7FD97501F93568A56D7 /* FirstRunActivationView.swift in Sources */,
 				9C94B522956252B618FF338A /* HTTPParser.swift in Sources */,
 				B9AC1BF6062F030686D34CFE /* Haptics.swift in Sources */,
+				52C80B430869ED387CB6D2EA /* HideAppsQuickControls.swift in Sources */,
+				32D61D2A4C5078C38C32D5B0 /* HideAppsService.swift in Sources */,
+				6F240E38211EEFF6B90281F0 /* HideAppsState.swift in Sources */,
+				F88B1263408D970EC4AE56D8 /* HideAppsView.swift in Sources */,
 				8C7E6D48FDB8354CB16D0FB9 /* ImageOCRExtractor.swift in Sources */,
 				BBDB3FB995E9B678D8DFEBDE /* ImageSignalDetectors+SmartAlbums.swift in Sources */,
 				6E46BDA4E33CFBA49D775D9A /* ImageSignalDetectors.swift in Sources */,
@@ -1048,7 +1144,7 @@
 				FB73233FB3185654AC85817B /* SearchEngine.swift in Sources */,
 				A55845CAA8285F60D5D35286 /* SearchIndexService.swift in Sources */,
 				657F114A82F905BFF97C2716 /* SearchResultCard.swift in Sources */,
-				67EFB7D1D762BA14E5800618 /* SecureCameraViewController.swift in Sources */,
+				E88300996F04135552C3FB99 /* SecureCameraViewController.swift in Sources */,
 				BE272DB3148C851EEFEFAAE8 /* SecuritySettingsView.swift in Sources */,
 				AA7888CC9E2E0D5490F7C8FF /* SensitiveContentScanService.swift in Sources */,
 				7388F292BAAC82D1C199BBC0 /* SensitiveImageLayout.swift in Sources */,
@@ -1090,6 +1186,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		31F8B62B1F7BC6C0846A6C25 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A2FAC8FF23C0428F128B792D /* VaultBoxHideAppsMonitor */;
+			targetProxy = 3BE57039DD550ACA67E17B8B /* PBXContainerItemProxy */;
+		};
 		6F1A6AE952C88C19B19E355F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 529AC2156C00832676CF94B9 /* VaultBox */;
@@ -1125,11 +1226,45 @@
 			};
 			name = Release;
 		};
+		07651335C16FD5543BBDA00E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = VaultBoxHideAppsMonitor/VaultBoxHideAppsMonitor.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A7H788X5U;
+				INFOPLIST_FILE = VaultBoxHideAppsMonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.HideAppsMonitor;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		1422B29AA0BDE398C900A743 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 46B144C2728A2064BE40466F /* Secrets.Debug.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1139,6 +1274,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
+				HIDE_APPS_ENABLED = YES;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1160,7 +1296,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1194,7 +1329,6 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1208,7 +1342,6 @@
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 6.0;
@@ -1220,7 +1353,6 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
-				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -1254,7 +1386,6 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -1275,7 +1406,6 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 6.0;
@@ -1311,7 +1441,16 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 6BC574E5D861BA082BF762DA /* Secrets.Release.xcconfig */;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = "CalculatorIcon NotesIcon WeatherIcon CompassIcon ClockIcon StockIcon TranslateIcon MeasureIcon";
+				ASSETCATALOG_COMPILER_ALTERNATE_APPICON_NAMES = (
+					CalculatorIcon,
+					NotesIcon,
+					WeatherIcon,
+					CompassIcon,
+					ClockIcon,
+					StockIcon,
+					TranslateIcon,
+					MeasureIcon,
+				);
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS = YES;
 				ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES = YES;
@@ -1321,6 +1460,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
+				HIDE_APPS_ENABLED = YES;
 				INFOPLIST_FILE = VaultBox/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1336,6 +1476,31 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
+		};
+		85B592A9E9F04CB0454BEA8E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = VaultBoxHideAppsMonitor/VaultBoxHideAppsMonitor.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4A7H788X5U;
+				INFOPLIST_FILE = VaultBoxHideAppsMonitor/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.2.7;
+				PRODUCT_BUNDLE_IDENTIFIER = com.pack6.vaultbox.HideAppsMonitor;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SWIFT_STRICT_CONCURRENCY = complete;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
 		};
 		93F00BA92B531F14BB6D046E /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1430,6 +1595,15 @@
 			buildConfigurations = (
 				9B635297B23405FB924CFD55 /* Debug */,
 				FFDCCC44B3E39AB2B2E0D59A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5983247DFE6DCA7A50634D03 /* Build configuration list for PBXNativeTarget "VaultBoxHideAppsMonitor" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				85B592A9E9F04CB0454BEA8E /* Debug */,
+				07651335C16FD5543BBDA00E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

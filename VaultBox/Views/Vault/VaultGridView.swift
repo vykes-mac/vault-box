@@ -89,6 +89,9 @@ struct VaultGridView: View {
     // First-run activation
     @AppStorage("activation.hasDismissedChecklist") private var hasDismissedActivationChecklist = false
     @State private var showDisguiseSetup = false
+    @State private var showHideAppsSetup = false
+    @State private var hideAppsEntryPoint: HideAppsEntryPoint = .checklist
+    @State private var hideAppsError: String?
     /// Mirrors `UIApplication.alternateIconName`, refreshed on appear and after the
     /// disguise sheet closes. Read once into state so the checklist doesn't hit UIKit
     /// during every `body` evaluation.
@@ -115,6 +118,7 @@ struct VaultGridView: View {
     @Query(sort: \Album.sortOrder) private var albums: [Album]
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(HideAppsService.self) private var hideAppsService
     @Environment(AnalyticsService.self) private var analytics
 
     private let columns = Array(
@@ -135,7 +139,9 @@ struct VaultGridView: View {
         ActivationChecklist(
             isDisguised: AppDisguise(iconName: activeIconName) != nil,
             hasItems: !allItems.isEmpty,
-            hasShared: !sharedItems.isEmpty
+            hasShared: !sharedItems.isEmpty,
+            includesHideApps: hideAppsService.isAvailable,
+            isHidingApps: hideAppsService.isHiding
         )
     }
 
@@ -179,6 +185,13 @@ struct VaultGridView: View {
                 showPaywall = true
             } else {
                 showImporter = true
+            }
+        case .hideApps:
+            if purchaseService.isPremiumRequired(for: .hideApps) {
+                showPaywall = true
+            } else {
+                hideAppsEntryPoint = .checklist
+                showHideAppsSetup = true
             }
         case .secureShare:
             if let item = filteredItems.first(where: { $0.type != .video }) {
@@ -265,6 +278,22 @@ struct VaultGridView: View {
                 .onChange(of: showsActivationChecklist) { _, _ in
                     recordActivationViewIfNeeded()
                 }
+                .sheet(isPresented: $showHideAppsSetup) {
+                    NavigationStack {
+                        HideAppsView(entryPoint: hideAppsEntryPoint, onDone: { showHideAppsSetup = false })
+                    }
+                }
+                .alert(
+                    "Couldn't Show Apps",
+                    isPresented: Binding(
+                        get: { hideAppsError != nil },
+                        set: { if !$0 { hideAppsError = nil } }
+                    )
+                ) {
+                    Button("OK", role: .cancel) { hideAppsError = nil }
+                } message: {
+                    Text(hideAppsError ?? "")
+                }
                 .sheet(isPresented: $showDisguiseSetup, onDismiss: {
                     activeIconName = UIApplication.shared.alternateIconName
                 }) {
@@ -296,8 +325,26 @@ struct VaultGridView: View {
         }
     }
 
+    /// Hide Apps controls belong to the real vault only. In decoy mode they would announce
+    /// that something else on this phone is being hidden.
+    private var showsHideAppsControls: Bool {
+        hideAppsService.isAvailable
+            && !isDecoyMode
+            && hideAppsService.isAuthorized
+            && hideAppsService.selectedAppCount > 0
+    }
+
+    private func manageHiddenApps() {
+        hideAppsEntryPoint = .vault
+        showHideAppsSetup = true
+    }
+
     private var mainContent: some View {
         VStack(spacing: 0) {
+            if showsHideAppsControls {
+                HideAppsVisibleBanner(onManage: manageHiddenApps)
+            }
+
             if !purchaseService.isPremium && vaultService.isAtFreeLimit() {
                 freeLimitBanner
             }
@@ -743,6 +790,15 @@ struct VaultGridView: View {
                     isSelectionMode
                         ? String(localized: "Cancel")
                         : String(localized: "Select")
+                )
+            }
+        }
+
+        if showsHideAppsControls {
+            ToolbarItem(placement: .topBarTrailing) {
+                HideAppsToolbarMenu(
+                    onManage: manageHiddenApps,
+                    onError: { hideAppsError = $0 }
                 )
             }
         }

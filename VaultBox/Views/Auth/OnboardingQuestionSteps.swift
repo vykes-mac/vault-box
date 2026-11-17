@@ -17,7 +17,7 @@ struct OnboardingTargetsStep: View {
                 )
 
                 VStack(spacing: 10) {
-                    ForEach(ProtectionTarget.allCases) { target in
+                    ForEach(ProtectionTarget.available()) { target in
                         OnboardingChoiceRow(
                             icon: target.systemImage,
                             label: target.label,

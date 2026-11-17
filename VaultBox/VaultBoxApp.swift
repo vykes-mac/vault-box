@@ -63,6 +63,7 @@ struct VaultBoxApp: App {
     @State private var purchaseService = PurchaseService()
     @State private var analytics = AnalyticsService.makeDefault()
     @State private var privacyShield = AppPrivacyShield()
+    @State private var hideAppsService = HideAppsService()
     @State private var themeColorScheme: ColorScheme?
 
     init() {
@@ -98,6 +99,7 @@ struct VaultBoxApp: App {
                 .environment(purchaseService)
                 .environment(privacyShield)
                 .environment(analytics)
+                .environment(hideAppsService)
                 .preferredColorScheme(themeColorScheme)
                 .onAppear {
                     purchaseService.configure()
@@ -106,6 +108,10 @@ struct VaultBoxApp: App {
                 }
                 .onReceive(NotificationCenter.default.publisher(for: .themeDidChange)) { _ in
                     loadTheme()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                    // Screen Time access can be revoked in Settings, which un-hides the apps.
+                    hideAppsService.refresh()
                 }
         }
         .modelContainer(modelContainer)

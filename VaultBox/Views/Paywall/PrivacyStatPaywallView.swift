@@ -198,6 +198,13 @@ struct PrivacyStatPaywallContent: View {
                 title: String(localized: "Disguise the app + decoy vault"),
                 detail: String(localized: "Look like a calculator. Keep a second, harmless PIN.")
             )
+            if HideAppsAvailability.isEnabled {
+                PaywallBenefitRow(
+                    icon: "eye.slash.fill",
+                    title: String(localized: "Hide other apps"),
+                    detail: String(localized: "Dating or chat apps vanish from your Home Screen.")
+                )
+            }
             PaywallBenefitRow(
                 icon: "camera.metering.center.weighted",
                 title: String(localized: "Break-in photos with location"),

@@ -1,0 +1,375 @@
+import Foundation
+@preconcurrency import DeviceActivity
+@preconcurrency import FamilyControls
+@preconcurrency import ManagedSettings
+
+// MARK: - Availability
+
+/// Whether this build may offer Hide Apps at all.
+///
+/// Hide Apps runs on Apple's Screen Time API, which needs the Family Controls entitlement
+/// (granted to the developer account). The `HIDE_APPS_ENABLED` build setting in
+/// project.yml reaches the app through the `HideAppsEnabled` Info.plist key, so the whole
+/// feature can be switched off without touching code.
+enum HideAppsAvailability {
+    static let infoPlistKey = "HideAppsEnabled"
+
+    static let isEnabled = isEnabled(infoDictionary: Bundle.main.infoDictionary)
+
+    static func isEnabled(infoDictionary: [String: Any]?) -> Bool {
+        guard let value = infoDictionary?[infoPlistKey] as? String else { return false }
+        return ["YES", "TRUE", "1"].contains(value.uppercased())
+    }
+}
+
+// MARK: - Entry Point
+
+/// Where the user opened Hide Apps from. Sent with analytics so the onboarding, the
+/// checklist and Settings can be compared.
+enum HideAppsEntryPoint: String, Sendable {
+    case settings
+    case securitySetup = "security_setup"
+    case checklist
+    /// The eye button in the vault's toolbar.
+    case vault
+}
+
+/// Whether a temporary reveal covers every hidden app or a single one.
+enum HideAppsRevealScope: String, Sendable {
+    case all
+    case one
+}
+
+// MARK: - Reveal Duration
+
+/// How long hidden apps stay visible before they hide again on their own.
+///
+/// Screen Time schedules can't be shorter than 15 minutes, which sets the shortest option.
+enum HideAppsRevealDuration: Int, CaseIterable, Identifiable, Sendable {
+    case fifteenMinutes = 15
+    case oneHour = 60
+
+    var id: Int { rawValue }
+
+    var seconds: TimeInterval { TimeInterval(rawValue * 60) }
+
+    var showAllTitle: String {
+        switch self {
+        case .fifteenMinutes: String(localized: "Show for 15 Minutes")
+        case .oneHour: String(localized: "Show for 1 Hour")
+        }
+    }
+
+    var showOneTitle: String {
+        switch self {
+        case .fifteenMinutes: String(localized: "Show This App for 15 Minutes")
+        case .oneHour: String(localized: "Show This App for 1 Hour")
+        }
+    }
+}
+
+// MARK: - Selection Rules
+
+/// Problems with a set of apps picked in Apple's app picker.
+///
+/// Apple's picker also offers whole categories and websites, but only individual apps can
+/// be hidden; categories can only be dimmed, which isn't what this feature promises.
+enum HideAppsSelectionIssue: Equatable, Sendable {
+    /// Categories or websites were picked but no individual apps.
+    case noAppsPicked
+    /// Apps were picked alongside categories or websites, which will be left alone.
+    case ignoresCategories
+    /// More apps than Screen Time accepts in one go.
+    case tooManyApps(limit: Int)
+
+    /// Apple caps per-app Screen Time restrictions at 50 apps (documented for shields).
+    /// Staying inside it here too avoids a limit that would fail silently.
+    static let appLimit = 50
+
+    static func issue(appCount: Int, otherCount: Int) -> HideAppsSelectionIssue? {
+        if appCount > appLimit { return .tooManyApps(limit: appLimit) }
+        if appCount == 0 && otherCount > 0 { return .noAppsPicked }
+        if otherCount > 0 { return .ignoresCategories }
+        return nil
+    }
+
+    var message: String {
+        switch self {
+        case .noAppsPicked:
+            String(localized: "Only individual apps can be hidden. Open the list and tap the apps themselves, not a category.")
+        case .ignoresCategories:
+            String(localized: "Categories and websites you picked are left alone. Only individual apps are hidden.")
+        case .tooManyApps(let limit):
+            String(localized: "You can hide up to \(limit) apps. Remove a few and try again.")
+        }
+    }
+
+    /// Whether the selection can't be used at all and must not be saved.
+    var blocksSaving: Bool {
+        switch self {
+        case .tooManyApps: true
+        case .noAppsPicked, .ignoresCategories: false
+        }
+    }
+}
+
+// MARK: - Service
+
+/// Hides other apps from the Home Screen, App Library and search through Screen Time.
+///
+/// Uses `ManagedSettingsStore.application.blockedApplications`, which removes the apps
+/// rather than `shield`, which only dims them. Hidden apps stay hidden after VaultBox
+/// closes, after a restart, and after a subscription lapses; the user brings them back
+/// from inside VaultBox, by revoking Screen Time access in Settings, or by deleting
+/// VaultBox. All three are deliberate escape hatches: nobody can be locked out of their
+/// own apps.
+///
+/// Apps can also be shown for a while — all of them or one — and hide again on their own.
+/// The timer is a Screen Time schedule, and the HideAppsMonitor extension re-hides the apps
+/// when it ends, even if VaultBox is closed. The app double-checks on every launch.
+///
+/// Apple hands back opaque tokens for the picked apps. VaultBox never learns which apps
+/// they are; the UI shows them with Apple's own label view.
+@MainActor
+@Observable
+final class HideAppsService {
+    let isAvailable: Bool
+
+    private(set) var authorizationStatus: AuthorizationStatus = .notDetermined
+    private(set) var state = HideAppsState()
+
+    @ObservationIgnored private let defaults: UserDefaults
+    @ObservationIgnored private let activityCenter = DeviceActivityCenter()
+
+    /// Where the pick lived before the app group, in the first Hide Apps builds.
+    private static let legacySelectionKey = "hideApps.selection"
+
+    init(
+        isAvailable: Bool = HideAppsAvailability.isEnabled,
+        defaults: UserDefaults? = HideAppsShared.defaults
+    ) {
+        self.isAvailable = isAvailable
+        self.defaults = defaults ?? .standard
+        guard isAvailable else { return }
+        #if DEBUG
+        // The pre-release test screen used its own store. Never leave its blocks behind.
+        ManagedSettingsStore(named: ManagedSettingsStore.Name("hideAppsLab")).clearAllSettings()
+        #endif
+        state = HideAppsStore.load(from: self.defaults) ?? Self.migratedState()
+        refresh()
+    }
+
+    // MARK: State
+
+    var selection: FamilyActivitySelection { state.selection }
+
+    var isAuthorized: Bool { authorizationStatus == .approved }
+
+    /// Hiding is switched on. Apps may still be showing for a while; see ``activeReveal``.
+    var isHiding: Bool { isAuthorized && state.isEnabled }
+
+    var selectedAppCount: Int { state.selection.applicationTokens.count }
+
+    /// Apps hidden right now, after any temporary reveal.
+    var hiddenAppCount: Int {
+        guard isAuthorized else { return 0 }
+        return HideAppsRules.appsToHide(
+            selected: state.selection.applicationTokens,
+            isEnabled: state.isEnabled,
+            revealed: state.reveal?.tokens,
+            revealUntil: state.reveal?.until,
+            now: .now
+        ).count
+    }
+
+    /// The temporary reveal still running, if any.
+    var activeReveal: HideAppsReveal? {
+        guard let reveal = state.reveal, reveal.isActive(at: .now) else { return nil }
+        return reveal
+    }
+
+    func isTemporarilyVisible(_ token: ApplicationToken) -> Bool {
+        activeReveal?.includes(token) ?? false
+    }
+
+    var selectionIssue: HideAppsSelectionIssue? {
+        HideAppsSelectionIssue.issue(
+            appCount: state.selection.applicationTokens.count,
+            otherCount: state.selection.categoryTokens.count + state.selection.webDomainTokens.count
+        )
+    }
+
+    /// Re-reads Screen Time access and re-applies the hidden apps, ending any reveal whose
+    /// time is up. Call when the app becomes active: the user can revoke access in
+    /// Settings, and a reveal can expire while VaultBox is closed.
+    func refresh() {
+        guard isAvailable else { return }
+        authorizationStatus = AuthorizationCenter.shared.authorizationStatus
+        guard isAuthorized else { return }
+        let hadReveal = state.reveal != nil
+        commit(state)
+        if hadReveal && state.reveal == nil {
+            activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        }
+    }
+
+    // MARK: Actions
+
+    /// Shows Apple's Screen Time prompt (Face ID or passcode). Returns a message to show
+    /// the user when it fails, or nil when it succeeded or they cancelled.
+    func requestAuthorization() async -> String? {
+        guard isAvailable else { return nil }
+        var failure: String?
+        do {
+            try await AuthorizationCenter.shared.requestAuthorization(for: .individual)
+        } catch {
+            failure = Self.message(for: error)
+        }
+        refresh()
+        return failure
+    }
+
+    /// Saves a new pick from Apple's app picker. Hides immediately when this is the first
+    /// set of apps, and keeps already-hidden apps in step with the new pick.
+    ///
+    /// - Returns: the problem with the pick, if any. A blocking problem leaves the
+    ///   previous pick in place.
+    @discardableResult
+    func updateSelection(_ newSelection: FamilyActivitySelection) -> HideAppsSelectionIssue? {
+        guard isAvailable else { return nil }
+        let issue = HideAppsSelectionIssue.issue(
+            appCount: newSelection.applicationTokens.count,
+            otherCount: newSelection.categoryTokens.count + newSelection.webDomainTokens.count
+        )
+        if issue?.blocksSaving == true { return issue }
+
+        var next = state
+        let wasEmpty = next.selection.applicationTokens.isEmpty
+        next.selection = newSelection
+        if newSelection.applicationTokens.isEmpty {
+            next.isEnabled = false
+            next.reveal = nil
+        } else if wasEmpty {
+            next.isEnabled = true
+        }
+        commit(next)
+        if state.reveal == nil {
+            activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        }
+        return issue
+    }
+
+    /// Hides every picked app, ending any temporary reveal.
+    func hide() {
+        guard isAvailable, isAuthorized, !state.selection.applicationTokens.isEmpty else { return }
+        var next = state
+        next.isEnabled = true
+        next.reveal = nil
+        activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        commit(next)
+    }
+
+    /// Shows every picked app until the user hides them again.
+    func showAll() {
+        guard isAvailable else { return }
+        var next = state
+        next.isEnabled = false
+        next.reveal = nil
+        activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        commit(next)
+    }
+
+    /// Shows apps for a while, then hides them again on their own.
+    ///
+    /// - Parameter tokens: the apps to show, or nil for all of them.
+    /// - Returns: a message to show the user when the timer couldn't be set. Nothing is
+    ///   shown in that case: apps that appear without a working timer would stay visible.
+    func showTemporarily(
+        _ tokens: Set<ApplicationToken>?,
+        for duration: HideAppsRevealDuration,
+        now: Date = .now
+    ) -> String? {
+        guard isAvailable, isHiding else { return nil }
+
+        let merged = HideAppsRules.merge(
+            existing: activeReveal.map { ($0.tokens, $0.until) },
+            adding: tokens,
+            until: now.addingTimeInterval(duration.seconds),
+            now: now
+        )
+
+        do {
+            try startRevealTimer(from: now, until: merged.until)
+        } catch {
+            return String(localized: "The timer to hide your apps again couldn't be set, so nothing was shown. Please try again.")
+        }
+
+        var next = state
+        next.reveal = HideAppsReveal(tokens: merged.tokens, until: merged.until)
+        commit(next)
+        return nil
+    }
+
+    /// Ends a temporary reveal early.
+    func hideNow() {
+        guard isAvailable, state.reveal != nil else { return }
+        var next = state
+        next.reveal = nil
+        activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        commit(next)
+    }
+
+    // MARK: Private
+
+    private func commit(_ next: HideAppsState) {
+        let applied = isAuthorized ? HideAppsStore.apply(next) : next
+        state = applied
+        HideAppsStore.save(applied, to: defaults)
+    }
+
+    private func startRevealTimer(from start: Date, until end: Date) throws {
+        let calendar = Calendar.current
+        let parts: Set<Calendar.Component> = [.year, .month, .day, .hour, .minute, .second]
+        let schedule = DeviceActivitySchedule(
+            intervalStart: calendar.dateComponents(parts, from: start),
+            intervalEnd: calendar.dateComponents(parts, from: end),
+            repeats: false
+        )
+        activityCenter.stopMonitoring([HideAppsShared.revealActivity])
+        try activityCenter.startMonitoring(HideAppsShared.revealActivity, during: schedule)
+    }
+
+    /// State for someone upgrading from the first Hide Apps build, which kept the pick in
+    /// standard defaults and wrote the hidden apps straight to Screen Time.
+    private static func migratedState() -> HideAppsState {
+        var state = HideAppsState()
+        if let data = UserDefaults.standard.data(forKey: legacySelectionKey),
+           let selection = try? JSONDecoder().decode(FamilyActivitySelection.self, from: data) {
+            state.selection = selection
+        }
+        let hidden = ManagedSettingsStore(named: HideAppsShared.storeName)
+            .application.blockedApplications ?? []
+        state.isEnabled = !hidden.isEmpty
+        return state
+    }
+
+    private static func message(for error: Error) -> String? {
+        guard let error = error as? FamilyControlsError else {
+            return String(localized: "Screen Time access didn't go through. Please try again.")
+        }
+        switch error {
+        case .authorizationCanceled:
+            return nil
+        case .restricted:
+            return String(localized: "Screen Time is restricted on this iPhone, so apps can't be hidden.")
+        case .authenticationMethodUnavailable:
+            return String(localized: "Set a passcode for this iPhone first, then try again.")
+        case .networkError:
+            return String(localized: "Connect to the internet and try again. Apple checks the request online.")
+        case .authorizationConflict:
+            return String(localized: "Another app is managing Screen Time on this iPhone. Turn it off there, then try again.")
+        default:
+            return String(localized: "Screen Time access didn't go through. Please try again.")
+        }
+    }
+}

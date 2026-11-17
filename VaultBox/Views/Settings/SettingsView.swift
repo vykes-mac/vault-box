@@ -13,6 +13,7 @@ struct SettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(HideAppsService.self) private var hideAppsService
     @Environment(\.scenePhase) private var scenePhase
     @Environment(\.openURL) private var openURL
 
@@ -23,6 +24,7 @@ struct SettingsView: View {
     @State private var showCustomerCenter = false
     @State private var showChangePIN = false
     @State private var showDecoySetup = false
+    @State private var showHideApps = false
     @State private var showDecoyInfo = false
     @State private var showBreakInLog = false
     @State private var showAppIconPicker = false
@@ -141,6 +143,9 @@ struct SettingsView: View {
                     continueButtonTitle: String(localized: "Done"),
                     onContinue: { showBreakInPermissionSetup = false }
                 )
+            }
+            .navigationDestination(isPresented: $showHideApps) {
+                HideAppsView(entryPoint: .settings)
             }
             .navigationDestination(isPresented: $showBreakInLog) {
                 BreakInLogView()
@@ -290,6 +295,36 @@ struct SettingsView: View {
                     Image(systemName: "chevron.right")
                         .font(.caption)
                         .foregroundStyle(Color.vaultTextSecondary)
+                }
+            }
+
+            // Hide Apps (premium). A lapsed user with apps still hidden can always get in to
+            // bring them back; only choosing or re-hiding apps is gated.
+            if hideAppsService.isAvailable {
+                Button {
+                    if purchaseService.isPremiumRequired(for: .hideApps) && !hideAppsService.isHiding {
+                        showPaywall = true
+                    } else {
+                        showHideApps = true
+                    }
+                } label: {
+                    HStack {
+                        Label("Hide Apps", systemImage: "square.grid.2x2")
+                            .foregroundStyle(Color.vaultTextPrimary)
+                        Spacer()
+                        if hideAppsService.isHiding {
+                            Text("On")
+                                .font(.caption)
+                                .foregroundStyle(Color.vaultTextSecondary)
+                        } else if purchaseService.isPremiumRequired(for: .hideApps) {
+                            Image(systemName: "lock.fill")
+                                .font(.caption)
+                                .foregroundStyle(Color.vaultPremium)
+                        }
+                        Image(systemName: "chevron.right")
+                            .font(.caption)
+                            .foregroundStyle(Color.vaultTextSecondary)
+                    }
                 }
             }
 

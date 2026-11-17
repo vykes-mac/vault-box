@@ -111,7 +111,7 @@ struct FirstRunActivationView: View {
 
     private var steps: some View {
         VStack(spacing: 10) {
-            ForEach(ActivationStep.allCases) { step in
+            ForEach(checklist.steps) { step in
                 ActivationStepRow(
                     step: step,
                     isComplete: checklist.isComplete(step),

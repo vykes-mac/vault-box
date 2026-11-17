@@ -92,6 +92,19 @@ enum AnalyticsEvent {
     /// between ``disguiseApplied`` and this event is a population who can't get back in.
     case disguiseUnlockGuideCompleted
 
+    // MARK: Hide Apps
+    //
+    // Counts only. Apple never tells VaultBox which apps were picked, and even if it did,
+    // which apps someone hides is exactly the kind of answer the privacy contract covers.
+
+    case hideAppsViewed(entryPoint: HideAppsEntryPoint)
+    case hideAppsAuthorized(entryPoint: HideAppsEntryPoint, granted: Bool)
+    case hideAppsApplied(entryPoint: HideAppsEntryPoint, appCount: Int)
+    case hideAppsRevealed(entryPoint: HideAppsEntryPoint)
+    /// Shown for a while before hiding again on their own. `scope` says whether every
+    /// hidden app or a single one was shown — never which.
+    case hideAppsShownTemporarily(entryPoint: HideAppsEntryPoint, minutes: Int, scope: HideAppsRevealScope)
+
     // MARK: - Wire format
 
     var name: String {
@@ -122,6 +135,11 @@ enum AnalyticsEvent {
         case .activationStepTapped: "activation_step_tapped"
         case .disguiseApplied: "disguise_applied"
         case .disguiseUnlockGuideCompleted: "disguise_unlock_guide_completed"
+        case .hideAppsViewed: "hide_apps_viewed"
+        case .hideAppsAuthorized: "hide_apps_authorized"
+        case .hideAppsApplied: "hide_apps_applied"
+        case .hideAppsRevealed: "hide_apps_revealed"
+        case .hideAppsShownTemporarily: "hide_apps_shown_temporarily"
         }
     }
 
@@ -218,6 +236,23 @@ enum AnalyticsEvent {
 
         case .disguiseApplied(let disguise):
             return ["disguise": disguise]
+
+        case .hideAppsViewed(let entryPoint),
+             .hideAppsRevealed(let entryPoint):
+            return ["entry_point": entryPoint.rawValue]
+
+        case .hideAppsAuthorized(let entryPoint, let granted):
+            return ["entry_point": entryPoint.rawValue, "granted": String(granted)]
+
+        case .hideAppsApplied(let entryPoint, let appCount):
+            return ["entry_point": entryPoint.rawValue, "app_count": String(appCount)]
+
+        case .hideAppsShownTemporarily(let entryPoint, let minutes, let scope):
+            return [
+                "entry_point": entryPoint.rawValue,
+                "minutes": String(minutes),
+                "scope": scope.rawValue
+            ]
         }
     }
 

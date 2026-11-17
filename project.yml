@@ -30,6 +30,7 @@ targets:
     sources:
       - path: VaultBox
       - path: Shared
+      - path: HideAppsShared
       - path: Launch Screen.storyboard
         buildPhase: resources
     resources:
@@ -64,6 +65,11 @@ targets:
           - MeasureIcon
         ASSETCATALOG_COMPILER_INCLUDE_ALL_APPICON_ASSETS: "YES"
         ASSETCATALOG_COMPILER_INCLUDE_INFOPLIST_ENTRIES: "YES"
+        CODE_SIGN_ENTITLEMENTS: VaultBox/VaultBox.entitlements
+        # Hide Apps uses Family Controls, which Apple granted to the developer account
+        # (November 2026). Kept as a build setting so the feature can be switched off
+        # without touching code.
+        HIDE_APPS_ENABLED: "YES"
     dependencies:
       - package: RevenueCat
         product: RevenueCat
@@ -73,16 +79,29 @@ targets:
       - package: TelemetryDeck
         product: TelemetryDeck
       - target: VaultBoxShareExtension
-    entitlements:
-      path: VaultBox/VaultBox.entitlements
-      properties:
-        com.apple.developer.icloud-container-identifiers:
-          - iCloud.com.vaultbox.app
-        com.apple.developer.icloud-services:
-          - CloudKit
-        com.apple.security.application-groups:
-          - group.com.vaultbox.app
-        aps-environment: development
+      - target: VaultBoxHideAppsMonitor
+
+  VaultBoxHideAppsMonitor:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: VaultBoxHideAppsMonitor
+      - path: HideAppsShared
+    settings:
+      base:
+        INFOPLIST_FILE: VaultBoxHideAppsMonitor/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.pack6.vaultbox.HideAppsMonitor
+        MARKETING_VERSION: "1.2.7"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SUPPORTED_PLATFORMS: "iphoneos iphonesimulator"
+        SUPPORTS_MACCATALYST: "NO"
+        SWIFT_STRICT_CONCURRENCY: complete
+        APPLICATION_EXTENSION_API_ONLY: "YES"
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "Apple Development"
+        DEVELOPMENT_TEAM: 4A7H788X5U
+        CODE_SIGN_ENTITLEMENTS: VaultBoxHideAppsMonitor/VaultBoxHideAppsMonitor.entitlements
 
   VaultBoxShareExtension:
     type: app-extension
