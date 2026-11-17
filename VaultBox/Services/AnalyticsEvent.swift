@@ -112,6 +112,19 @@ enum AnalyticsEvent {
     case hideAppsExpiryWarningViewed(daysLeft: Int)
     case hideAppsExpiryWarningTapped(daysLeft: Int)
 
+    // MARK: Ratings
+    //
+    // The pre-prompt before Apple's rating sheet. `trigger` names the positive moment
+    // that led to it; `prompt_number` is how many times this install has been asked.
+
+    case ratingPromptShown(trigger: RatingPromptTrigger, promptNumber: Int)
+    /// "Yes": Apple's sheet was requested. Apple never says whether it appeared.
+    case ratingPromptAnsweredYes(trigger: RatingPromptTrigger)
+    case ratingPromptAnsweredNotReally(trigger: RatingPromptTrigger)
+    case ratingPromptDismissed(trigger: RatingPromptTrigger)
+    /// An unhappy user chose to email support from the pre-prompt.
+    case ratingPromptFeedbackOpened(trigger: RatingPromptTrigger)
+
     // MARK: - Wire format
 
     var name: String {
@@ -152,6 +165,11 @@ enum AnalyticsEvent {
         case .hideAppsLapseResolved: "hide_apps_lapse_resolved"
         case .hideAppsExpiryWarningViewed: "hide_apps_expiry_warning_viewed"
         case .hideAppsExpiryWarningTapped: "hide_apps_expiry_warning_tapped"
+        case .ratingPromptShown: "rating_prompt_shown"
+        case .ratingPromptAnsweredYes: "rating_prompt_answered_yes"
+        case .ratingPromptAnsweredNotReally: "rating_prompt_answered_not_really"
+        case .ratingPromptDismissed: "rating_prompt_dismissed"
+        case .ratingPromptFeedbackOpened: "rating_prompt_feedback_opened"
         }
     }
 
@@ -276,6 +294,15 @@ enum AnalyticsEvent {
                 "minutes": String(minutes),
                 "scope": scope.rawValue
             ]
+
+        case .ratingPromptShown(let trigger, let promptNumber):
+            return ["trigger": trigger.rawValue, "prompt_number": String(promptNumber)]
+
+        case .ratingPromptAnsweredYes(let trigger),
+             .ratingPromptAnsweredNotReally(let trigger),
+             .ratingPromptDismissed(let trigger),
+             .ratingPromptFeedbackOpened(let trigger):
+            return ["trigger": trigger.rawValue]
         }
     }
 
@@ -299,6 +326,7 @@ extension OnboardingStep {
         case .trust: "trust"
         case .building: "building"
         case .plan: "plan"
+        case .apps: "question_apps"
         }
     }
 }

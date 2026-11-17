@@ -93,6 +93,71 @@ enum ExposureRisk: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
+// MARK: - Private App Kind
+
+/// The kinds of apps the user would rather keep off their Home Screen. Asked during
+/// onboarding so they learn Hide Apps exists before they ever reach the vault; only
+/// offered when this build can hide apps.
+enum PrivateAppKind: String, CaseIterable, Identifiable, Sendable {
+    case dating
+    case chat
+    case social
+    case money
+    case games
+    /// "None for now". Picking it clears the others, and picking another clears it.
+    case none
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .dating: String(localized: "Dating apps")
+        case .chat: String(localized: "Chat & messaging")
+        case .social: String(localized: "Social media")
+        case .money: String(localized: "Banking & crypto")
+        case .games: String(localized: "Games")
+        case .none: String(localized: "None for now")
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .dating: "heart.fill"
+        case .chat: "bubble.left.and.bubble.right.fill"
+        case .social: "person.2.fill"
+        case .money: "creditcard.fill"
+        case .games: "gamecontroller.fill"
+        case .none: "minus.circle"
+        }
+    }
+
+    /// Lowercase form for inline copy ("Your dating apps and games vanish…").
+    var inlineLabel: String {
+        switch self {
+        case .dating: String(localized: "dating apps")
+        case .chat: String(localized: "chat apps")
+        case .social: String(localized: "social apps")
+        case .money: String(localized: "banking apps")
+        case .games: String(localized: "games")
+        case .none: ""
+        }
+    }
+
+    /// Applies a tap to a multi-select answer, keeping "None for now" exclusive.
+    static func toggling(_ kind: PrivateAppKind, in selection: Set<String>) -> Set<String> {
+        var selection = selection
+        if selection.contains(kind.rawValue) {
+            selection.remove(kind.rawValue)
+        } else if kind == .none {
+            selection = [kind.rawValue]
+        } else {
+            selection.remove(PrivateAppKind.none.rawValue)
+            selection.insert(kind.rawValue)
+        }
+        return selection
+    }
+}
+
 // MARK: - Snooping History
 
 /// Whether the user has already been snooped on. The "yes" path is the hottest lead,
@@ -131,6 +196,19 @@ struct OnboardingAnswers: Codable, Equatable, Sendable {
     var targets: Set<String> = []
     var risks: Set<String> = []
     var snoopingHistory: String?
+    /// ``PrivateAppKind`` raw values. Empty for answers saved before this question existed.
+    var appKinds: Set<String> = []
+
+    init() {}
+
+    // Written by hand so answers saved before `appKinds` existed still load.
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        targets = try container.decodeIfPresent(Set<String>.self, forKey: .targets) ?? []
+        risks = try container.decodeIfPresent(Set<String>.self, forKey: .risks) ?? []
+        snoopingHistory = try container.decodeIfPresent(String.self, forKey: .snoopingHistory)
+        appKinds = try container.decodeIfPresent(Set<String>.self, forKey: .appKinds) ?? []
+    }
 
     var protectionTargets: [ProtectionTarget] {
         protectionTargets(hideAppsEnabled: HideAppsAvailability.isEnabled)
@@ -147,6 +225,21 @@ struct OnboardingAnswers: Codable, Equatable, Sendable {
 
     var history: SnoopingHistory? {
         snoopingHistory.flatMap(SnoopingHistory.init(rawValue:))
+    }
+
+    /// The app kinds picked, in display order, without "None for now".
+    var privateAppKinds: [PrivateAppKind] {
+        PrivateAppKind.allCases.filter { $0 != .none && appKinds.contains($0.rawValue) }
+    }
+
+    /// Plan-screen copy for Hide Apps, naming the apps they said they'd hide.
+    var hiddenAppsDetail: String {
+        let kinds = privateAppKinds.map(\.inlineLabel)
+        guard !kinds.isEmpty else {
+            return String(localized: "Pick any app, like dating or chat apps, and it vanishes from your Home Screen. Only VaultBox brings it back.")
+        }
+        let list = kinds.formatted(.list(type: .and))
+        return String(localized: "Your \(list) vanish from your Home Screen, App Library and search. Only VaultBox brings them back.")
     }
 
     /// Headline used on the personalised plan screen. Mirrors the user's own words back

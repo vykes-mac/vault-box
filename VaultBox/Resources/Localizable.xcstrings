@@ -895,6 +895,52 @@
         }
       }
     },
+    "%lld hidden from your Home Screen" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld vom Home-Bildschirm ausgeblendet"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ocultas de tu pantalla de inicio"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld masquées de l’écran d’accueil"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld nascoste dalla schermata Home"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld個をホーム画面から非表示"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "홈 화면에서 %lld개 숨김"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%lld ocultos da Tela de Início"
+          }
+        }
+      }
+    },
     "%lld items couldn't be restored because they were backed up with a different key." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -3563,6 +3609,52 @@
         }
       }
     },
+    "Any apps you'd rather nobody saw?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gibt es Apps, die niemand sehen soll?"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Hay apps que preferirías que nadie viera?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Des apps que vous préférez que personne ne voie ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ci sono app che preferiresti nessuno vedesse?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "誰にも見られたくないAppはありますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아무도 보지 않았으면 하는 앱이 있나요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Algum app que você prefere que ninguém veja?"
+          }
+        }
+      }
+    },
     "Anyone holding your phone is one swipe from everything." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -4638,6 +4730,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Solicitação inválida"
+          }
+        }
+      }
+    },
+    "Banking & crypto" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banking & Krypto"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bancos y cripto"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banque et crypto"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banca e cripto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "銀行・暗号資産"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "은행 및 암호화폐"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Bancos e cripto"
+          }
+        }
+      }
+    },
+    "banking apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Banking-Apps"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de banco"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps bancaires"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "app bancarie"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "銀行App"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "은행 앱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de banco"
           }
         }
       }
@@ -5901,6 +6085,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Alterar PIN"
+          }
+        }
+      }
+    },
+    "Chat & messaging" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chats & Nachrichten"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat y mensajería"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat et messagerie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat e messaggi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チャット・メッセージ"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 및 메신저"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conversas e mensagens"
+          }
+        }
+      }
+    },
+    "chat apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Chat-Apps"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de chat"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de messagerie"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "app di chat"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "チャットApp"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "채팅 앱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de conversa"
           }
         }
       }
@@ -9188,6 +9464,98 @@
         }
       }
     },
+    "dating apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dating-Apps"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de citas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de rencontre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "app di incontri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マッチングApp"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이팅 앱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "apps de namoro"
+          }
+        }
+      }
+    },
+    "Dating apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dating-Apps"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps de citas"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps de rencontre"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "App di incontri"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "マッチングApp"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "데이팅 앱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apps de namoro"
+          }
+        }
+      }
+    },
     "Dating or chat apps vanish from your Home Screen." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -11950,6 +12318,52 @@
         }
       }
     },
+    "Email Support" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "E-Mail an den Support"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escribir a soporte"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Écrire à l’assistance"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scrivi all’assistenza"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "サポートにメール"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지원팀에 이메일 보내기"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Enviar e-mail ao suporte"
+          }
+        }
+      }
+    },
     "Email us at %@." : {
       "localizations" : {
         "de" : {
@@ -12415,6 +12829,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "inglês"
+          }
+        }
+      }
+    },
+    "Enjoying VaultBox?" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gefällt dir VaultBox?"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¿Te gusta VaultBox?"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vous aimez VaultBox ?"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ti piace VaultBox?"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBoxを気に入っていただけていますか？"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox가 마음에 드시나요?"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Está gostando do VaultBox?"
           }
         }
       }
@@ -15319,6 +15779,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Acesso completo a todos os recursos. Você não paga nada hoje."
+          }
+        }
+      }
+    },
+    "games" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "juegos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jeux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "giochi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲーム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게임"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "jogos"
+          }
+        }
+      }
+    },
+    "Games" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spiele"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Juegos"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jeux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Giochi"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "ゲーム"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "게임"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Jogos"
           }
         }
       }
@@ -21917,6 +22469,52 @@
         }
       }
     },
+    "None for now" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Im Moment keine"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ninguna por ahora"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aucune pour l’instant"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nessuna per ora"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "今はなし"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "지금은 없음"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum por enquanto"
+          }
+        }
+      }
+    },
     "Not Found" : {
       "extractionState" : "stale",
       "localizations" : {
@@ -22007,6 +22605,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Agora não"
+          }
+        }
+      }
+    },
+    "Not really" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nicht wirklich"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No mucho"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pas vraiment"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Non molto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いいえ、あまり"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "별로예요"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não muito"
           }
         }
       }
@@ -24165,6 +24809,52 @@
         }
       }
     },
+    "Pick below and watch them disappear" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Wähle unten aus und sieh zu, wie sie verschwinden"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Elige abajo y míralas desaparecer"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Choisissez ci-dessous et regardez-les disparaître"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Scegli qui sotto e guardale sparire"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "下で選ぶと消えていきます"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아래에서 고르면 사라지는 걸 볼 수 있어요"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha abaixo e veja eles sumirem"
+          }
+        }
+      }
+    },
     "Pick what it should look like" : {
       "localizations" : {
         "de" : {
@@ -26034,143 +26724,48 @@
         }
       }
     },
-    "Question 1 of 3" : {
-      "extractionState" : "stale",
+    "Question %lld of %lld" : {
       "localizations" : {
         "de" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Frage 1 von 3"
+            "value" : "Frage %1$lld von %2$lld"
           }
         },
         "es-MX" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pregunta 1 de 3"
+            "value" : "Pregunta %1$lld de %2$lld"
           }
         },
         "fr" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Question 1 sur 3"
+            "value" : "Question %1$lld sur %2$lld"
           }
         },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Domanda 1 di 3"
+            "value" : "Domanda %1$lld di %2$lld"
           }
         },
         "ja" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "3問中1問目"
+            "value" : "%2$lld問中%1$lld問目"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "질문 1/3"
+            "value" : "질문 %1$lld/%2$lld"
           }
         },
         "pt-BR" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Pergunta 1 de 3"
-          }
-        }
-      }
-    },
-    "Question 2 of 3" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frage 2 von 3"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pregunta 2 de 3"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Question 2 sur 3"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domanda 2 di 3"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3問中2問目"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "질문 2/3"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pergunta 2 de 3"
-          }
-        }
-      }
-    },
-    "Question 3 of 3" : {
-      "extractionState" : "stale",
-      "localizations" : {
-        "de" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Frage 3 von 3"
-          }
-        },
-        "es-MX" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pregunta 3 de 3"
-          }
-        },
-        "fr" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Question 3 sur 3"
-          }
-        },
-        "it" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Domanda 3 di 3"
-          }
-        },
-        "ja" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "3問中3問目"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "질문 3/3"
-          }
-        },
-        "pt-BR" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Pergunta 3 de 3"
+            "value" : "Pergunta %1$lld de %2$lld"
           }
         }
       }
@@ -31915,6 +32510,98 @@
         }
       }
     },
+    "social apps" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social-Media-Apps"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "redes sociales"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "réseaux sociaux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "social network"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SNS App"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소셜 앱"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "redes sociais"
+          }
+        }
+      }
+    },
+    "Social media" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Soziale Medien"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redes sociales"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Réseaux sociaux"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Social network"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "SNS"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소셜 미디어"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redes sociais"
+          }
+        }
+      }
+    },
     "Some hidden apps are showing until %@." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -32099,6 +32786,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Algo deu errado"
+          }
+        }
+      }
+    },
+    "Sorry to hear that" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Das tut uns leid"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lamentamos escuchar eso"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nous en sommes désolés"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ci dispiace"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "申し訳ありません"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "죄송합니다"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sentimos muito"
           }
         }
       }
@@ -33727,6 +34460,52 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Toque + para criar seu primeiro álbum"
+          }
+        }
+      }
+    },
+    "Tell us what isn't working. We read every message and use it to fix VaultBox." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sag uns, was nicht funktioniert. Wir lesen jede Nachricht und nutzen sie, um VaultBox zu verbessern."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cuéntanos qué no funciona. Leemos cada mensaje y lo usamos para mejorar VaultBox."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dites-nous ce qui ne va pas. Nous lisons chaque message et nous en servons pour améliorer VaultBox."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dicci cosa non funziona. Leggiamo ogni messaggio e lo usiamo per migliorare VaultBox."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "うまくいかない点をお知らせください。いただいたメッセージはすべて読み、VaultBoxの改善に役立てます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "어떤 점이 불편한지 알려 주세요. 모든 메시지를 읽고 VaultBox를 개선하는 데 활용합니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Conte o que não está funcionando. Lemos todas as mensagens e usamos cada uma para melhorar o VaultBox."
           }
         }
       }
@@ -38027,6 +38806,52 @@
         }
       }
     },
+    "VaultBox can make apps vanish from your Home Screen, App Library and search." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox kann Apps vom Home-Bildschirm, aus der App-Mediathek und der Suche verschwinden lassen."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox puede hacer que las apps desaparezcan de tu pantalla de inicio, la biblioteca de apps y la búsqueda."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox peut faire disparaître des apps de l’écran d’accueil, de la bibliothèque d’apps et de la recherche."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox può far sparire le app dalla schermata Home, dalla Libreria app e dalla ricerca."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBoxなら、Appをホーム画面、Appライブラリ、検索から消せます。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "VaultBox로 앱을 홈 화면, 앱 보관함, 검색에서 사라지게 할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O VaultBox pode fazer apps sumirem da Tela de Início, da Biblioteca de Apps e da busca."
+          }
+        }
+      }
+    },
     "VaultBox couldn't delete one or more originals. You can remove them manually in Photos." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -40508,6 +41333,52 @@
         }
       }
     },
+    "Yes, I love it" : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ja, sehr!"
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "¡Sí, me encanta!"
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oui, j’adore"
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sì, mi piace molto"
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "はい、気に入っています"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "네, 아주 좋아요"
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sim, estou adorando"
+          }
+        }
+      }
+    },
     "You can hide up to %lld apps. Remove a few and try again." : {
       "extractionState" : "stale",
       "localizations" : {
@@ -41110,6 +41981,98 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Seu disfarce de %1$@ continua ativo. Fotos de invasão, o cofre de disfarce e o backup criptografado foram interrompidos, e seu cofre volta a ter limite de %2$lld itens."
+          }
+        }
+      }
+    },
+    "Your %@ vanish from your Home Screen, App Library and search. Only VaultBox brings them back." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine %@ verschwinden vom Home-Bildschirm, aus der App-Mediathek und der Suche. Nur VaultBox holt sie zurück."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tus %@ desaparecen de la pantalla de inicio, la biblioteca de apps y la búsqueda. Solo VaultBox las trae de vuelta."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Vos %@ disparaissent de l’écran d’accueil, de la bibliothèque d’apps et de la recherche. Seul VaultBox les fait revenir."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Le tue %@ spariscono dalla schermata Home, dalla Libreria app e dalla ricerca. Solo VaultBox le fa ricomparire."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@がホーム画面、Appライブラリ、検索から消えます。元に戻せるのはVaultBoxだけです。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@이(가) 홈 화면, 앱 보관함, 검색에서 사라집니다. VaultBox에서만 다시 표시할 수 있습니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Seus %@ somem da Tela de Início, da Biblioteca de Apps e da busca. Só o VaultBox traz de volta."
+          }
+        }
+      }
+    },
+    "Your answer helps us decide what to improve next." : {
+      "localizations" : {
+        "de" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deine Antwort hilft uns zu entscheiden, was wir als Nächstes verbessern."
+          }
+        },
+        "es-MX" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tu respuesta nos ayuda a decidir qué mejorar a continuación."
+          }
+        },
+        "fr" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Votre réponse nous aide à choisir ce que nous améliorerons ensuite."
+          }
+        },
+        "it" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "La tua risposta ci aiuta a decidere cosa migliorare."
+          }
+        },
+        "ja" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "いただいた回答は、次に改善する点を決める参考にします。"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "답변은 다음에 무엇을 개선할지 정하는 데 도움이 됩니다."
+          }
+        },
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sua resposta nos ajuda a decidir o que melhorar a seguir."
           }
         }
       }

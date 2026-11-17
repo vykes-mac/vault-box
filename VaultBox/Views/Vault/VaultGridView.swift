@@ -120,6 +120,7 @@ struct VaultGridView: View {
     @Environment(PurchaseService.self) private var purchaseService
     @Environment(HideAppsService.self) private var hideAppsService
     @Environment(AnalyticsService.self) private var analytics
+    @Environment(RatingPromptService.self) private var ratingPrompt: RatingPromptService?
 
     private let columns = Array(
         repeating: GridItem(.flexible(), spacing: Constants.vaultGridSpacing),
@@ -277,6 +278,12 @@ struct VaultGridView: View {
                 }
                 .onChange(of: showsActivationChecklist) { _, _ in
                     recordActivationViewIfNeeded()
+                }
+                .onChange(of: activationChecklist.isFullyComplete) { wasComplete, isComplete in
+                    // Finishing the last setup step is a win worth asking about.
+                    if !wasComplete, isComplete {
+                        ratingPrompt?.registerPositiveMoment(.activationCompleted)
+                    }
                 }
                 .sheet(isPresented: $showHideAppsSetup) {
                     NavigationStack {

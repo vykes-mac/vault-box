@@ -6,6 +6,9 @@ import SwiftUI
 /// Ordered funnel. The three question steps sit between the emotional hook and the
 /// trust/authority payoff on purpose: commitment is cheapest to collect right after
 /// the problem lands and before we ask for anything real (a PIN, then money).
+///
+/// Raw values are analytics step indexes, so new steps go at the end of the enum and
+/// their place in the funnel comes from ``flow(hideAppsEnabled:)``.
 enum OnboardingStep: Int, CaseIterable, Equatable {
     case hook
     case proof
@@ -15,9 +18,39 @@ enum OnboardingStep: Int, CaseIterable, Equatable {
     case trust
     case building
     case plan
+    /// Which apps they'd keep off their Home Screen. Primes Hide Apps; skipped in builds
+    /// without it.
+    case apps
 
-    var next: OnboardingStep? { OnboardingStep(rawValue: rawValue + 1) }
-    var previous: OnboardingStep? { OnboardingStep(rawValue: rawValue - 1) }
+    /// The funnel in order. The apps question follows "who are you keeping it from",
+    /// while that person is still in mind, and leaves the sharpest question for last.
+    static func flow(hideAppsEnabled: Bool = HideAppsAvailability.isEnabled) -> [OnboardingStep] {
+        let order: [OnboardingStep] = [.hook, .proof, .targets, .risks, .apps, .history, .trust, .building, .plan]
+        return hideAppsEnabled ? order : order.filter { $0 != .apps }
+    }
+
+    var next: OnboardingStep? { next(hideAppsEnabled: HideAppsAvailability.isEnabled) }
+    var previous: OnboardingStep? { previous(hideAppsEnabled: HideAppsAvailability.isEnabled) }
+
+    func next(hideAppsEnabled: Bool) -> OnboardingStep? {
+        let flow = Self.flow(hideAppsEnabled: hideAppsEnabled)
+        guard let index = flow.firstIndex(of: self), index + 1 < flow.count else { return nil }
+        return flow[index + 1]
+    }
+
+    func previous(hideAppsEnabled: Bool) -> OnboardingStep? {
+        let flow = Self.flow(hideAppsEnabled: hideAppsEnabled)
+        guard let index = flow.firstIndex(of: self), index > 0 else { return nil }
+        return flow[index - 1]
+    }
+
+    /// "Question 2 of 4", or nil for steps that aren't questions.
+    func questionEyebrow(hideAppsEnabled: Bool = HideAppsAvailability.isEnabled) -> String? {
+        let questions = Self.flow(hideAppsEnabled: hideAppsEnabled)
+            .filter { [.targets, .risks, .apps, .history].contains($0) }
+        guard let index = questions.firstIndex(of: self) else { return nil }
+        return String(localized: "Question \(index + 1) of \(questions.count)")
+    }
 
     /// Steps the user can walk back into. The build animation is not one of them.
     var allowsBack: Bool {
@@ -29,8 +62,12 @@ enum OnboardingStep: Int, CaseIterable, Equatable {
 
     /// Fraction of the funnel complete. Never reaches 1.0 — leaving the bar visibly
     /// short of the end is what makes finishing feel unfinished (Zeigarnik).
-    var progress: Double {
-        Double(rawValue + 1) / Double(OnboardingStep.allCases.count + 1)
+    var progress: Double { progress(hideAppsEnabled: HideAppsAvailability.isEnabled) }
+
+    func progress(hideAppsEnabled: Bool) -> Double {
+        let flow = Self.flow(hideAppsEnabled: hideAppsEnabled)
+        let index = flow.firstIndex(of: self) ?? 0
+        return Double(index + 1) / Double(flow.count + 1)
     }
 }
 
@@ -130,6 +167,8 @@ struct OnboardingView: View {
             OnboardingTargetsStep(selection: $answers.targets)
         case .risks:
             OnboardingRisksStep(selection: $answers.risks)
+        case .apps:
+            OnboardingAppsStep(selection: $answers.appKinds)
         case .history:
             OnboardingHistoryStep(selection: $answers.snoopingHistory)
         case .trust:
@@ -192,7 +231,7 @@ struct OnboardingView: View {
     private var footnote: String {
         switch step {
         case .hook: String(localized: "Takes about 60 seconds")
-        case .targets, .risks: String(localized: "Select all that apply")
+        case .targets, .risks, .apps: String(localized: "Select all that apply")
         case .plan: String(localized: "Your PIN never leaves this device")
         default: ""
         }
@@ -204,6 +243,7 @@ struct OnboardingView: View {
         switch step {
         case .targets: !answers.targets.isEmpty
         case .risks: !answers.risks.isEmpty
+        case .apps: !answers.appKinds.isEmpty
         case .history: answers.snoopingHistory != nil
         default: true
         }
@@ -267,6 +307,7 @@ struct OnboardingView: View {
         switch step {
         case .targets: count = answers.targets.count
         case .risks: count = answers.risks.count
+        case .apps: count = answers.privateAppKinds.count
         case .history: count = answers.snoopingHistory == nil ? 0 : 1
         default: return
         }

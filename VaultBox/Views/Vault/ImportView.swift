@@ -1,6 +1,5 @@
 import SwiftUI
 import PhotosUI
-import StoreKit
 import SwiftData
 import UIKit
 import UniformTypeIdentifiers
@@ -15,6 +14,7 @@ struct ImportView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(\.openURL) private var openURL
+    @Environment(RatingPromptService.self) private var ratingPrompt: RatingPromptService?
 
     @State private var selectedItems: [PhotosPickerItem] = []
     @State private var showPicker = true
@@ -31,6 +31,9 @@ struct ImportView: View {
     )
     @State private var pendingDeletePromptAfterError = false
     @State private var showPaywall = false
+    /// Set when every selected item made it in. Reported as a positive moment once this
+    /// screen has gone, so the rating question never stacks on top of the import flow.
+    @State private var didImportCleanly = false
 
     private var deletePromptTitle: String {
         if pendingAssetIdentifiers.count == 1 {
@@ -121,6 +124,11 @@ struct ImportView: View {
         }
         .fullScreenCover(isPresented: $showPaywall) {
             VaultBoxPaywallView()
+        }
+        .onDisappear {
+            if didImportCleanly {
+                ratingPrompt?.registerPositiveMoment(.importCompleted)
+            }
         }
     }
 
@@ -237,6 +245,9 @@ struct ImportView: View {
 
             isImporting = false
             incrementImportCount(by: importedItems.count)
+            didImportCleanly = !importedItems.isEmpty
+                && importedItems.count == selectedItems.count
+                && !hitFreeLimit
 
             // Queue vision analysis in background (does not block UI)
             if !importedItems.isEmpty {
@@ -295,15 +306,8 @@ struct ImportView: View {
         guard let settings = try? modelContext.fetch(descriptor).first else { return }
         settings.importCount += count
         try? modelContext.save()
-
-        if settings.importCount >= Constants.ratePromptImportThreshold {
-            // Only prompt once
-            if settings.importCount - count < Constants.ratePromptImportThreshold {
-                if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
-                    SKStoreReviewController.requestReview(in: scene)
-                }
-            }
-        }
+        // Whether to ask for a rating is decided by RatingPromptPolicy once this screen
+        // closes; `importCount` is one of its inputs.
     }
 }
 

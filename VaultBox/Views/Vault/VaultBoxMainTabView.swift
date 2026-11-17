@@ -23,6 +23,9 @@ struct VaultBoxMainTabView: View {
     @Binding var selection: MainTab
     @Binding var showImporter: Bool
 
+    /// Rating pre-prompt. Trigger sites inside the vault reach it through the environment.
+    @State private var ratingPrompt = RatingPromptService()
+
     var body: some View {
         TabView(selection: $selection) {
             VaultGridView(vaultService: vaultService, isDecoyMode: authService.isDecoyMode)
@@ -90,6 +93,8 @@ struct VaultBoxMainTabView: View {
                 onDismiss: { showImporter = false }
             )
         }
+        .ratingPromptHost(ratingPrompt, authService: authService)
+        .environment(ratingPrompt)
     }
 }
 

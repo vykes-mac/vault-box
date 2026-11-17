@@ -145,7 +145,7 @@ struct OnboardingPlanStep: View {
                         OnboardingFactRow(
                             icon: "eye.slash.fill",
                             title: String(localized: "Hidden apps"),
-                            detail: String(localized: "Pick any app, like dating or chat apps, and it vanishes from your Home Screen. Only VaultBox brings it back.")
+                            detail: answers.hiddenAppsDetail
                         )
                     }
 

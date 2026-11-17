@@ -53,9 +53,49 @@ struct OnboardingAnswersTests {
         answers.targets = [ProtectionTarget.videos.rawValue]
         answers.risks = [ExposureRisk.partner.rawValue]
         answers.snoopingHistory = SnoopingHistory.notYet.rawValue
+        answers.appKinds = [PrivateAppKind.dating.rawValue]
 
         OnboardingAnswersStore.save(answers, to: defaults)
         #expect(OnboardingAnswersStore.load(from: defaults) == answers)
+    }
+
+    @Test("Answers saved before the apps question still load")
+    func legacyAnswersDecode() throws {
+        let json = #"{"targets":["photos"],"risks":["partner"],"snoopingHistory":"yes"}"#
+        let answers = try JSONDecoder().decode(OnboardingAnswers.self, from: Data(json.utf8))
+        #expect(answers.targets == ["photos"])
+        #expect(answers.snoopingHistory == "yes")
+        #expect(answers.appKinds.isEmpty)
+    }
+
+    @Test("None for now is exclusive with the app kinds")
+    func noneIsExclusive() {
+        var selection = PrivateAppKind.toggling(.dating, in: [])
+        selection = PrivateAppKind.toggling(.chat, in: selection)
+        #expect(selection == ["dating", "chat"])
+
+        selection = PrivateAppKind.toggling(.none, in: selection)
+        #expect(selection == ["none"])
+
+        selection = PrivateAppKind.toggling(.games, in: selection)
+        #expect(selection == ["games"])
+
+        selection = PrivateAppKind.toggling(.games, in: selection)
+        #expect(selection.isEmpty)
+    }
+
+    @Test("The plan names the apps they said they'd hide")
+    func hiddenAppsDetailNamesKinds() {
+        var answers = OnboardingAnswers()
+        let generic = answers.hiddenAppsDetail
+
+        answers.appKinds = [PrivateAppKind.none.rawValue]
+        #expect(answers.hiddenAppsDetail == generic)
+        #expect(answers.privateAppKinds.isEmpty)
+
+        answers.appKinds = [PrivateAppKind.chat.rawValue, PrivateAppKind.dating.rawValue]
+        #expect(answers.privateAppKinds == [.dating, .chat])
+        #expect(answers.hiddenAppsDetail.contains("dating apps and chat apps"))
     }
 
     @Test("Loading with nothing saved yields empty answers")
@@ -79,6 +119,37 @@ struct OnboardingStepTests {
             #expect(step.progress > 0)
             #expect(step.progress < 1)
         }
+    }
+
+    @Test("The apps question sits after risks only when Hide Apps is in the build")
+    func appsQuestionPlacement() {
+        #expect(OnboardingStep.risks.next(hideAppsEnabled: true) == .apps)
+        #expect(OnboardingStep.apps.next(hideAppsEnabled: true) == .history)
+        #expect(OnboardingStep.history.previous(hideAppsEnabled: true) == .apps)
+        #expect(OnboardingStep.risks.next(hideAppsEnabled: false) == .history)
+        #expect(!OnboardingStep.flow(hideAppsEnabled: false).contains(.apps))
+        #expect(OnboardingStep.flow(hideAppsEnabled: true).last == .plan)
+
+        for enabled in [true, false] {
+            let progress = OnboardingStep.flow(hideAppsEnabled: enabled).map { $0.progress(hideAppsEnabled: enabled) }
+            #expect(progress == progress.sorted())
+            #expect(progress.allSatisfy { $0 > 0 && $0 < 1 })
+        }
+    }
+
+    @Test("Question numbers count the apps question only when it is shown")
+    func questionNumbering() {
+        #expect(OnboardingStep.apps.questionEyebrow(hideAppsEnabled: true) == "Question 3 of 4")
+        #expect(OnboardingStep.history.questionEyebrow(hideAppsEnabled: true) == "Question 4 of 4")
+        #expect(OnboardingStep.history.questionEyebrow(hideAppsEnabled: false) == "Question 3 of 3")
+        #expect(OnboardingStep.trust.questionEyebrow(hideAppsEnabled: true) == nil)
+    }
+
+    @Test("Existing step indexes don't move, so analytics history stays comparable")
+    func stableRawValues() {
+        #expect(OnboardingStep.history.rawValue == 4)
+        #expect(OnboardingStep.plan.rawValue == 7)
+        #expect(OnboardingStep.apps.analyticsName == "question_apps")
     }
 
     @Test("Back is blocked on the opener and during the build animation")

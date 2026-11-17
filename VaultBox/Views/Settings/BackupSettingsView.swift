@@ -14,6 +14,7 @@ struct BackupSettingsView: View {
 
     @Environment(\.modelContext) private var modelContext
     @Environment(PurchaseService.self) private var purchaseService
+    @Environment(RatingPromptService.self) private var ratingPrompt: RatingPromptService?
 
     @Query private var settingsQuery: [AppSettings]
 
@@ -497,6 +498,7 @@ struct BackupSettingsView: View {
                     }
                 }
                 syncStatusText = String(localized: "Up to date")
+                ratingPrompt?.registerPositiveMoment(.backupCompleted)
             } catch let error as CloudError where error == .storageFull {
                 errorMessage = [error.errorDescription, error.recoverySuggestion]
                     .compactMap { $0 }
