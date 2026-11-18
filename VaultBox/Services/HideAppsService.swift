@@ -217,10 +217,6 @@ final class HideAppsService {
         self.defaults = defaults ?? .standard
         self.stateFile = stateFile
         guard isAvailable else { return }
-        #if DEBUG
-        // The pre-release test screen used its own store. Never leave its blocks behind.
-        ManagedSettingsStore(named: ManagedSettingsStore.Name("hideAppsLab")).clearAllSettings()
-        #endif
         // The file first: the extension may have updated it while the phone was locked.
         state = stateFile.flatMap(HideAppsStore.load(fromFile:))
             ?? HideAppsStore.load(from: self.defaults)
