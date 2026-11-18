@@ -1265,7 +1265,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxHideAppsMonitor/VaultBoxHideAppsMonitor.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxHideAppsMonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1304,7 +1304,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				HIDE_APPS_ENABLED = YES;
 				INFOPLIST_FILE = VaultBox/Info.plist;
@@ -1451,7 +1451,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxShareExtension/VaultBoxShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1490,7 +1490,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBox/VaultBox.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				HIDE_APPS_ENABLED = YES;
 				INFOPLIST_FILE = VaultBox/Info.plist;
@@ -1516,7 +1516,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxHideAppsMonitor/VaultBoxHideAppsMonitor.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxHideAppsMonitor/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1575,7 +1575,7 @@
 				CODE_SIGN_ENTITLEMENTS = VaultBoxShareExtension/VaultBoxShareExtension.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = 4A7H788X5U;
 				INFOPLIST_FILE = VaultBoxShareExtension/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
